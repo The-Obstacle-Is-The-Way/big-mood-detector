@@ -261,7 +261,7 @@ class ActivityAggregator:
         coefficient_of_variation = std_dev / mean_intensity
 
         # Scale to 0-1 range (CV > 1.5 maps to 1)
-        return min(coefficient_of_variation / 1.5, 1.0)
+        return float(min(coefficient_of_variation / 1.5, 1.0))
 
     def _calculate_activity_hours(
         self, steps_records: list[ActivityRecord]
