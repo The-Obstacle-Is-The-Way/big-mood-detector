@@ -144,3 +144,4 @@ class HeartRateRecord:
     def is_same_type(self, other: "HeartRateRecord") -> bool:
         """Check if two records are of the same metric type."""
         return self.metric_type == other.metric_type
+

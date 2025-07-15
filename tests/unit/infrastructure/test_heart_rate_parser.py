@@ -255,3 +255,4 @@ class TestHeartRateParser:
         assert len(result) == 1
         assert result[0]["value"] == "120"
         assert result[0].get("motionContext") == "active"
+

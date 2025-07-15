@@ -311,3 +311,4 @@ class TestHeartRateRecord:
         # ASSERT
         assert hr1.is_same_type(hr2)
         assert not hr1.is_same_type(hrv)
+

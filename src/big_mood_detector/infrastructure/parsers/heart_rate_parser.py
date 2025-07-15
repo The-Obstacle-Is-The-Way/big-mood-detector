@@ -132,3 +132,4 @@ class HeartRateParser:
         """Parse Apple Health date format."""
         # Apple Health format: "2024-01-01 00:00:00 -0800"
         return datetime.strptime(date_string[:19], "%Y-%m-%d %H:%M:%S")
+
