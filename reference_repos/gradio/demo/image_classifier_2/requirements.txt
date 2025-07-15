@@ -1,0 +1,4 @@
+pillow
+torch
+torchvision
+requests

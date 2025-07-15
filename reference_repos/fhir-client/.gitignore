@@ -1,0 +1,18 @@
+*.pyc
+__pycache__
+session_data
+/build/
+/dist/
+/*.egg-info/
+
+# docs
+/docs
+
+# virtualenv
+/env
+/env2
+
+# IDE files
+*.sublime-*
+/.idea/
+.DS_Store

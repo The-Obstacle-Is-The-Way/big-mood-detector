@@ -1,0 +1,78 @@
+name: "prepare"
+description: "Prepare workflow"
+
+inputs:
+  token:
+    description: "GitHub token"
+  filter:
+    description: "Which filter to use"
+
+outputs:
+  should_run:
+    description: "Whether to run the workflow"
+    value: ${{ steps.pr.outputs.should_run }}
+  pr_number:
+    description: "PR number"
+    value: ${{ steps.pr.outputs.pr_number }}
+  sha:
+    description: "SHA of the HEAD commit of the PR"
+    value: ${{ steps.pr.outputs.sha }}
+  source_repo:
+    description: "Source repo"
+    value: ${{ steps.pr.outputs.source_repo }}
+  source_branch:
+    description: "Source branch"
+    value: ${{ steps.pr.outputs.source_branch }}
+  labels:
+    description: "Labels on the PR"
+    value: ${{ steps.pr.outputs.labels }}
+  run_id:
+    description: "Run ID"
+    value: ${{ steps.pr.outputs.run_id }}
+  gradio_version:
+    description: "Gradio version"
+    value: ${{ steps.pr.outputs.gradio_version }}
+
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/checkout@v4
+    - uses: gradio-app/github/actions/filter-paths@main
+      id: changes
+      with:
+        token: ${{ inputs.token }}
+        filter: ${{ inputs.filter }}
+    - name: get gradio version
+      id: gradio_version
+      shell: bash
+      run: |
+        GRADIO_VERSION=$(curl -s https://pypi.org/pypi/gradio/json | grep -o '"version":"[^"]*"' | cut -d'"' -f4 | head -n 1)
+        echo "gradio_version=$GRADIO_VERSION" >> $GITHUB_OUTPUT
+    - name: convert to JSON
+      uses: gradio-app/github/actions/input-to-json@main
+      with:
+        path: output.json
+        sha: ${{ github.event.pull_request.head.sha || github.sha }}
+        source_repo: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
+        source_branch: ${{ github.event.pull_request.head.ref || github.ref }}
+        pr_number: ${{ github.event.pull_request.number || 'false'}}
+        should_run: ${{ steps.changes.outputs.match }}
+        labels: "[${{ join(github.event.pull_request.labels.*.name, ', ') }}]"
+        run_id: ${{ github.run_id }}
+        gradio_version: ${{ steps.gradio_version.outputs.gradio_version }}
+    - name: cat json
+      run: cat output.json
+      shell: bash
+    - name: upload JSON
+      uses: actions/upload-artifact@v4
+      with:
+        name: changes
+        path: output.json
+    - name: set outputs
+      id: pr
+      uses: gradio-app/github/actions/json-to-output@main
+      with:
+        path: output.json
+    - name: echo outputs
+      run: echo "${{ toJson(steps.pr.outputs) }}"
+      shell: bash

@@ -1,0 +1,5 @@
+numpy
+matplotlib
+bokeh
+plotly
+altair

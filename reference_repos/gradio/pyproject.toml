@@ -1,0 +1,190 @@
+[build-system]
+requires = [
+  "hatchling",
+  "hatch-requirements-txt",
+  "hatch-fancy-pypi-readme>=22.5.0",
+]
+build-backend = "hatchling.build"
+
+[project]
+name = "gradio"
+dynamic = ["version", "dependencies", "optional-dependencies", "readme"]
+description = "Python library for easily interacting with trained machine learning models"
+license = "Apache-2.0"
+requires-python = ">=3.10"
+authors = [
+  { name = "Abubakar Abid", email = "gradio-team@huggingface.co" },
+  { name = "Ali Abid", email = "gradio-team@huggingface.co" },
+  { name = "Ali Abdalla", email = "gradio-team@huggingface.co" },
+  { name = "Dawood Khan", email = "gradio-team@huggingface.co" },
+  { name = "Ahsen Khaliq", email = "gradio-team@huggingface.co" },
+  { name = "Pete Allen", email = "gradio-team@huggingface.co" },
+  { name = "Ömer Faruk Özdemir", email = "gradio-team@huggingface.co" },
+  { name = "Freddy A Boulton", email = "gradio-team@huggingface.co" },
+  { name = "Hannah Blair", email = "gradio-team@huggingface.co" },
+]
+keywords = ["machine learning", "reproducibility", "visualization"]
+
+classifiers = [
+  'Development Status :: 5 - Production/Stable',
+  'Operating System :: OS Independent',
+  'Programming Language :: Python :: 3',
+  'Programming Language :: Python :: 3 :: Only',
+  'Programming Language :: Python :: 3.10',
+  'Programming Language :: Python :: 3.11',
+  'Programming Language :: Python :: 3.12',
+  'Programming Language :: Python :: 3.13',
+  'Topic :: Scientific/Engineering',
+  'Topic :: Scientific/Engineering :: Artificial Intelligence',
+  'Topic :: Scientific/Engineering :: Visualization',
+]
+
+[project.scripts]
+gradio = "gradio.cli:cli"
+upload_theme = "gradio.themes.upload_theme:main"
+
+[project.urls]
+Homepage = "https://github.com/gradio-app/gradio"
+
+[tool.hatch.version]
+path = "gradio/package.json"
+pattern = ".*\"version\":\\s*\"(?P<version>[^\"]+)\""
+
+[tool.hatch.metadata.hooks.requirements_txt]
+filename = "requirements.txt"
+
+[tool.hatch.metadata.hooks.requirements_txt.optional-dependencies]
+oauth = ["requirements-oauth.txt"]
+mcp = ["requirements-mcp.txt"]
+
+[tool.hatch.metadata.hooks.fancy-pypi-readme]
+content-type = "text/markdown"
+fragments = [{ path = "README.md" }]
+
+[[tool.hatch.metadata.hooks.fancy-pypi-readme.substitutions]]
+pattern = "(website/homepage|readme_files)/"
+replacement = 'https://raw.githubusercontent.com/gradio-app/gradio/main/\g<1>/'
+
+[[tool.hatch.metadata.hooks.fancy-pypi-readme.substitutions]]
+pattern = 'demo/([\S]*.gif)'
+replacement = 'https://raw.githubusercontent.com/gradio-app/gradio/main/demo/\g<1>'
+
+[tool.hatch.build]
+artifacts = [
+  "/gradio/templates",
+  "/gradio/_frontend_code",
+  "*.pyi",
+  "/gradio/node",
+  "/gradio/py.typed",
+]
+
+[tool.hatch.build.targets.lite]
+artifacts = ["!gradio/templates", "!*.pyi", "!/gradio/test_data", "!/gradio/_frontend_code", "!/gradio/node"]
+directory = "dist-lite"
+dependencies = ["lite-builder @ {root:uri}/../.config/lite-builder"]
+
+[tool.hatch.build.targets.lite.hooks.custom]
+path = ".config/pycompile-lite-wheel.py"
+
+[tool.hatch.build.targets.wheel.hooks.custom]
+path = ".config/copy_frontend.py"
+
+[tool.hatch.build.targets.sdist]
+include = [
+  "/gradio",
+  "/test",
+  "/README.md",
+  "/requirements.txt",
+  "/requirements-oauth.txt",
+  "/.config/copy_frontend.py",
+  "/js",
+  "/client/js",
+]
+
+[tool.pyright]
+include = [
+  "gradio/**/*.py",
+  "demo/**/*.py",
+  "test/**/*.py",
+]
+exclude = [
+  "gradio/themes/",
+  "gradio/_frontend_code/",
+  "gradio/components/*_plot.py",
+  "gradio/node/*.py",
+  "gradio/_frontend_code/*.py",
+]
+stubPath = "gradio/stubs"
+extraPaths = ["gradio/stubs"]
+reportMissingImports = false
+
+[tool.ruff]
+exclude = ["gradio/node/*.py", ".venv/*", "gradio/_frontend_code/*.py"]
+
+[tool.ruff.lint]
+extend-select = [
+  "ARG",
+  "B",
+  "C",
+  "E",
+  "F",
+  "I",
+  "N",
+  "PL",
+  "S101",
+  "SIM",
+  "UP",
+  "W",
+]
+ignore = [
+  "B008",    # function call in argument defaults
+  "B017",    # pytest.raises considered evil
+  "B023",    # function definition in loop (TODO: un-ignore this)
+  "B028",    # explicit stacklevel for warnings
+  "B905",    # zip without explicit `strict` argument
+  "C901",    # function is too complex (TODO: un-ignore this)
+  "E501",    # from scripts/lint_backend.sh
+  "PLR091",  # complexity rules
+  "PLR2004", # magic numbers
+  "PLW2901", # `for` loop variable overwritten by assignment target
+  "SIM105",  # contextlib.suppress (has a performance cost)
+  "SIM115",  # contextlib.suppress (has a performance cost)
+  "SIM117",  # multiple nested with blocks (doesn't look good with gr.Row etc)
+  "UP006",   # use `list` instead of `List` for type annotations (fails for 3.8)
+  "UP007",   # use X | Y for type annotations (TODO: can be enabled once Pydantic plays nice with them)
+  "UP038",   # uses of isinstance and issubclass that take a tuple of types for comparison.
+]
+
+[tool.ruff.lint.per-file-ignores]
+"demo/*" = [
+  "ARG",
+  "E402", # Demos may have imports not at the top
+  "E741", # Demos may have ambiguous variable names
+  "F405", # Demos may use star imports
+  "I",    # Don't care about import order
+]
+"gradio/__init__.py" = [
+  "F401", # "Imported but unused" (TODO: it would be better to be explicit and use __all__)
+]
+"gradio/routes.py" = [
+  "UP006", # Pydantic on Python 3.7 requires old-style type annotations (TODO: drop when Python 3.7 is dropped)
+]
+"gradio/cli/commands/files/NoTemplateComponent.py" = ["ALL"]
+"client/python/gradio_client/serializing.py" = [
+  "ARG",  # contains backward compatibility code, so args need to be named as such
+]
+"client/python/test/*" = [
+  "ARG",
+  "S101", # tests may use assertions
+]
+"test/*" = [
+  "ARG",
+  "S101", # tests may use assertions
+]
+"client/python/test/test_client.py" = [
+  "PLW0603" # using global to keep track of server progress
+]
+
+[tool.pytest.ini_options]
+GRADIO_ANALYTICS_ENABLED = "False"
+filterwarnings = ["ignore::UserWarning:gradio.*:", "ignore::DeprecationWarning:gradio.*:"]

@@ -1,0 +1,54 @@
+name: "install frontend"
+description: "Install frontend deps"
+
+inputs:
+  skip_build:
+    description: "Skip build"
+    default: "false"
+  build_lite:
+    description: "Build lite"
+    default: "false"
+
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/cache@v4
+      id: frontend-core-cache
+      if: inputs.skip_build == 'false'
+      with:
+        path: |
+          gradio/templates/**
+        key: gradio-lib-front-end-${{ hashFiles('js/**', 'client/js/**')}}
+    - uses: actions/cache@v4
+      id: frontend-lite-cache
+      if: inputs.build_lite == 'true'
+      with:
+        path: |
+          js/lite/dist/**
+        key: gradio-lib-front-end-lite-${{ hashFiles('js/**', 'client/js/**', 'gradio/**', 'requirements.txt')}}
+    - name: Install pnpm
+      uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2 # @v4
+      with:
+        version: 9.1.x
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 18
+        cache: pnpm
+        cache-dependency-path: pnpm-lock.yaml
+    - name: Install deps
+      shell: bash
+      run: pnpm i --frozen-lockfile --ignore-scripts
+    - name: Build Css
+      shell: bash
+      run: pnpm css
+    - name: Build frontend
+      if: inputs.skip_build == 'false' && steps.frontend-core-cache.outputs.cache-hit != 'true'
+      shell: bash
+      run: pnpm build
+    - name: Build frontend lite
+      if: inputs.build_lite == 'true' && steps.frontend-lite-cache.outputs.cache-hit != 'true'
+      shell: bash
+      run: |
+        . ${{ env.VENV_ACTIVATE }}
+        uv pip install -U build hatch pyodide-build packaging>=23.2  # packaging>=23.2 is needed to build Lite due to https://github.com/pypa/hatch/issues/1381
+        pnpm build:lite

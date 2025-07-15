@@ -1,0 +1,104 @@
+# Python build
+.eggs/
+gradio.egg-info
+dist/
+dist-lite/
+*.pyc
+__pycache__/
+*.py[cod]
+*$py.class
+build/
+!js/build/
+!js/build/dist/
+__tmp/*
+*.pyi
+!gradio/stubs/**/*.pyi
+.ipynb_checkpoints/
+.python-version
+=23.2
+
+# JS build
+gradio/templates/*
+gradio/node/*
+gradio/_frontend_code/*
+js/gradio-preview/test/*
+
+# Secrets
+.env
+
+# Gradio run artifacts
+*.db
+*.sqlite3
+gradio/launches.json
+gradio/hash_seed.txt
+.gradio/
+
+tmp.zip
+
+# Tests
+.coverage
+coverage.xml
+test.txt
+**/snapshots/**/*.png
+playwright-report/
+.hypothesis
+.lite-perf.json
+
+# Demos
+demo/tmp.zip
+demo/files/*.avi
+demo/files/*.mp4
+demo/all_demos/demos/*
+demo/all_demos/requirements.txt
+demo/*/config.json
+demo/annotatedimage_component/*.png
+demo/fake_diffusion_with_gif/*.gif
+demo/cancel_events/cancel_events_output_log.txt
+demo/unload_event_test/output_log.txt
+demo/stream_video_out/output_*.ts
+demo/stream_video_out/output_*.mp4
+demo/stream_audio_out/*.mp3
+#demo/image_editor_story/*.png
+
+# Etc
+.idea/*
+.DS_Store
+*.bak
+workspace.code-workspace
+*.h5
+
+# dev containers
+.pnpm-store/
+
+# log files
+.pnpm-debug.log
+
+# Local virtualenv for devs
+.venv*
+
+# FRP
+gradio/frpc_*
+.vercel
+
+# js
+node_modules
+public/build/
+test-results
+client/js/dist/*
+client/js/test.js
+.config/test.py
+.svelte-kit
+
+
+# storybook
+storybook-static
+build-storybook.log
+js/storybook/theme.css
+
+# playwright
+.config/playwright/.cache
+
+*.local.*
+.claude/
+CLAUDE.md
+.sonda/
