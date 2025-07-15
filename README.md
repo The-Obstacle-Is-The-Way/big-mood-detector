@@ -127,19 +127,63 @@ big-mood-detector/
 
 ### **Validated Accuracy Metrics**
 
-| **Condition** | **Model** | **Accuracy** | **Sensitivity** | **Specificity** | **AUC** |
-|---------------|-----------|--------------|-----------------|-----------------|---------|
-| **Depression** | XGBoost | - | - | - | **0.80** |
-| **Mania** | XGBoost | - | - | - | **0.98** |
-| **Hypomania** | XGBoost | - | - | - | **0.95** |
-| **Depression** | BiMM Forest | **80.1%** | **71.2%** | **85.6%** | **86.0%** |
-| **Mania** | BiMM Forest | **89.1%** | **80.0%** | **90.1%** | **85.2%** |
+| **Condition** | **Model** | **Dataset** | **Accuracy** | **Sensitivity** | **Specificity** | **AUC** |
+|---------------|-----------|-------------|--------------|-----------------|-----------------|---------|
+| **Depression** | XGBoost Sleep/Circadian | 168 patients, 44,787 days | - | - | - | **0.80** |
+| **Mania** | XGBoost Sleep/Circadian | 168 patients, 44,787 days | - | - | - | **0.98** |
+| **Hypomania** | XGBoost Sleep/Circadian | 168 patients, 44,787 days | - | - | - | **0.95** |
+| **Depression** | BiMM Forest Fitbit | 54 adults, 9 months | **80.1%** | **71.2%** | **85.6%** | **86.0%** |
+| **Mania** | BiMM Forest Fitbit | 54 adults, 9 months | **89.1%** | **80.0%** | **90.1%** | **85.2%** |
+| **Benzodiazepine Use** | PAT Transformer | 29,307 participants | - | - | - | **0.77** |
+| **SSRI Use** | PAT Transformer | 29,307 participants | - | - | - | **0.70** |
+| **Sleep Disorders** | PAT Transformer | 29,307 participants | - | - | - | **0.63** |
+| **Sleep Staging** | YASA Algorithm | 27,000+ hours PSG | **85.9%** | **87%+ (stages)** | **87%+ (stages)** | - |
+
+### **Study Populations & Methodology**
+
+#### **🏥 Seoul National University Study (Nature Digital Medicine)**
+- **Participants**: 168 mood disorder patients (57 MDD, 42 BD1, 69 BD2)
+- **Demographics**: Ages 18-35, 55% female, Korean population
+- **Follow-up**: 587 ± 374 days clinical, 267 days wearable data
+- **Episodes Tracked**: 175 depressive, 39 hypomanic, 21 manic episodes
+- **Key Innovation**: Mathematical circadian pacemaker modeling + 36 sleep features
+
+#### **🎓 Harvard Medical School Study (Bipolar Disorders)**
+- **Participants**: 54 adults with bipolar disorder
+- **Monitoring**: 9 months continuous Fitbit tracking + bi-weekly assessments
+- **Data Processing**: 4.3% imputation rate, minimal filtering (11 participants excluded)
+- **Key Innovation**: BiMM Forest algorithm for longitudinal data + consumer devices
+
+#### **🧠 Dartmouth PAT Study (Actigraphy Foundation Model)**
+- **Training Data**: 29,307 participants from NHANES national datasets
+- **Architecture**: Transformer with patch embeddings for long-range dependencies
+- **Performance**: State-of-the-art across multiple mental health prediction tasks
+- **Key Innovation**: First foundation model for wearable movement data
+
+#### **😴 UC Berkeley YASA Study (Sleep Staging)**
+- **Training Data**: 27,000+ hours polysomnography from 7 datasets
+- **Validation**: 85.9% accuracy matching human expert agreement
+- **Coverage**: Heterogeneous populations (ages 5-92, diverse ethnicities)
+- **Key Innovation**: Universal automated sleep staging across populations
 
 ### **Real-World Clinical Impact**
-- **Early Detection**: Predict episodes 1 day in advance
-- **Consumer Hardware**: Works with Apple Watch, Fitbit, smartphones
-- **Minimal Data**: Requires only sleep-wake patterns (widely available)
-- **Clinical Integration**: FHIR-compatible for EHR systems
+
+#### **🚨 Early Warning Capabilities**
+- **Prediction Window**: 1 day in advance for mood episodes
+- **Circadian Biomarker**: Phase delays → depression, advances → mania
+- **Risk Stratification**: Individual Z-score thresholds for personalized alerts
+
+#### **💻 Consumer Device Compatibility**  
+- **Apple HealthKit**: Native XML parsing → CSV → feature extraction
+- **Fitbit Integration**: Validated BiMM Forest algorithms
+- **Smartphone Data**: Sleep-wake patterns sufficient for prediction
+- **Research Grade**: Empatica E4 for multi-modal biomarker collection
+
+#### **🏥 Healthcare Integration**
+- **FHIR Standards**: Compatible with electronic health records
+- **Minimal Burden**: Passive data collection, no daily questionnaires
+- **Clinical Workflow**: Real-time monitoring → early intervention → episode prevention
+- **Privacy**: Local processing options, HIPAA-compliant design
 
 ---
 
