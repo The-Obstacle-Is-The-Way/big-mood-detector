@@ -7,8 +7,7 @@ Following Domain-Driven Design and Clean Architecture principles.
 
 from collections import defaultdict
 from dataclasses import dataclass
-from datetime import date, datetime, time
-from typing import Optional
+from datetime import date, time
 
 import numpy as np
 
@@ -32,12 +31,12 @@ class DailyActivitySummary:
     total_distance_km: float = 0.0
     flights_climbed: float = 0.0
     activity_sessions: int = 0
-    peak_activity_hour: Optional[int] = None
+    peak_activity_hour: int | None = None
     activity_variance: float = 0.0
     sedentary_hours: float = 0.0
     active_hours: float = 0.0
-    earliest_activity: Optional[time] = None
-    latest_activity: Optional[time] = None
+    earliest_activity: time | None = None
+    latest_activity: time | None = None
 
     @property
     def is_high_activity(self) -> bool:
@@ -186,25 +185,19 @@ class ActivityAggregator:
         if not records:
             return 0.0
 
-        # Sort by time
-        sorted_records = sorted(records, key=lambda r: r.start_date)
+        # Group by time periods to detect overlaps
+        # For overlapping periods, take the maximum value
+        time_periods = {}
 
-        # Simple approach: for overlapping periods, take max
-        # In production, would implement more sophisticated overlap resolution
-        total = 0.0
-        last_end = None
-
-        for record in sorted_records:
-            if last_end is None or record.start_date >= last_end:
-                # No overlap
-                total += record.value
-                last_end = record.end_date
+        for record in records:
+            period_key = (record.start_date, record.end_date)
+            if period_key not in time_periods:
+                time_periods[period_key] = record.value
             else:
-                # Overlap detected - for now, skip
-                # TODO: Implement proper overlap resolution
-                continue
+                # Take max value for overlapping period
+                time_periods[period_key] = max(time_periods[period_key], record.value)
 
-        return total
+        return sum(time_periods.values())
 
     def _sum_values(self, records: list[ActivityRecord]) -> float:
         """Sum values from records."""
@@ -212,12 +205,12 @@ class ActivityAggregator:
 
     def _find_peak_activity_hour(
         self, steps_records: list[ActivityRecord]
-    ) -> Optional[int]:
+    ) -> int | None:
         """Find hour with most steps."""
         if not steps_records:
             return None
 
-        hourly_steps = defaultdict(float)
+        hourly_steps: defaultdict[int, float] = defaultdict(float)
 
         for record in steps_records:
             # Distribute steps across hours
@@ -242,7 +235,9 @@ class ActivityAggregator:
         # Find peak hour
         return max(hourly_steps.items(), key=lambda x: x[1])[0]
 
-    def _calculate_activity_variance(self, steps_records: list[ActivityRecord]) -> float:
+    def _calculate_activity_variance(
+        self, steps_records: list[ActivityRecord]
+    ) -> float:
         """
         Calculate variance in activity pattern.
 
@@ -262,11 +257,11 @@ class ActivityAggregator:
         if mean_intensity == 0:
             return 0.0
 
-        std_dev = np.std(intensities)
+        std_dev = float(np.std(intensities))
         coefficient_of_variation = std_dev / mean_intensity
 
-        # Scale to 0-1 range (CV > 2 maps to 1)
-        return min(coefficient_of_variation / 2, 1.0)
+        # Scale to 0-1 range (CV > 1.5 maps to 1)
+        return min(coefficient_of_variation / 1.5, 1.0)
 
     def _calculate_activity_hours(
         self, steps_records: list[ActivityRecord]
@@ -294,12 +289,14 @@ class ActivityAggregator:
 
     def _find_activity_bounds(
         self, records: list[ActivityRecord]
-    ) -> tuple[Optional[time], Optional[time]]:
+    ) -> tuple[time | None, time | None]:
         """Find earliest and latest activity times."""
         if not records:
             return None, None
 
         earliest = min(r.start_date for r in records)
-        latest = max(r.end_date for r in records)
+        # Find the record with the latest start time
+        latest_record = max(records, key=lambda r: r.start_date)
+        latest = latest_record.start_date
 
         return earliest.time(), latest.time()

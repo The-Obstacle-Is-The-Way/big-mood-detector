@@ -5,7 +5,7 @@ Test-driven development for clinical activity aggregation.
 Following Uncle Bob's Clean Architecture principles.
 """
 
-from datetime import UTC, date, datetime, time, timedelta
+from datetime import UTC, date, datetime, time
 
 import pytest
 
@@ -225,7 +225,7 @@ class TestActivityAggregator:
         # ARRANGE - Highly variable activity
         day = datetime(2024, 1, 1, tzinfo=UTC)
         records = []
-        
+
         # Simulate erratic pattern: very high then very low activity
         for hour in [8, 10, 12, 14, 16, 18]:
             value = 5000.0 if hour % 4 == 0 else 100.0  # Alternating high/low
