@@ -55,10 +55,10 @@ class TestSleepParser:
         parser = SleepParser()
         single_record_xml = """<?xml version="1.0" encoding="UTF-8"?>
         <HealthData>
-            <Record type="HKCategoryTypeIdentifierSleepAnalysis" 
-                    sourceName="Apple Watch" 
-                    startDate="2024-01-01 23:30:00 -0800" 
-                    endDate="2024-01-02 07:30:00 -0800" 
+            <Record type="HKCategoryTypeIdentifierSleepAnalysis"
+                    sourceName="Apple Watch"
+                    startDate="2024-01-01 23:30:00 -0800"
+                    endDate="2024-01-02 07:30:00 -0800"
                     value="HKCategoryValueSleepAnalysisAsleep"/>
         </HealthData>"""
 
@@ -78,15 +78,15 @@ class TestSleepParser:
         parser = SleepParser()
         xml_data = """<?xml version="1.0" encoding="UTF-8"?>
         <HealthData>
-            <Record type="HKCategoryTypeIdentifierSleepAnalysis" 
-                    sourceName="Apple Watch" 
-                    startDate="2024-01-01 23:00:00 -0800" 
-                    endDate="2024-01-01 23:30:00 -0800" 
+            <Record type="HKCategoryTypeIdentifierSleepAnalysis"
+                    sourceName="Apple Watch"
+                    startDate="2024-01-01 23:00:00 -0800"
+                    endDate="2024-01-01 23:30:00 -0800"
                     value="HKCategoryValueSleepAnalysisInBed"/>
-            <Record type="HKCategoryTypeIdentifierSleepAnalysis" 
-                    sourceName="Apple Watch" 
-                    startDate="2024-01-01 23:30:00 -0800" 
-                    endDate="2024-01-02 07:00:00 -0800" 
+            <Record type="HKCategoryTypeIdentifierSleepAnalysis"
+                    sourceName="Apple Watch"
+                    startDate="2024-01-01 23:30:00 -0800"
+                    endDate="2024-01-02 07:00:00 -0800"
                     value="HKCategoryValueSleepAnalysisAsleep"/>
         </HealthData>"""
 
@@ -114,13 +114,13 @@ class TestSleepParser:
         parser = SleepParser()
         xml_data = """<?xml version="1.0" encoding="UTF-8"?>
         <HealthData>
-            <Record type="HKQuantityTypeIdentifierStepCount" 
-                    value="1000" 
+            <Record type="HKQuantityTypeIdentifierStepCount"
+                    value="1000"
                     startDate="2024-01-01 10:00:00 -0800"/>
-            <Record type="HKCategoryTypeIdentifierSleepAnalysis" 
-                    sourceName="Apple Watch" 
-                    startDate="2024-01-01 23:30:00 -0800" 
-                    endDate="2024-01-02 07:30:00 -0800" 
+            <Record type="HKCategoryTypeIdentifierSleepAnalysis"
+                    sourceName="Apple Watch"
+                    startDate="2024-01-01 23:30:00 -0800"
+                    endDate="2024-01-02 07:30:00 -0800"
                     value="HKCategoryValueSleepAnalysisAsleep"/>
         </HealthData>"""
 

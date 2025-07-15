@@ -77,7 +77,7 @@ format:
 	ruff check . --fix --select I
 
 type-check:
-	mypy big_mood_detector
+	mypy src/big_mood_detector
 
 # Combined quality check (CI/CD ready)
 quality: lint type-check test

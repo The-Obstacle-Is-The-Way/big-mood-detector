@@ -139,6 +139,8 @@ mood-detector = "big_mood_detector.cli:main"
 target-version = "py311"
 line-length = 88
 extend-exclude = ["reference_repos", "literature"]
+
+[tool.ruff.lint]
 select = [
     "E",  # pycodestyle errors
     "W",  # pycodestyle warnings
@@ -153,7 +155,7 @@ ignore = [
     "B008",  # do not perform function calls in argument defaults
 ]
 
-[tool.ruff.per-file-ignores]
+[tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]
 "tests/**/*" = ["B011", "B018"]
 

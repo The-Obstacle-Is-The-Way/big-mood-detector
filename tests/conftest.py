@@ -34,15 +34,15 @@ def sample_sleep_xml():
     """Sample Apple HealthKit XML data for sleep testing."""
     return """<?xml version="1.0" encoding="UTF-8"?>
 <HealthData>
-    <Record type="HKCategoryTypeIdentifierSleepAnalysis" 
-            sourceName="Apple Watch" 
-            startDate="2024-01-01 23:30:00 -0800" 
-            endDate="2024-01-02 07:30:00 -0800" 
+    <Record type="HKCategoryTypeIdentifierSleepAnalysis"
+            sourceName="Apple Watch"
+            startDate="2024-01-01 23:30:00 -0800"
+            endDate="2024-01-02 07:30:00 -0800"
             value="HKCategoryValueSleepAnalysisAsleep"/>
-    <Record type="HKCategoryTypeIdentifierSleepAnalysis" 
-            sourceName="Apple Watch" 
-            startDate="2024-01-02 23:00:00 -0800" 
-            endDate="2024-01-03 06:45:00 -0800" 
+    <Record type="HKCategoryTypeIdentifierSleepAnalysis"
+            sourceName="Apple Watch"
+            startDate="2024-01-02 23:00:00 -0800"
+            endDate="2024-01-03 06:45:00 -0800"
             value="HKCategoryValueSleepAnalysisInBed"/>
 </HealthData>"""
 
