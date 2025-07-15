@@ -1,0 +1,48 @@
+[tool.poetry]
+name = "ngboost"
+version = "0.5.6dev"
+description = "Library for probabilistic predictions via gradient boosting."
+authors = ["Stanford ML Group <avati@cs.stanford.edu>"]
+readme = "README.md"
+homepage = "https://github.com/stanfordmlgroup/ngboost"
+repository = "https://github.com/stanfordmlgroup/ngboost"
+documentation = "https://stanfordmlgroup.github.io/ngboost/intro"
+classifiers = [
+    "Operating System :: OS Independent"
+]
+license = "Apache License 2.0"
+
+[tool.poetry.dependencies]
+python = ">=3.9, <3.14"
+scikit-learn = "^1.6"
+numpy = [
+    {version = ">=1.21.2", python = ">=3.9,<3.13"},
+    {version = ">=2.1.0", python = ">=3.13"}
+]
+scipy = [
+    {version = ">=1.7.2", python = ">=3.9,<3.13"},
+    {version = ">=1.14.1", python = ">=3.13"}
+]
+tqdm = ">=4.3"
+lifelines = ">=0.25"
+
+[tool.poetry.dev-dependencies]
+pytest = "^6.1.2"
+black = "^22.8.0"
+pre-commit = "^2.0"
+isort = "^5.6.4"
+pylint = "^3.0.3"
+flake8 = "^7.0.0"
+
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.isort]
+multi_line_output = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+ensure_newline_before_comments = true
+line_length = 88

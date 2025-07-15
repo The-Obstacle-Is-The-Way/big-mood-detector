@@ -1,0 +1,6 @@
+# Add README and LICENSE :
+include README.rst
+include LICENSE
+
+# Add trained classifiers
+recursive-include yasa/classifiers/ *.joblib
