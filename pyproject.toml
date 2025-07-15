@@ -76,9 +76,18 @@ dev = [
     
     # Code Quality
     "ruff>=0.1.6",
-    "black>=23.11.0",
+    "black>=23.11.0", 
     "mypy>=1.7.0",
     "pre-commit>=3.6.0",
+    
+    # 🔥 Hot Reload & Development Experience (2025)
+    "arel>=0.3.0",         # Browser hot reload for HTML templates
+    "watchfiles>=0.21.0",  # High-performance file watching (Rust-based)
+    "jurigged>=0.5.0",     # Live code patching for functions
+    
+    # 🚀 Enhanced Development Tools
+    "rich>=13.7.0",        # Beautiful terminal output
+    "typer>=0.9.0",        # CLI framework
     
     # Documentation
     "mkdocs>=1.5.0",
@@ -97,6 +106,24 @@ monitoring = [
     "sentry-sdk[fastapi]>=1.38.0",
     "opentelemetry-api>=1.21.0",
     "opentelemetry-sdk>=1.21.0",
+]
+
+# 🤖 AI Agent Orchestration (2025) - Multi-agent mood analysis pipeline
+agents = [
+    # Multi-Agent Frameworks
+    "langgraph>=0.2.0",         # Graph-based agent workflows (OpenAI compatible)
+    "crewai>=0.70.0",          # Simple role-based agent teams
+    "pydantic-ai>=0.0.13",     # Type-safe, minimal agents (by Pydantic team)
+    "agno>=0.1.0",             # Production-ready agentic memory
+    
+    # Foundation & Orchestration
+    "langchain>=0.3.0",        # LLM framework foundation
+    "instructor>=1.6.0",       # Structured LLM outputs (1M+ downloads/month)
+    "litellm>=1.45.0",         # Universal LLM API (OpenAI, Anthropic, etc.)
+    
+    # Agent Tools & Memory
+    "chromadb>=0.5.0",         # Vector database for agent memory
+    "faiss-cpu>=1.7.0",       # Similarity search for clinical data
 ]
 
 [project.urls]
