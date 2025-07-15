@@ -83,7 +83,7 @@ type-check:
 quality: lint type-check test
 	@echo "✅ All quality checks passed!"
 
-# Development server targets
+# 🔥 Development server targets (2025 enhanced)
 run:
 	uvicorn big_mood_detector.main:app --reload --host 0.0.0.0 --port 8000
 
@@ -91,7 +91,16 @@ run-prod:
 	uvicorn big_mood_detector.main:app --host 0.0.0.0 --port 8000 --workers 4
 
 dev: 
-	uvicorn big_mood_detector.main:app --reload --host 0.0.0.0 --port 8000 --log-level debug
+	@echo "🚀 Starting with browser hot reload (HTML/CSS/JS)..."
+	uvicorn big_mood_detector.main:app --reload --host 0.0.0.0 --port 8000 --log-level debug --reload-include '*.html' --reload-include '*.css' --reload-include '*.js'
+
+dev-hot:
+	@echo "⚡ Starting with Jurigged live code patching..."
+	jurigged -v uvicorn big_mood_detector.main:app --reload --host 0.0.0.0 --port 8000
+
+dev-agents:
+	@echo "🤖 Starting with AI agent dependencies loaded..."
+	pip install -e ".[dev,agents]" && uvicorn big_mood_detector.main:app --reload --host 0.0.0.0 --port 8000
 
 # Database targets
 db-upgrade:
