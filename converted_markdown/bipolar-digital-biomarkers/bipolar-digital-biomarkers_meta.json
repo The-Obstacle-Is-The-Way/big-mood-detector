@@ -1,0 +1,1198 @@
+{
+  "table_of_contents": [
+    {
+      "title": "Identifying digital biomarkers of illness activity and\ntreatment response in bipolar disorder with a\nnovel wearable device (TIMEBASE): protocol for a\npragmatic observational clinical study",
+      "heading_level": null,
+      "page_id": 0,
+      "polygon": [
+        [
+          72.8994140625,
+          101.447021484375
+        ],
+        [
+          523.828125,
+          101.447021484375
+        ],
+        [
+          523.828125,
+          192.924072265625
+        ],
+        [
+          72.8994140625,
+          192.924072265625
+        ]
+      ]
+    },
+    {
+      "title": "Background",
+      "heading_level": null,
+      "page_id": 0,
+      "polygon": [
+        [
+          74.49449920654297,
+          280.59814453125
+        ],
+        [
+          120.6075210571289,
+          280.59814453125
+        ],
+        [
+          120.6075210571289,
+          290.87646484375
+        ],
+        [
+          74.49449920654297,
+          290.87646484375
+        ]
+      ]
+    },
+    {
+      "title": "Aims",
+      "heading_level": null,
+      "page_id": 0,
+      "polygon": [
+        [
+          74.49449920654297,
+          340.0068359375
+        ],
+        [
+          93.97425079345703,
+          340.0068359375
+        ],
+        [
+          93.97425079345703,
+          349.8740234375
+        ],
+        [
+          74.49449920654297,
+          349.8740234375
+        ]
+      ]
+    },
+    {
+      "title": "Method",
+      "heading_level": null,
+      "page_id": 0,
+      "polygon": [
+        [
+          73.226806640625,
+          399.82666015625
+        ],
+        [
+          104.73412322998047,
+          399.82666015625
+        ],
+        [
+          104.73412322998047,
+          409.0989074707031
+        ],
+        [
+          73.226806640625,
+          409.0989074707031
+        ]
+      ]
+    },
+    {
+      "title": "Results",
+      "heading_level": null,
+      "page_id": 0,
+      "polygon": [
+        [
+          303.529296875,
+          318.83349609375
+        ],
+        [
+          332.7200927734375,
+          318.83349609375
+        ],
+        [
+          332.7200927734375,
+          328.28955078125
+        ],
+        [
+          303.529296875,
+          328.28955078125
+        ]
+      ]
+    },
+    {
+      "title": "Conclusions",
+      "heading_level": null,
+      "page_id": 0,
+      "polygon": [
+        [
+          304.4964294433594,
+          349.66845703125
+        ],
+        [
+          351.0390625,
+          349.66845703125
+        ],
+        [
+          351.0390625,
+          358.71337890625
+        ],
+        [
+          304.4964294433594,
+          358.71337890625
+        ]
+      ]
+    },
+    {
+      "title": "Keywords",
+      "heading_level": null,
+      "page_id": 0,
+      "polygon": [
+        [
+          304.111328125,
+          440.3232421875
+        ],
+        [
+          343.31195068359375,
+          440.3232421875
+        ],
+        [
+          343.31195068359375,
+          449.3681640625
+        ],
+        [
+          304.111328125,
+          449.3681640625
+        ]
+      ]
+    },
+    {
+      "title": "Copyright and usage",
+      "heading_level": null,
+      "page_id": 0,
+      "polygon": [
+        [
+          304.4964294433594,
+          481.025390625
+        ],
+        [
+          384.23223876953125,
+          481.025390625
+        ],
+        [
+          384.23223876953125,
+          490.0703125
+        ],
+        [
+          304.4964294433594,
+          490.0703125
+        ]
+      ]
+    },
+    {
+      "title": "Method",
+      "heading_level": null,
+      "page_id": 1,
+      "polygon": [
+        [
+          151.7646484375,
+          701.4629974365234
+        ],
+        [
+          190.1787109375,
+          701.4629974365234
+        ],
+        [
+          190.1787109375,
+          711.6708984375
+        ],
+        [
+          151.7646484375,
+          711.6708984375
+        ]
+      ]
+    },
+    {
+      "title": "Study design and objectives",
+      "heading_level": null,
+      "page_id": 1,
+      "polygon": [
+        [
+          51.00048828125,
+          724.4804840087891
+        ],
+        [
+          174.74560546875,
+          724.4804840087891
+        ],
+        [
+          174.74560546875,
+          733.8720703125
+        ],
+        [
+          51.00048828125,
+          733.8720703125
+        ]
+      ]
+    },
+    {
+      "title": "Hypotheses",
+      "heading_level": null,
+      "page_id": 1,
+      "polygon": [
+        [
+          304.4974670410156,
+          566.541015625
+        ],
+        [
+          346.30859375,
+          566.541015625
+        ],
+        [
+          346.30859375,
+          575.6066284179688
+        ],
+        [
+          304.4974670410156,
+          575.6066284179688
+        ]
+      ]
+    },
+    {
+      "title": "Objectives",
+      "heading_level": null,
+      "page_id": 1,
+      "polygon": [
+        [
+          303.529296875,
+          648.2806243896484
+        ],
+        [
+          341.361328125,
+          648.2806243896484
+        ],
+        [
+          341.361328125,
+          656.5791015625
+        ],
+        [
+          303.529296875,
+          656.5791015625
+        ]
+      ]
+    },
+    {
+      "title": "Sample and study design",
+      "heading_level": null,
+      "page_id": 2,
+      "polygon": [
+        [
+          52.49760055541992,
+          606.4208984375
+        ],
+        [
+          161.76751708984375,
+          606.4208984375
+        ],
+        [
+          161.76751708984375,
+          615.8381042480469
+        ],
+        [
+          52.49760055541992,
+          615.8381042480469
+        ]
+      ]
+    },
+    {
+      "title": "Inclusion criteria",
+      "heading_level": null,
+      "page_id": 2,
+      "polygon": [
+        [
+          52.49760055541992,
+          702.6259765625
+        ],
+        [
+          109.0088882446289,
+          702.6259765625
+        ],
+        [
+          109.0088882446289,
+          711.6708984375
+        ],
+        [
+          52.49760055541992,
+          711.6708984375
+        ]
+      ]
+    },
+    {
+      "title": "Exclusion criteria for all groups",
+      "heading_level": null,
+      "page_id": 3,
+      "polygon": [
+        [
+          51.43701171875,
+          235.5791015625
+        ],
+        [
+          158.3818817138672,
+          235.5791015625
+        ],
+        [
+          158.3818817138672,
+          244.179931640625
+        ],
+        [
+          51.43701171875,
+          244.179931640625
+        ]
+      ]
+    },
+    {
+      "title": "Sample size",
+      "heading_level": null,
+      "page_id": 3,
+      "polygon": [
+        [
+          52.49760055541992,
+          362.82470703125
+        ],
+        [
+          93.63427734375,
+          362.82470703125
+        ],
+        [
+          93.63427734375,
+          371.228759765625
+        ],
+        [
+          52.49760055541992,
+          371.228759765625
+        ]
+      ]
+    },
+    {
+      "title": "Assessments",
+      "heading_level": null,
+      "page_id": 3,
+      "polygon": [
+        [
+          51.509765625,
+          733.4862518310547
+        ],
+        [
+          110.11589813232422,
+          733.4862518310547
+        ],
+        [
+          110.11589813232422,
+          742.9169921875
+        ],
+        [
+          51.509765625,
+          742.9169921875
+        ]
+      ]
+    },
+    {
+      "title": "Sociodemographic and clinical assessment",
+      "heading_level": null,
+      "page_id": 3,
+      "polygon": [
+        [
+          51.0732421875,
+          746.6171875
+        ],
+        [
+          200.80078125,
+          746.6171875
+        ],
+        [
+          200.80078125,
+          755.2664413452148
+        ],
+        [
+          51.0732421875,
+          755.2664413452148
+        ]
+      ]
+    },
+    {
+      "title": "Symptoms, severity and functional assessment",
+      "heading_level": null,
+      "page_id": 3,
+      "polygon": [
+        [
+          304.40234375,
+          135.571044921875
+        ],
+        [
+          466.1298828125,
+          135.571044921875
+        ],
+        [
+          466.1298828125,
+          144.627197265625
+        ],
+        [
+          304.40234375,
+          144.627197265625
+        ]
+      ]
+    },
+    {
+      "title": "Physical activity assessment",
+      "heading_level": null,
+      "page_id": 3,
+      "polygon": [
+        [
+          304.4974670410156,
+          350.6962890625
+        ],
+        [
+          403.056640625,
+          350.6962890625
+        ],
+        [
+          403.056640625,
+          359.2097473144531
+        ],
+        [
+          304.4974670410156,
+          359.2097473144531
+        ]
+      ]
+    },
+    {
+      "title": "Pharmacological treatments",
+      "heading_level": null,
+      "page_id": 3,
+      "polygon": [
+        [
+          304.111328125,
+          587.09765625
+        ],
+        [
+          401.892578125,
+          587.09765625
+        ],
+        [
+          401.892578125,
+          595.7325592041016
+        ],
+        [
+          304.111328125,
+          595.7325592041016
+        ]
+      ]
+    },
+    {
+      "title": "Other potential confounders",
+      "heading_level": null,
+      "page_id": 3,
+      "polygon": [
+        [
+          304.4974670410156,
+          746.6171875
+        ],
+        [
+          401.60986328125,
+          746.6171875
+        ],
+        [
+          401.60986328125,
+          755.2664413452148
+        ],
+        [
+          304.4974670410156,
+          755.2664413452148
+        ]
+      ]
+    },
+    {
+      "title": "Registration of physiological data",
+      "heading_level": null,
+      "page_id": 4,
+      "polygon": [
+        [
+          52.091796875,
+          78.2694091796875
+        ],
+        [
+          197.82151794433594,
+          78.2694091796875
+        ],
+        [
+          197.82151794433594,
+          87.74383544921875
+        ],
+        [
+          52.091796875,
+          87.74383544921875
+        ]
+      ]
+    },
+    {
+      "title": "Statistical analyses",
+      "heading_level": null,
+      "page_id": 4,
+      "polygon": [
+        [
+          304.4976806640625,
+          236.3541259765625
+        ],
+        [
+          388.796875,
+          236.3541259765625
+        ],
+        [
+          388.796875,
+          245.3541259765625
+        ],
+        [
+          304.4976806640625,
+          245.3541259765625
+        ]
+      ]
+    },
+    {
+      "title": "Ethics and confidentiality",
+      "heading_level": null,
+      "page_id": 4,
+      "polygon": [
+        [
+          304.497802734375,
+          474.40716552734375
+        ],
+        [
+          415.279296875,
+          474.40716552734375
+        ],
+        [
+          415.279296875,
+          483.4921875
+        ],
+        [
+          304.497802734375,
+          483.4921875
+        ]
+      ]
+    },
+    {
+      "title": "Results",
+      "heading_level": null,
+      "page_id": 4,
+      "polygon": [
+        [
+          408.6430969238281,
+          640.456298828125
+        ],
+        [
+          442.34375,
+          640.456298828125
+        ],
+        [
+          442.34375,
+          649.456298828125
+        ],
+        [
+          408.6430969238281,
+          649.456298828125
+        ]
+      ]
+    },
+    {
+      "title": "Discussion",
+      "heading_level": null,
+      "page_id": 4,
+      "polygon": [
+        [
+          401.3296813964844,
+          693.9747924804688
+        ],
+        [
+          447.69769287109375,
+          693.9747924804688
+        ],
+        [
+          447.69769287109375,
+          702.9747924804688
+        ],
+        [
+          401.3296813964844,
+          702.9747924804688
+        ]
+      ]
+    },
+    {
+      "title": "Limitations",
+      "heading_level": null,
+      "page_id": 5,
+      "polygon": [
+        [
+          304.4977111816406,
+          338.7734375
+        ],
+        [
+          352.9176940917969,
+          338.7734375
+        ],
+        [
+          352.9176940917969,
+          348.4742431640625
+        ],
+        [
+          304.4977111816406,
+          348.4742431640625
+        ]
+      ]
+    },
+    {
+      "title": "Correspondence: Eduard Vieta. Email: evieta@clinic.cat",
+      "heading_level": null,
+      "page_id": 7,
+      "polygon": [
+        [
+          58.56689453125,
+          305.060546875
+        ],
+        [
+          207.3112030029297,
+          305.060546875
+        ],
+        [
+          207.3112030029297,
+          312.4609375
+        ],
+        [
+          58.56689453125,
+          312.4609375
+        ]
+      ]
+    },
+    {
+      "title": "Data availability",
+      "heading_level": null,
+      "page_id": 7,
+      "polygon": [
+        [
+          137.359375,
+          357.685546875
+        ],
+        [
+          207.494140625,
+          357.685546875
+        ],
+        [
+          207.494140625,
+          367.35321044921875
+        ],
+        [
+          137.359375,
+          367.35321044921875
+        ]
+      ]
+    },
+    {
+      "title": "Acknowledgements",
+      "heading_level": null,
+      "page_id": 7,
+      "polygon": [
+        [
+          125.50048828125,
+          401.26971435546875
+        ],
+        [
+          216.02430725097656,
+          401.26971435546875
+        ],
+        [
+          216.02430725097656,
+          410.26971435546875
+        ],
+        [
+          125.50048828125,
+          410.26971435546875
+        ]
+      ]
+    },
+    {
+      "title": "Author contributions",
+      "heading_level": null,
+      "page_id": 7,
+      "polygon": [
+        [
+          123.390625,
+          436.7027893066406
+        ],
+        [
+          219.716796875,
+          436.7027893066406
+        ],
+        [
+          219.716796875,
+          445.7027893066406
+        ],
+        [
+          123.390625,
+          445.7027893066406
+        ]
+      ]
+    },
+    {
+      "title": "Funding",
+      "heading_level": null,
+      "page_id": 7,
+      "polygon": [
+        [
+          154.9416961669922,
+          509.3935546875
+        ],
+        [
+          190.0776824951172,
+          509.3935546875
+        ],
+        [
+          190.0776824951172,
+          518.6097717285156
+        ],
+        [
+          154.9416961669922,
+          518.6097717285156
+        ]
+      ]
+    },
+    {
+      "title": "Declaration of interest",
+      "heading_level": null,
+      "page_id": 7,
+      "polygon": [
+        [
+          122.80859375,
+          559.962890625
+        ],
+        [
+          222.91796875,
+          559.962890625
+        ],
+        [
+          222.91796875,
+          569.0097961425781
+        ],
+        [
+          122.80859375,
+          569.0097961425781
+        ]
+      ]
+    },
+    {
+      "title": "References",
+      "heading_level": null,
+      "page_id": 7,
+      "polygon": [
+        [
+          400.13848876953125,
+          523.0461120605469
+        ],
+        [
+          448.8554992675781,
+          523.0461120605469
+        ],
+        [
+          448.8554992675781,
+          532.0461120605469
+        ],
+        [
+          400.13848876953125,
+          532.0461120605469
+        ]
+      ]
+    }
+  ],
+  "page_stats": [
+    {
+      "page_id": 0,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          242
+        ],
+        [
+          "Line",
+          98
+        ],
+        [
+          "Text",
+          13
+        ],
+        [
+          "SectionHeader",
+          8
+        ],
+        [
+          "Footnote",
+          2
+        ],
+        [
+          "PageHeader",
+          1
+        ],
+        [
+          "PageFooter",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 1,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          331
+        ],
+        [
+          "Line",
+          131
+        ],
+        [
+          "TableCell",
+          56
+        ],
+        [
+          "Text",
+          8
+        ],
+        [
+          "SectionHeader",
+          4
+        ],
+        [
+          "PageHeader",
+          1
+        ],
+        [
+          "Table",
+          1
+        ],
+        [
+          "PageFooter",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 2,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          275
+        ],
+        [
+          "Line",
+          118
+        ],
+        [
+          "Text",
+          4
+        ],
+        [
+          "SectionHeader",
+          2
+        ],
+        [
+          "PageHeader",
+          1
+        ],
+        [
+          "Figure",
+          1
+        ],
+        [
+          "TextInlineMath",
+          1
+        ],
+        [
+          "PageFooter",
+          1
+        ],
+        [
+          "Reference",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 3,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          275
+        ],
+        [
+          "Line",
+          121
+        ],
+        [
+          "Text",
+          9
+        ],
+        [
+          "SectionHeader",
+          8
+        ],
+        [
+          "TextInlineMath",
+          2
+        ],
+        [
+          "PageHeader",
+          1
+        ],
+        [
+          "PageFooter",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 4,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          267
+        ],
+        [
+          "Line",
+          123
+        ],
+        [
+          "Text",
+          8
+        ],
+        [
+          "SectionHeader",
+          5
+        ],
+        [
+          "PageHeader",
+          1
+        ],
+        [
+          "PageFooter",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 5,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          258
+        ],
+        [
+          "Line",
+          130
+        ],
+        [
+          "Text",
+          10
+        ],
+        [
+          "PageHeader",
+          1
+        ],
+        [
+          "SectionHeader",
+          1
+        ],
+        [
+          "PageFooter",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 6,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          530
+        ],
+        [
+          "Line",
+          182
+        ],
+        [
+          "Text",
+          3
+        ],
+        [
+          "PageHeader",
+          1
+        ],
+        [
+          "PageFooter",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 7,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          468
+        ],
+        [
+          "Line",
+          160
+        ],
+        [
+          "ListItem",
+          9
+        ],
+        [
+          "Text",
+          8
+        ],
+        [
+          "SectionHeader",
+          7
+        ],
+        [
+          "PageHeader",
+          1
+        ],
+        [
+          "PageFooter",
+          1
+        ],
+        [
+          "ListGroup",
+          1
+        ],
+        [
+          "Reference",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 8,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          574
+        ],
+        [
+          "Line",
+          119
+        ],
+        [
+          "ListItem",
+          39
+        ],
+        [
+          "ListGroup",
+          2
+        ],
+        [
+          "PageHeader",
+          1
+        ],
+        [
+          "Picture",
+          1
+        ],
+        [
+          "PageFooter",
+          1
+        ],
+        [
+          "Reference",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    }
+  ],
+  "debug_data_path": "debug_data/bipolar-digital-biomarkers"
+}

@@ -1,0 +1,116 @@
+# Big Mood Detector Research Repository - .gitignore
+
+# =====================================
+# Model Weights & Large Files
+# =====================================
+# Keep repository lightweight - externalize model weights
+*.h5
+*.pkl
+*.bin
+*.pth
+*.pt
+*.onnx
+*.model
+*.joblib
+
+# Large data files
+*.csv
+!reference_repos/mood_ml/example.csv
+!reference_repos/mood_ml/test.csv
+!reference_repos/mood_ml/expected*.csv
+
+# =====================================
+# Python
+# =====================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# =====================================
+# Jupyter Notebooks
+# =====================================
+.ipynb_checkpoints/
+*/.ipynb_checkpoints/*
+
+# =====================================
+# MATLAB
+# =====================================
+*.asv
+*.mex*
+*.p~
+codegen/
+slprj/
+
+# =====================================
+# macOS
+# =====================================
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+
+# =====================================
+# IDE & Editors
+# =====================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# =====================================
+# Temporary & Log Files
+# =====================================
+*.log
+*.tmp
+*.temp
+tmp/
+temp/
+
+# =====================================
+# Research-specific
+# =====================================
+# Keep original PDFs but ignore any temporary conversion files
+*.pdf~
+*_temp.pdf
+
+# Ignore any personal experiment results
+experiments/
+results/
+output/
+data/
+!converted_markdown/
+
+# =====================================
+# System Files
+# =====================================
+Thumbs.db
+ehthumbs.db
+Desktop.ini 
