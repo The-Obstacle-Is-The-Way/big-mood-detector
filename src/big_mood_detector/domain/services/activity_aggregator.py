@@ -253,7 +253,7 @@ class ActivityAggregator:
             return 0.0
 
         # Normalize variance by mean
-        mean_intensity = np.mean(intensities)
+        mean_intensity = float(np.mean(intensities))
         if mean_intensity == 0:
             return 0.0
 
@@ -261,7 +261,8 @@ class ActivityAggregator:
         coefficient_of_variation = std_dev / mean_intensity
 
         # Scale to 0-1 range (CV > 1.5 maps to 1)
-        return float(min(coefficient_of_variation / 1.5, 1.0))
+        scaled_cv = coefficient_of_variation / 1.5
+        return float(scaled_cv if scaled_cv < 1.0 else 1.0)
 
     def _calculate_activity_hours(
         self, steps_records: list[ActivityRecord]
