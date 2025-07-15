@@ -15,47 +15,150 @@ Our system is built on peer-reviewed research with **validated clinical outcomes
 ### 🔬 **Core Mood Prediction Research**
 
 #### 1. **Sleep-Wake Circadian Rhythm Prediction** (Nature Digital Medicine, 2024)
-- **Dataset**: 168 patients, 587 days clinical follow-up, 267 days wearable data
-- **Accuracy**: **AUC 0.80-0.98** for next-day episode prediction
-  - Depressive episodes: **AUC 0.80**
-  - Manic episodes: **AUC 0.98** 
-  - Hypomanic episodes: **AUC 0.95**
-- **Key Finding**: Daily circadian phase shifts are the strongest predictor
-- **Implementation**: XGBoost models with 36 sleep/circadian features ✅ **MODELS INCLUDED**
+**Seoul National University Bundang Hospital | Clinical Trial: NCT03088657**
+
+**📊 Study Design & Population:**
+- **Cohort**: 168 mood disorder patients (57 MDD, 42 BD1, 69 BD2) 
+- **Demographics**: Ages 18-35, 55% female, Korean population
+- **Follow-up**: 587 ± 374 days clinical observation, 267 days wearable data average
+- **Episodes**: 175 depressive, 39 hypomanic, 21 manic episodes across 44,787 observation days
+
+**🧬 Technical Innovation:**
+- **36 Sleep/Circadian Features**: Mathematical modeling of individual circadian rhythms
+- **Circadian Pacemaker Model**: DLMO (Dim Light Melatonin Onset) estimation from sleep-wake patterns
+- **Feature Categories**: 10 sleep indexes (amplitude, percentage, window analysis) + 2 circadian indexes (phase, amplitude)
+- **Individual Normalization**: Mean, SD, and Z-scores for each patient to capture personal baselines
+
+**🎯 Clinical Findings:**
+- **Circadian Phase** is the most significant predictor (Z-score importance >3 across all episodes)
+- **Phase Delays** → depressive episodes | **Phase Advances** → manic episodes
+- **Medication Independence**: Accuracy maintained without medication-induced circadian changes (AUC 0.90-0.91)
+- **Seasonal Independence**: No significant seasonal distribution in mood episodes
 
 #### 2. **Fitbit Consumer Device Analysis** (Bipolar Disorders, 2024)
-- **Dataset**: 54 adults with BD, 9 months continuous monitoring
-- **Accuracy**: **80-89% prediction accuracy**
-  - Depression detection: **80.1%** (71.2% sensitivity, 85.6% specificity)
-  - Mania detection: **89.1%** (80.0% sensitivity, 90.1% specificity)
-- **Method**: Binary Mixed Model (BiMM) forest on passive Fitbit data
-- **Advantage**: Works with consumer wearables, minimal data filtering
+**Harvard Medical School | Brigham and Women's Hospital**
+
+**📊 Study Design & Population:**
+- **Cohort**: 54 adults with BD (exclusion criteria: CNS trauma, neurological disorders, substance use)
+- **Monitoring**: 9 months continuous Fitbit Inspire tracking + bi-weekly PHQ-8/ASRM assessments
+- **Data Quality**: 4.3% imputation rate, only 11 participants excluded (low filtering approach)
+- **Devices**: Fitbit Inspire chosen for practical implementation and validated metrics
+
+**🧬 Technical Innovation:**
+- **BiMM Forest Algorithm**: Binary Mixed Model forest for longitudinal clustered outcomes
+- **15 Fitbit Features**: Sleep (total time, efficiency, REM/deep sleep), activity (steps, sedentary minutes), heart rate (resting, active)
+- **Random Forest Imputation**: Non-parametric imputation accommodating non-linearities
+- **Clinical Cutoffs**: PHQ-8 ≥10 (depression), ASRM ≥6 (mania/hypomania)
+
+**🎯 Clinical Findings:**
+- **Outperformed 6 baseline ML algorithms** (logistic regression, SVM, XGBoost, CNN, LSTM)
+- **Designed for broad application**: Minimal data filtering, consumer devices, non-invasive
+- **Real-world feasibility**: No active input required, privacy-preserving passive data
 
 #### 3. **TIMEBASE Digital Biomarkers** (BJPsych Open, 2024)
-- **Method**: Empatica E4 research-grade wearables
-- **Biomarkers**: Acceleration, temperature, blood volume pulse, heart rate, electrodermal activity
-- **Study Design**: 84 individuals across acute→response→remission→recovery phases
-- **Focus**: Real-world clinical monitoring and early intervention
+**University of Barcelona | Hospital Clínic | Research-Grade Multi-Modal Study**
 
-### 🤖 **Advanced ML Infrastructure**
+**📊 Study Design & Population:**
+- **Cohort**: 84 individuals across 3 groups
+  - **Group A (48)**: Acute episodes (12 mania, 24 depression [12 BD + 12 MDD], 12 mixed)
+  - **Group B (24)**: Euthymic patients (12 BD + 12 MDD)
+  - **Group C (12)**: Healthy controls
+- **Longitudinal Design**: T0 (acute) → T1 (response) → T2 (remission) → T3 (recovery)
 
-#### 4. **Pretrained Actigraphy Transformer (PAT)** (Dartmouth, 2024)
-- **Training Data**: 29,307 participants (NHANES national dataset)
-- **Architecture**: First open-source foundation model for wearable movement data
-- **Performance**: State-of-the-art on multiple mental health prediction tasks
-- **Models Available**: PAT-L (8MB), PAT-M (4MB), PAT-S (1MB) ✅ **WEIGHTS INCLUDED**
+**🧬 Technical Innovation:**
+- **Empatica E4 Wearable**: Research-grade device with 5 physiological signals
+  - **Acceleration**: 3-axis at 32 Hz (movement patterns)
+  - **Electrodermal Activity**: 4 Hz (autonomic dysfunction detection)
+  - **Skin Temperature**: 4 Hz (circadian and stress response)
+  - **Blood Volume Pulse**: 64 Hz (heart rate variability analysis)
+  - **Heart Rate**: 1 Hz derived (mood state differentiation)
+- **48-hour Recording Windows**: Captures day-to-day mood fluctuations
+- **Stress Elicitation**: Stroop Color Word Test for autonomic response
 
-#### 5. **Universal Sleep Staging (YASA)** (Berkeley, 2024)
-- **Training Data**: 27,000+ hours of polysomnographic recordings
-- **Accuracy**: **85.9%** matching human expert agreement
-- **Capability**: Automated sleep staging across heterogeneous populations
-- **Advantage**: Open-source, computationally efficient ✅ **IMPLEMENTATION INCLUDED**
+**🎯 Clinical Applications:**
+- **Digital Phenotyping**: Real-time illness activity and treatment response prediction
+- **Prodromal Detection**: Early intervention before full episode development
+- **Treatment Personalization**: Response prediction for precision psychiatry
+
+#### 4. **Pretrained Actigraphy Transformer (PAT)** (Dartmouth College, 2024)
+**Center for Technology and Behavioral Health | First Foundation Model for Movement Data**
+
+**📊 Training & Validation:**
+- **Massive Dataset**: 29,307 participants from NHANES 2003-2014 (national US sample)
+- **Pretraining**: BERT-like masked autoencoder on week-long actigraphy sequences
+- **Architecture**: Transformer with patch embeddings (handles 10,000+ tokens per week)
+- **Model Sizes**: PAT-S (285K params), PAT-M (1M params), PAT-L (2M params)
+
+**🧬 Technical Innovation:**
+- **Attention Mechanisms**: Captures long-range dependencies across hours/days
+- **Patch Embeddings**: Efficient processing of lengthy time series data
+- **Self-Supervised Pretraining**: Masked autoencoder approach with 90% masking ratio
+- **Transfer Learning**: Fine-tuning on small datasets achieves state-of-the-art performance
+
+**🎯 Mental Health Applications:**
+- **Medication Prediction**: Benzodiazepine (AUC 0.77), SSRI usage (AUC 0.70)
+- **Sleep Disorders**: Automated detection (AUC 0.63)
+- **Model Explainability**: Attention weights show which activity minutes drive predictions
+- **Depression Screening**: PHQ-9 score prediction from movement patterns
+
+#### 5. **Universal Sleep Staging (YASA)** (UC Berkeley, 2024)
+**Center for Human Sleep Science | Automated Sleep Analysis Tool**
+
+**📊 Training & Validation:**
+- **Massive Dataset**: 27,000+ hours PSG from 7 NSRR datasets (2,832 training nights)
+- **Demographics**: Ages 5-92, diverse ethnicities (60.5% White, 27% Black, 7.5% Hispanic)
+- **Health Conditions**: Sleep disorders (AHI 0-125), BMI range 12.8-84.8
+- **Validation**: Independent testing on 542 nights + Dreem Open Dataset (5-expert consensus)
+
+**🧬 Technical Innovation:**
+- **LightGBM Classifier**: Tree-based gradient boosting (300 estimators, depth 7)
+- **Multi-Signal Input**: Central EEG + EOG + EMG with age/sex incorporation
+- **Feature Engineering**: Time-domain, frequency-domain, smoothing, normalization
+- **Contextual Processing**: 5.5-minute rolling windows for temporal context
+- **Individual Adaptation**: Z-score normalization for personal EEG fingerprints
+
+**🎯 Clinical Performance:**
+- **Overall Accuracy**: 85.9% (median across all testing nights)
+- **Stage-Specific**: N3 (83.6%), REM (87%+), N2 (87%+), Wake (87%+), N1 (46.5%)
+- **Human-Level**: Matches expert inter-scorer agreement
+- **Open Source**: Free, computationally efficient, no specialized hardware required
 
 #### 6. **Time Series Feature Engineering** (tsfresh)
-- **Features**: 100+ automated time series features
-- **Method**: Scalable hypothesis testing for feature selection
-- **Application**: Connects raw HealthKit data to ML models
-- **Performance**: Proven across industrial big data applications ✅ **LIBRARY INCLUDED**
+**Blue Yonder Research | Systematic Feature Extraction Framework**
+
+**📊 Methodology & Applications:**
+- **Feature Universe**: 100+ automatically extracted time series characteristics
+- **Statistical Foundation**: Scalable hypothesis testing for feature relevance
+- **Domains**: Number of peaks, spectral analysis, time reversal symmetry, complexity measures
+- **Filtering**: Mathematical control of irrelevant features through multiple test procedures
+
+**🧬 Technical Innovation:**
+- **FRESH Algorithm**: Feature extraction based on scalable hypothesis tests
+- **Automated Selection**: Evaluates explaining power for regression/classification tasks
+- **Time Series Agnostic**: Works with any sampled data or event sequences
+- **Industrial Proven**: Applied across big data applications and scientific research
+
+**🎯 Health Applications:**
+- **Activity Recognition**: Synchronized inertial measurement unit analysis
+- **Medical Time Series**: Long-term monitoring data from diverse sensors
+- **Missing Data Handling**: Robust feature engineering for incomplete time series
+- **Biomarker Discovery**: Systematic identification of health-relevant patterns
+
+### 🔗 **Integration Architecture**
+
+These six research foundations create a **complete pipeline**:
+```
+Raw HealthKit Data → tsfresh Features → XGBoost/PAT Models → YASA Sleep Analysis → Clinical Predictions
+```
+
+**Data Flow:**
+1. **Input**: Apple HealthKit XML export (sleep, activity, heart rate)
+2. **Parsing**: apple-health-bot XML→CSV conversion
+3. **Feature Engineering**: tsfresh automated extraction (100+ features)
+4. **Circadian Modeling**: Mathematical DLMO estimation (36 features)
+5. **ML Prediction**: XGBoost mood episodes + PAT movement analysis
+6. **Sleep Analysis**: YASA automated staging for additional insights
+7. **Output**: Risk scores, episode predictions, clinical recommendations
 
 ---
 
@@ -87,39 +190,169 @@ Raw HealthKit Data → Feature Extraction → ML Models → Clinical Predictions
 
 ---
 
-## 📁 **Repository Structure**
+## 📁 **Repository Structure & Capabilities**
 
 ```
 big-mood-detector/
-├── 📚 literature/
+├── 📚 literature/                           # Peer-reviewed research foundation
 │   ├── 📄 pdf/                              # 6 original research papers
 │   └── 📝 converted_markdown/               # High-quality markdown + figures
-│       ├── bipolar-depression-activity/     # Nature study (AUC 0.80-0.98)
-│       ├── fitbit-bipolar-mood/             # Consumer wearables (80-89%)
-│       ├── bipolar-digital-biomarkers/      # TIMEBASE protocol
-│       ├── pretrained-actigraphy-transformer/ # PAT foundation model
-│       ├── sleep-staging-psg/               # YASA universal sleep staging
-│       └── xgboost-mood/                    # XGBoost methodology
-├── 💻 reference_repos/
-│   ├── 🎯 mood_ml/                          # Ready-to-use XGBoost models
-│   │   ├── XGBoost_DE.pkl                   # Depression prediction
-│   │   ├── XGBoost_ME.pkl                   # Mania prediction  
-│   │   ├── XGBoost_HME.pkl                  # Hypomania prediction
-│   │   └── Index_calculation.m              # 36 sleep/circadian features
-│   ├── 🤖 Pretrained-Actigraphy-Transformer/ # PAT models + weights
-│   │   ├── model_weights/                   # H5 model files
+│       ├── bipolar-depression-activity/     # 🏥 Seoul National (AUC 0.80-0.98)
+│       │   ├── bipolar-depression-activity.md  # Full methodology + results
+│       │   └── _page_*_Figure_*.jpeg        # Extracted research figures
+│       ├── fitbit-bipolar-mood/             # 🎓 Harvard (80-89% accuracy)
+│       │   ├── fitbit-bipolar-mood.md       # BiMM Forest implementation
+│       │   └── _page_*_Figure_*.jpeg        # Consumer device validation
+│       ├── bipolar-digital-biomarkers/      # 🏛️ Barcelona TIMEBASE protocol
+│       │   ├── bipolar-digital-biomarkers.md # Multi-modal biomarker framework
+│       │   └── _page_*_Figure_*.jpeg        # Clinical study design
+│       ├── pretrained-actigraphy-transformer/ # 🧠 Dartmouth PAT foundation
+│       │   ├── pretrained-actigraphy-transformer.md # Transformer architecture
+│       │   └── _page_*_Figure_*.jpeg        # Model performance comparisons
+│       ├── sleep-staging-psg/               # 😴 UC Berkeley YASA (85.9%)
+│       │   ├── sleep-staging-psg.md         # Universal sleep automation
+│       │   └── _page_*_Figure_*.jpeg        # Sleep staging validation
+│       └── xgboost-mood/                    # 📊 XGBoost methodology
+│           ├── xgboost-mood.md              # Gradient boosting approach
+│           └── _page_*_Figure_*.jpeg        # Feature importance analysis
+├── 💻 reference_repos/                      # Production-ready implementations
+│   ├── 🎯 mood_ml/                          # XGBoost Mood Prediction (Nature)
+│   │   ├── XGBoost_DE.pkl                   # Depression model (AUC 0.80)
+│   │   ├── XGBoost_ME.pkl                   # Mania model (AUC 0.98)
+│   │   ├── XGBoost_HME.pkl                  # Hypomania model (AUC 0.95)
+│   │   ├── Index_calculation.m              # 36 sleep/circadian features (MATLAB)
+│   │   ├── mnsd.p                           # Sleep feature functions
+│   │   ├── mood_ml.ipynb                    # Complete prediction pipeline
+│   │   ├── example.csv                      # Sleep data format template
+│   │   └── expected_outcome_*.csv           # Model output examples
+│   ├── 🤖 Pretrained-Actigraphy-Transformer/ # PAT Foundation Models
+│   │   ├── model_weights/                   # Pre-trained transformer weights
+│   │   │   ├── PAT-L_29k_weights.h5        # Large model (2M params, 8MB)
+│   │   │   ├── PAT-M_29k_weights.h5        # Medium model (1M params, 4MB)
+│   │   │   └── PAT-S_29k_weights.h5        # Small model (285K params, 1MB)
 │   │   ├── Fine-tuning/                     # Transfer learning examples
-│   │   └── Model Explainability/            # Interpretability tools
-│   ├── 🍎 apple-health-bot/                 # HealthKit XML→CSV parser
-│   ├── ⏰ chronos-bolt-tiny/                # Time series forecasting
-│   ├── 🛠️ tsfresh/                          # Feature extraction engine
-│   ├── 😴 yasa/                             # Sleep staging automation
-│   ├── 📊 ngboost/                          # Probabilistic boosting
-│   ├── 🖥️ gradio/                           # UI framework for testing
-│   ├── 🔗 trpc-examples/                    # Type-safe API patterns
-│   └── 🏥 fhir-client/                      # Healthcare interoperability
+│   │   │   ├── PAT_finetuning.ipynb        # Standard fine-tuning tutorial
+│   │   │   └── PAT_Conv_finetuning.ipynb   # Convolutional variant
+│   │   ├── Model Explainability/            # Interpretability tools
+│   │   │   └── PAT_Explainability.ipynb    # Attention visualization
+│   │   ├── Baseline Models/                 # Comparison implementations
+│   │   │   ├── LSTM.ipynb                  # Long Short-Term Memory
+│   │   │   ├── 1D_CNN.ipynb                # 1D Convolutional Neural Network
+│   │   │   ├── 3D_CNN.ipynb                # 3D Convolutional Neural Network
+│   │   │   └── ConvLSTM.ipynb              # Convolutional LSTM hybrid
+│   │   └── Pretraining/                     # Self-supervised training
+│   │       ├── PAT_Pretraining.ipynb       # Masked autoencoder approach
+│   │       └── PAT_Conv_Pretraining.ipynb  # Convolutional pretraining
+│   ├── 🍎 apple-health-bot/                 # HealthKit Integration System
+│   │   ├── dataParser/                      # XML processing engine
+│   │   │   └── xmldataparser.py            # HealthKit XML → CSV converter
+│   │   ├── healthBot/                       # LLM analysis system
+│   │   │   └── appleHealthBot.py           # RAG over SQL for health insights
+│   │   ├── Dockerfile                       # Containerized deployment
+│   │   └── setup/requirements.txt           # Python dependencies
+│   ├── ⏰ chronos-bolt-tiny/                # Time Series Forecasting (9M params)
+│   │   ├── pytorch_model.bin                # PyTorch model weights (safetensors)
+│   │   ├── config.json                      # Model configuration
+│   │   └── tokenizer.json                   # Time series tokenization
+│   ├── 🛠️ tsfresh/                          # Automated Feature Engineering
+│   │   ├── tsfresh/                         # Core feature extraction library
+│   │   │   ├── feature_extraction/         # 100+ time series features
+│   │   │   ├── feature_selection/          # Hypothesis testing filter
+│   │   │   └── utilities/                   # Helper functions
+│   │   ├── docs/                            # Comprehensive documentation
+│   │   └── notebooks/                       # Tutorial examples
+│   ├── 😴 yasa/                             # Sleep Staging Automation
+│   │   ├── yasa/                            # Sleep analysis toolkit
+│   │   │   ├── sleep.py                     # Sleep staging algorithms
+│   │   │   ├── features.py                  # Sleep feature extraction
+│   │   │   └── spectral.py                  # Spectral analysis tools
+│   │   ├── notebooks/                       # Usage examples
+│   │   └── docs/                            # API documentation
+│   ├── 📊 ngboost/                          # Probabilistic Boosting (Stanford)
+│   │   ├── ngboost/                         # Core boosting framework
+│   │   │   ├── learners/                    # Base learners (trees, linear)
+│   │   │   ├── distns/                      # Probability distributions
+│   │   │   └── scores/                      # Scoring functions
+│   │   └── examples/                        # Applied examples
+│   ├── 🖥️ gradio/                           # Clinical Interface Framework
+│   │   ├── gradio/                          # UI components library
+│   │   │   ├── components/                  # Input/output widgets
+│   │   │   ├── interfaces/                  # Pre-built interfaces
+│   │   │   └── themes/                      # Visual styling
+│   │   └── examples/                        # Healthcare UI examples
+│   ├── 🔗 trpc-examples/                    # Type-Safe API Patterns
+│   │   ├── kitchen-sink/                    # Comprehensive API examples
+│   │   ├── next-prisma-websockets/          # Real-time data sync
+│   │   └── minimal/                         # Basic setup template
+│   └── 🏥 fhir-client/                      # Healthcare Interoperability
+│       ├── fhirclient/                      # FHIR resource handling
+│       │   ├── models/                      # FHIR data models
+│       │   └── server.py                    # FHIR server integration
+│       └── examples/                        # Healthcare integration patterns
 └── 📋 README.md                             # This comprehensive guide
 ```
+
+### 🔧 **Implementation Capabilities**
+
+#### **🎯 Immediate Deployment Ready**
+- **XGBoost Models**: Load `.pkl` files → predict mood episodes (requires MATLAB for features)
+- **PAT Transformers**: Download `.h5` weights → fine-tune on custom data
+- **Apple HealthKit**: Parse XML exports → extract sleep/activity data
+- **YASA Sleep Analysis**: Automated sleep staging from EEG/EMG signals
+
+#### **🔗 Complete Integration Pipeline**
+```bash
+# 1. Parse Apple HealthKit Data
+python reference_repos/apple-health-bot/dataParser/xmldataparser.py export.xml
+
+# 2. Extract Sleep/Circadian Features (MATLAB required)
+matlab -r "cd('reference_repos/mood_ml'); Index_calculation"
+
+# 3. Generate Time Series Features
+python -c "import tsfresh; features = tsfresh.extract_features(timeseries_data)"
+
+# 4. Predict Mood Episodes
+python -c "
+import pickle
+import pandas as pd
+model = pickle.load(open('reference_repos/mood_ml/XGBoost_DE.pkl', 'rb'))
+predictions = model.predict(features)
+"
+
+# 5. Fine-tune PAT for Movement Analysis
+# See: reference_repos/Pretrained-Actigraphy-Transformer/Fine-tuning/PAT_finetuning.ipynb
+
+# 6. Sleep Stage Analysis (if PSG data available)
+python -c "import yasa; stages = yasa.SleepStaging(eeg, eog, emg).predict()"
+```
+
+#### **📊 Data Requirements & Formats**
+
+**Minimum Data for Mood Prediction:**
+- **Sleep Records**: Start time, end time, duration, sleep efficiency
+- **Activity Data**: Step counts, movement intensity, heart rate patterns
+- **Time Span**: 30+ days for baseline establishment, 60+ days for optimal accuracy
+
+**Supported Input Formats:**
+- **Apple HealthKit**: `export.xml` → automated parsing
+- **Fitbit API**: JSON data → feature extraction
+- **Empatica E4**: EDA, BVP, ACC, TEMP → multi-modal analysis
+- **PSG Data**: EEG, EOG, EMG → sleep staging
+- **Generic CSV**: Time series data → tsfresh features
+
+#### **🚀 Deployment Options**
+
+**Local Development:**
+- All models run locally (privacy-preserving)
+- MATLAB required for circadian features
+- Python environment with ML libraries
+- Optional: GPU acceleration for PAT training
+
+**Cloud Deployment:**
+- Gradio interfaces for clinical testing
+- tRPC APIs for healthcare integration
+- Supabase for real-time data storage
+- FHIR endpoints for EHR connectivity
 
 ---
 
