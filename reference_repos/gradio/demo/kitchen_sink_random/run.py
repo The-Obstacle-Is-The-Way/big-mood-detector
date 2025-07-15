@@ -88,9 +88,7 @@ demo = gr.Interface(
         gr.Plot(value=random_plot),
         gr.Markdown(value=lambda: f"### {random.choice(['Hello', 'Hi', 'Goodbye!'])}"),
     ],
-    outputs=[
-        gr.State(value=lambda: random.choice(string.ascii_lowercase))
-    ],
+    outputs=[gr.State(value=lambda: random.choice(string.ascii_lowercase))],
 )
 
 if __name__ == "__main__":

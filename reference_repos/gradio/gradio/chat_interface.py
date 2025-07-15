@@ -348,9 +348,11 @@ class ChatInterface(Blocks):
                 height=400 if self.fill_height else None,
                 type=cast(Literal["messages", "tuples"], self.type),
                 autoscroll=self.autoscroll,
-                examples=self.examples_messages
-                if not self._additional_inputs_in_examples
-                else None,
+                examples=(
+                    self.examples_messages
+                    if not self._additional_inputs_in_examples
+                    else None
+                ),
             )
         with Group():
             with Row():
@@ -769,7 +771,9 @@ class ChatInterface(Blocks):
                 show_api=False,
                 queue=False,
                 show_progress="hidden",
-            ).then(**synchronize_chat_state_kwargs)
+            ).then(
+                **synchronize_chat_state_kwargs
+            )
 
         if self.flagging_mode != "never":
             flagging_callback = ChatCSVLogger()

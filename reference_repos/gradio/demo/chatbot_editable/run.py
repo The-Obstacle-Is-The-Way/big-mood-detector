@@ -27,12 +27,20 @@ with gr.Blocks() as demo:
         return history, history2
 
     add_message_btn.click(add_message, [chatbot, chatbot2], [chatbot, chatbot2])
-    add_user_message_btn.click(add_user_message, [chatbot, chatbot2], [chatbot, chatbot2])
-    chatbot.change(lambda m: "|".join(m["content"] for m in m), chatbot, concatenated_text1)
-    chatbot2.change(lambda m: "|".join("|".join(filter(None, x)) for x in m), chatbot2, concatenated_text2)
+    add_user_message_btn.click(
+        add_user_message, [chatbot, chatbot2], [chatbot, chatbot2]
+    )
+    chatbot.change(
+        lambda m: "|".join(m["content"] for m in m), chatbot, concatenated_text1
+    )
+    chatbot2.change(
+        lambda m: "|".join("|".join(filter(None, x)) for x in m),
+        chatbot2,
+        concatenated_text2,
+    )
 
-    def edit_message(edited_message: gr.EditData): # type: ignore
-        return f"from {edited_message.previous_value} to {edited_message.value} at {edited_message.index}" # type: ignore
+    def edit_message(edited_message: gr.EditData):  # type: ignore
+        return f"from {edited_message.previous_value} to {edited_message.value} at {edited_message.index}"  # type: ignore
 
     chatbot.edit(edit_message, None, edited_messages)
     chatbot2.edit(edit_message, None, edited_messages)

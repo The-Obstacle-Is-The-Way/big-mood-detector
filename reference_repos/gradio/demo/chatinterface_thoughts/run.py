@@ -4,11 +4,12 @@ import time
 
 sleep_time = 0.5
 
+
 def simulate_thinking_chat(message, history):
     start_time = time.time()
     response = ChatMessage(
         content="",
-        metadata={"title": "_Thinking_ step-by-step", "id": 0, "status": "pending"}
+        metadata={"title": "_Thinking_ step-by-step", "id": 0, "status": "pending"},
     )
     yield response
 
@@ -16,7 +17,7 @@ def simulate_thinking_chat(message, history):
         "First, I need to understand the core aspects of the query...",
         "Now, considering the broader context and implications...",
         "Analyzing potential approaches to formulate a comprehensive answer...",
-        "Finally, structuring the response for clarity and completeness..."
+        "Finally, structuring the response for clarity and completeness...",
     ]
 
     accumulated_thoughts = ""
@@ -34,7 +35,7 @@ def simulate_thinking_chat(message, history):
         response,
         ChatMessage(
             content="Based on my thoughts and analysis above, my response is: This dummy repro shows how thoughts of a thinking LLM can be progressively shown before providing its final answer."
-        )
+        ),
     ]
     yield response
 

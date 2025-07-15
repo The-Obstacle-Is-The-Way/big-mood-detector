@@ -140,12 +140,16 @@ def hrv_stage(
     data = np.squeeze(data)
 
     # Find periods of equal duration
-    epochs = hypno_find_periods(hypno, sf, threshold=threshold, equal_length=equal_length)
+    epochs = hypno_find_periods(
+        hypno, sf, threshold=threshold, equal_length=equal_length
+    )
     assert epochs.shape[0] > 0, f"No epochs longer than {threshold} found in hypnogram."
     epochs = epochs[epochs["values"].isin(include)].reset_index(drop=True)
     # Sort by stage and add epoch number
     epochs = epochs.sort_values(by=["values", "start"])
-    epochs["epoch"] = epochs.groupby("values")["start"].transform(lambda x: range(len(x)))
+    epochs["epoch"] = epochs.groupby("values")["start"].transform(
+        lambda x: range(len(x))
+    )
     epochs = epochs.set_index(["values", "epoch"])
 
     # Loop over epochs
@@ -158,7 +162,9 @@ def hrv_stage(
         try:
             pks = detect_heartbeats(data[start:end], fs=sf)
         except Exception as e:
-            logger.info(f"Heartbeat detection failed for epoch {idx[1]} of stage {idx[0]}: {e}")
+            logger.info(
+                f"Heartbeat detection failed for epoch {idx[1]} of stage {idx[0]}: {e}"
+            )
             continue
 
         # Save rpeaks to dict
@@ -168,7 +174,9 @@ def hrv_stage(
         # Here, we assume a minimal HR of 30 bpm
         constant_hr = 60 * (pks.size / (duration / sf))
         if constant_hr < 30:
-            logger.info(f"Too few detected heartbeats in epoch {idx[1]} of stage {idx[0]}.")
+            logger.info(
+                f"Too few detected heartbeats in epoch {idx[1]} of stage {idx[0]}."
+            )
             continue
 
         # Find and correct RR intervals. Default is 400 ms (150 bpm) to 2000 ms (30 bpm)
@@ -176,7 +184,9 @@ def hrv_stage(
         rri = np.ma.masked_outside(rri, rr_limit[0], rr_limit[1]).filled(np.nan)
         # Interpolate NaN values, but no more than 10 consecutive values
         if np.isnan(rri).any():
-            rri = pd.Series(rri).interpolate(limit_direction="both", limit=10).to_numpy()
+            rri = (
+                pd.Series(rri).interpolate(limit_direction="both", limit=10).to_numpy()
+            )
         if np.isnan(rri).any():
             # If there are still NaN present, skip current epoch
             logger.info(f"Invalid RR intervals in epoch {idx[1]} of stage {idx[0]}.")

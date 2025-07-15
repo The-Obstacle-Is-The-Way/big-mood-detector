@@ -566,16 +566,20 @@ class EventListener(str):
         def event_trigger(
             block: Block | None,
             fn: Callable | None | Literal["decorator"] = "decorator",
-            inputs: Component
-            | BlockContext
-            | Sequence[Component | BlockContext]
-            | Set[Component | BlockContext]
-            | None = None,
-            outputs: Component
-            | BlockContext
-            | Sequence[Component | BlockContext]
-            | Set[Component | BlockContext]
-            | None = None,
+            inputs: (
+                Component
+                | BlockContext
+                | Sequence[Component | BlockContext]
+                | Set[Component | BlockContext]
+                | None
+            ) = None,
+            outputs: (
+                Component
+                | BlockContext
+                | Sequence[Component | BlockContext]
+                | Set[Component | BlockContext]
+                | None
+            ) = None,
             api_name: str | None | Literal[False] = None,
             api_description: str | None | Literal[False] = None,
             scroll_to_output: bool = False,
@@ -698,13 +702,15 @@ class EventListener(str):
                 time_limit=time_limit,
                 stream_every=stream_every,
                 like_user_message=like_user_message,
-                event_specific_args=[
-                    d["name"]
-                    for d in _event_specific_args
-                    if d.get("component_prop", "true") != "false"
-                ]
-                if _event_specific_args
-                else None,
+                event_specific_args=(
+                    [
+                        d["name"]
+                        for d in _event_specific_args
+                        if d.get("component_prop", "true") != "false"
+                    ]
+                    if _event_specific_args
+                    else None
+                ),
                 key=key,
             )
             set_cancel_events(
@@ -736,16 +742,20 @@ class EventListener(str):
 def on(
     triggers: Sequence[EventListenerCallable] | EventListenerCallable | None = None,
     fn: Callable[..., Any] | None | Literal["decorator"] = "decorator",
-    inputs: Component
-    | BlockContext
-    | Sequence[Component | BlockContext]
-    | Set[Component | BlockContext]
-    | None = None,
-    outputs: Component
-    | BlockContext
-    | Sequence[Component | BlockContext]
-    | Set[Component | BlockContext]
-    | None = None,
+    inputs: (
+        Component
+        | BlockContext
+        | Sequence[Component | BlockContext]
+        | Set[Component | BlockContext]
+        | None
+    ) = None,
+    outputs: (
+        Component
+        | BlockContext
+        | Sequence[Component | BlockContext]
+        | Set[Component | BlockContext]
+        | None
+    ) = None,
     *,
     show_api: bool = True,
     api_name: str | None | Literal[False] = None,
@@ -862,7 +872,9 @@ def on(
             [EventListenerMethod(input, "change") for input in inputs]
             if inputs is not None
             else []
-        ) + [EventListenerMethod(root_block, "load")]  # type: ignore
+        ) + [
+            EventListenerMethod(root_block, "load")
+        ]  # type: ignore
     else:
         methods = [
             EventListenerMethod(t.__self__ if t.has_trigger else None, t.event_name)  # type: ignore
@@ -892,9 +904,11 @@ def on(
         max_batch_size=max_batch_size,
         show_api=show_api,
         trigger_mode=trigger_mode,
-        connection="stream"
-        if any(t.connection == "stream" for t in (triggers_typed or []))
-        else "sse",
+        connection=(
+            "stream"
+            if any(t.connection == "stream" for t in (triggers_typed or []))
+            else "sse"
+        ),
         event_specific_args=[
             a
             for t in (triggers_typed or [])
@@ -1063,9 +1077,11 @@ class Events:
     edit = EventListener(
         "edit",
         doc="This listener is triggered when the user edits the {{ component }} (e.g. image) using the built-in editor.",
-        callback=lambda block: setattr(block, "editable", "user")
-        if getattr(block, "editable", None) is None
-        else None,
+        callback=lambda block: (
+            setattr(block, "editable", "user")
+            if getattr(block, "editable", None) is None
+            else None
+        ),
     )
     clear = EventListener(
         "clear",

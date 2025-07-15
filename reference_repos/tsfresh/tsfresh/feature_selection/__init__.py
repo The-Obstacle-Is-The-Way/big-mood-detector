@@ -6,5 +6,4 @@ Traditional feature selection methods can be not suitable for such situations wh
 approach that inspects the significance of the features individually to avoid overfitting and spurious correlations.
 """
 
-
 from tsfresh.feature_selection.selection import select_features

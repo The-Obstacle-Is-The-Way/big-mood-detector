@@ -1,5 +1,6 @@
 import gradio as gr
 
+
 def change_textbox(choice):
     if choice == "short":
         return gr.Textbox(lines=2, visible=True)
@@ -7,6 +8,7 @@ def change_textbox(choice):
         return gr.Textbox(lines=8, visible=True, value="Lorem ipsum dolor sit amet")
     else:
         return gr.Textbox(visible=False)
+
 
 with gr.Blocks() as demo:
     radio = gr.Radio(

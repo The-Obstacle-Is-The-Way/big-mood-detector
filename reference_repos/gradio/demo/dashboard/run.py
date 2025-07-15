@@ -3,41 +3,62 @@ import pandas as pd
 import plotly.express as px
 from helpers import retrieve_pip_installs, retrieve_stars, retrieve_issues
 
-LIBRARIES = ["accelerate", "datasets", "diffusers", "evaluate", "gradio", "hub_docs",
-             "huggingface_hub", "optimum", "pytorch_image_models", "tokenizers", "transformers"]
+LIBRARIES = [
+    "accelerate",
+    "datasets",
+    "diffusers",
+    "evaluate",
+    "gradio",
+    "hub_docs",
+    "huggingface_hub",
+    "optimum",
+    "pytorch_image_models",
+    "tokenizers",
+    "transformers",
+]
+
 
 def create_pip_plot(libraries, pip_choices):
     if "Pip" not in pip_choices:
         return gr.Plot(visible=False)
     output = retrieve_pip_installs(libraries, "Cumulated" in pip_choices)
     df = pd.DataFrame(output).melt(id_vars="day")
-    plot = px.line(df, x="day", y="value", color="variable",
-                   title="Pip installs")
-    plot.update_layout(legend=dict(x=0.5, y=0.99),  title_x=0.5, legend_title_text="")
+    plot = px.line(df, x="day", y="value", color="variable", title="Pip installs")
+    plot.update_layout(legend=dict(x=0.5, y=0.99), title_x=0.5, legend_title_text="")
     return gr.Plot(value=plot, visible=True)
+
 
 def create_star_plot(libraries, star_choices):
     if "Stars" not in star_choices:
         return gr.Plot(visible=False)
     output = retrieve_stars(libraries, "Week over Week" in star_choices)
     df = pd.DataFrame(output).melt(id_vars="day")
-    plot = px.line(df, x="day", y="value", color="variable",
-                   title="Number of stargazers")
-    plot.update_layout(legend=dict(x=0.5, y=0.99),  title_x=0.5, legend_title_text="")
+    plot = px.line(
+        df, x="day", y="value", color="variable", title="Number of stargazers"
+    )
+    plot.update_layout(legend=dict(x=0.5, y=0.99), title_x=0.5, legend_title_text="")
     return gr.Plot(value=plot, visible=True)
+
 
 def create_issue_plot(libraries, issue_choices):
     if "Issue" not in issue_choices:
         return gr.Plot(visible=False)
-    output = retrieve_issues(libraries,
-                             exclude_org_members="Exclude org members" in issue_choices,
-                             week_over_week="Week over Week" in issue_choices)
+    output = retrieve_issues(
+        libraries,
+        exclude_org_members="Exclude org members" in issue_choices,
+        week_over_week="Week over Week" in issue_choices,
+    )
     df = pd.DataFrame(output).melt(id_vars="day")
-    plot = px.line(df, x="day", y="value", color="variable",
-                   title="Cumulated number of issues, PRs, and comments",
-                   )
-    plot.update_layout(legend=dict(x=0.5, y=0.99),  title_x=0.5, legend_title_text="")
+    plot = px.line(
+        df,
+        x="day",
+        y="value",
+        color="variable",
+        title="Cumulated number of issues, PRs, and comments",
+    )
+    plot.update_layout(legend=dict(x=0.5, y=0.99), title_x=0.5, legend_title_text="")
     return gr.Plot(value=plot, visible=True)
+
 
 with gr.Blocks() as demo:
     with gr.Row():
@@ -47,8 +68,13 @@ with gr.Blocks() as demo:
         with gr.Column():
             gr.Markdown("## Select graphs to display")
             pip = gr.CheckboxGroup(choices=["Pip", "Cumulated"], show_label=False)
-            stars = gr.CheckboxGroup(choices=["Stars", "Week over Week"], show_label=False)
-            issues = gr.CheckboxGroup(choices=["Issue", "Exclude org members", "week over week"], show_label=False)
+            stars = gr.CheckboxGroup(
+                choices=["Stars", "Week over Week"], show_label=False
+            )
+            issues = gr.CheckboxGroup(
+                choices=["Issue", "Exclude org members", "week over week"],
+                show_label=False,
+            )
     with gr.Row():
         fetch = gr.Button(value="Fetch")
     with gr.Row():

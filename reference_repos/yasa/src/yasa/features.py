@@ -179,7 +179,9 @@ def compute_features_stage(
 
     # 2.1) 1Hz bins, N2 / N3 / REM
     # win_sec = 4 sec = 0.25 Hz freq resolution
-    df_bp = yasa.bandpower(raw_eeg, hypno=hypno, bands=bands, win_sec=4, include=(2, 3, 4))
+    df_bp = yasa.bandpower(
+        raw_eeg, hypno=hypno, bands=bands, win_sec=4, include=(2, 3, 4)
+    )
     # Same for NREM / WN
     df_bp_NREM = yasa.bandpower(raw_eeg, hypno=hypno_NREM, bands=bands, include=6)
     df_bp_WN = yasa.bandpower(raw_eeg, hypno=hypno_WN, bands=bands, include=7)
@@ -228,7 +230,8 @@ def compute_features_stage(
         # Remove the TotalAbsPower column, incorrect because of negative values
         df_bp_1f.drop(columns=["TotalAbsPow", "FreqRes", "Relative"], inplace=True)
         df_bp_1f.columns = [
-            c if c in ["Stage", "Chan", "1f_slope"] else "bp_adj_" + c for c in df_bp_1f.columns
+            c if c in ["Stage", "Chan", "1f_slope"] else "bp_adj_" + c
+            for c in df_bp_1f.columns
         ]
         assert not (df_bp_1f._get_numeric_data() < 0).any().any()
         df_bp_1f.columns = df_bp_1f.columns.str.lower()
@@ -261,7 +264,8 @@ def compute_features_stage(
     df_sp_NREM.insert(loc=1, column="Density", value=density_NREM.to_numpy())
     df_sp = pd.concat([df_sp, df_sp_NREM], axis=0)
     df_sp.columns = [
-        "sp_" + c if c in ["Count", "Density"] else "sp_mean_" + c for c in df_sp.columns
+        "sp_" + c if c in ["Count", "Density"] else "sp_mean_" + c
+        for c in df_sp.columns
     ]
 
     # Prepare to export
@@ -295,7 +299,8 @@ def compute_features_stage(
     df_sw = pd.concat([df_sw, df_sw_NREM])
     df_sw = df_sw[["Count", "Density", "Duration", "PTP", "Frequency", "ndPAC"]]
     df_sw.columns = [
-        "sw_" + c if c in ["Count", "Density"] else "sw_mean_" + c for c in df_sw.columns
+        "sw_" + c if c in ["Count", "Density"] else "sw_mean_" + c
+        for c in df_sw.columns
     ]
 
     # Aggregate using the coefficient of variation
@@ -308,9 +313,9 @@ def compute_features_stage(
     ]
 
     # Add NREM
-    df_sw_cv_NREM = sw.summary(grp_chan=True, grp_stage=False, aggfunc=sp_stats.variation)[
-        ["PTP", "Frequency", "ndPAC"]
-    ].reset_index()
+    df_sw_cv_NREM = sw.summary(
+        grp_chan=True, grp_stage=False, aggfunc=sp_stats.variation
+    )[["PTP", "Frequency", "ndPAC"]].reset_index()
     df_sw_cv_NREM["Stage"] = 6
     df_sw_cv_NREM.set_index(["Stage", "Channel"], inplace=True)
     df_sw_cv = pd.concat([df_sw_cv, df_sw_cv_NREM], axis=0)
@@ -341,7 +346,9 @@ def compute_features_stage(
     env_delta = np.abs(sp_sig.hilbert(data_delta))
 
     # Initialize dataframe
-    idx_ent = pd.MultiIndex.from_product([[2, 3, 4, 6, 7], chan], names=["stage", "chan"])
+    idx_ent = pd.MultiIndex.from_product(
+        [[2, 3, 4, 6, 7], chan], names=["stage", "chan"]
+    )
     df_ent = pd.DataFrame(index=idx_ent)
 
     for stage in [2, 3, 4, 6, 7]:
@@ -371,12 +378,19 @@ def compute_features_stage(
         #   calculate.
         from numpy import apply_along_axis as aal
 
-        df_ent.loc[stage, "ent_svd"] = aal(ant.svd_entropy, axis=1, arr=data_stage, normalize=True)
+        df_ent.loc[stage, "ent_svd"] = aal(
+            ant.svd_entropy, axis=1, arr=data_stage, normalize=True
+        )
         df_ent.loc[stage, "ent_perm"] = aal(
             ant.perm_entropy, axis=1, arr=data_stage, normalize=True
         )
         df_ent.loc[stage, "ent_spec"] = ant.spectral_entropy(
-            data_stage, sf, method="welch", nperseg=(5 * int(sf)), normalize=True, axis=1
+            data_stage,
+            sf,
+            method="welch",
+            nperseg=(5 * int(sf)),
+            normalize=True,
+            axis=1,
         )
         df_ent.loc[stage, "ent_higuchi"] = aal(ant.higuchi_fd, axis=1, arr=data_stage)
 
@@ -389,7 +403,9 @@ def compute_features_stage(
         df_ent.loc[stage, "ent_cve_delta"] = cve
 
         # Other metrics of slow-wave (= delta) stability
-        df_ent.loc[stage, "ent_higuchi_delta"] = aal(ant.higuchi_fd, axis=1, arr=data_stage_delta)
+        df_ent.loc[stage, "ent_higuchi_delta"] = aal(
+            ant.higuchi_fd, axis=1, arr=data_stage_delta
+        )
 
     df_ent = df_ent.dropna(how="all").reset_index()
     df_ent["stage"] = df_ent["stage"].map(stage_mapping)
@@ -398,6 +414,10 @@ def compute_features_stage(
     # 5) MERGE ALL DATAFRAMES
     # #########################################################################
 
-    df = df_bp.merge(df_sp, how="outer").merge(df_sw, how="outer").merge(df_ent, how="outer")
+    df = (
+        df_bp.merge(df_sp, how="outer")
+        .merge(df_sw, how="outer")
+        .merge(df_ent, how="outer")
+    )
 
     return df.set_index(["stage", "chan"])

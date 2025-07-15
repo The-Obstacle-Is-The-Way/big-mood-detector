@@ -2,7 +2,13 @@ import gradio as gr
 import numpy as np
 
 with gr.Blocks() as demo:
-    tolerance = gr.Slider(label="Tolerance", info="How different colors can be in a segment.", minimum=0, maximum=256*3, value=50)
+    tolerance = gr.Slider(
+        label="Tolerance",
+        info="How different colors can be in a segment.",
+        minimum=0,
+        maximum=256 * 3,
+        value=50,
+    )
     with gr.Row():
         input_img = gr.Image(label="Input")
         output_img = gr.Image(label="Selected Segment")

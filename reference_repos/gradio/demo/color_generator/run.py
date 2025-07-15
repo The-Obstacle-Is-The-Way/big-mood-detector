@@ -3,6 +3,7 @@ import cv2
 import numpy as np
 import random
 
+
 # Convert decimal color to hexadecimal color
 def RGB_to_Hex(rgb):
     color = "#"
@@ -11,6 +12,7 @@ def RGB_to_Hex(rgb):
         color += str(hex(num))[-2:].replace("x", "0").upper()
     return color
 
+
 # Randomly generate light or dark colors
 def random_color(is_light=True):
     return (
@@ -18,6 +20,7 @@ def random_color(is_light=True):
         random.randint(0, 127) + int(is_light) * 128,
         random.randint(0, 127) + int(is_light) * 128,
     )
+
 
 def switch_color(color_style):
     is_light = color_style == "light"
@@ -30,6 +33,7 @@ def switch_color(color_style):
     cv2.rectangle(img, (0, 0), (w, h), back_color_, thickness=-1)
 
     return back_color, back_color, img
+
 
 inputs = [gr.Radio(["light", "dark"], value="light")]
 

@@ -16,7 +16,13 @@ from .io import set_log_level
 
 logger = logging.getLogger("yasa")
 
-__all__ = ["bandpower", "bandpower_from_psd", "bandpower_from_psd_ndarray", "irasa", "stft_power"]
+__all__ = [
+    "bandpower",
+    "bandpower_from_psd",
+    "bandpower_from_psd_ndarray",
+    "irasa",
+    "stft_power",
+]
 
 
 def bandpower(
@@ -143,9 +149,9 @@ def bandpower(
     if hypno is None:
         # Calculate the PSD over the whole data
         freqs, psd = signal.welch(data, sf, nperseg=win, **kwargs_welch)
-        return bandpower_from_psd(psd, freqs, ch_names, bands=bands, relative=relative).set_index(
-            "Chan"
-        )
+        return bandpower_from_psd(
+            psd, freqs, ch_names, bands=bands, relative=relative
+        ).set_index("Chan")
     else:
         # Per each sleep stage defined in ``include``.
         hypno = np.asarray(hypno)
@@ -154,10 +160,12 @@ def bandpower(
         assert hypno.ndim == 1, "Hypno must be a 1D array."
         assert hypno.size == npts, "Hypno must have same size as data.shape[1]"
         assert include.size >= 1, "`include` must have at least one element."
-        assert hypno.dtype.kind == include.dtype.kind, "hypno and include must have same dtype"
-        assert np.isin(hypno, include).any(), (
-            "None of the stages specified in `include` are present in hypno."
-        )
+        assert (
+            hypno.dtype.kind == include.dtype.kind
+        ), "hypno and include must have same dtype"
+        assert np.isin(
+            hypno, include
+        ).any(), "None of the stages specified in `include` are present in hypno."
         # Initialize empty dataframe and loop over stages
         df_bp = pd.DataFrame([])
         for stage in include:
@@ -165,7 +173,9 @@ def bandpower(
                 continue
             data_stage = data[:, hypno == stage]
             freqs, psd = signal.welch(data_stage, sf, nperseg=win, **kwargs_welch)
-            bp_stage = bandpower_from_psd(psd, freqs, ch_names, bands=bands, relative=relative)
+            bp_stage = bandpower_from_psd(
+                psd, freqs, ch_names, bands=bands, relative=relative
+            )
             bp_stage["Stage"] = stage
             df_bp = pd.concat([df_bp, bp_stage], axis=0)
         return df_bp.set_index(["Stage", "Chan"])
@@ -547,7 +557,9 @@ def irasa(
     freq_Nyq = sf / 2  # Nyquist frequency
     freq_Nyq_res = freq_Nyq / h_max  # minimum resampled Nyquist frequency
     logging.info(f"Fitting range: {band[0]:.2f}Hz-{band[1]:.2f}Hz")
-    logging.info(f"Evaluated frequency range: {band_evaluated[0]:.2f}Hz-{band_evaluated[1]:.2f}Hz")
+    logging.info(
+        f"Evaluated frequency range: {band_evaluated[0]:.2f}Hz-{band_evaluated[1]:.2f}Hz"
+    )
     if band_evaluated[0] < hp:
         logging.warning(
             "The evaluated frequency range starts below the "

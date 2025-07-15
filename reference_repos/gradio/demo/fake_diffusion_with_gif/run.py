@@ -6,6 +6,7 @@ from PIL import Image
 import requests
 from io import BytesIO
 
+
 def create_gif(images):
     pil_images = []
     for image in images:
@@ -17,9 +18,16 @@ def create_gif(images):
         pil_images.append(image)
     fp_out = os.path.join(os.path.dirname(__file__), "image.gif")
     img = pil_images.pop(0)
-    img.save(fp=fp_out, format='GIF', append_images=pil_images,
-            save_all=True, duration=400, loop=0)
+    img.save(
+        fp=fp_out,
+        format="GIF",
+        append_images=pil_images,
+        save_all=True,
+        duration=400,
+        loop=0,
+    )
     return fp_out
+
 
 def fake_diffusion(steps):
     rng = np.random.default_rng()
@@ -37,9 +45,12 @@ def fake_diffusion(steps):
 
     yield image, gr.Image(value=gif_path, visible=True)
 
-demo = gr.Interface(fake_diffusion,
-                    inputs=gr.Slider(1, 10, 3, step=1),
-                    outputs=["image", gr.Image(label="All Images", visible=False)])
+
+demo = gr.Interface(
+    fake_diffusion,
+    inputs=gr.Slider(1, 10, 3, step=1),
+    outputs=["image", gr.Image(label="All Images", visible=False)],
+)
 
 if __name__ == "__main__":
     demo.launch()

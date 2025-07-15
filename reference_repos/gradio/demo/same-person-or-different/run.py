@@ -2,10 +2,10 @@ import gradio as gr
 import torch
 from torchaudio.sox_effects import apply_effects_file
 from transformers import AutoFeatureExtractor, AutoModelForAudioXVector
+
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-OUTPUT_OK = (
-    """
+OUTPUT_OK = """
     <div class="container">
         <div class="row"><h1 style="text-align: center">The speakers are</h1></div>
         <div class="row"><h1 class="display-1 text-success" style="text-align: center">{:.1f}%</h1></div>
@@ -14,9 +14,7 @@ OUTPUT_OK = (
         <div class="row"><small style="text-align: center">(You must get at least 85% to be considered the same person)</small><div class="row">
     </div>
 """
-)
-OUTPUT_FAIL = (
-    """
+OUTPUT_FAIL = """
     <div class="container">
         <div class="row"><h1 style="text-align: center">The speakers are</h1></div>
         <div class="row"><h1 class="display-1 text-danger" style="text-align: center">{:.1f}%</h1></div>
@@ -25,7 +23,6 @@ OUTPUT_FAIL = (
         <div class="row"><small style="text-align: center">(You must get at least 85% to be considered the same person)</small><div class="row">
     </div>
 """
-)
 
 EFFECTS = [
     ["remix", "-"],
@@ -43,16 +40,23 @@ feature_extractor = AutoFeatureExtractor.from_pretrained(model_name)
 model = AutoModelForAudioXVector.from_pretrained(model_name).to(device)
 cosine_sim = torch.nn.CosineSimilarity(dim=-1)
 
+
 def similarity_fn(path1, path2):
     if not (path1 and path2):
-        return '<b style="color:red">ERROR: Please record audio for *both* speakers!</b>'
+        return (
+            '<b style="color:red">ERROR: Please record audio for *both* speakers!</b>'
+        )
 
     wav1, _ = apply_effects_file(path1, EFFECTS)
     wav2, _ = apply_effects_file(path2, EFFECTS)
     print(wav1.shape, wav2.shape)
 
-    input1 = feature_extractor(wav1.squeeze(0), return_tensors="pt", sampling_rate=16000).input_values.to(device)
-    input2 = feature_extractor(wav2.squeeze(0), return_tensors="pt", sampling_rate=16000).input_values.to(device)
+    input1 = feature_extractor(
+        wav1.squeeze(0), return_tensors="pt", sampling_rate=16000
+    ).input_values.to(device)
+    input2 = feature_extractor(
+        wav2.squeeze(0), return_tensors="pt", sampling_rate=16000
+    ).input_values.to(device)
 
     with torch.no_grad():
         emb1 = model(input1).embeddings
@@ -67,6 +71,7 @@ def similarity_fn(path1, path2):
         output = OUTPUT_FAIL.format(similarity * 100)
 
     return output
+
 
 inputs = [
     gr.Audio(sources=["microphone"], type="filepath", label="Speaker #1"),
@@ -98,6 +103,6 @@ interface = gr.Interface(
     flagging_mode="never",
     live=False,
     examples=examples,
-    cache_examples=False
+    cache_examples=False,
 )
 interface.launch()

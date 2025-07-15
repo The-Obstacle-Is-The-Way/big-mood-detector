@@ -373,9 +373,7 @@ class ChatCSVLogger:
         feedback = (
             "Like"
             if like_data.liked is True
-            else "Dislike"
-            if like_data.liked is False
-            else like_data.liked
+            else "Dislike" if like_data.liked is False else like_data.liked
         )
         csv_data = [
             json.dumps(messages),

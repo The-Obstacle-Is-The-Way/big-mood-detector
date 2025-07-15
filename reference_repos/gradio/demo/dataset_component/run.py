@@ -1,7 +1,8 @@
 import gradio as gr
 
 with gr.Blocks() as demo:
-    gr.Dataset(components=[gr.Textbox(visible=False)],
+    gr.Dataset(
+        components=[gr.Textbox(visible=False)],
         label="Text Dataset",
         samples=[
             ["The quick brown fox jumps over the lazy dog"],
@@ -9,7 +10,7 @@ with gr.Blocks() as demo:
             ["She sells seashells by the seashore"],
             ["Supercalifragilisticexpialidocious"],
             ["Lorem ipsum"],
-            ["That's all folks!"]
+            ["That's all folks!"],
         ],
     )
 demo.launch()

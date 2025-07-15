@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import random
 import os
 
+
 def random_plot():
     start_year = 2020
     x = np.arange(start_year, start_year + random.randint(0, 10))
@@ -15,6 +16,7 @@ def random_plot():
     series += np.random.rand(year_count)
     ax.plot(x, series, plt_format)
     return fig
+
 
 img_dir = os.path.join(os.path.dirname(__file__), "files")
 file_dir = os.path.join(os.path.dirname(__file__), "..", "kitchen_sink", "files")
@@ -58,8 +60,13 @@ highlighted_text_output_2 = [
 
 highlighted_text = "Does Chicago have any Pakistani restaurants"
 
+
 def random_model3d():
     model_3d = random.choice(
-        [os.path.join(model3d_dir, model) for model in os.listdir(model3d_dir) if model != "source.txt"]
+        [
+            os.path.join(model3d_dir, model)
+            for model in os.listdir(model3d_dir)
+            if model != "source.txt"
+        ]
     )
     return model_3d

@@ -27,9 +27,13 @@ class TestFHIRDate(unittest.TestCase):
 
     def test_object_validation(self):
         """Confirm that when constructing an invalid JSON class, we complain"""
-        with self.assertRaisesRegex(FHIRValidationError, "Expecting string when initializing"):
+        with self.assertRaisesRegex(
+            FHIRValidationError, "Expecting string when initializing"
+        ):
             Timing({"event": [1923, "1924"]})
-        with self.assertRaisesRegex(FHIRValidationError, "does not match expected format"):
+        with self.assertRaisesRegex(
+            FHIRValidationError, "does not match expected format"
+        ):
             Patient({"birthDate": "1923-10-11T12:34:56Z"})
 
     def test_aliases(self):
@@ -58,11 +62,13 @@ class TestFHIRDate(unittest.TestCase):
 
     def test_with_json(self):
         """Confirm we can make objects correctly"""
-        self.assertEqual(FHIRDate.with_json_and_owner("2024", None).isostring, "2024-01-01")
+        self.assertEqual(
+            FHIRDate.with_json_and_owner("2024", None).isostring, "2024-01-01"
+        )
         self.assertEqual(FHIRTime.with_json("10:12:14").isostring, "10:12:14")
         self.assertEqual(
             [x.isostring for x in FHIRTime.with_json(["10:12:14", "01:01:01"])],
-            ["10:12:14", "01:01:01"]
+            ["10:12:14", "01:01:01"],
         )
         with self.assertRaisesRegex(TypeError, "only takes string or list"):
             FHIRDateTime.with_json(2024)
@@ -119,11 +125,12 @@ class TestFHIRDate(unittest.TestCase):
         self.assertEqual(FHIRDateTime("1973-06").isostring, "1973-06-01T00:00:00")
         self.assertEqual(FHIRDateTime("1905-08-23").isostring, "1905-08-23T00:00:00")
         self.assertEqual(
-            FHIRDateTime("2015-02-07T13:28:17-05:00").isostring, "2015-02-07T13:28:17-05:00"
+            FHIRDateTime("2015-02-07T13:28:17-05:00").isostring,
+            "2015-02-07T13:28:17-05:00",
         )
         self.assertEqual(
             FHIRDateTime("2017-01-01T00:00:00.123456Z").isostring,
-            "2017-01-01T00:00:00.123456+00:00"
+            "2017-01-01T00:00:00.123456+00:00",
         )
         self.assertEqual(  # leap second
             FHIRDateTime("2015-02-07T13:28:60Z").isostring, "2015-02-07T13:28:59+00:00"
@@ -132,7 +139,9 @@ class TestFHIRDate(unittest.TestCase):
         # Check that we also correctly provide the date property
         self.assertIsInstance(FHIRDateTime("2015").date, datetime.datetime)
         self.assertIsInstance(FHIRDateTime("2015-02-07").date, datetime.datetime)
-        self.assertIsInstance(FHIRDateTime("2015-02-07T13:28:17Z").date, datetime.datetime)
+        self.assertIsInstance(
+            FHIRDateTime("2015-02-07T13:28:17Z").date, datetime.datetime
+        )
 
         # Check that we give back the original input when converting back to as_json()
         self.assertEqual(FHIRDateTime("1982").as_json(), "1982")
@@ -148,7 +157,9 @@ class TestFHIRDate(unittest.TestCase):
         self.assertRaises(ValueError, FHIRDateTime, "07-23-1982")
         self.assertRaises(ValueError, FHIRDateTime, "13:28:17")
         self.assertRaises(ValueError, FHIRDateTime, "2015-02-07T13:28")  # no seconds
-        self.assertRaises(ValueError, FHIRDateTime, "2015-02-07T13:28:17")  # no timezone
+        self.assertRaises(
+            ValueError, FHIRDateTime, "2015-02-07T13:28:17"
+        )  # no timezone
 
     def test_instant(self):
         """
@@ -161,30 +172,35 @@ class TestFHIRDate(unittest.TestCase):
         """
         # Various happy path strings
         self.assertEqual(
-            FHIRInstant("2015-02-07T13:28:17-05:00").isostring, "2015-02-07T13:28:17-05:00"
+            FHIRInstant("2015-02-07T13:28:17-05:00").isostring,
+            "2015-02-07T13:28:17-05:00",
         )
         self.assertEqual(
             FHIRInstant("2017-01-01T00:00:00.123456Z").isostring,
-            "2017-01-01T00:00:00.123456+00:00"
+            "2017-01-01T00:00:00.123456+00:00",
         )
         self.assertEqual(  # leap second
             FHIRInstant("2017-01-01T00:00:60Z").isostring, "2017-01-01T00:00:59+00:00"
         )
 
         # Check that we also correctly provide the date property
-        self.assertIsInstance(FHIRInstant("2015-02-07T13:28:17Z").date, datetime.datetime)
+        self.assertIsInstance(
+            FHIRInstant("2015-02-07T13:28:17Z").date, datetime.datetime
+        )
 
         # Check that we give back the original input when converting back to as_json()
         self.assertEqual(
             FHIRInstant("2017-01-01T00:00:00Z").as_json(),
-            "2017-01-01T00:00:00Z"  # Z instead of +00.00
+            "2017-01-01T00:00:00Z",  # Z instead of +00.00
         )
 
         # Confirm we're used in actual objects
-        obs = Observation({
-            "issued": "2017-01-01T00:00:00.123Z",
-            "status": "X",
-            "code": {"text": "X"}},
+        obs = Observation(
+            {
+                "issued": "2017-01-01T00:00:00.123Z",
+                "status": "X",
+                "code": {"text": "X"},
+            },
         )
         self.assertIsInstance(obs.issued, FHIRInstant)
         self.assertEqual(obs.issued.isostring, "2017-01-01T00:00:00.123000+00:00")
@@ -221,7 +237,9 @@ class TestFHIRDate(unittest.TestCase):
         self.assertEqual(FHIRTime("00:00:00").as_json(), "00:00:00")
 
         # Confirm we're used in actual objects
-        obs = Observation({"valueTime": "14:49:32", "status": "X", "code": {"text": "X"}})
+        obs = Observation(
+            {"valueTime": "14:49:32", "status": "X", "code": {"text": "X"}}
+        )
         self.assertIsInstance(obs.valueTime, FHIRTime)
         self.assertEqual(obs.valueTime.isostring, "14:49:32")
 

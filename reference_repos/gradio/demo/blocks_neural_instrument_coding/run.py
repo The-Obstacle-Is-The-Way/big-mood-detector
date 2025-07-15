@@ -7,18 +7,22 @@ import random
 import gradio as gr
 from gradio.components import Markdown as m
 
+
 def get_time():
     now = datetime.datetime.now()
     return now.strftime("%m/%d/%Y, %H:%M:%S")
 
+
 def generate_recording():
     return random.choice(["new-sax-1.mp3", "new-sax-1.wav"])
+
 
 def reconstruct(audio):
     return random.choice(["new-sax-1.mp3", "new-sax-1.wav"])
 
+
 io1 = gr.Interface(
-    lambda x, y, z: os.path.join(os.path.dirname(__file__),"sax.wav"),
+    lambda x, y, z: os.path.join(os.path.dirname(__file__), "sax.wav"),
     [
         gr.Slider(label="pitch"),
         gr.Slider(label="loudness"),
@@ -28,7 +32,7 @@ io1 = gr.Interface(
 )
 
 io2 = gr.Interface(
-    lambda x, y, z: os.path.join(os.path.dirname(__file__),"flute.wav"),
+    lambda x, y, z: os.path.join(os.path.dirname(__file__), "flute.wav"),
     [
         gr.Slider(label="pitch"),
         gr.Slider(label="loudness"),
@@ -38,7 +42,7 @@ io2 = gr.Interface(
 )
 
 io3 = gr.Interface(
-    lambda x, y, z: os.path.join(os.path.dirname(__file__),"trombone.wav"),
+    lambda x, y, z: os.path.join(os.path.dirname(__file__), "trombone.wav"),
     [
         gr.Slider(label="pitch"),
         gr.Slider(label="loudness"),
@@ -48,7 +52,7 @@ io3 = gr.Interface(
 )
 
 io4 = gr.Interface(
-    lambda x, y, z: os.path.join(os.path.dirname(__file__),"sax2.wav"),
+    lambda x, y, z: os.path.join(os.path.dirname(__file__), "sax2.wav"),
     [
         gr.Slider(label="pitch"),
         gr.Slider(label="loudness"),
@@ -78,14 +82,17 @@ with demo.clear():
     Here are some **real** 16 second saxophone recordings:
     """
     )
-    gr.Audio(os.path.join(os.path.dirname(__file__),"sax.wav"), label="Here is a real 16 second saxophone recording:")
-    gr.Audio(os.path.join(os.path.dirname(__file__),"sax.wav"))
+    gr.Audio(
+        os.path.join(os.path.dirname(__file__), "sax.wav"),
+        label="Here is a real 16 second saxophone recording:",
+    )
+    gr.Audio(os.path.join(os.path.dirname(__file__), "sax.wav"))
 
     m(
         """\n
         Here is a **generated** saxophone recordings:"""
     )
-    a = gr.Audio(os.path.join(os.path.dirname(__file__),"new-sax.wav"))
+    a = gr.Audio(os.path.join(os.path.dirname(__file__), "new-sax.wav"))
 
     gr.Button("Generate a new saxophone recording")
 

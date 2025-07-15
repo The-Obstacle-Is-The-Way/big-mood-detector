@@ -9,6 +9,7 @@ color_map = {
     "beneficial": "green",
 }
 
+
 def html_src(harm_level):
     return f"""
 <div style="display: flex; gap: 5px;">
@@ -18,8 +19,10 @@ def html_src(harm_level):
 </div>
 """
 
+
 def print_like_dislike(x: gr.LikeData):
     print(x.index, x.value, x.liked)
+
 
 def add_message(history, message):
     for x in message["files"]:
@@ -27,6 +30,7 @@ def add_message(history, message):
     if message["text"] is not None:
         history.append((message["text"], None))
     return history, gr.MultimodalTextbox(value=None, interactive=False)
+
 
 def bot(history, response_type):
     if response_type == "gallery":
@@ -54,11 +58,12 @@ def bot(history, response_type):
         )
     elif response_type == "model3d":
         history[-1][1] = gr.Model3D(
-           "https://github.com/gradio-app/gradio/raw/main/test/test_files/Fox.gltf"
+            "https://github.com/gradio-app/gradio/raw/main/test/test_files/Fox.gltf"
         )
     else:
         history[-1][1] = "Cool!"
     return history
+
 
 with gr.Blocks(fill_height=True) as demo:
     chatbot = gr.Chatbot(

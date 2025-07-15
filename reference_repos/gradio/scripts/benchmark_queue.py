@@ -1,5 +1,5 @@
-'''
-A script that benchmarks the queue performance, can be used to compare the performance 
+"""
+A script that benchmarks the queue performance, can be used to compare the performance
 of the queue on a given branch vs the main branch. By default, runs 100 jobs in batches
 of 20 and prints the average time per job. The inference time for each job (without the
 network overhead of sending/receiving the data) is 0.5 seconds. Each job sends one of:
@@ -11,10 +11,10 @@ Navigate to the root directory of the gradio repo and run:
 You can specify the number of jobs to run and the batch size with the -n parameter:
 >> python scripts/benchmark_queue.py -n 1000
 
-The results are printed to the console, but you can specify a path to save the results 
+The results are printed to the console, but you can specify a path to save the results
 to with the -o parameter:
 >> python scripts/benchmark_queue.py -n 1000 -o results.json
-'''
+"""
 
 import argparse
 import asyncio
@@ -40,7 +40,9 @@ with gr.Blocks() as demo:
             input_txt = gr.Text()
             output_text = gr.Text()
             submit_text = gr.Button()
-            submit_text.click(identity_with_sleep, input_txt, output_text, api_name="text")
+            submit_text.click(
+                identity_with_sleep, input_txt, output_text, api_name="text"
+            )
         with gr.Column():
             input_img = gr.Image()
             output_img = gr.Image()
@@ -50,12 +52,16 @@ with gr.Blocks() as demo:
             input_audio = gr.Audio()
             output_audio = gr.Audio()
             submit_audio = gr.Button()
-            submit_audio.click(identity_with_sleep, input_audio, output_audio, api_name="audio")
+            submit_audio.click(
+                identity_with_sleep, input_audio, output_audio, api_name="audio"
+            )
         with gr.Column():
             input_video = gr.Video()
             output_video = gr.Video()
             submit_video = gr.Button()
-            submit_video.click(identity_with_sleep, input_video, output_video, api_name="video")
+            submit_video.click(
+                identity_with_sleep, input_video, output_video, api_name="video"
+            )
 demo.queue(max_size=50).launch(prevent_thread_lock=True, quiet=True)
 
 
@@ -63,7 +69,7 @@ FN_INDEX_TO_DATA = {
     "text": (0, "A longish text " * 15),
     "image": (1, media_data.BASE64_IMAGE),
     "audio": (2, media_data.BASE64_AUDIO),
-    "video": (3, media_data.BASE64_VIDEO)
+    "video": (3, media_data.BASE64_VIDEO),
 }
 
 
@@ -79,7 +85,9 @@ async def get_prediction(host):
             if msg["msg"] == "send_data":
                 await ws.send(json.dumps({"data": [data], "fn_index": fn_to_hit}))
             if msg["msg"] == "send_hash":
-                await ws.send(json.dumps({"fn_index": fn_to_hit, "session_hash": "shdce"}))
+                await ws.send(
+                    json.dumps({"fn_index": fn_to_hit, "session_hash": "shdce"})
+                )
             if msg["msg"] == "process_completed":
                 completed = True
                 end = time.time()
@@ -97,22 +105,29 @@ async def main(host, n_results=100):
     data = pd.DataFrame(results).groupby("fn_to_hit").agg({"mean"})
     data.columns = data.columns.get_level_values(0)
     data = data.reset_index()
-    data = {"fn_to_hit": data["fn_to_hit"].to_list(), "duration": data["duration"].to_list()}                
+    data = {
+        "fn_to_hit": data["fn_to_hit"].to_list(),
+        "duration": data["duration"].to_list(),
+    }
     return data
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Upload a demo to a space")
-    parser.add_argument("-n", "--n_jobs", type=int, help="number of jobs", default=100, required=False)
-    parser.add_argument("-o", "--output", type=str, help="path to write output to", required=False)     
+    parser.add_argument(
+        "-n", "--n_jobs", type=int, help="number of jobs", default=100, required=False
+    )
+    parser.add_argument(
+        "-o", "--output", type=str, help="path to write output to", required=False
+    )
     args = parser.parse_args()
 
     host = f"{demo.local_url.replace('http', 'ws')}queue/data"
     data = asyncio.run(main(host, n_results=args.n_jobs))
     data = dict(zip(data["fn_to_hit"], data["duration"]))
-    
+
     print(data)
-    
+
     if args.output:
         print("Writing results to:", args.output)
         json.dump(data, open(args.output, "w"))

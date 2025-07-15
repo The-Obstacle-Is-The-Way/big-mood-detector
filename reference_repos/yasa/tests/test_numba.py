@@ -26,7 +26,9 @@ class TestNumba(unittest.TestCase):
         slope = _slope_lstsq(times, y)
         assert np.isnan(_slope_lstsq(y_flat, x))
         assert np.array_equal(_detrend(x, y_flat), np.zeros_like(y_flat))
-        np.testing.assert_array_almost_equal(_detrend(times, y), detrend(y, type="linear"))
+        np.testing.assert_array_almost_equal(
+            _detrend(times, y), detrend(y, type="linear")
+        )
         X = times[..., np.newaxis]
         X = np.column_stack((np.ones(X.shape[0]), X))
         slope_np = np.linalg.lstsq(X, y, rcond=None)[0][1]

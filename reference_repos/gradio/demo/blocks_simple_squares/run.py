@@ -1,6 +1,8 @@
 import gradio as gr
 
-demo = gr.Blocks(css="""#btn {color: red} .abc {font-family: "Comic Sans MS", "Comic Sans", cursive !important}""")
+demo = gr.Blocks(
+    css="""#btn {color: red} .abc {font-family: "Comic Sans MS", "Comic Sans", cursive !important}"""
+)
 
 with demo:
     default_json = {"a": "a"}

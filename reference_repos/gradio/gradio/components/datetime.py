@@ -72,11 +72,15 @@ class DateTime(FormComponent):
         self._value_description = (
             "a datetime object"
             if self.type == "datetime"
-            else "a unix timestamp"
-            if self.type == "timestamp"
-            else "a %Y-%m-%d %H:%M:%S formatted string"
-            if include_time
-            else "a %Y-%m-%d formatted string"
+            else (
+                "a unix timestamp"
+                if self.type == "timestamp"
+                else (
+                    "a %Y-%m-%d %H:%M:%S formatted string"
+                    if include_time
+                    else "a %Y-%m-%d formatted string"
+                )
+            )
         )
         super().__init__(
             every=every,

@@ -32,11 +32,7 @@ def classify_query(query, chat):
     chain = prompt | chat
     response = chain.invoke(
         {
-            "messages": [
-                HumanMessage(
-                    content=query
-                )
-            ],
+            "messages": [HumanMessage(content=query)],
         }
     )
     print("Classified the request as ", response.content)
@@ -46,7 +42,7 @@ def classify_query(query, chat):
 def load_data_into_db(csv_path, db_path, table_name):
     engine = create_engine(db_path)
     df = pd.read_csv(csv_path)
-    df.to_sql(table_name, engine, index=False, if_exists='replace')
+    df.to_sql(table_name, engine, index=False, if_exists="replace")
     return engine
 
 
@@ -76,12 +72,16 @@ If the question does not seem related to the database, just return "I don't know
     data_paths = {
         "workouts": ("/data/export_workouts.csv", "sqlite:///workouts.db", "workouts"),
         "sleep": ("/data/export_sleep.csv", "sqlite:///sleep.db", "sleep"),
-        "exerciseTime": ("/data/export_exercise_time.csv", "sqlite:///exerciseTime.db", "exerciseTime"),
+        "exerciseTime": (
+            "/data/export_exercise_time.csv",
+            "sqlite:///exerciseTime.db",
+            "exerciseTime",
+        ),
     }
 
     while True:
         user_input = input("Enter your query or 'exit' to quit: ")
-        if user_input.lower() == 'exit':
+        if user_input.lower() == "exit":
             break
 
         # Classify the user's query
@@ -91,14 +91,20 @@ If the question does not seem related to the database, just return "I don't know
             csv_path, db_path, table_name = data_paths[category]
             engine = load_data_into_db(csv_path, db_path, table_name)
         else:
-            print("\nAI: I'm not sure how to classify your request. Please try again with more detail.\n")
+            print(
+                "\nAI: I'm not sure how to classify your request. Please try again with more detail.\n"
+            )
             continue
         print("Processing your request!")
         db = SQLDatabase(engine=engine)
-        agent_executor = create_sql_agent(llm, db=db, agent_type="openai-tools", verbose=False)
+        agent_executor = create_sql_agent(
+            llm, db=db, agent_type="openai-tools", verbose=False
+        )
 
-        response = agent_executor.invoke({"input": system_prompt+user_input})
-        formatted_response = response.get('output', 'Sorry, I could not process your request.')
+        response = agent_executor.invoke({"input": system_prompt + user_input})
+        formatted_response = response.get(
+            "output", "Sorry, I could not process your request."
+        )
         # Print the entire response in bold and purple
         print("\033[1m\033[95mAppleHealthBot:", formatted_response, "\033[0m\n")
 

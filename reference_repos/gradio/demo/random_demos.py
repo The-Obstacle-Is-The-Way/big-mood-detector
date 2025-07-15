@@ -22,7 +22,11 @@ args = parser.parse_args()
 demos_list = next(os.walk(pathlib.Path(__file__).parent))[1]
 
 # Some demos are just too large or need to be run in a special way, so we'll just skip them
-large_demos = ['streaming_wav2vec', 'blocks_neural_instrument_coding', '.gradio/flagged']
+large_demos = [
+    "streaming_wav2vec",
+    "blocks_neural_instrument_coding",
+    ".gradio/flagged",
+]
 for large_demo in large_demos:
     if large_demo in demos_list:
         demos_list.remove(large_demo)
@@ -33,6 +37,8 @@ for d, demo_name in enumerate(random.sample(demos_list, args.num_demos)):
     run = importlib.import_module(f"{demo_name}.run")
     demo: gr.Blocks = run.demo
     if d == args.num_demos - 1:
-        demo.launch(prevent_thread_lock=False, inbrowser=True)  # prevent main thread from exiting
+        demo.launch(
+            prevent_thread_lock=False, inbrowser=True
+        )  # prevent main thread from exiting
     else:
         demo.launch(prevent_thread_lock=True, inbrowser=True)

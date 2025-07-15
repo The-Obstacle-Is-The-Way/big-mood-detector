@@ -1,5 +1,6 @@
 import gradio as gr
 
+
 def predict(text, request: gr.Request):
     headers = request.headers
     host = request.client.host
@@ -9,5 +10,6 @@ def predict(text, request: gr.Request):
         "user_agent": user_agent,
         "headers": headers,
     }
+
 
 gr.Interface(predict, "text", "json").launch()

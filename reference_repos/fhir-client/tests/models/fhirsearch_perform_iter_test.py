@@ -13,7 +13,7 @@ class TestFHIRSearchIter(unittest.TestCase):
         self.search = FHIRSearch(resource_type=Bundle)
         self.search.params = [
             FHIRSearchParam(name="patient", value="347"),
-            FHIRSearchParam(name="_count", value="1")
+            FHIRSearchParam(name="_count", value="1"),
         ]
         self.mock_server = MockServer("https://example.com")
 
@@ -27,18 +27,13 @@ class TestFHIRSearchIter(unittest.TestCase):
                 "subject": {"reference": "Patient/347"},
                 "intent": "order",
                 "status": "unknown",
-                "medicationReference": {"reference": "Medication/example"}
-            }
+                "medicationReference": {"reference": "Medication/example"},
+            },
         }
 
     def add_mock_response(self, url, bundle_content):
         """Helper to set up a mock response for the given URL and bundle content."""
-        responses.add(
-            responses.GET,
-            url,
-            json=bundle_content,
-            status=200
-        )
+        responses.add(responses.GET, url, json=bundle_content, status=200)
 
     @responses.activate
     def test_perform_iter_single_bundle(self):
@@ -46,11 +41,13 @@ class TestFHIRSearchIter(unittest.TestCase):
         bundle_content = {
             "resourceType": "Bundle",
             "type": "searchset",
-            "entry": [self.create_bundle_entry("3123")]
+            "entry": [self.create_bundle_entry("3123")],
         }
 
         # Mock the single page response
-        self.add_mock_response("https://example.com/Bundle?patient=347&_count=1", bundle_content)
+        self.add_mock_response(
+            "https://example.com/Bundle?patient=347&_count=1", bundle_content
+        )
 
         # Call perform_iter with the server URL
         result = list(self.search.perform_iter(self.mock_server))
@@ -64,24 +61,29 @@ class TestFHIRSearchIter(unittest.TestCase):
             "resourceType": "Bundle",
             "type": "searchset",
             "link": [
-                {"relation": "next",
-                 "url": "https://example.com/base/MedicationRequest?patient=347&searchId=ff15fd40-ff71-4b48-b366-09c706bed9d0&page=2"}
+                {
+                    "relation": "next",
+                    "url": "https://example.com/base/MedicationRequest?patient=347&searchId=ff15fd40-ff71-4b48-b366-09c706bed9d0&page=2",
+                }
             ],
-            "entry": [self.create_bundle_entry("3123")]
+            "entry": [self.create_bundle_entry("3123")],
         }
 
         # Second page bundle without a "next" link
         bundle_page_2 = {
             "resourceType": "Bundle",
             "type": "searchset",
-            "entry": [self.create_bundle_entry("3124")]
+            "entry": [self.create_bundle_entry("3124")],
         }
 
         # Mock both page responses
-        self.add_mock_response("https://example.com/Bundle?patient=347&_count=1", bundle_page_1)
+        self.add_mock_response(
+            "https://example.com/Bundle?patient=347&_count=1", bundle_page_1
+        )
         self.add_mock_response(
             "https://example.com/base/MedicationRequest?patient=347&searchId=ff15fd40-ff71-4b48-b366-09c706bed9d0&page=2",
-            bundle_page_2)
+            bundle_page_2,
+        )
 
         # Execute perform_iter to iterate over both pages
         result = list(self.search.perform_iter(self.mock_server))
@@ -93,12 +95,10 @@ class TestFHIRSearchIter(unittest.TestCase):
     @responses.activate
     def test_perform_iter_empty_bundle(self):
         # Mock an empty Bundle with no entries
-        empty_bundle = {
-            "resourceType": "Bundle",
-            "type": "searchset",
-            "entry": []
-        }
-        self.add_mock_response("https://example.com/Bundle?patient=347&_count=1", empty_bundle)
+        empty_bundle = {"resourceType": "Bundle", "type": "searchset", "entry": []}
+        self.add_mock_response(
+            "https://example.com/Bundle?patient=347&_count=1", empty_bundle
+        )
 
         # Execute perform_iter with empty result
         result = list(self.search.perform_iter(self.mock_server))
@@ -114,9 +114,12 @@ class TestFHIRSearchIter(unittest.TestCase):
             "resourceType": "Bundle",
             "type": "searchset",
             "link": [
-                {"relation": "next", "url": "https://example.com/base/MedicationRequest?patient=347&page=2"}
+                {
+                    "relation": "next",
+                    "url": "https://example.com/base/MedicationRequest?patient=347&page=2",
+                }
             ],
-            "entry": [self.create_bundle_entry("3123")]
+            "entry": [self.create_bundle_entry("3123")],
         }
 
         # Second page with a "next" link
@@ -124,22 +127,33 @@ class TestFHIRSearchIter(unittest.TestCase):
             "resourceType": "Bundle",
             "type": "searchset",
             "link": [
-                {"relation": "next", "url": "https://example.com/base/MedicationRequest?patient=347&page=3"}
+                {
+                    "relation": "next",
+                    "url": "https://example.com/base/MedicationRequest?patient=347&page=3",
+                }
             ],
-            "entry": [self.create_bundle_entry("3124")]
+            "entry": [self.create_bundle_entry("3124")],
         }
 
         # Third page without a "next" link (end of pagination)
         bundle_page_3 = {
             "resourceType": "Bundle",
             "type": "searchset",
-            "entry": [self.create_bundle_entry("3125")]
+            "entry": [self.create_bundle_entry("3125")],
         }
 
         # Mock all page responses
-        self.add_mock_response("https://example.com/Bundle?patient=347&_count=1", bundle_page_1)
-        self.add_mock_response("https://example.com/base/MedicationRequest?patient=347&page=2", bundle_page_2)
-        self.add_mock_response("https://example.com/base/MedicationRequest?patient=347&page=3", bundle_page_3)
+        self.add_mock_response(
+            "https://example.com/Bundle?patient=347&_count=1", bundle_page_1
+        )
+        self.add_mock_response(
+            "https://example.com/base/MedicationRequest?patient=347&page=2",
+            bundle_page_2,
+        )
+        self.add_mock_response(
+            "https://example.com/base/MedicationRequest?patient=347&page=3",
+            bundle_page_3,
+        )
 
         # Execute perform_iter to iterate over all pages
         result = list(self.search.perform_iter(self.mock_server))
@@ -155,11 +169,13 @@ class TestFHIRSearchIter(unittest.TestCase):
         bundle_content = {
             "resourceType": "Bundle",
             "type": "searchset",
-            "entry": [self.create_bundle_entry("3123")]
+            "entry": [self.create_bundle_entry("3123")],
         }
 
         # Mock the single page response
-        self.add_mock_response("https://example.com/Bundle?patient=347&_count=1", bundle_content)
+        self.add_mock_response(
+            "https://example.com/Bundle?patient=347&_count=1", bundle_content
+        )
 
         # Call perform_resources_iter and collect resources
         result = list(self.search.perform_resources_iter(self.mock_server))
@@ -174,24 +190,29 @@ class TestFHIRSearchIter(unittest.TestCase):
             "resourceType": "Bundle",
             "type": "searchset",
             "link": [
-                {"relation": "next",
-                 "url": "https://example.com/base/MedicationRequest?patient=347&searchId=ff15fd40-ff71-4b48-b366-09c706bed9d0&page=2"}
+                {
+                    "relation": "next",
+                    "url": "https://example.com/base/MedicationRequest?patient=347&searchId=ff15fd40-ff71-4b48-b366-09c706bed9d0&page=2",
+                }
             ],
-            "entry": [self.create_bundle_entry("3123")]
+            "entry": [self.create_bundle_entry("3123")],
         }
 
         # Second page bundle without a "next" link
         bundle_page_2 = {
             "resourceType": "Bundle",
             "type": "searchset",
-            "entry": [self.create_bundle_entry("3124")]
+            "entry": [self.create_bundle_entry("3124")],
         }
 
         # Mock both page responses
-        self.add_mock_response("https://example.com/Bundle?patient=347&_count=1", bundle_page_1)
+        self.add_mock_response(
+            "https://example.com/Bundle?patient=347&_count=1", bundle_page_1
+        )
         self.add_mock_response(
             "https://example.com/base/MedicationRequest?patient=347&searchId=ff15fd40-ff71-4b48-b366-09c706bed9d0&page=2",
-            bundle_page_2)
+            bundle_page_2,
+        )
 
         # Execute perform_resources_iter to retrieve resources across pages
         result = list(self.search.perform_resources_iter(self.mock_server))
@@ -207,30 +228,44 @@ class TestFHIRSearchIter(unittest.TestCase):
             "resourceType": "Bundle",
             "type": "searchset",
             "link": [
-                {"relation": "next", "url": "https://example.com/base/MedicationRequest?patient=347&page=2"}
+                {
+                    "relation": "next",
+                    "url": "https://example.com/base/MedicationRequest?patient=347&page=2",
+                }
             ],
-            "entry": [self.create_bundle_entry("3123")]
+            "entry": [self.create_bundle_entry("3123")],
         }
 
         bundle_page_2 = {
             "resourceType": "Bundle",
             "type": "searchset",
             "link": [
-                {"relation": "next", "url": "https://example.com/base/MedicationRequest?patient=347&page=3"}
+                {
+                    "relation": "next",
+                    "url": "https://example.com/base/MedicationRequest?patient=347&page=3",
+                }
             ],
-            "entry": [self.create_bundle_entry("3124")]
+            "entry": [self.create_bundle_entry("3124")],
         }
 
         bundle_page_3 = {
             "resourceType": "Bundle",
             "type": "searchset",
-            "entry": [self.create_bundle_entry("3125")]
+            "entry": [self.create_bundle_entry("3125")],
         }
 
         # Mock responses for each page
-        self.add_mock_response("https://example.com/Bundle?patient=347&_count=1", bundle_page_1)
-        self.add_mock_response("https://example.com/base/MedicationRequest?patient=347&page=2", bundle_page_2)
-        self.add_mock_response("https://example.com/base/MedicationRequest?patient=347&page=3", bundle_page_3)
+        self.add_mock_response(
+            "https://example.com/Bundle?patient=347&_count=1", bundle_page_1
+        )
+        self.add_mock_response(
+            "https://example.com/base/MedicationRequest?patient=347&page=2",
+            bundle_page_2,
+        )
+        self.add_mock_response(
+            "https://example.com/base/MedicationRequest?patient=347&page=3",
+            bundle_page_3,
+        )
 
         # Execute perform_resources_iter to retrieve resources across all pages
         result = list(self.search.perform_resources_iter(self.mock_server))
@@ -251,7 +286,9 @@ class TestFHIRSearchIter(unittest.TestCase):
         }
 
         # Mock the single page response
-        self.add_mock_response("https://example.com/Bundle?patient=347&_count=1", bundle_content)
+        self.add_mock_response(
+            "https://example.com/Bundle?patient=347&_count=1", bundle_content
+        )
 
         # Call perform_resources_iter with the server URL
         result = list(self.search.perform_resources_iter(self.mock_server))
@@ -268,7 +305,9 @@ class TestFHIRSearchIter(unittest.TestCase):
         }
 
         # Mock the single page response
-        self.add_mock_response("https://example.com/Bundle?patient=347&_count=1", bundle_content)
+        self.add_mock_response(
+            "https://example.com/Bundle?patient=347&_count=1", bundle_content
+        )
 
         # Call perform_resources_iter with the server URL
         result = list(self.search.perform_resources_iter(self.mock_server))

@@ -13,22 +13,22 @@ from fhirclient.models.fhirtime import FHIRTime
 
 class PersonTests(unittest.TestCase):
     def instantiate_from(self, filename):
-        datadir = os.path.join(os.path.dirname(__file__), '..', 'data', 'examples')
-        with io.open(os.path.join(datadir, filename), 'r', encoding='utf-8') as handle:
+        datadir = os.path.join(os.path.dirname(__file__), "..", "data", "examples")
+        with io.open(os.path.join(datadir, filename), "r", encoding="utf-8") as handle:
             js = json.load(handle)
             self.assertEqual("Person", js["resourceType"])
         return person.Person(js)
-    
+
     def testPerson1(self):
         inst = self.instantiate_from("person-example-f002-ariadne.json")
         self.assertIsNotNone(inst, "Must have instantiated a Person instance")
         self.implPerson1(inst)
-        
+
         js = inst.as_json()
         self.assertEqual("Person", js["resourceType"])
         inst2 = person.Person(js)
         self.implPerson1(inst2)
-    
+
     def implPerson1(self, inst):
         self.assertTrue(inst.active)
         self.assertEqual(inst.birthDate.date, FHIRDate("1963").date)
@@ -37,7 +37,10 @@ class PersonTests(unittest.TestCase):
         self.assertEqual(inst.id, "f002")
         self.assertEqual(inst.meta.tag[0].code, "HTEST")
         self.assertEqual(inst.meta.tag[0].display, "test health data")
-        self.assertEqual(inst.meta.tag[0].system, "http://terminology.hl7.org/CodeSystem/v3-ActReason")
+        self.assertEqual(
+            inst.meta.tag[0].system,
+            "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+        )
         self.assertEqual(inst.name[0].text, "Ariadne Bor-Jansma")
         self.assertEqual(inst.name[0].use, "usual")
         self.assertEqual(inst.photo.contentType, "image/jpeg")
@@ -45,17 +48,17 @@ class PersonTests(unittest.TestCase):
         self.assertEqual(inst.telecom[0].use, "home")
         self.assertEqual(inst.telecom[0].value, "+31201234567")
         self.assertEqual(inst.text.status, "generated")
-    
+
     def testPerson2(self):
         inst = self.instantiate_from("person-example.json")
         self.assertIsNotNone(inst, "Must have instantiated a Person instance")
         self.implPerson2(inst)
-        
+
         js = inst.as_json()
         self.assertEqual("Person", js["resourceType"])
         inst2 = person.Person(js)
         self.implPerson2(inst2)
-    
+
     def implPerson2(self, inst):
         self.assertTrue(inst.active)
         self.assertEqual(inst.address[0].city, "PleasantVille")
@@ -67,16 +70,25 @@ class PersonTests(unittest.TestCase):
         self.assertEqual(inst.birthDate.as_json(), "1974-12-25")
         self.assertEqual(inst.gender, "male")
         self.assertEqual(inst.id, "example")
-        self.assertEqual(inst.identifier[0].period.start.datetime, FHIRDateTime("2001-05-06").datetime)
+        self.assertEqual(
+            inst.identifier[0].period.start.datetime,
+            FHIRDateTime("2001-05-06").datetime,
+        )
         self.assertEqual(inst.identifier[0].period.start.as_json(), "2001-05-06")
         self.assertEqual(inst.identifier[0].system, "urn:oid:1.2.36.146.595.217.0.1")
         self.assertEqual(inst.identifier[0].type.coding[0].code, "MR")
-        self.assertEqual(inst.identifier[0].type.coding[0].system, "http://terminology.hl7.org/CodeSystem/v2-0203")
+        self.assertEqual(
+            inst.identifier[0].type.coding[0].system,
+            "http://terminology.hl7.org/CodeSystem/v2-0203",
+        )
         self.assertEqual(inst.identifier[0].use, "usual")
         self.assertEqual(inst.identifier[0].value, "12345")
         self.assertEqual(inst.meta.tag[0].code, "HTEST")
         self.assertEqual(inst.meta.tag[0].display, "test health data")
-        self.assertEqual(inst.meta.tag[0].system, "http://terminology.hl7.org/CodeSystem/v3-ActReason")
+        self.assertEqual(
+            inst.meta.tag[0].system,
+            "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+        )
         self.assertEqual(inst.name[0].family, "Chalmers")
         self.assertEqual(inst.name[0].given[0], "Peter")
         self.assertEqual(inst.name[0].given[1], "James")
@@ -91,4 +103,3 @@ class PersonTests(unittest.TestCase):
         self.assertEqual(inst.telecom[2].use, "home")
         self.assertEqual(inst.telecom[2].value, "Jim@example.org")
         self.assertEqual(inst.text.status, "generated")
-

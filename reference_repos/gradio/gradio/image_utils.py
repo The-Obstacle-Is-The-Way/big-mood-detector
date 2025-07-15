@@ -182,10 +182,10 @@ def preprocess_image(
     payload: ImageData | None,
     cache_dir: str,
     format: str,
-    image_mode: Literal[
-        "1", "L", "P", "RGB", "RGBA", "CMYK", "YCbCr", "LAB", "HSV", "I", "F"
-    ]
-    | None,
+    image_mode: (
+        Literal["1", "L", "P", "RGB", "RGBA", "CMYK", "YCbCr", "LAB", "HSV", "I", "F"]
+        | None
+    ),
     type: Literal["numpy", "pil", "filepath"],
 ) -> np.ndarray | PIL.Image.Image | str | None:
     if payload is None:

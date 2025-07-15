@@ -1,4 +1,5 @@
 """Facilitate working with FHIR time fields."""
+
 # 2024, SMART Health IT.
 
 import datetime
@@ -12,6 +13,7 @@ from .fhirdate import FHIRDate
 # (in case anyone was doing isinstance(obj, FHIRDate))
 # Next time we bump the major version, we can stop that and also drop the
 # backwards-compatible 'date' alias. R4-QUIRK
+
 
 class FHIRDateTime(FHIRDate):
     """
@@ -49,7 +51,9 @@ class FHIRDateTime(FHIRDate):
     ##################################
 
     # Pulled from spec for datetime
-    _REGEX = re.compile(r"([0-9]([0-9]([0-9][1-9]|[1-9]0)|[1-9]00)|[1-9]000)(-(0[1-9]|1[0-2])(-(0[1-9]|[1-2][0-9]|3[0-1])(T([01][0-9]|2[0-3]):[0-5][0-9]:([0-5][0-9]|60)(\.[0-9]+)?(Z|(\+|-)((0[0-9]|1[0-3]):[0-5][0-9]|14:00)))?)?)?")
+    _REGEX = re.compile(
+        r"([0-9]([0-9]([0-9][1-9]|[1-9]0)|[1-9]00)|[1-9]000)(-(0[1-9]|1[0-2])(-(0[1-9]|[1-2][0-9]|3[0-1])(T([01][0-9]|2[0-3]):[0-5][0-9]:([0-5][0-9]|60)(\.[0-9]+)?(Z|(\+|-)((0[0-9]|1[0-3]):[0-5][0-9]|14:00)))?)?)?"
+    )
     _FIELD = "datetime"
 
     @staticmethod

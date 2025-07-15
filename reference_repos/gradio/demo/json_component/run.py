@@ -14,7 +14,7 @@ with gr.Blocks() as demo:
             "Key 9": False,
             "Key 10": None,
             "Key 11": np.array([1, 2, 3]),
-        }
+        },
     )
     out = gr.JSON(label="OutputJSON")
     btn = gr.Button("Submit")

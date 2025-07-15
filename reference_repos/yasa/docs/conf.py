@@ -6,6 +6,7 @@ https://www.sphinx-doc.org/en/master/usage/configuration.html
 
 For the full list of extension configuration values, see respective sites.
 """
+
 # import sys
 # from pathlib import Path
 
@@ -57,22 +58,19 @@ release = version
 # These can be extensions bundled with Sphinx (named sphinx.ext.*)
 # or custom first-party or third-party extensions.
 extensions = [
-
     # Extensions bundled with Sphinx
-    "sphinx.ext.autodoc",       # Includes documentation from docstrings
-    "sphinx.ext.autosummary",   # Generates autodoc summaries
-    "sphinx.ext.intersphinx",   # Links to other package docs
-    "sphinx.ext.mathjax",       # LaTeX math display
+    "sphinx.ext.autodoc",  # Includes documentation from docstrings
+    "sphinx.ext.autosummary",  # Generates autodoc summaries
+    "sphinx.ext.intersphinx",  # Links to other package docs
+    "sphinx.ext.mathjax",  # LaTeX math display
     # "sphinx.ext.viewcode",
-
     # Third-party extensions
     "matplotlib.sphinxext.plot_directive",  # Includes matplotlib plots
-    "notfound.extension",       # Adds 404 page
-    "numpydoc",                 # Generates numPy style docstrings (Needs to be loaded *after* autodoc)
-    "sphinx_copybutton",        # Adds copy-to-clipboard button in code blocks
-    "sphinx_design",            # Adds directives for badges, dropdowns, tabs, etc
-    "sphinx_reredirects",       # Generates redirects for moved pages
-
+    "notfound.extension",  # Adds 404 page
+    "numpydoc",  # Generates numPy style docstrings (Needs to be loaded *after* autodoc)
+    "sphinx_copybutton",  # Adds copy-to-clipboard button in code blocks
+    "sphinx_design",  # Adds directives for badges, dropdowns, tabs, etc
+    "sphinx_reredirects",  # Generates redirects for moved pages
 ]
 
 # -- General configuration ---------------------------------------------------
@@ -169,24 +167,17 @@ html_theme = "pydata_sphinx_theme"
 # See here for list of available (key, value) pairs in PyData theme:
 # https://pydata-sphinx-theme.readthedocs.io/en/stable/user_guide/layout.html#references
 html_theme_options = {
-
     # -- General -------------------------------
-
     # Options: True (default) | False
     "sidebar_includehidden": True,
-
     # Options: True | False (default)
     "use_edit_page_button": False,
-
     # Defaults to []
     "external_links": [],
-
     # Defaults to None
     # "github_url": "",
-
     # Defaults to "Quick Links"
     "icon_links_label": "Quick Links",
-
     # Defaults to []
     "icon_links": [
         {
@@ -196,43 +187,30 @@ html_theme_options = {
             "type": "fontawesome",
         },
     ],
-
     # Options: True (default) | False
     "show_prev_next": False,
-
     # Defaults to "Search the docs..."
     "search_bar_text": "Search",
-
     # Options: True | False (default)
     "navigation_with_keys": False,
-
     # Options: True | False (default)
     "collapse_navigation": False,
-
     # Defaults to 4
     "navigation_depth": 2,
-
     # Defaults to 1
     "show_nav_level": 2,
-
     # Defaults to 1
     "show_toc_level": 2,
-
     # Options: content (default) | left | right
     "navbar_align": "left",
-
     # Defaults to 5
     "header_links_before_dropdown": 5,
-
     # Defaults to "More"
     "header_dropdown_text": "More",
-
     # Defaults to a11y-high-contrast-light
     "pygments_light_style": "github-light-colorblind",
-
     # Defaults to a11y-high-contrast-dark
     "pygments_dark_style": "github-dark-colorblind",
-
     # Defaults to {}
     "logo": {
         "alt_text": f"{project} - Home",  # read first by screen readers
@@ -242,79 +220,54 @@ html_theme_options = {
         "image_dark": "https://raw.githubusercontent.com/raphaelvallat/yasa/refs/tags/v0.6.5/docs/pictures/yasa_128x128.png",
         # "link": "",  # optional URL location to override default of index
     },
-
     # Defaults to ""
     # "logo_link": "",  # optional URL location to override default of index
-
     # Options: True (default) | False
     "surface_warnings": True,
-
     # The Back to Top button is a floating button that appears when you scroll down a page,
     # and allows users to quickly return to the top of the page.
     # Options: True (default) | False
     "back_to_top_button": False,
-
     # Template placement in theme layouts
     # See list of built-in components that can be inserted in these sections:
     # https://pydata-sphinx-theme.readthedocs.io/en/stable/user_guide/layout.html#built-in-components-to-insert-into-sections
     # Can specify a list of items to include in all sidebars,
     # or a dictionary to specify items to include in sidebars of specific pages.
     # "secondary_sidebar_items": {"**": []},
-
     # -- Navigation bar / header ---------------
-
     # Defaults to ["navbar-logo"]
     "navbar_start": ["navbar-logo"],
-
     # Defaults to ["navbar-nav"]
     "navbar_center": ["navbar-nav"],
-
     # Defaults to ['theme-switcher', 'navbar-icon-links']
     "navbar_end": ["theme-switcher", "navbar-icon-links"],
-
     # Defaults to ['search-button-field']
     "navbar_persistent": ["search-button"],
-
     # -- Article/content -----------------------
-
     # Defaults to ['breadcrumbs']
     "article_header_start": [],
-
     # Defaults to []
     "article_header_end": [],
-
     # Defaults to []
     "article_footer_items": [],
-
     # Defaults to []
     "content_footer_items": [],
-
     # -- Primary sidebar (left side) -----------
-
     # Defaults to ["sidebar-ethical-ads"]
     "primary_sidebar_end": [],
-
     # -- Footer --------------------------------
-
     # Defaults to ['copyright', 'sphinx-version']
     "footer_start": ["copyright"],
-
     # Defaults to []
     "footer_center": [],
-
     # Defaults to ['theme-version']
     "footer_end": [],
-
     # Secondary sidebar (right side)
-
     # Defaults to ['page-toc', 'edit-this-page', 'sourcelink']
     "secondary_sidebar_items": ["page-toc", "edit-this-page"],
-
     # -- Announcement banner -------------------
-
     # Options: True | False (default)
     "show_version_warning_banner": True,
-
     # Defaults to ""
     # "announcement": "&#128680; This is documentation for the <b>unstable development version</b> of YASA. <a href='https://yasa-sleep.org'>Switch to stable version</a> &#128680;",
     # "announcement": "<span style='font-family: Consolas, monospace;'>pip install yasa --upgrade</span> &#127881;",
@@ -337,7 +290,6 @@ html_context = {
     "github_repo": "yasa",
     "github_version": "master",
     "doc_path": "doc",
-
     # PyData theme uses this to set the initial dark/light theme.
     # Options: "auto" (default) | "light" | "dark"
     "default_mode": "auto",
@@ -703,6 +655,7 @@ notfound_urls_prefix = None
 # Defaults to {}
 redirects = {}
 
+
 # TEMPORARY: This can be removed after people stop using old links.
 # We need to generate a list of redirects for the old documentation
 # that was hosted under relative paths behind buid/html.
@@ -710,6 +663,7 @@ redirects = {}
 # redirects dictionary that maps build/html/docpath to just docpath.
 def setup(app):
     app.connect("env-updated", generate_redirects)
+
 
 def generate_redirects(app, env):
     redirects = app.config.redirects or {}

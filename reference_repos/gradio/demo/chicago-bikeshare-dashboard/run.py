@@ -12,6 +12,7 @@ connection_string = (
     f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}?port={PORT}&dbname={DB_NAME}"
 )
 
+
 def get_count_ride_type():
     df = pd.read_sql(
         """
@@ -23,6 +24,7 @@ def get_count_ride_type():
         con=connection_string,
     )
     return df
+
 
 def get_most_popular_stations():
 
@@ -38,6 +40,7 @@ def get_most_popular_stations():
         con=connection_string,
     )
     return df
+
 
 with gr.Blocks() as demo:
     gr.Markdown(
@@ -60,25 +63,25 @@ with gr.Blocks() as demo:
     with gr.Row():
         bike_type = gr.BarPlot(
             x="rideable_type",
-            y='n',
+            y="n",
             title="Number of rides per bicycle type",
             y_title="Number of Rides",
             x_title="Bicycle Type",
             vertical=False,
-            tooltip=['rideable_type', "n"],
+            tooltip=["rideable_type", "n"],
             height=300,
             width=300,
         )
         station = gr.BarPlot(
-            x='station',
-            y='n',
+            x="station",
+            y="n",
             title="Most Popular Stations",
             y_title="Number of Rides",
             x_title="Station Name",
             vertical=False,
-            tooltip=['station', 'n'],
+            tooltip=["station", "n"],
             height=300,
-            width=300
+            width=300,
         )
 
     demo.load(get_count_ride_type, inputs=None, outputs=bike_type)

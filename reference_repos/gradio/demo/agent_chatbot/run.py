@@ -27,7 +27,7 @@ def interact_with_agent(prompt, history):
 
 demo = gr.ChatInterface(
     interact_with_agent,
-    chatbot= gr.Chatbot(
+    chatbot=gr.Chatbot(
         label="Agent",
         type="messages",
         avatar_images=(
@@ -37,7 +37,9 @@ demo = gr.ChatInterface(
     ),
     examples=[
         ["Generate an image of an astronaut riding an alligator"],
-        ["I am writing a children's book for my daughter. Can you help me with some illustrations?"],
+        [
+            "I am writing a children's book for my daughter. Can you help me with some illustrations?"
+        ],
     ],
     type="messages",
 )

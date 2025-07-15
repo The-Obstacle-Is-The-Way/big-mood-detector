@@ -14,13 +14,18 @@ def predict(im):
 with gr.Blocks() as demo:
     with gr.Row():
         with gr.Column():
-            im = gr.ImageEditor(interactive=True, elem_id="image_editor",
-                                canvas_size=(800, 600),
-                                brush=gr.Brush(colors=["#ff0000", "#00ff00", "#0000ff"]),
-                                type="filepath",
-                            value={"background": "https://gradio-builds.s3.amazonaws.com/demo-files/ghepardo-primo-piano.jpg",
-                                   "layers": [],
-                                   "composite": None})
+            im = gr.ImageEditor(
+                interactive=True,
+                elem_id="image_editor",
+                canvas_size=(800, 600),
+                brush=gr.Brush(colors=["#ff0000", "#00ff00", "#0000ff"]),
+                type="filepath",
+                value={
+                    "background": "https://gradio-builds.s3.amazonaws.com/demo-files/ghepardo-primo-piano.jpg",
+                    "layers": [],
+                    "composite": None,
+                },
+            )
             get = gr.Button("Get")
 
         with gr.Column():

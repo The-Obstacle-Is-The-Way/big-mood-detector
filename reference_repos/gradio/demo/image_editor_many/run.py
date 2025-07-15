@@ -98,7 +98,9 @@ with gr.Blocks() as demo:
                 changes.append(f"`Brush.default_color=('{color}', {opacity / 100})`")
             if color is not None:
                 if opacity is not None:
-                    changes.append(f"`Brush.default_color=('{color}', {opacity / 100})`")
+                    changes.append(
+                        f"`Brush.default_color=('{color}', {opacity / 100})`"
+                    )
                 else:
                     changes.append(f"`Brush.default_color='{color}'`")
             if e_size is not None:
@@ -190,7 +192,6 @@ with gr.Blocks() as demo:
                     inputs=[disable_layers, allow_additional_layers, layer],
                     outputs=[im, status_msg],
                 )
-
 
     with gr.Tab("ImageEditor Templates"):
         gr.ImageMask(value="./cheetah.jpg", interactive=True)

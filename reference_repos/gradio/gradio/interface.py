@@ -114,10 +114,9 @@ class Interface(Blocks):
         description: str | None = None,
         article: str | None = None,
         theme: Theme | str | None = None,
-        flagging_mode: Literal["never"]
-        | Literal["auto"]
-        | Literal["manual"]
-        | None = None,
+        flagging_mode: (
+            Literal["never"] | Literal["auto"] | Literal["manual"] | None
+        ) = None,
         flagging_options: list[str] | list[tuple[str, str]] | None = None,
         flagging_dir: str = ".gradio/flagged",
         flagging_callback: FlaggingCallback | None = None,
@@ -143,10 +142,9 @@ class Interface(Blocks):
         delete_cache: tuple[int, int] | None = None,
         show_progress: Literal["full", "minimal", "hidden"] = "full",
         fill_width: bool = False,
-        allow_flagging: Literal["never"]
-        | Literal["auto"]
-        | Literal["manual"]
-        | None = None,
+        allow_flagging: (
+            Literal["never"] | Literal["auto"] | Literal["manual"] | None
+        ) = None,
         time_limit: int | None = 30,
         stream_every: float = 0.5,
         deep_link: str | DeepLinkButton | bool | None = None,
@@ -268,8 +266,7 @@ class Interface(Blocks):
             self.main_input_components + self.additional_input_components
         )
         self.output_components = [
-            get_component_instance(o, unrender=True)
-            for o in outputs  # type: ignore
+            get_component_instance(o, unrender=True) for o in outputs  # type: ignore
         ]
 
         state_input_indexes = [

@@ -27,8 +27,9 @@ class CheckboxGroup(FormComponent):
 
     def __init__(
         self,
-        choices: Sequence[str | int | float | tuple[str, str | int | float]]
-        | None = None,
+        choices: (
+            Sequence[str | int | float | tuple[str, str | int | float]] | None
+        ) = None,
         *,
         value: Sequence[str | float | int] | str | float | int | Callable | None = None,
         type: Literal["value", "index"] = "value",

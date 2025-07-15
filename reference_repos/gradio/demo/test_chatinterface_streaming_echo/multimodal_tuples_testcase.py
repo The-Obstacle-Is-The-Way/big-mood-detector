@@ -2,15 +2,18 @@ import gradio as gr
 
 runs = 0
 
+
 def reset_runs():
     global runs
     runs = 0
 
+
 def slow_echo(message, history):
     global runs  # i didn't want to add state or anything to this demo
     runs = runs + 1
-    for i in range(len(message['text'])):
-        yield f"Run {runs} - You typed: " + message['text'][: i + 1]
+    for i in range(len(message["text"])):
+        yield f"Run {runs} - You typed: " + message["text"][: i + 1]
+
 
 chat = gr.ChatInterface(slow_echo, multimodal=True, type="tuples")
 

@@ -4,6 +4,7 @@ import random
 
 n_calls = 0
 
+
 def get_random_number():
     global n_calls
     if n_calls == 1:
@@ -12,6 +13,7 @@ def get_random_number():
     n_calls += 1
     time.sleep(5)
     return random.randrange(1, 10)
+
 
 with gr.Blocks() as demo:
     with gr.Row():

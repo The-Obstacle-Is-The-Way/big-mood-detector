@@ -41,8 +41,9 @@ class HighlightedText(Component):
         self,
         value: list[tuple[str, str | float | None]] | dict | Callable | None = None,
         *,
-        color_map: dict[str, str]
-        | None = None,  # Parameter moved to HighlightedText.style()
+        color_map: (
+            dict[str, str] | None
+        ) = None,  # Parameter moved to HighlightedText.style()
         show_legend: bool = False,
         show_inline_category: bool = True,
         combine_adjacent: bool = False,

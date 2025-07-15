@@ -9,6 +9,7 @@ color_map = {
     "beneficial": "green",
 }
 
+
 def html_src(harm_level):
     return f"""
 <div style="display: flex; gap: 5px;padding: 2px 4px;margin-top: -40px">
@@ -18,56 +19,74 @@ def html_src(harm_level):
 </div>
 """
 
+
 def print_like_dislike(x: gr.LikeData):
     print(x.index, x.value, x.liked)
+
 
 def add_message(history, message):
     for x in message["files"]:
         history.append({"role": "user", "content": {"path": x}})
     if message["text"] is not None:
-        history.append({"role": "user", "content": message['text']})
+        history.append({"role": "user", "content": message["text"]})
     return history, gr.MultimodalTextbox(value=None, interactive=False)
+
 
 def bot(history, response_type):
     if response_type == "gallery":
-        msg = {"role": "assistant", "content": gr.Gallery(
-            ["https://raw.githubusercontent.com/gradio-app/gradio/main/test/test_files/bus.png",
-             "https://raw.githubusercontent.com/gradio-app/gradio/main/test/test_files/bus.png"]
-            )
+        msg = {
+            "role": "assistant",
+            "content": gr.Gallery(
+                [
+                    "https://raw.githubusercontent.com/gradio-app/gradio/main/test/test_files/bus.png",
+                    "https://raw.githubusercontent.com/gradio-app/gradio/main/test/test_files/bus.png",
+                ]
+            ),
         }
     elif response_type == "image":
-        msg = {"role": "assistant",
-               "content": gr.Image("https://raw.githubusercontent.com/gradio-app/gradio/main/test/test_files/bus.png")
+        msg = {
+            "role": "assistant",
+            "content": gr.Image(
+                "https://raw.githubusercontent.com/gradio-app/gradio/main/test/test_files/bus.png"
+            ),
         }
     elif response_type == "video":
-        msg = {"role": "assistant",
-               "content": gr.Video("https://github.com/gradio-app/gradio/raw/main/demo/video_component/files/world.mp4")
+        msg = {
+            "role": "assistant",
+            "content": gr.Video(
+                "https://github.com/gradio-app/gradio/raw/main/demo/video_component/files/world.mp4"
+            ),
         }
     elif response_type == "audio":
-        msg = {"role": "assistant",
-               "content": gr.Audio("https://github.com/gradio-app/gradio/raw/main/test/test_files/audio_sample.wav")
+        msg = {
+            "role": "assistant",
+            "content": gr.Audio(
+                "https://github.com/gradio-app/gradio/raw/main/test/test_files/audio_sample.wav"
+            ),
         }
     elif response_type == "html":
-       msg = {"role": "assistant",
-              "content": gr.HTML(
-            html_src(random.choice(["harmful", "neutral", "beneficial"]))
-            )
-       }
+        msg = {
+            "role": "assistant",
+            "content": gr.HTML(
+                html_src(random.choice(["harmful", "neutral", "beneficial"]))
+            ),
+        }
     elif response_type == "model3d":
-        msg = {"role": "assistant", "content": gr.Model3D(
-           "https://github.com/gradio-app/gradio/raw/main/test/test_files/Fox.gltf"
-        )}
+        msg = {
+            "role": "assistant",
+            "content": gr.Model3D(
+                "https://github.com/gradio-app/gradio/raw/main/test/test_files/Fox.gltf"
+            ),
+        }
     else:
         msg = {"role": "assistant", "content": "Cool!"}
     history.append(msg)
     return history
 
+
 with gr.Blocks(fill_height=True) as demo:
     chatbot = gr.Chatbot(
-        elem_id="chatbot",
-        bubble_full_width=False,
-        scale=1,
-        type="messages"
+        elem_id="chatbot", bubble_full_width=False, scale=1, type="messages"
     )
     response_type = gr.Radio(
         [

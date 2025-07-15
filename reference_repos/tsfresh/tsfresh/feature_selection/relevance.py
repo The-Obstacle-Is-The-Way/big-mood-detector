@@ -257,9 +257,11 @@ def calculate_relevance_table(
                 if multiclass:
                     tmp = tmp.reset_index(drop=True)
                     tmp.columns = tmp.columns.map(
-                        lambda x: x + "_" + str(label)
-                        if x != "feature" and x != "type"
-                        else x
+                        lambda x: (
+                            x + "_" + str(label)
+                            if x != "feature" and x != "type"
+                            else x
+                        )
                     )
                 tables.append(tmp)
 

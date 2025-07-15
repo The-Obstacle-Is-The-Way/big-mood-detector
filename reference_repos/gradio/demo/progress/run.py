@@ -28,6 +28,7 @@ with gr.Blocks() as demo:
         for img in progress.tqdm(imgs, desc="Loading from list"):
             time.sleep(0.1)
         return "done"
+
     load_set_btn.click(load_set, [text, textb], text2)
 
     # track nested list
@@ -38,6 +39,7 @@ with gr.Blocks() as demo:
             for img in progress.tqdm(img_set, desc="inner list"):
                 time.sleep(0.1)
         return "done"
+
     load_nested_set_btn.click(load_nested_set, [text, textb], text2)
 
     # track iterable of unknown length
@@ -46,9 +48,11 @@ with gr.Blocks() as demo:
             for i in range(0, random.randint(15, 20)):
                 time.sleep(0.1)
                 yield None
+
         for img in progress.tqdm(yielder()):
             pass
         return "done"
+
     load_random_btn.click(load_random, {text, textb}, text2)
 
     # manual progress
@@ -60,12 +64,14 @@ with gr.Blocks() as demo:
         progress(0.8, desc="Sending Images")
         time.sleep(1.5)
         return "done"
+
     clean_imgs_btn.click(clean_imgs, text, text2)
 
     # no progress
     def wait(text):
         time.sleep(4)
         return "done"
+
     wait_btn.click(wait, text, text2)
 
     # multiple progressions
@@ -76,6 +82,7 @@ with gr.Blocks() as demo:
         progress(None)
         wait(text)
         return "done"
+
     do_all_btn.click(do_all, {text, textb}, text2)
 
     def track_tqdm(data, progress=gr.Progress(track_tqdm=True)):
@@ -83,6 +90,7 @@ with gr.Blocks() as demo:
             for j in tqdm.tqdm(range(4), desc="inner"):
                 time.sleep(1)
         return "done"
+
     track_tqdm_btn.click(track_tqdm, {text, textb}, text2)
 
     def bind_internal_tqdm(data, progress=gr.Progress(track_tqdm=True)):
@@ -90,6 +98,7 @@ with gr.Blocks() as demo:
         load_dataset("beans", split="train", cache_dir=outdir)
         shutil.rmtree(outdir)
         return "done"
+
     bind_internal_tqdm_btn.click(bind_internal_tqdm, {text, textb}, text2)
 
 if __name__ == "__main__":

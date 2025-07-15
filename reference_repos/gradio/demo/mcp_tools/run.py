@@ -4,6 +4,7 @@ from pathlib import Path
 import os
 from PIL import Image
 
+
 def prime_factors(n: str):
     """
     Compute the prime factorization of a positive integer.
@@ -66,22 +67,26 @@ def sepia(input_img):
     Returns:
         The sepia filtered image.
     """
-    sepia_filter = np.array([
-        [0.393, 0.769, 0.189],
-        [0.349, 0.686, 0.168],
-        [0.272, 0.534, 0.131]
-    ])
+    sepia_filter = np.array(
+        [[0.393, 0.769, 0.189], [0.349, 0.686, 0.168], [0.272, 0.534, 0.131]]
+    )
     sepia_img = input_img.dot(sepia_filter.T)
     sepia_img /= sepia_img.max()
     return sepia_img
 
 
-
 demo = gr.TabbedInterface(
     [
         gr.Interface(prime_factors, gr.Textbox("1001"), gr.Textbox()),
-        gr.Interface(generate_cheetah_image, None, gr.Image(), api_description="Generates a cheetah image. No arguments are required."),
-        gr.Interface(image_orientation, gr.Image(type="pil"), gr.Textbox(), show_api=False),
+        gr.Interface(
+            generate_cheetah_image,
+            None,
+            gr.Image(),
+            api_description="Generates a cheetah image. No arguments are required.",
+        ),
+        gr.Interface(
+            image_orientation, gr.Image(type="pil"), gr.Textbox(), show_api=False
+        ),
         gr.Interface(sepia, gr.Image(), gr.Image(), api_description=False),
     ],
     [
@@ -89,7 +94,7 @@ demo = gr.TabbedInterface(
         "Cheetah Image",
         "Image Orientation Checker",
         "Sepia Filter",
-    ]
+    ],
 )
 
 if __name__ == "__main__":

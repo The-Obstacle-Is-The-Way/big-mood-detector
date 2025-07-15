@@ -46,18 +46,20 @@ class BarPlot(Plot):
         y_label_angle: float | None = None,
         color_legend_title: str | None = None,
         group_title: str | None = None,
-        color_legend_position: Literal[
-            "left",
-            "right",
-            "top",
-            "bottom",
-            "top-left",
-            "top-right",
-            "bottom-left",
-            "bottom-right",
-            "none",
-        ]
-        | None = None,
+        color_legend_position: (
+            Literal[
+                "left",
+                "right",
+                "top",
+                "bottom",
+                "top-left",
+                "top-right",
+                "bottom-left",
+                "bottom-right",
+                "none",
+            ]
+            | None
+        ) = None,
         height: int | None = None,
         width: int | None = None,
         y_lim: list[int] | None = None,
@@ -184,18 +186,20 @@ class BarPlot(Plot):
         y_label_angle: float | None = None,
         color_legend_title: str | None = None,
         group_title: str | None = None,
-        color_legend_position: Literal[
-            "left",
-            "right",
-            "top",
-            "bottom",
-            "top-left",
-            "top-right",
-            "bottom-left",
-            "bottom-right",
-            "none",
-        ]
-        | None = None,
+        color_legend_position: (
+            Literal[
+                "left",
+                "right",
+                "top",
+                "bottom",
+                "top-left",
+                "top-right",
+                "bottom-left",
+                "bottom-right",
+                "none",
+            ]
+            | None
+        ) = None,
         height: int | None = None,
         width: int | None = None,
         y_lim: list[int] | None = None,
@@ -229,18 +233,22 @@ class BarPlot(Plot):
                 x,  # type: ignore
                 title=x_title,  # type: ignore
                 scale=AltairPlot.create_scale(x_lim),  # type: ignore
-                axis=alt.Axis(labelAngle=x_label_angle)
-                if x_label_angle is not None
-                else alt.Axis(),
+                axis=(
+                    alt.Axis(labelAngle=x_label_angle)
+                    if x_label_angle is not None
+                    else alt.Axis()
+                ),
                 sort=sort if vertical and sort is not None else None,
             ),
             y=alt.Y(
                 y,  # type: ignore
                 title=y_title,  # type: ignore
                 scale=AltairPlot.create_scale(y_lim),  # type: ignore
-                axis=alt.Axis(labelAngle=y_label_angle)
-                if y_label_angle is not None
-                else alt.Axis(),
+                axis=(
+                    alt.Axis(labelAngle=y_label_angle)
+                    if y_label_angle is not None
+                    else alt.Axis()
+                ),
                 sort=sort if not vertical and sort is not None else None,
             ),
             **orientation,

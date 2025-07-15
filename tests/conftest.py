@@ -62,5 +62,6 @@ def expected_sleep_data():
             "startDate": "2024-01-02 23:00:00 -0800",
             "endDate": "2024-01-03 06:45:00 -0800",
             "value": "HKCategoryValueSleepAnalysisInBed",
-        }
+        },
     ]
+

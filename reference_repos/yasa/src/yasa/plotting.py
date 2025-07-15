@@ -14,7 +14,9 @@ from matplotlib.colors import ListedColormap, Normalize
 __all__ = ["plot_hypnogram", "plot_spectrogram", "topoplot"]
 
 
-def plot_hypnogram(hyp, sf_hypno=1 / 30, highlight="REM", fill_color=None, ax=None, **kwargs):
+def plot_hypnogram(
+    hyp, sf_hypno=1 / 30, highlight="REM", fill_color=None, ax=None, **kwargs
+):
     """
     Plot a hypnogram.
 
@@ -86,7 +88,9 @@ def plot_hypnogram(hyp, sf_hypno=1 / 30, highlight="REM", fill_color=None, ax=No
 
     if not isinstance(hyp, Hypnogram):
         # Convert sampling frequency to pandas timefrequency string (e.g., "30s")
-        freq_str = pd.tseries.frequencies.to_offset(pd.Timedelta(1 / sf_hypno, "s")).freqstr
+        freq_str = pd.tseries.frequencies.to_offset(
+            pd.Timedelta(1 / sf_hypno, "s")
+        ).freqstr
         # Create Hypnogram instance for plotting
         hyp = Hypnogram(hypno_int_to_str(hyp), freq=freq_str)
 
@@ -115,7 +119,9 @@ def plot_hypnogram(hyp, sf_hypno=1 / 30, highlight="REM", fill_color=None, ax=No
         stage_order += ["UNS"]
     # Put REM after WAKE if all 5 standard stages are allowed
     if hyp.n_stages == 5:
-        stage_order.insert(stage_order.index("WAKE") - 1, stage_order.pop(stage_order.index("REM")))
+        stage_order.insert(
+            stage_order.index("WAKE") - 1, stage_order.pop(stage_order.index("REM"))
+        )
     # Reset the Hypnogram mapping so any future returns have this order
     hyp.mapping = {stage: i for i, stage in enumerate(stage_order)}
 
@@ -126,7 +132,9 @@ def plot_hypnogram(hyp, sf_hypno=1 / 30, highlight="REM", fill_color=None, ax=No
     # Extract x-values (bins) and y-values to plot
     yvalues = hypno.to_numpy()
     if hyp.start is not None:
-        final_bin_edge = pd.Timestamp(hyp.start) + pd.Timedelta(hyp.duration, unit="min")
+        final_bin_edge = pd.Timestamp(hyp.start) + pd.Timedelta(
+            hyp.duration, unit="min"
+        )
         bins = np.append(hypno.index.to_list(), final_bin_edge)
         bins = [mdates.date2num(b) for b in bins]
         xlabel = "Time"
@@ -142,7 +150,14 @@ def plot_hypnogram(hyp, sf_hypno=1 / 30, highlight="REM", fill_color=None, ax=No
     # Draw background filling
     if fill_color is not None:
         bline = hyp.mapping["WAKE"]
-        ax.stairs(yvalues.clip(max=bline), bins, baseline=bline, color=fill_color, fill=True, lw=0)
+        ax.stairs(
+            yvalues.clip(max=bline),
+            bins,
+            baseline=bline,
+            color=fill_color,
+            fill=True,
+            lw=0,
+        )
     # Draw main hypnogram line and highlighted stage line
     line_kwargs = {"color": "black", "linewidth": 1.5, "label": hyp.scorer}
     line_kwargs.update(kwargs)
@@ -287,14 +302,24 @@ def plot_spectrogram(
     assert isinstance(fmax, (int, float)), "`fmax` must be int or float."
     assert fmin < fmax, "`fmin` must be strictly inferior to `fmax`."
     assert fmax < sf / 2, "`fmax` must be less than Nyquist (sf / 2)."
-    assert isinstance(vmin, (int, float, type(None))), "`vmin` must be int, float, or None."
-    assert isinstance(vmax, (int, float, type(None))), "`vmax` must be int, float, or None."
+    assert isinstance(
+        vmin, (int, float, type(None))
+    ), "`vmin` must be int, float, or None."
+    assert isinstance(
+        vmax, (int, float, type(None))
+    ), "`vmax` must be int, float, or None."
     if vmin is not None:
-        assert isinstance(vmax, (int, float)), "`vmax` must be int or float if `vmin` is provided."
+        assert isinstance(
+            vmax, (int, float)
+        ), "`vmax` must be int or float if `vmin` is provided."
     if vmax is not None:
-        assert isinstance(vmin, (int, float)), "`vmin` must be int or float if `vmax` is provided."
+        assert isinstance(
+            vmin, (int, float)
+        ), "`vmin` must be int or float if `vmax` is provided."
     if hypno is not None:
-        assert hypno.size == data.size, "`hypno` must have the same number of samples as `data`."
+        assert (
+            hypno.size == data.size
+        ), "`hypno` must have the same number of samples as `data`."
 
     # Calculate multi-taper spectrogram
     nperseg = int(win_sec * sf)
@@ -324,7 +349,9 @@ def plot_spectrogram(
         )
 
     # Draw Spectrogram
-    im = ax1.pcolormesh(t, f, Sxx, norm=norm, cmap=cmap, antialiased=True, shading="auto")
+    im = ax1.pcolormesh(
+        t, f, Sxx, norm=norm, cmap=cmap, antialiased=True, shading="auto"
+    )
     ax1.set_xlim(0, t.max())
     ax1.set_ylabel("Frequency [Hz]")
     ax1.set_xlabel("Time [hrs]")

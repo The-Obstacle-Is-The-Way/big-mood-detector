@@ -11,14 +11,14 @@ class FontEncoder(json.JSONEncoder):
             return {
                 "__gradio_font__": True,
                 "name": obj.name,
-                "class": "google"
-                if isinstance(obj, GoogleFont)
-                else "local"
-                if isinstance(obj, LocalFont)
-                else "font",
-                "weights": obj.weights
-                if isinstance(obj, (GoogleFont, LocalFont))
-                else None,
+                "class": (
+                    "google"
+                    if isinstance(obj, GoogleFont)
+                    else "local" if isinstance(obj, LocalFont) else "font"
+                ),
+                "weights": (
+                    obj.weights if isinstance(obj, (GoogleFont, LocalFont)) else None
+                ),
             }
         # Let the base class default method raise the TypeError
         return json.JSONEncoder.default(self, obj)
@@ -83,14 +83,16 @@ class LocalFont(Font):
         self.weights = weights
 
     def stylesheet(self) -> dict:
-        css_template = textwrap.dedent("""
+        css_template = textwrap.dedent(
+            """
             @font-face {{
                 font-family: '{name}';
                 src: url('static/fonts/{file_name}/{file_name}-{weight}.woff2') format('woff2');
                 font-weight: {weight};
                 font-style: normal;
             }}
-            """)
+            """
+        )
         css_rules = []
         for weight in self.weights:
             weight_name = (

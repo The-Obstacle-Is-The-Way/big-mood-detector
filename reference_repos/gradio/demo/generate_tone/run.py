@@ -3,6 +3,7 @@ import gradio as gr
 
 notes = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
 
+
 def generate_tone(note, octave, duration):
     sr = 48000
     a4_freq, tones_from_a4 = 440, 12 * (octave - 4) + (note - 9)
@@ -11,6 +12,7 @@ def generate_tone(note, octave, duration):
     audio = np.linspace(0, duration, duration * sr)
     audio = (20000 * np.sin(audio * (2 * np.pi * frequency))).astype(np.int16)
     return sr, audio
+
 
 demo = gr.Interface(
     generate_tone,

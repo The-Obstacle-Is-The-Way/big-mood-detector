@@ -1,4 +1,5 @@
 """Facilitate working with FHIR time fields."""
+
 # 2024, SMART Health IT.
 
 import datetime
@@ -12,6 +13,7 @@ from .fhirdate import FHIRDate
 # (in case anyone was doing isinstance(obj, FHIRDate))
 # Next time we bump the major version, we can stop that and also drop the
 # backwards-compatible 'date' alias. R4-QUIRK
+
 
 class FHIRTime(FHIRDate):
     """

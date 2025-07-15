@@ -73,7 +73,9 @@ class EndpointV3Compatibility:
 
         return _inner
 
-    def make_cancel(self, helper: Communicator | None = None):  # noqa: ARG002 (needed so that both endpoints classes have the same api)
+    def make_cancel(
+        self, helper: Communicator | None = None
+    ):  # noqa: ARG002 (needed so that both endpoints classes have the same api)
         return None
 
     def make_predict(self, helper: Communicator | None = None):

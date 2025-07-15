@@ -1,13 +1,15 @@
 import numpy as np
 import gradio as gr
 
+
 def sepia(input_img, strength):
     sepia_filter = strength * np.array(
         [[0.393, 0.769, 0.189], [0.349, 0.686, 0.168], [0.272, 0.534, 0.131]]
-    ) + (1-strength) * np.identity(3)
+    ) + (1 - strength) * np.identity(3)
     sepia_img = input_img.dot(sepia_filter.T)
     sepia_img /= sepia_img.max()
     return sepia_img
+
 
 callback = gr.CSVLogger()
 
@@ -27,7 +29,12 @@ with gr.Blocks() as demo:
     strength.change(sepia, [img_input, strength], img_output)
 
     # We can choose which components to flag -- in this case, we'll flag all of them
-    btn.click(lambda *args: callback.flag(list(args)), [img_input, strength, img_output], None, preprocess=False)
+    btn.click(
+        lambda *args: callback.flag(list(args)),
+        [img_input, strength, img_output],
+        None,
+        preprocess=False,
+    )
 
 if __name__ == "__main__":
     demo.launch()

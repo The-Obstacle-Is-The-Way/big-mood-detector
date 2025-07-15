@@ -86,7 +86,9 @@ class TestDetection(unittest.TestCase):
         prod_args = product(freq_sp, freq_broad, duration, min_distance)
 
         for i, (s, b, d, m) in enumerate(prod_args):
-            spindles_detect(data, sf, freq_sp=s, duration=d, freq_broad=b, min_distance=m)
+            spindles_detect(
+                data, sf, freq_sp=s, duration=d, freq_broad=b, min_distance=m
+            )
 
         sp = spindles_detect(data, sf, verbose=True)
         assert sp.summary().shape[0] == 2
@@ -124,7 +126,9 @@ class TestDetection(unittest.TestCase):
 
         # Full night single channel with Isolation Forest + hypnogram
         sp = spindles_detect(data_full[1, :], sf, hypno=hypno_full)
-        sp_no_out = spindles_detect(data_full[1, :], sf, hypno=hypno_full, remove_outliers=True)
+        sp_no_out = spindles_detect(
+            data_full[1, :], sf, hypno=hypno_full, remove_outliers=True
+        )
         assert sp.compare_detection(sp_no_out).shape[0] == 1
 
         # Calculate the coincidence matrix with only one channel
@@ -162,7 +166,9 @@ class TestDetection(unittest.TestCase):
 
         # No values in hypno intersect with include
         with pytest.raises(AssertionError):
-            sp = spindles_detect(data, sf, include=2, hypno=np.zeros(data.size, dtype=int))
+            sp = spindles_detect(
+                data, sf, include=2, hypno=np.zeros(data.size, dtype=int)
+            )
 
         #######################################################################
         # MULTI CHANNEL
@@ -186,7 +192,9 @@ class TestDetection(unittest.TestCase):
         assert sp_no_out.summary().shape[0] < sp.summary().shape[0]
 
         # Test compare_detection
-        assert (sp.compare_detection(sp)["f1"] == 1).all()  # self vs self, f1-score is 1
+        assert (
+            sp.compare_detection(sp)["f1"] == 1
+        ).all()  # self vs self, f1-score is 1
         sp_vs_multi = sp.compare_detection(sp_multi)
         # When comparing against sp_multi as the reference, we expect a perfect recall
         assert (sp_vs_multi["n_self"] > sp_vs_multi["n_other"]).all()
@@ -245,7 +253,14 @@ class TestDetection(unittest.TestCase):
         for i, (f, dn, dp, an, ap, aptp) in enumerate(prod_args):
             # print((f, dn, dp, an, ap, aptp))
             sw_detect(
-                data_sw, sf, freq_sw=f, dur_neg=dn, dur_pos=dp, amp_neg=an, amp_pos=ap, amp_ptp=aptp
+                data_sw,
+                sf,
+                freq_sw=f,
+                dur_neg=dn,
+                dur_pos=dp,
+                amp_neg=an,
+                amp_pos=ap,
+                amp_ptp=aptp,
             )
 
         # With N3 hypnogram
@@ -269,7 +284,9 @@ class TestDetection(unittest.TestCase):
 
         # No values in hypno intersect with include
         with pytest.raises(AssertionError):
-            sw = sw_detect(data_sw, sf, include=3, hypno=np.ones(data_sw.shape, dtype=int))
+            sw = sw_detect(
+                data_sw, sf, include=3, hypno=np.ones(data_sw.shape, dtype=int)
+            )
 
         #######################################################################
         # MULTI CHANNEL
@@ -394,7 +411,13 @@ class TestDetection(unittest.TestCase):
         # Start different combinations
         art_detect(data_9, sf=100, window=10, method="covar", threshold=3)
         art_detect(
-            data_9, sf=100, window=6, hypno=hypno_9, include=(2, 3), method="covar", threshold=3
+            data_9,
+            sf=100,
+            window=6,
+            hypno=hypno_9,
+            include=(2, 3),
+            method="covar",
+            threshold=3,
         )
         art_detect(data_9, sf=100, window=5, method="std", threshold=2)
         art_detect(
@@ -437,7 +460,9 @@ class TestDetection(unittest.TestCase):
         art_detect(data_with_flat, sf, method="std", n_chan_reject=5)
 
         # Using a MNE raw object
-        art_detect(data_mne, window=10.0, hypno=hypno_mne, method="covar", verbose="INFO")
+        art_detect(
+            data_mne, window=10.0, hypno=hypno_mne, method="covar", verbose="INFO"
+        )
 
         with pytest.raises(AssertionError):
             # None of include in hypno

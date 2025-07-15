@@ -970,9 +970,7 @@ def _convert(image, dtype, force_copy=False, uniform=False):
     dtypeobj_out = (
         dtypeobj_in
         if dtype is np.floating
-        else np.dtype("float64")
-        if dtype is float
-        else np.dtype(dtype)
+        else np.dtype("float64") if dtype is float else np.dtype(dtype)
     )
     dtype_in = dtypeobj_in.type
     dtype_out = dtypeobj_out.type

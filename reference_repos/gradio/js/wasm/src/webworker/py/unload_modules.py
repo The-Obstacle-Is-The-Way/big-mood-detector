@@ -26,6 +26,7 @@ LOGGER = logging.getLogger(__name__)
 # Copied from https://github.com/streamlit/streamlit/blob/1.24.0/lib/streamlit/file_util.py
 #
 
+
 def file_is_in_folder_glob(filepath, folderpath_glob) -> bool:
     """Test whether a file is in some folder with globbing support.
 
@@ -84,9 +85,11 @@ def file_in_pythonpath(filepath) -> bool:
         for path in absolute_paths
     )
 
+
 #
 # Copied from https://github.com/streamlit/streamlit/blob/1.24.0/lib/streamlit/watcher/local_sources_watcher.py
 #
+
 
 def get_module_paths(module: types.ModuleType) -> Set[str]:
     paths_extractors = [
@@ -137,26 +140,28 @@ def _is_valid_path(path: Optional[str]) -> bool:
 # Original code
 #
 
+
 def unload_local_modules(target_dir_path: str = "."):
-    """ Unload all modules that are in the target directory or in a subdirectory of it.
+    """Unload all modules that are in the target directory or in a subdirectory of it.
     It is necessary to unload modules before re-executing a script that imports the modules,
     so that the new version of the modules is loaded.
     The module unloading feature is extracted from Streamlit's LocalSourcesWatcher (https://github.com/streamlit/streamlit/blob/1.24.0/lib/streamlit/watcher/local_sources_watcher.py)
     and packaged as a standalone function.
     """
     target_dir_path = os.path.abspath(target_dir_path)
-    loaded_modules = {} # filepath -> module_name
+    loaded_modules = {}  # filepath -> module_name
 
     # Copied from `LocalSourcesWatcher.update_watched_modules()`
     module_paths = {
-        name: get_module_paths(module)
-        for name, module in dict(sys.modules).items()
+        name: get_module_paths(module) for name, module in dict(sys.modules).items()
     }
 
     # Copied from `LocalSourcesWatcher._register_necessary_watchers()`
     for name, paths in module_paths.items():
         for path in paths:
-            if file_is_in_folder_glob(path, target_dir_path) or file_in_pythonpath(path):
+            if file_is_in_folder_glob(path, target_dir_path) or file_in_pythonpath(
+                path
+            ):
                 loaded_modules[path] = name
 
     # Copied from `LocalSourcesWatcher.on_file_changed()`

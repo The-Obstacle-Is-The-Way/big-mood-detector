@@ -4,7 +4,9 @@ from random import randint, random
 temp_sensor_data = pd.DataFrame(
     {
         "time": pd.date_range("2021-01-01", end="2021-01-05", periods=200),
-        "temperature": [randint(50 + 10 * (i % 2), 65 + 15 * (i % 2)) for i in range(200)],
+        "temperature": [
+            randint(50 + 10 * (i % 2), 65 + 15 * (i % 2)) for i in range(200)
+        ],
         "humidity": [randint(50 + 10 * (i % 2), 65 + 15 * (i % 2)) for i in range(200)],
         "location": ["indoor", "outdoor"] * 100,
     }

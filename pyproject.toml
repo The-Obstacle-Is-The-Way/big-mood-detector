@@ -138,6 +138,7 @@ mood-detector = "big_mood_detector.cli:main"
 [tool.ruff]
 target-version = "py311"
 line-length = 88
+extend-exclude = ["reference_repos", "literature"]
 select = [
     "E",  # pycodestyle errors
     "W",  # pycodestyle warnings
@@ -172,6 +173,8 @@ extend-exclude = '''
   | \.venv
   | build
   | dist
+  | reference_repos
+  | literature
 )/
 '''
 
@@ -190,6 +193,7 @@ warn_unused_ignores = true
 warn_no_return = true
 warn_unreachable = true
 strict_equality = true
+exclude = ["reference_repos/", "literature/"]
 
 [[tool.mypy.overrides]]
 module = "tests.*"

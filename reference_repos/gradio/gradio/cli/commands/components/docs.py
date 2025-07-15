@@ -152,9 +152,9 @@ def run_command(
             docs=docs,
             name=name,
             description=description,
-            local_version=local_version
-            if local_version is None
-            else str(local_version),
+            local_version=(
+                local_version if local_version is None else str(local_version)
+            ),
             demo=demo,
             space=space if space is None else str(space),
             repo=repo if repo is None else str(repo),

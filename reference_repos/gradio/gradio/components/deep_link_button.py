@@ -126,7 +126,9 @@ class DeepLinkButton(Button):
 
             return "BUTTON_COPIED_VALUE";
         }}
-        """.replace("BUTTON_DEFAULT_VALUE", value).replace(
+        """.replace(
+                "BUTTON_DEFAULT_VALUE", value
+            ).replace(
                 "BUTTON_COPIED_VALUE", copied_value
             )
         ).replace("ID", self.elem_id)

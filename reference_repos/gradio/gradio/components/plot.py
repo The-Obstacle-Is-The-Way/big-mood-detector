@@ -46,9 +46,9 @@ class Plot(Component):
         self,
         value: Any | None = None,
         *,
-        format: str = "png"
-        if wasm_utils.IS_WASM
-        else "webp",  # webp is a good default for speed (see #7845) but can't be used in Wasm because the the version of matplotlib used in Wasm (3.5.2 in the case of Pyodide 0.26.1) doesn't support it.
+        format: str = (
+            "png" if wasm_utils.IS_WASM else "webp"
+        ),  # webp is a good default for speed (see #7845) but can't be used in Wasm because the the version of matplotlib used in Wasm (3.5.2 in the case of Pyodide 0.26.1) doesn't support it.
         label: str | I18nData | None = None,
         every: Timer | float | None = None,
         inputs: Component | Sequence[Component] | set[Component] | None = None,

@@ -40,7 +40,9 @@ def is_tensorpac_installed():
     try:
         import tensorpac  # noqa
     except IOError:  # pragma: no cover
-        raise IOError("tensorpac needs to be installed. Please use `pip install tensorpac -U`.")
+        raise IOError(
+            "tensorpac needs to be installed. Please use `pip install tensorpac -U`."
+        )
 
 
 def is_pyriemann_installed():
@@ -48,7 +50,9 @@ def is_pyriemann_installed():
     try:
         import pyriemann  # noqa
     except IOError:  # pragma: no cover
-        raise IOError("pyRiemann needs to be installed. Please use `pip install pyriemann -U`.")
+        raise IOError(
+            "pyRiemann needs to be installed. Please use `pip install pyriemann -U`."
+        )
 
 
 def is_sleepecg_installed():
@@ -56,4 +60,6 @@ def is_sleepecg_installed():
     try:
         import sleepecg  # noqa
     except IOError:  # pragma: no cover
-        raise IOError("sleepecg needs to be installed. Please use `pip install sleepecg -U`.")
+        raise IOError(
+            "sleepecg needs to be installed. Please use `pip install sleepecg -U`."
+        )

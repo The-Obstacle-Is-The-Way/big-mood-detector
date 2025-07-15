@@ -528,9 +528,9 @@ def test_load_callable():
 @patch("openai.OpenAI")
 def test_load_chat_basic(mock_openai):
     mock_client = MagicMock()
-    mock_client.chat.completions.create.return_value.choices[
-        0
-    ].message.content = "Hello human!"
+    mock_client.chat.completions.create.return_value.choices[0].message.content = (
+        "Hello human!"
+    )
     mock_openai.return_value = mock_client
 
     chat = gr.load_chat(

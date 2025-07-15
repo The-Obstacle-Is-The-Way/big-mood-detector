@@ -21,8 +21,10 @@ if __name__ == "__main__":
 
         pyproject_toml = parse(pyproject_source)
         keywords = pyproject_toml["project"]["keywords"]
-        custom_component = ("gradio-custom-component" in  keywords or
-                            "gradio custom component" in keywords)
+        custom_component = (
+            "gradio-custom-component" in keywords
+            or "gradio custom component" in keywords
+        )
         if not custom_component:
             sys.exit(0)
 
@@ -55,9 +57,11 @@ if __name__ == "__main__":
                     == get_relative_path(file_location / value.TEMPLATE_DIR)
                 ]
                 if len(found) == 0:
-                    artifact = "/" + (os.path.abspath(file_location / value.TEMPLATE_DIR)
+                    artifact = "/" + (
+                        os.path.abspath(file_location / value.TEMPLATE_DIR)
                         .replace(os.path.abspath(Path("..")), "")
-                        .lstrip("/"))
+                        .lstrip("/")
+                    )
                     if artifact not in artifacts:
                         artifacts.append(artifact)
 

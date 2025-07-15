@@ -166,9 +166,15 @@ class SleepStaging:
     def __init__(self, raw, eeg_name, *, eog_name=None, emg_name=None, metadata=None):
         # Type check
         assert isinstance(eeg_name, str), "`eeg_name` must be a string."
-        assert isinstance(eog_name, (str, type(None))), "`eog_name` must be a string or None."
-        assert isinstance(emg_name, (str, type(None))), "`emg_name` must be a string or None."
-        assert isinstance(metadata, (dict, type(None))), "`metadata` must be a string or None."
+        assert isinstance(
+            eog_name, (str, type(None))
+        ), "`eog_name` must be a string or None."
+        assert isinstance(
+            emg_name, (str, type(None))
+        ), "`emg_name` must be a string or None."
+        assert isinstance(
+            metadata, (dict, type(None))
+        ), "`metadata` must be a string or None."
 
         # Validate metadata
         if isinstance(metadata, dict):
@@ -274,7 +280,11 @@ class SleepStaging:
             # Preprocessing
             # - Filter the data
             dt_filt = filter_data(
-                self.data[i, :], sf, l_freq=freq_broad[0], h_freq=freq_broad[1], verbose=False
+                self.data[i, :],
+                sf,
+                l_freq=freq_broad[0],
+                h_freq=freq_broad[1],
+                verbose=False,
             )
             # - Extract epochs. Data is now of shape (n_epochs, n_samples).
             times, epochs = sliding_window(dt_filt, sf=sf, window=30)
@@ -313,7 +323,9 @@ class SleepStaging:
             feat["abspow"] = trapezoid(psd[:, idx_broad], dx=dx)
 
             # Calculate entropy and fractal dimension features
-            feat["perm"] = np.apply_along_axis(ant.perm_entropy, axis=1, arr=epochs, normalize=True)
+            feat["perm"] = np.apply_along_axis(
+                ant.perm_entropy, axis=1, arr=epochs, normalize=True
+            )
             feat["higuchi"] = np.apply_along_axis(ant.higuchi_fd, axis=1, arr=epochs)
             feat["petrosian"] = ant.petrosian_fd(epochs, axis=1)
 
@@ -332,7 +344,9 @@ class SleepStaging:
         # Apply centered rolling average (15 epochs = 7 min 30)
         # Triang: [0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875, 1.,
         #          0.875, 0.75, 0.625, 0.5, 0.375, 0.25, 0.125]
-        rollc = features.rolling(window=15, center=True, min_periods=1, win_type="triang").mean()
+        rollc = features.rolling(
+            window=15, center=True, min_periods=1, win_type="triang"
+        ).mean()
         rollc[rollc.columns] = robust_scale(rollc, quantile_range=(5, 95))
         rollc = rollc.add_suffix("_c7min_norm")
 
@@ -469,7 +483,9 @@ class SleepStaging:
         proba.index.name = "Epoch"
         self._proba = proba
         # Convert to a `yasa.Hypnogram` instance (including `proba`)
-        return Hypnogram(values=self._predicted.copy(), freq="30s", n_stages=5, proba=proba.copy())
+        return Hypnogram(
+            values=self._predicted.copy(), freq="30s", n_stages=5, proba=proba.copy()
+        )
 
     def predict_proba(self, path_to_model="auto"):
         """
@@ -504,7 +520,13 @@ class SleepStaging:
         self,
         proba=None,
         majority_only=False,
-        palette=["#99d7f1", "#009DDC", "xkcd:twilight blue", "xkcd:rich purple", "xkcd:sunflower"],
+        palette=[
+            "#99d7f1",
+            "#009DDC",
+            "xkcd:twilight blue",
+            "xkcd:rich purple",
+            "xkcd:sunflower",
+        ],
     ):
         """
         Plot the predicted probability for each sleep stage for each 30-sec epoch of data.
@@ -525,7 +547,9 @@ class SleepStaging:
         if majority_only:
             cond = proba.apply(lambda x: x == x.max(), axis=1)
             proba = proba.where(cond, other=0)
-        ax = proba.plot(kind="area", color=palette, figsize=(10, 5), alpha=0.8, stacked=True, lw=0)
+        ax = proba.plot(
+            kind="area", color=palette, figsize=(10, 5), alpha=0.8, stacked=True, lw=0
+        )
         # Add confidence
         # confidence = proba.max(1)
         # ax.plot(confidence, lw=1, color='k', ls='-', alpha=0.5, label='Confidence')

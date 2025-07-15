@@ -147,7 +147,9 @@ class BrotliResponder:
         )
         self.br_buffer = io.BytesIO()
 
-    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:  # noqa
+    async def __call__(
+        self, scope: Scope, receive: Receive, send: Send
+    ) -> None:  # noqa
         self.send = send
         await self.app(scope, receive, self.send_with_brotli)
 

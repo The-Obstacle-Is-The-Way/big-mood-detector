@@ -1,5 +1,6 @@
 import gradio as gr
 
+
 def letter_counter(word, letter):
     """
     Count the number of occurrences of a letter in a word or text.
@@ -16,12 +17,13 @@ def letter_counter(word, letter):
     count = word.count(letter)
     return count
 
+
 demo = gr.Interface(
     fn=letter_counter,
     inputs=[gr.Textbox("strawberry"), gr.Textbox("r")],
     outputs=[gr.Number()],
     title="Letter Counter",
-    description="Enter text and a letter to count how many times the letter appears in the text."
+    description="Enter text and a letter to count how many times the letter appears in the text.",
 )
 
 if __name__ == "__main__":

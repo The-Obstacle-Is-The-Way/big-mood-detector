@@ -77,7 +77,9 @@ class RootWithNestedModel(GradioModel):
     nested_enum: EnumRootModel
     nested_dict: DictModel2
 
-    answer: ClassVar = "dict(nested_int: int, nested_enum: dict(color: Literal['red', 'green', 'blue']), nested_dict: dict(data_dict: dict(str, list[float])))"
+    answer: ClassVar = (
+        "dict(nested_int: int, nested_enum: dict(color: Literal['red', 'green', 'blue']), nested_dict: dict(data_dict: dict(str, list[float])))"
+    )
 
 
 class LessNestedModel(GradioModel):
@@ -85,7 +87,9 @@ class LessNestedModel(GradioModel):
     nested_enum: ColorEnum
     nested_dict: dict[str, list[Union[int, float]]]
 
-    answer: ClassVar = "dict(nested_int: int, nested_enum: Literal['red', 'green', 'blue'], nested_dict: dict(str, list[int | float]))"
+    answer: ClassVar = (
+        "dict(nested_int: int, nested_enum: Literal['red', 'green', 'blue'], nested_dict: dict(str, list[int | float]))"
+    )
 
 
 class StatusModel(GradioModel):
@@ -170,7 +174,9 @@ class CartItemModel(GradioModel):
 class ShoppingCartModel(GradioModel):
     items: list[CartItemModel]
 
-    answer: ClassVar = "dict(items: list[dict(product_name: str, quantity: int, price_per_unit: float)])"
+    answer: ClassVar = (
+        "dict(items: list[dict(product_name: str, quantity: int, price_per_unit: float)])"
+    )
 
 
 class CoordinateModel(GradioModel):

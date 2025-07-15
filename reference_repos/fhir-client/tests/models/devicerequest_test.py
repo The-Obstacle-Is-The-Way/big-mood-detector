@@ -13,24 +13,26 @@ from fhirclient.models.fhirtime import FHIRTime
 
 class DeviceRequestTests(unittest.TestCase):
     def instantiate_from(self, filename):
-        datadir = os.path.join(os.path.dirname(__file__), '..', 'data', 'examples')
-        with io.open(os.path.join(datadir, filename), 'r', encoding='utf-8') as handle:
+        datadir = os.path.join(os.path.dirname(__file__), "..", "data", "examples")
+        with io.open(os.path.join(datadir, filename), "r", encoding="utf-8") as handle:
             js = json.load(handle)
             self.assertEqual("DeviceRequest", js["resourceType"])
         return devicerequest.DeviceRequest(js)
-    
+
     def testDeviceRequest1(self):
         inst = self.instantiate_from("devicerequest-example-insulinpump.json")
         self.assertIsNotNone(inst, "Must have instantiated a DeviceRequest instance")
         self.implDeviceRequest1(inst)
-        
+
         js = inst.as_json()
         self.assertEqual("DeviceRequest", js["resourceType"])
         inst2 = devicerequest.DeviceRequest(js)
         self.implDeviceRequest1(inst2)
-    
+
     def implDeviceRequest1(self, inst):
-        self.assertEqual(inst.authoredOn.datetime, FHIRDateTime("2013-05-08T09:33:27+07:00").datetime)
+        self.assertEqual(
+            inst.authoredOn.datetime, FHIRDateTime("2013-05-08T09:33:27+07:00").datetime
+        )
         self.assertEqual(inst.authoredOn.as_json(), "2013-05-08T09:33:27+07:00")
         self.assertEqual(inst.codeCodeableConcept.coding[0].code, "43148-6")
         self.assertEqual(inst.codeCodeableConcept.coding[0].system, "http://loinc.org")
@@ -38,13 +40,22 @@ class DeviceRequestTests(unittest.TestCase):
         self.assertEqual(inst.groupIdentifier.value, "ip_request1")
         self.assertEqual(inst.id, "insulinpump")
         self.assertEqual(inst.identifier[0].value, "ip_request1.1")
-        self.assertEqual(inst.instantiatesCanonical[0], "http://motivemi.com/artifacts/PlanDefinition/low-suicide-risk-order-set")
+        self.assertEqual(
+            inst.instantiatesCanonical[0],
+            "http://motivemi.com/artifacts/PlanDefinition/low-suicide-risk-order-set",
+        )
         self.assertEqual(inst.intent, "instance-order")
         self.assertEqual(inst.meta.tag[0].code, "HTEST")
         self.assertEqual(inst.meta.tag[0].display, "test health data")
-        self.assertEqual(inst.meta.tag[0].system, "http://terminology.hl7.org/CodeSystem/v3-ActReason")
+        self.assertEqual(
+            inst.meta.tag[0].system,
+            "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+        )
         self.assertEqual(inst.note[0].text, "this is the right device brand and model")
-        self.assertEqual(inst.occurrenceDateTime.datetime, FHIRDateTime("2013-05-08T09:33:27+07:00").datetime)
+        self.assertEqual(
+            inst.occurrenceDateTime.datetime,
+            FHIRDateTime("2013-05-08T09:33:27+07:00").datetime,
+        )
         self.assertEqual(inst.occurrenceDateTime.as_json(), "2013-05-08T09:33:27+07:00")
         self.assertEqual(inst.performerType.coding[0].display, "Qualified nurse")
         self.assertEqual(inst.performerType.text, "Nurse")
@@ -52,23 +63,25 @@ class DeviceRequestTests(unittest.TestCase):
         self.assertEqual(inst.reasonCode[0].text, "gastroparesis")
         self.assertEqual(inst.status, "active")
         self.assertEqual(inst.text.status, "generated")
-    
+
     def testDeviceRequest2(self):
         inst = self.instantiate_from("devicerequest-example.json")
         self.assertIsNotNone(inst, "Must have instantiated a DeviceRequest instance")
         self.implDeviceRequest2(inst)
-        
+
         js = inst.as_json()
         self.assertEqual("DeviceRequest", js["resourceType"])
         inst2 = devicerequest.DeviceRequest(js)
         self.implDeviceRequest2(inst2)
-    
+
     def implDeviceRequest2(self, inst):
         self.assertEqual(inst.id, "example")
         self.assertEqual(inst.intent, "original-order")
         self.assertEqual(inst.meta.tag[0].code, "HTEST")
         self.assertEqual(inst.meta.tag[0].display, "test health data")
-        self.assertEqual(inst.meta.tag[0].system, "http://terminology.hl7.org/CodeSystem/v3-ActReason")
+        self.assertEqual(
+            inst.meta.tag[0].system,
+            "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+        )
         self.assertEqual(inst.status, "completed")
         self.assertEqual(inst.text.status, "generated")
-

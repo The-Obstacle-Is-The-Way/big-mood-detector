@@ -54,7 +54,8 @@ def _publish(
     dist_dir: Annotated[
         Path,
         Argument(help=f"Path to the wheel directory. Default is {Path('.') / 'dist'}"),
-    ] = Path(".") / "dist",
+    ] = Path(".")
+    / "dist",
     upload_pypi: Annotated[bool, Option(help="Whether to upload to PyPI.")] = True,
     pypi_username: Annotated[str, Option(help="The username for PyPI.")] = "",
     pypi_password: Annotated[str, Option(help="The password for PyPI.")] = "",

@@ -223,26 +223,35 @@ class Hypnogram:
      '%REM': 8.9713}
     """
 
-    def __init__(self, values, n_stages=5, *, freq="30s", start=None, scorer=None, proba=None):
-        assert isinstance(values, (list, np.ndarray, pd.Series)), (
-            "`values` must be a list, numpy.array or pandas.Series"
-        )
+    def __init__(
+        self, values, n_stages=5, *, freq="30s", start=None, scorer=None, proba=None
+    ):
+        assert isinstance(
+            values, (list, np.ndarray, pd.Series)
+        ), "`values` must be a list, numpy.array or pandas.Series"
         assert all(isinstance(val, str) for val in values), (
             "Since v0.7, YASA expects strings to represent sleep stages, e.g. ['WAKE', 'N1', ...]. "
             "Please refer to the documentation for more details."
         )
-        assert isinstance(n_stages, int), "`n_stages` must be an integer between 2 and 5."
-        assert n_stages in [2, 3, 4, 5], "`n_stages` must be an integer between 2 and 5."
+        assert isinstance(
+            n_stages, int
+        ), "`n_stages` must be an integer between 2 and 5."
+        assert n_stages in [
+            2,
+            3,
+            4,
+            5,
+        ], "`n_stages` must be an integer between 2 and 5."
         assert isinstance(freq, str), "`freq` must be a pandas frequency string."
-        assert isinstance(start, (type(None), str, pd.Timestamp)), (
-            "`start` must be either None, a string or a pandas.Timestamp."
-        )
-        assert isinstance(scorer, (type(None), str, int)), (
-            "`scorer` must be either None, a string or an integer."
-        )
-        assert isinstance(proba, (pd.DataFrame, type(None))), (
-            "`proba` must be either None or a pandas.DataFrame"
-        )
+        assert isinstance(
+            start, (type(None), str, pd.Timestamp)
+        ), "`start` must be either None, a string or a pandas.Timestamp."
+        assert isinstance(
+            scorer, (type(None), str, int)
+        ), "`scorer` must be either None, a string or an integer."
+        assert isinstance(
+            proba, (pd.DataFrame, type(None))
+        ), "`proba` must be either None or a pandas.DataFrame"
         if n_stages == 2:
             accepted = ["W", "WAKE", "S", "SLEEP", "ART", "UNS"]
             mapping = {"WAKE": 0, "SLEEP": 1, "ART": -1, "UNS": -2}
@@ -254,7 +263,15 @@ class Hypnogram:
             mapping = {"WAKE": 0, "LIGHT": 2, "DEEP": 3, "REM": 4, "ART": -1, "UNS": -2}
         else:
             accepted = ["WAKE", "W", "N1", "N2", "N3", "REM", "R", "ART", "UNS"]
-            mapping = {"WAKE": 0, "N1": 1, "N2": 2, "N3": 3, "REM": 4, "ART": -1, "UNS": -2}
+            mapping = {
+                "WAKE": 0,
+                "N1": 1,
+                "N2": 2,
+                "N3": 3,
+                "REM": 4,
+                "ART": -1,
+                "UNS": -2,
+            }
         n_unique_values = len(np.unique(values))
         if not all([val.upper() in accepted for val in values]):
             msg = (
@@ -289,13 +306,17 @@ class Hypnogram:
             hypno.index.name = "Time"
             timedelta = hypno.index - hypno.index[0]
         else:
-            fake_dt = pd.date_range(start="2022-12-03 00:00:00", freq=freq, periods=hypno.shape[0])
+            fake_dt = pd.date_range(
+                start="2022-12-03 00:00:00", freq=freq, periods=hypno.shape[0]
+            )
             hypno.index.name = "Epoch"
             timedelta = fake_dt - fake_dt[0]
         # Validate proba
         if proba is not None:
             assert proba.shape[1] > 0, "`proba` must have at least one column."
-            assert proba.shape[0] == hypno.shape[0], "`proba` must have the same length as `values`"
+            assert (
+                proba.shape[0] == hypno.shape[0]
+            ), "`proba` must have the same length as `values`"
             assert np.allclose(proba.sum(1), 1), "Each row of `proba` must sum to 1."
             in_proba_but_not_labels = np.setdiff1d(proba.columns, labels)
             # in_labels_but_not_proba = np.setdiff1d(labels, proba.columns)
@@ -400,7 +421,9 @@ class Hypnogram:
 
     @mapping.setter
     def mapping(self, map_dict):
-        assert isinstance(map_dict, dict), "`mapping` must be a dictionary, e.g. {'WAKE': 0, ...}"
+        assert isinstance(
+            map_dict, dict
+        ), "`mapping` must be a dictionary, e.g. {'WAKE': 0, ...}"
         assert all([val in map_dict.keys() for val in self.hypno.unique()]), (
             f"Some values in `hypno` ({self.hypno.unique()}) are not in `map_dict` "
             f"({map_dict.keys()})"
@@ -568,7 +591,9 @@ class Hypnogram:
         """
         assert self.n_stages in [3, 4, 5], "`self.n_stages` must be 3, 4, or 5"
         assert new_n_stages in [2, 3, 4], "`new_n_stages` must be 2, 3, or 4"
-        assert new_n_stages < self.n_stages, "`new_n_stages` must be lower than `self.n_stages`"
+        assert (
+            new_n_stages < self.n_stages
+        ), "`new_n_stages` must be lower than `self.n_stages`"
 
         # Change sleep codes where applicable.
         if new_n_stages == 2:
@@ -584,7 +609,13 @@ class Hypnogram:
             }
         elif new_n_stages == 3:
             # Consolidate N1/N2/N3 or Light/Deep into NREM
-            mapping = {"N1": "NREM", "N2": "NREM", "N3": "NREM", "LIGHT": "NREM", "DEEP": "NREM"}
+            mapping = {
+                "N1": "NREM",
+                "N2": "NREM",
+                "N3": "NREM",
+                "LIGHT": "NREM",
+                "DEEP": "NREM",
+            }
         elif new_n_stages == 4:
             # Consolidate N1/N2 into Light
             mapping = {"N1": "LIGHT", "N2": "LIGHT", "N3": "DEEP"}
@@ -730,7 +761,10 @@ class Hypnogram:
         segment by the desired duration is discarded.
         """
         return hypno_find_periods(
-            self.hypno, self.sampling_frequency, threshold=threshold, equal_length=equal_length
+            self.hypno,
+            self.sampling_frequency,
+            threshold=threshold,
+            equal_length=equal_length,
         )
 
     def plot_hypnogram(self, **kwargs):
@@ -947,10 +981,13 @@ class Hypnogram:
             counts, _ = self.transition_matrix()
             n_trans_to_wake = np.sum(
                 counts.loc[
-                    np.intersect1d(counts.index, all_sleep), np.intersect1d(counts.index, ["WAKE"])
+                    np.intersect1d(counts.index, all_sleep),
+                    np.intersect1d(counts.index, ["WAKE"]),
                 ].to_numpy()
             )
-            stats["SFI"] = n_trans_to_wake / (stats["TST"] / (3600 * self.sampling_frequency))
+            stats["SFI"] = n_trans_to_wake / (
+                stats["TST"] / (3600 * self.sampling_frequency)
+            )
 
         # Sleep stage latencies -- only relevant if hypno is cropped to TIB
         stats["SOL"] = first_sleep if stats["TST"] > 0 else np.nan
@@ -964,7 +1001,9 @@ class Hypnogram:
 
         if "REM" in self.labels:
             # Question: should we add latencies for other stage too?
-            stats["Lat_REM"] = np.where(hypno == "REM")[0].min() if "REM" in hypno else np.nan
+            stats["Lat_REM"] = (
+                np.where(hypno == "REM")[0].min() if "REM" in hypno else np.nan
+            )
 
         # Duration of each stage
         for st in self.labels:
@@ -1173,7 +1212,11 @@ class Hypnogram:
             passing ``verbose='ERROR'``.
         """
         hypno_up = hypno_upsample_to_data(
-            self.as_int(), self.sampling_frequency, data=data, sf_data=sf, verbose=verbose
+            self.as_int(),
+            self.sampling_frequency,
+            data=data,
+            sf_data=sf,
+            verbose=verbose,
         )
         return hypno_up
 
@@ -1234,7 +1277,8 @@ def hypno_str_to_int(
 
 
 def hypno_int_to_str(
-    hypno, mapping_dict={0: "W", 1: "N1", 2: "N2", 3: "N3", 4: "R", -1: "Art", -2: "Uns"}
+    hypno,
+    mapping_dict={0: "W", 1: "N1", 2: "N2", 3: "N3", 4: "R", -1: "Art", -2: "Uns"},
 ):
     """Convert an integer hypnogram array to a string array.
 
@@ -1573,7 +1617,9 @@ def hypno_find_periods(hypno, sf_hypno, threshold="5min", equal_length=False):
     # NOTE: FutureWarning not added here otherwise it would also be shown when calling
     # yasa.Hypnogram.find_periods
     # Convert the threshold to number of samples
-    assert isinstance(threshold, str), "Threshold must be a string, e.g. '5min', '30sec', '15min'"
+    assert isinstance(
+        threshold, str
+    ), "Threshold must be a string, e.g. '5min', '30sec', '15min'"
     thr_sec = pd.Timedelta(threshold).total_seconds()
     thr_samp = sf_hypno * thr_sec
     if float(thr_samp).is_integer():
@@ -1597,7 +1643,9 @@ def hypno_find_periods(hypno, sf_hypno, threshold="5min", equal_length=False):
     run_values = x[loc_run_start]
     # Find run lengths
     run_lengths = np.diff(np.append(run_starts, n))
-    seq = pd.DataFrame({"values": run_values, "start": run_starts, "length": run_lengths})
+    seq = pd.DataFrame(
+        {"values": run_values, "start": run_starts, "length": run_lengths}
+    )
 
     # Remove runs that are shorter than threshold
     seq = seq[seq["length"] >= thr_samp].reset_index(drop=True)
@@ -1796,19 +1844,23 @@ def simulate_hypnogram(
     # Validate input
     assert isinstance(tib, (int, float)) and tib > 0, "`tib` must be a number > 0"
     if trans_probas is not None:
-        assert isinstance(trans_probas, pd.DataFrame), "`trans_probas` must be a pandas DataFrame"
-        assert np.all(np.less_equal(trans_probas.shape, kwargs["n_stages"])), (
-            "user-specified `trans_probas` must not include more stages than `n_stages`"
-        )
+        assert isinstance(
+            trans_probas, pd.DataFrame
+        ), "`trans_probas` must be a pandas DataFrame"
+        assert np.all(
+            np.less_equal(trans_probas.shape, kwargs["n_stages"])
+        ), "user-specified `trans_probas` must not include more stages than `n_stages`"
     if init_probas is not None:
-        assert isinstance(init_probas, pd.Series), "`init_probas` must be a pandas Series"
+        assert isinstance(
+            init_probas, pd.Series
+        ), "`init_probas` must be a pandas Series"
     if seed is not None:
         assert isinstance(seed, int) and seed >= 0, "`seed` must be an integer >= 0"
     if trans_probas is None:
         # Check this here, rather than letting hyp.upsample catch it, to be clear about reason
-        assert pd.Timedelta(kwargs["freq"]) <= pd.Timedelta("30s"), (
-            "`freq` must be <= 30s when using default `trans_probas`"
-        )
+        assert pd.Timedelta(kwargs["freq"]) <= pd.Timedelta(
+            "30s"
+        ), "`freq` must be <= 30s when using default `trans_probas`"
 
     # Initialize random number generator
     rng = np.random.default_rng(seed)
@@ -1851,19 +1903,23 @@ def simulate_hypnogram(
         for w in ["w", "W", "wake", "WAKE"]:
             if w in trans_probas.index:
                 init_probas = trans_probas.loc[w, :].copy()
-        assert init_probas is not None, "`trans_probas` must include 'WAKE' in the index"
+        assert (
+            init_probas is not None
+        ), "`trans_probas` must include 'WAKE' in the index"
 
     stage_order = init_probas.index.tolist()
-    assert stage_order == trans_probas.index.tolist() == trans_probas.columns.tolist(), (
-        "`init_probas` and `trans_probas` must have all matching indices"
-    )
+    assert (
+        stage_order == trans_probas.index.tolist() == trans_probas.columns.tolist()
+    ), "`init_probas` and `trans_probas` must have all matching indices"
 
     # Extract probabilities as arrays
     trans_arr = trans_probas.to_numpy()
     init_arr = init_probas.to_numpy()
 
     # Make sure all rows sum to 1
-    assert np.allclose(trans_arr.sum(axis=1), 1), "All rows of `trans_probas` must sum to 1"
+    assert np.allclose(
+        trans_arr.sum(axis=1), 1
+    ), "All rows of `trans_probas` must sum to 1"
     assert np.isclose(init_arr.sum(), 1), "`init_probas` must sum to 1"
 
     # Find number of *complete* epochs within TIB duration to simulate

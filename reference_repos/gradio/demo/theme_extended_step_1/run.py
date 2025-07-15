@@ -1,7 +1,9 @@
 import gradio as gr
 import time
 
-with gr.Blocks(theme=gr.themes.Default(primary_hue="red", secondary_hue="pink")) as demo:
+with gr.Blocks(
+    theme=gr.themes.Default(primary_hue="red", secondary_hue="pink")
+) as demo:
     textbox = gr.Textbox(label="Name")
     slider = gr.Slider(label="Count", minimum=0, maximum=100, step=1)
     with gr.Row():

@@ -1,11 +1,12 @@
-
 import numpy as np
 
 import gradio as gr
 
+
 def reverse_audio(audio):
     sr, data = audio
     return (sr, np.flipud(data))
+
 
 input_audio = gr.Audio(
     sources=["microphone"],
@@ -16,11 +17,7 @@ input_audio = gr.Audio(
         show_controls=False,
     ),
 )
-demo = gr.Interface(
-    fn=reverse_audio,
-    inputs=input_audio,
-    outputs="audio"
-)
+demo = gr.Interface(fn=reverse_audio, inputs=input_audio, outputs="audio")
 
 if __name__ == "__main__":
     demo.launch()

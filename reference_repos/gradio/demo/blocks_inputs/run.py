@@ -1,11 +1,14 @@
 import gradio as gr
 import os
 
+
 def combine(a, b):
     return a + " " + b
 
+
 def mirror(x):
     return x
+
 
 with gr.Blocks() as demo:
 

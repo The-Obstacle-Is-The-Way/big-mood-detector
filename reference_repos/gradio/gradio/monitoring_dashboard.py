@@ -72,9 +72,7 @@ with gr.Blocks() as demo:
         x_bin = (
             "1h"
             if duration >= 60 * 60 * 24
-            else "15m"
-            if duration >= 60 * 60 * 3
-            else "1m"
+            else "15m" if duration >= 60 * 60 * 3 else "1m"
         )
         df = df.drop(columns=["session_hash"])  # type: ignore
         assert isinstance(df, pd.DataFrame)  # noqa: S101

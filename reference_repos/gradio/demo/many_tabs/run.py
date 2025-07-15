@@ -288,7 +288,8 @@ with gr.Blocks(title="Multi-Component Demo with 10 Tabs") as demo:
     ]  # You would need to reference individual tabs for this to work properly
 
     gr.Markdown("### 🎯 Features:")
-    gr.Markdown("""
+    gr.Markdown(
+        """
     - **Tab 1**: 3D Model viewer with file upload
     - **Tab 2**: Image editor with drawing tools
     - **Tab 3**: Audio upload and recording
@@ -299,7 +300,8 @@ with gr.Blocks(title="Multi-Component Demo with 10 Tabs") as demo:
     - **Tab 8**: Interactive chatbot interface
     - **Tab 9**: Image gallery with preview
     - **Tab 10**: Video upload and recording
-    """)
+    """
+    )
 
 if __name__ == "__main__":
     demo.launch()

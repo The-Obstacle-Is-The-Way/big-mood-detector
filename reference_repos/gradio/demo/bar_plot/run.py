@@ -50,6 +50,7 @@ fake_barley = pd.DataFrame(
     }
 )
 
+
 def bar_plot_fn(display):
     if display == "simple":
         return gr.BarPlot(
@@ -114,6 +115,7 @@ def bar_plot_fn(display):
             tooltip=["yield", "site", "year"],
             vertical=False,
         )
+
 
 with gr.Blocks() as bar_plot:
     with gr.Row():

@@ -284,9 +284,9 @@ class FileSerializable(Serializable):
             size = Path(filename).stat().st_size
         return {
             "name": filename or None,
-            "data": None
-            if allow_links
-            else utils.encode_url_or_file_to_base64(filename),
+            "data": (
+                None if allow_links else utils.encode_url_or_file_to_base64(filename)
+            ),
             "orig_name": Path(filename).name,
             "size": size,
         }

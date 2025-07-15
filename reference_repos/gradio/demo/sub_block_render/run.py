@@ -6,6 +6,7 @@ from PIL import Image
 
 root = Path(os.path.dirname(__file__))
 
+
 def infer(
     text,
     guidance_scale,
@@ -19,6 +20,7 @@ def infer(
     img = img.resize((224, 224))
 
     return ([img, img, img, img], "image")
+
 
 block = gr.Blocks()
 

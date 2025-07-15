@@ -43,9 +43,9 @@ if TYPE_CHECKING:
 @document()
 def load(
     name: str,
-    src: Callable[[str, str | None], Blocks]
-    | Literal["models", "spaces"]
-    | None = None,
+    src: (
+        Callable[[str, str | None], Blocks] | Literal["models", "spaces"] | None
+    ) = None,
     token: str | None = None,
     hf_token: str | None = None,
     accept_token: bool | LoginButton = False,
@@ -619,8 +619,8 @@ def from_spaces_interface(
             len(config["outputs"]) == 1
         ):  # if the fn is supposed to return a single value, pop it
             output = output[0]
-        if (
-            len(config["outputs"]) == 1 and isinstance(output, list)
+        if len(config["outputs"]) == 1 and isinstance(
+            output, list
         ):  # Needed to support Output.Image() returning bounding boxes as well (TODO: handle different versions of gradio since they have slightly different APIs)
             output = output[0]
         return output
@@ -771,9 +771,9 @@ def load_chat(
     model: str,
     token: str | None = None,
     *,
-    file_types: Literal["text_encoded", "image"]
-    | list[Literal["text_encoded", "image"]]
-    | None = "text_encoded",
+    file_types: (
+        Literal["text_encoded", "image"] | list[Literal["text_encoded", "image"]] | None
+    ) = "text_encoded",
     system_message: str | None = None,
     streaming: bool = True,
     **kwargs,
@@ -864,9 +864,11 @@ def load_chat(
         open_api_stream if streaming else open_api,
         type="messages",
         multimodal=bool(file_types),
-        textbox=gr.MultimodalTextbox(file_types=supported_extensions)
-        if file_types
-        else None,
+        textbox=(
+            gr.MultimodalTextbox(file_types=supported_extensions)
+            if file_types
+            else None
+        ),
         **kwargs,
     )
 

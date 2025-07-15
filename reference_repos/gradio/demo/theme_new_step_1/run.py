@@ -2,8 +2,10 @@ import gradio as gr
 from gradio.themes.base import Base
 import time
 
+
 class Seafoam(Base):
     pass
+
 
 seafoam = Seafoam()
 

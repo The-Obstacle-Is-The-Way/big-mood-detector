@@ -41,6 +41,7 @@ from gradio.wasm_utils import app_id_context
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+
 # Code modified from IPython (BSD license)
 # Source: https://github.com/ipython/ipython/blob/master/IPython/utils/syspathcontext.py#L42
 class modified_sys_path:  # noqa: N801
@@ -104,11 +105,11 @@ async def _run_script(app_id: str, home_dir: str, script_path: str) -> None:
 
 
 async def _run_code(
-        app_id: str,
-        home_dir: str,
-        filebody: str,
-        script_path: str = '<string>'  # This default value follows the convention. Ref: https://docs.python.org/3/library/functions.html#compile
-    ) -> None:
+    app_id: str,
+    home_dir: str,
+    filebody: str,
+    script_path: str = "<string>",  # This default value follows the convention. Ref: https://docs.python.org/3/library/functions.html#compile
+) -> None:
     set_home_dir(home_dir)
 
     # NOTE: In Streamlit, the bytecode caching mechanism has been introduced.
@@ -122,7 +123,7 @@ async def _run_code(
         # mode (as opposed to "eval" or "single").
         mode="exec",
         # Don't inherit any flags or "future" statements.
-        flags=ast.PyCF_ALLOW_TOP_LEVEL_AWAIT, # Allow top-level await. Ref: https://github.com/whitphx/streamlit/commit/277dc580efb315a3e9296c9a0078c602a0904384
+        flags=ast.PyCF_ALLOW_TOP_LEVEL_AWAIT,  # Allow top-level await. Ref: https://github.com/whitphx/streamlit/commit/277dc580efb315a3e9296c9a0078c602a0904384
         dont_inherit=1,
         # Use the default optimization options.
         optimize=-1,
@@ -140,7 +141,11 @@ async def _run_code(
     # Add special variables to the module's globals dict.
     module.__dict__["__file__"] = script_path
 
-    with modified_sys_path(script_path), modified_sys_path(home_dir), app_id_context(app_id):
+    with (
+        modified_sys_path(script_path),
+        modified_sys_path(home_dir),
+        app_id_context(app_id),
+    ):
         # Allow top-level await. Ref: https://github.com/whitphx/streamlit/commit/277dc580efb315a3e9296c9a0078c602a0904384
         if bytecode.co_flags & CO_COROUTINE:
             # The source code includes top-level awaits, so the compiled code object is a coroutine.

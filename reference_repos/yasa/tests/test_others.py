@@ -57,7 +57,30 @@ class TestOthers(unittest.TestCase):
         """Test functions _merge_close"""
         a = np.array([4, 5, 6, 7, 10, 11, 12, 13, 20, 21, 22, 100, 102])
         good = np.array(
-            [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 100, 101, 102]
+            [
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13,
+                14,
+                15,
+                16,
+                17,
+                18,
+                19,
+                20,
+                21,
+                22,
+                100,
+                101,
+                102,
+            ]
         )
         # Events that are less than 100 ms apart (i.e. 10 points at 100 Hz sf)
         out = _merge_close(a, 100, 100)
@@ -65,7 +88,17 @@ class TestOthers(unittest.TestCase):
 
     def test_moving_transform(self):
         """Test moving_transform"""
-        method = ["mean", "min", "max", "ptp", "rms", "prop_above_zero", "slope", "corr", "covar"]
+        method = [
+            "mean",
+            "min",
+            "max",
+            "ptp",
+            "rms",
+            "prop_above_zero",
+            "slope",
+            "corr",
+            "covar",
+        ]
         interp = [False, True]
         win = [0.3, 0.5]
         step = [0, 0.5]

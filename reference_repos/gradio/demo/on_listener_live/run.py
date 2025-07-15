@@ -11,5 +11,6 @@ with gr.Blocks() as demo:
     def sum(a, b, c):
         return a + b + c
 
+
 if __name__ == "__main__":
     demo.launch()

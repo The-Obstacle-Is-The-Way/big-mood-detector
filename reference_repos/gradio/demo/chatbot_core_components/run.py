@@ -48,6 +48,7 @@ Absolutely! The mycorrhizal network, often referred to as the "Wood Wide Web," i
 The "Wood Wide Web" exemplifies the intricate and often hidden connections that sustain life on Earth. It’s a reminder of the profound interdependence within natural systems and the importance of preserving these delicate relationships.
 """
 
+
 def random_plot():
     df = px.data.iris()
     fig = px.scatter(
@@ -60,11 +61,13 @@ def random_plot():
     )
     return fig
 
+
 color_map = {
     "harmful": "crimson",
     "neutral": "gray",
     "beneficial": "green",
 }
+
 
 def html_src(harm_level):
     return f"""
@@ -75,8 +78,10 @@ def html_src(harm_level):
 </div>
 """
 
+
 def print_like_dislike(x: gr.LikeData):
     print(x.index, x.value, x.liked)
+
 
 def random_bokeh_plot():
     from bokeh.models import ColumnDataSource, Whisker
@@ -122,6 +127,7 @@ def random_bokeh_plot():
     )
     return p
 
+
 def random_matplotlib_plot():
     import numpy as np
     import pandas as pd
@@ -147,12 +153,14 @@ def random_matplotlib_plot():
     plt.legend(countries)
     return fig
 
+
 def add_message(history, message):
     for x in message["files"]:
         history.append({"role": "user", "content": {"path": x}})
     if message["text"] is not None:
         history.append({"role": "user", "content": message["text"]})
     return history, gr.MultimodalTextbox(value=None, interactive=False)
+
 
 def bot(history, response_type):
     msg = {"role": "assistant", "content": ""}
@@ -161,7 +169,7 @@ def bot(history, response_type):
     elif response_type == "bokeh_plot":
         content = gr.Plot(random_bokeh_plot())
     elif response_type == "matplotlib_plot":
-        content =  gr.Plot(random_matplotlib_plot())
+        content = gr.Plot(random_matplotlib_plot())
     elif response_type == "gallery":
         content = gr.Gallery(
             [os.path.join("files", "avatar.png"), os.path.join("files", "avatar.png")]
@@ -176,32 +184,43 @@ def bot(history, response_type):
             label="Dataframe",
         )
     elif response_type == "image":
-       content = gr.Image(os.path.join("files", "avatar.png"))
+        content = gr.Image(os.path.join("files", "avatar.png"))
     elif response_type == "video":
-       content = gr.Video(os.path.join("files", "world.mp4"))
+        content = gr.Video(os.path.join("files", "world.mp4"))
     elif response_type == "audio":
         content = gr.Audio(os.path.join("files", "audio.wav"))
     elif response_type == "audio_file":
-        content = {"path": os.path.join("files", "audio.wav"), "alt_text": "description"}
+        content = {
+            "path": os.path.join("files", "audio.wav"),
+            "alt_text": "description",
+        }
     elif response_type == "image_file":
-        content = {"path": os.path.join("files", "avatar.png"), "alt_text": "description"}
+        content = {
+            "path": os.path.join("files", "avatar.png"),
+            "alt_text": "description",
+        }
     elif response_type == "video_file":
-        content = {"path": os.path.join("files", "world.mp4"), "alt_text": "description"}
+        content = {
+            "path": os.path.join("files", "world.mp4"),
+            "alt_text": "description",
+        }
     elif response_type == "txt_file":
-        content = {"path": os.path.join("files", "sample.txt"), "alt_text": "description"}
+        content = {
+            "path": os.path.join("files", "sample.txt"),
+            "alt_text": "description",
+        }
     elif response_type == "model3d_file":
         content = {"path": os.path.join("files", "Duck.glb"), "alt_text": "description"}
     elif response_type == "html":
-        content = gr.HTML(
-            html_src(random.choice(["harmful", "neutral", "beneficial"]))
-        )
+        content = gr.HTML(html_src(random.choice(["harmful", "neutral", "beneficial"])))
     elif response_type == "model3d":
         content = gr.Model3D(os.path.join("files", "Duck.glb"))
     else:
         content = txt
-    msg["content"] = content # type: ignore
+    msg["content"] = content  # type: ignore
     history.append(msg)
     return history
+
 
 fig = random_plot()
 

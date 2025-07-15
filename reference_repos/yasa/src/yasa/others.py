@@ -45,7 +45,9 @@ def _merge_close(index, min_distance_ms, sf):
     bad = idx_distance[np.where(distance < min_distance)[0]]
     # Fill gap between events separated with less than min_distance_ms
     if len(bad) > 0:
-        fill = np.hstack([np.arange(index[j] + 1, index[j + 1]) for i, j in enumerate(bad)])
+        fill = np.hstack(
+            [np.arange(index[j] + 1, index[j + 1]) for i, j in enumerate(bad)]
+        )
         f_index = np.sort(np.append(index, fill))
         return f_index
     else:
@@ -78,7 +80,9 @@ def _index_to_events(x):
     return index
 
 
-def moving_transform(x, y=None, sf=100, window=0.3, step=0.1, method="corr", interp=False):
+def moving_transform(
+    x, y=None, sf=100, window=0.3, step=0.1, method="corr", interp=False
+):
     """Moving transformation of one or two time-series.
 
     Parameters
@@ -219,7 +223,9 @@ def moving_transform(x, y=None, sf=100, window=0.3, step=0.1, method="corr", int
 
     # Finally interpolate
     if interp and step != 1 / sf:
-        f = interp1d(t, out, kind="cubic", bounds_error=False, fill_value=0, assume_sorted=True)
+        f = interp1d(
+            t, out, kind="cubic", bounds_error=False, fill_value=0, assume_sorted=True
+        )
         t = np.arange(n) / sf
         out = f(t)
 
@@ -374,7 +380,9 @@ def sliding_window(data, sf, window, step=None, axis=-1):
     assert axis <= data.ndim, "Axis value out of range."
     assert isinstance(sf, (int, float)), "sf must be int or float"
     assert isinstance(window, (int, float)), "window must be int or float"
-    assert isinstance(step, (int, float, type(None))), "step must be int, float or None."
+    assert isinstance(
+        step, (int, float, type(None))
+    ), "step must be int, float or None."
     if isinstance(sf, float):
         assert sf.is_integer(), "sf must be a whole number."
         sf = int(sf)
@@ -393,7 +401,9 @@ def sliding_window(data, sf, window, step=None, axis=-1):
         step = int(step)
 
     assert step >= 1, "Stepsize may not be zero or negative."
-    assert window < data.shape[axis], "Sliding window size may not exceed size of selected axis"
+    assert (
+        window < data.shape[axis]
+    ), "Sliding window size may not exceed size of selected axis"
 
     # Define output shape
     shape = list(data.shape)

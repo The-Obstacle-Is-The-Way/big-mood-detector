@@ -4,16 +4,20 @@ from time import sleep
 
 css_file = os.path.join(os.path.dirname(__file__), "file.css")
 
+
 def set_lang(language):
     print(language)
     return gr.Code(language=language)
+
 
 def set_lang_from_path():
     sleep(1)
     return gr.Code(open(css_file).read(), language="css")
 
+
 def code(language, code):
     return gr.Code(code, language=language)
+
 
 io = gr.Interface(lambda x: x, "code", "code")
 
@@ -24,9 +28,9 @@ with gr.Blocks() as demo:
             language="python",
             label="Input",
             value='def all_odd_elements(sequence):\n    """Returns every odd element of the sequence."""',
-            show_line_numbers = False
+            show_line_numbers=False,
         )
-        code_out = gr.Code(label="Output", show_line_numbers = True)
+        code_out = gr.Code(label="Output", show_line_numbers=True)
     btn = gr.Button("Run")
     btn_two = gr.Button("Load File")
 

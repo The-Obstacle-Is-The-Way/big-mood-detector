@@ -310,9 +310,11 @@ def create(app_file: str, config_file: str):
                         prompt = gr.Textbox(
                             label="Prompt",
                             lines=3,
-                            placeholder=edit_prompt_placeholder
-                            if history_exists
-                            else new_prompt_placeholder,
+                            placeholder=(
+                                edit_prompt_placeholder
+                                if history_exists
+                                else new_prompt_placeholder
+                            ),
                             interactive=True,
                         )
                         no_components_are_set = (
@@ -327,9 +329,11 @@ def create(app_file: str, config_file: str):
                         new_generate_text = "Generate Code"
                         update_generate_text = "Update Code"
                         generate_code_btn = gr.Button(
-                            update_generate_text
-                            if history_exists
-                            else new_generate_text,
+                            (
+                                update_generate_text
+                                if history_exists
+                                else new_generate_text
+                            ),
                             size="md",
                             interactive=not no_components_are_set,
                         )
@@ -518,9 +522,11 @@ def create(app_file: str, config_file: str):
                                 var_name=var_name,
                                 active=_modify_id == element and not function_mode,
                                 function_mode=function_mode,
-                                event_list=component.EVENTS
-                                if hasattr(component, "EVENTS")
-                                else None,
+                                event_list=(
+                                    component.EVENTS
+                                    if hasattr(component, "EVENTS")
+                                    else None
+                                ),
                                 is_input=is_input,
                                 is_output=is_output,
                                 triggers=triggers,
@@ -666,9 +672,7 @@ def create(app_file: str, config_file: str):
                         fn_output = (
                             [gr.skip()] * output_count
                             if output_count > 1
-                            else gr.skip()
-                            if output_count == 1
-                            else None
+                            else gr.skip() if output_count == 1 else None
                         )
 
                         def sleep(*_):

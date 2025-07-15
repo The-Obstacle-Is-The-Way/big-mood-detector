@@ -5,6 +5,7 @@ import time
 
 import gradio as gr
 
+
 def fake_gan(desc):
     if desc == "NSFW":
         raise gr.Error("NSFW - banned content.")
@@ -20,6 +21,7 @@ def fake_gan(desc):
         ]
     )
     return image
+
 
 demo = gr.Interface(
     fn=fake_gan,

@@ -13,22 +13,22 @@ from fhirclient.models.fhirtime import FHIRTime
 
 class StructureMapTests(unittest.TestCase):
     def instantiate_from(self, filename):
-        datadir = os.path.join(os.path.dirname(__file__), '..', 'data', 'examples')
-        with io.open(os.path.join(datadir, filename), 'r', encoding='utf-8') as handle:
+        datadir = os.path.join(os.path.dirname(__file__), "..", "data", "examples")
+        with io.open(os.path.join(datadir, filename), "r", encoding="utf-8") as handle:
             js = json.load(handle)
             self.assertEqual("StructureMap", js["resourceType"])
         return structuremap.StructureMap(js)
-    
+
     def testStructureMap1(self):
         inst = self.instantiate_from("structuremap-example.json")
         self.assertIsNotNone(inst, "Must have instantiated a StructureMap instance")
         self.implStructureMap1(inst)
-        
+
         js = inst.as_json()
         self.assertEqual("StructureMap", js["resourceType"])
         inst2 = structuremap.StructureMap(js)
         self.implStructureMap1(inst2)
-    
+
     def implStructureMap1(self, inst):
         self.assertEqual(inst.contact[0].telecom[0].system, "url")
         self.assertEqual(inst.contact[0].telecom[0].value, "http://hl7.org/fhir")
@@ -51,10 +51,15 @@ class StructureMapTests(unittest.TestCase):
         self.assertEqual(inst.group[0].typeMode, "none")
         self.assertEqual(inst.id, "example")
         self.assertEqual(inst.identifier[0].system, "urn:ietf:rfc:3986")
-        self.assertEqual(inst.identifier[0].value, "urn:oid:37843577-95fb-4adb-84c0-8837188a7bf3")
+        self.assertEqual(
+            inst.identifier[0].value, "urn:oid:37843577-95fb-4adb-84c0-8837188a7bf3"
+        )
         self.assertEqual(inst.jurisdiction[0].coding[0].code, "009")
         self.assertEqual(inst.jurisdiction[0].coding[0].display, "Oceania")
-        self.assertEqual(inst.jurisdiction[0].coding[0].system, "http://unstats.un.org/unsd/methods/m49/m49.htm")
+        self.assertEqual(
+            inst.jurisdiction[0].coding[0].system,
+            "http://unstats.un.org/unsd/methods/m49/m49.htm",
+        )
         self.assertEqual(inst.name, "ExampleMap")
         self.assertEqual(inst.publisher, "HL7 FHIR Standard")
         self.assertEqual(inst.status, "draft")
@@ -62,4 +67,3 @@ class StructureMapTests(unittest.TestCase):
         self.assertEqual(inst.title, "Example Map")
         self.assertEqual(inst.url, "http://hl7.org/fhir/StructureMap/example")
         self.assertEqual(inst.version, "0.1")
-

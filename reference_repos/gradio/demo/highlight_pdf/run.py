@@ -4,7 +4,8 @@ import pymupdf
 import os
 from pathlib import Path
 
-current_dir = Path(os.path.abspath(''))
+current_dir = Path(os.path.abspath(""))
+
 
 def highlight_text_in_pdf(pdf_file: Path, highlight_text: str):
     page_number = 0
@@ -21,10 +22,11 @@ def highlight_text_in_pdf(pdf_file: Path, highlight_text: str):
 
     if page_number is None:
         page_number = 0
-    
+
     return new_pdf_file, page_number + 1
 
-def ask(query): 
+
+def ask(query):
     result = f"Something about : {query}"
     sources = "Document 1"
     pdf_path = current_dir / "Lorem_ipsum.pdf"
@@ -46,7 +48,7 @@ if __name__ == "__main__":
             with gr.Column(scale=2):
                 srcs = gr.Textbox(label="Sources", interactive=False)
                 pdf = PDF(label="Document")
-            
+
         btn.click(fn=ask, inputs=input, outputs=[output, srcs, pdf])
 
     demo.launch()

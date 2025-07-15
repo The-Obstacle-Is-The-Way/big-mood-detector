@@ -4,6 +4,7 @@ import os
 
 cheetah = os.path.join(os.path.dirname(__file__), "files/cheetah1.jpg")
 
+
 def img(text):
     sleep(3)
     return [
@@ -17,6 +18,7 @@ def img(text):
         cheetah,
         cheetah,
     ]
+
 
 with gr.Blocks(css=".container { max-width: 800px; margin: auto; }") as demo:
     gr.Markdown("<h1><center>DALL·E mini</center></h1>")

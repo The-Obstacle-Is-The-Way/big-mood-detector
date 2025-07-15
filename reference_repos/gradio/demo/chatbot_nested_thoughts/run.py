@@ -5,6 +5,7 @@ import time
 sleep_time = 0.1
 long_sleep_time = 1
 
+
 def generate_response(history):
     history.append(
         ChatMessage(
@@ -70,6 +71,7 @@ def generate_response(history):
         )
     )
     yield history
+
 
 with gr.Blocks() as demo:
     chatbot = gr.Chatbot(type="messages", height=500, show_copy_button=True)

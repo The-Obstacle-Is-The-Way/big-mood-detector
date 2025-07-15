@@ -86,7 +86,9 @@ class TestSpectral(unittest.TestCase):
         # Check that we can recover the physical power using TotalAbsPow
         bands = ["Delta", "Theta", "Alpha", "Sigma", "Beta", "Gamma"]
         bp_abs = bp[bands] * bp["TotalAbsPow"].values[..., None]
-        np.testing.assert_array_almost_equal(bp_abs[bands].values, bp_abs_true[bands].values)
+        np.testing.assert_array_almost_equal(
+            bp_abs[bands].values, bp_abs_true[bands].values
+        )
 
         # 2-D EEG data
         win = int(4 * sf)
@@ -112,7 +114,10 @@ class TestSpectral(unittest.TestCase):
         bandpower_from_psd_ndarray(psd_1d, freqs, relative=True)
         bandpower_from_psd_ndarray(psd_2d, freqs, relative=False)
         assert (
-            bandpower_from_psd_ndarray(psd_3d, freqs, bands=[(0.5, 4, "Delta")], relative=True) == 1
+            bandpower_from_psd_ndarray(
+                psd_3d, freqs, bands=[(0.5, 4, "Delta")], relative=True
+            )
+            == 1
         ).all()
 
         # With negative values: we should get a logger warning
@@ -151,7 +156,9 @@ class TestSpectral(unittest.TestCase):
         for i, (w, s, b, i, n) in enumerate(prod_args):
             stft_power(data, sf, window=w, step=s, band=b, interp=i, norm=n)
 
-        f, t, _ = stft_power(data, sf, window=4, step=0.1, band=(11, 16), interp=True, norm=False)
+        f, t, _ = stft_power(
+            data, sf, window=4, step=0.1, band=(11, 16), interp=True, norm=False
+        )
 
         assert f[1] - f[0] == 0.25
         assert t.size == data.size
@@ -162,7 +169,9 @@ class TestSpectral(unittest.TestCase):
         """Test function plot_spectrogram"""
         plot_spectrogram(data_full[0, :], sf_full, fmin=0.5, fmax=30)
         plot_spectrogram(data_full[0, :], sf_full, hypno_full, trimperc=5)
-        plot_spectrogram(data_full[0, :], sf_full, fmin=0.5, fmax=30, vmin=-50, vmax=100)
+        plot_spectrogram(
+            data_full[0, :], sf_full, fmin=0.5, fmax=30, vmin=-50, vmax=100
+        )
         hypno_full_art = np.copy(hypno_full)
         hypno_full_art[hypno_full_art == 3.0] = -1
         # Replace N3 by Artefact
@@ -171,7 +180,9 @@ class TestSpectral(unittest.TestCase):
         hypno_full_art[hypno_full_art == 4.0] = -2
         plot_spectrogram(data_full[0, :], sf_full, hypno_full_art)
         # Pass kwargs to the hypnogram plot
-        plot_spectrogram(data_full[0, :], sf_full, hypno_full_art, lw=1, fill_color="blue")
+        plot_spectrogram(
+            data_full[0, :], sf_full, hypno_full_art, lw=1, fill_color="blue"
+        )
         plt.close("all")
         # Errors
         with pytest.raises(AssertionError):

@@ -1,4 +1,5 @@
 "The NGBoost library API"
+
 # pylint: disable=too-many-arguments
 from sklearn.base import BaseEstimator
 from sklearn.utils import check_array

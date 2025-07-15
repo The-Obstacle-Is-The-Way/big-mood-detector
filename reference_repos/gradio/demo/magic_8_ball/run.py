@@ -19,9 +19,7 @@ import time
 device = (
     "cuda:0"
     if torch.cuda.is_available()
-    else "mps"
-    if torch.backends.mps.is_available()
-    else "cpu"
+    else "mps" if torch.backends.mps.is_available() else "cpu"
 )
 torch_dtype = torch.float16 if device != "cpu" else torch.float32
 
@@ -93,7 +91,7 @@ def generate_response(audio):
         },
     ]
 
-    response = client.chat_completion( # type: ignore
+    response = client.chat_completion(  # type: ignore
         messages,
         max_tokens=64,
         seed=random.randint(1, 5000),
@@ -114,7 +112,7 @@ def read_response(answer):
     streamer = ParlerTTSStreamer(model, device=device, play_steps=play_steps)
     prompt = tokenizer(answer, return_tensors="pt").to(device)
 
-    generation_kwargs = dict( # noqa: C408
+    generation_kwargs = dict(  # noqa: C408
         input_ids=description_tokens.input_ids,
         prompt_input_ids=prompt.input_ids,
         streamer=streamer,

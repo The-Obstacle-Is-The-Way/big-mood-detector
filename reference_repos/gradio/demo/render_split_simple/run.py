@@ -11,5 +11,6 @@ with gr.Blocks() as demo:
             for letter in text:
                 gr.Textbox(letter)
 
+
 if __name__ == "__main__":
     demo.launch()

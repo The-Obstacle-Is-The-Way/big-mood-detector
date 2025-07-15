@@ -1,7 +1,9 @@
 import gradio as gr
 
+
 def sort_records(records):
     return records.sort("Quantity")
+
 
 demo = gr.Interface(
     sort_records,
@@ -10,10 +12,10 @@ demo = gr.Interface(
         datatype=["str", "number"],
         row_count=3,
         col_count=(2, "fixed"),
-        type="polars"
+        type="polars",
     ),
     "dataframe",
-    description="Sort by Quantity"
+    description="Sort by Quantity",
 )
 
 if __name__ == "__main__":

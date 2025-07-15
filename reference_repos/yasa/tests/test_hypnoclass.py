@@ -14,7 +14,9 @@ from yasa.hypno import Hypnogram, hypno_str_to_int, simulate_hypnogram
 def create_raw(npts, ch_names=["F4-M1", "F3-M2"], sf=100):
     """Utility function for test fit to data."""
     nchan = len(ch_names)
-    info = mne.create_info(ch_names=ch_names, sfreq=sf, ch_types=["eeg"] * nchan, verbose=0)
+    info = mne.create_info(
+        ch_names=ch_names, sfreq=sf, ch_types=["eeg"] * nchan, verbose=0
+    )
     data = np.random.rand(nchan, npts)
     raw = mne.io.RawArray(data, info, verbose=0)
     return raw
@@ -30,7 +32,9 @@ class TestHypnoClass(unittest.TestCase):
         print(str(hyp))
 
         # Check properties
-        np.testing.assert_array_equal(hyp.hypno.str.get(0)[:10], np.repeat(["W", "S"], 5))
+        np.testing.assert_array_equal(
+            hyp.hypno.str.get(0)[:10], np.repeat(["W", "S"], 5)
+        )
         assert isinstance(hyp.hypno.index, pd.RangeIndex)
         assert hyp.hypno.dtype == "category"
         assert hyp.hypno.index.name == "Epoch"
@@ -48,7 +52,9 @@ class TestHypnoClass(unittest.TestCase):
 
         # Adding start time
         values = hyp.hypno.to_numpy()
-        hyp = Hypnogram(values, n_stages=2, start="2022-11-10 13:30:10", freq="15s", scorer="Test")
+        hyp = Hypnogram(
+            values, n_stages=2, start="2022-11-10 13:30:10", freq="15s", scorer="Test"
+        )
         assert isinstance(hyp.hypno.index, pd.DatetimeIndex)
         assert hyp.hypno.index.name == "Time"
         assert hyp.hypno.name == "Test"
@@ -65,7 +71,9 @@ class TestHypnoClass(unittest.TestCase):
         )
 
         # Test class methods
-        values_int = hypno_str_to_int(hyp.hypno.tolist(), mapping_dict={"wake": 0, "sleep": 1})
+        values_int = hypno_str_to_int(
+            hyp.hypno.tolist(), mapping_dict={"wake": 0, "sleep": 1}
+        )
         np.testing.assert_array_equal(hyp.as_int(), values_int)
         hyp.transition_matrix()
         hyp.find_periods()
@@ -151,7 +159,9 @@ class TestHypnoClass(unittest.TestCase):
         assert "Lat_REM" in sstats.keys()
 
         # Try to set a value that is not a valid category
-        with pytest.raises((TypeError, ValueError)):  # TypeError in newer versions of Pandas
+        with pytest.raises(
+            (TypeError, ValueError)
+        ):  # TypeError in newer versions of Pandas
             hyp.hypno.loc[0] = "Dream sleep"
 
     def test_4stages_hypno(self):
@@ -159,7 +169,14 @@ class TestHypnoClass(unittest.TestCase):
         hyp = simulate_hypnogram(tib=400, n_stages=4, freq="30s", seed=42)
         assert hyp.n_stages == 4
         assert hyp.labels == ["WAKE", "LIGHT", "DEEP", "REM", "ART", "UNS"]
-        assert hyp.mapping == {"WAKE": 0, "LIGHT": 2, "DEEP": 3, "REM": 4, "ART": -1, "UNS": -2}
+        assert hyp.mapping == {
+            "WAKE": 0,
+            "LIGHT": 2,
+            "DEEP": 3,
+            "REM": 4,
+            "ART": -1,
+            "UNS": -2,
+        }
         sstats = hyp.sleep_statistics()
         assert sstats["TIB"] == 400
         assert "%DEEP" in sstats.keys()

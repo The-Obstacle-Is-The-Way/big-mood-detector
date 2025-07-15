@@ -4,13 +4,14 @@ import numpy as np
 
 transcriber = pipeline("automatic-speech-recognition", model="openai/whisper-base.en")
 
+
 def transcribe(stream, new_chunk):
     sr, y = new_chunk
-    
+
     # Convert to mono if stereo
     if y.ndim > 1:
         y = y.mean(axis=1)
-        
+
     y = y.astype(np.float32)
     y /= np.max(np.abs(y))
 
@@ -19,6 +20,7 @@ def transcribe(stream, new_chunk):
     else:
         stream = y
     return stream, transcriber({"sampling_rate": sr, "raw": stream})["text"]  # type: ignore
+
 
 demo = gr.Interface(
     transcribe,

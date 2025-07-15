@@ -27,9 +27,9 @@ with gr.Blocks() as demo:
         alpha_order = gr.Checkbox(True, label="Alphabetical Order")
 
     gr.JSON(
-        lambda count, alpha_order: countries[:count]
-        if alpha_order
-        else countries[-count:],
+        lambda count, alpha_order: (
+            countries[:count] if alpha_order else countries[-count:]
+        ),
         inputs=[count, alpha_order],
     )
     timer = gr.Timer(1)

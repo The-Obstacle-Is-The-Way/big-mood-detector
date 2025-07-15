@@ -6,10 +6,13 @@ import gradio as gr
 import datetime
 import numpy as np
 
+
 def get_time():
     return datetime.datetime.now()
 
+
 plot_end = 2 * math.pi
+
 
 def get_plot(period=1):
     global plot_end
@@ -26,13 +29,12 @@ def get_plot(period=1):
     plot_end += 0.1
     return update
 
+
 with gr.Blocks() as demo:
     with gr.Row():
         with gr.Column():
             c_time2 = gr.Textbox(label="Current Time refreshed every second")
-            period = gr.Slider(
-                label="Period of plot", value=1, minimum=0, maximum=10
-            )
+            period = gr.Slider(label="Period of plot", value=1, minimum=0, maximum=10)
             plot = gr.LinePlot(show_label=False)
         with gr.Column():
             start_time = gr.Textbox(label="Start Time")
@@ -44,7 +46,12 @@ with gr.Blocks() as demo:
     timer.tick(get_plot, period, plot)
 
     def select(selection_range: gr.SelectData):
-        return gr.LinePlot(x_lim=selection_range.index), selection_range.index[0], selection_range.index[1]
+        return (
+            gr.LinePlot(x_lim=selection_range.index),
+            selection_range.index[0],
+            selection_range.index[1],
+        )
+
     plot.select(select, None, [plot, start_time, end_time])
     plot.double_click(lambda: gr.LinePlot(x_lim=None), None, plot)
 

@@ -13,22 +13,22 @@ from fhirclient.models.fhirtime import FHIRTime
 
 class PractitionerTests(unittest.TestCase):
     def instantiate_from(self, filename):
-        datadir = os.path.join(os.path.dirname(__file__), '..', 'data', 'examples')
-        with io.open(os.path.join(datadir, filename), 'r', encoding='utf-8') as handle:
+        datadir = os.path.join(os.path.dirname(__file__), "..", "data", "examples")
+        with io.open(os.path.join(datadir, filename), "r", encoding="utf-8") as handle:
             js = json.load(handle)
             self.assertEqual("Practitioner", js["resourceType"])
         return practitioner.Practitioner(js)
-    
+
     def testPractitioner1(self):
         inst = self.instantiate_from("practitioner-example-f202-lm.json")
         self.assertIsNotNone(inst, "Must have instantiated a Practitioner instance")
         self.implPractitioner1(inst)
-        
+
         js = inst.as_json()
         self.assertEqual("Practitioner", js["resourceType"])
         inst2 = practitioner.Practitioner(js)
         self.implPractitioner1(inst2)
-    
+
     def implPractitioner1(self, inst):
         self.assertTrue(inst.active)
         self.assertEqual(inst.address[0].city, "Den helder")
@@ -51,7 +51,10 @@ class PractitionerTests(unittest.TestCase):
         self.assertEqual(inst.identifier[1].value, "12345678902")
         self.assertEqual(inst.meta.tag[0].code, "HTEST")
         self.assertEqual(inst.meta.tag[0].display, "test health data")
-        self.assertEqual(inst.meta.tag[0].system, "http://terminology.hl7.org/CodeSystem/v3-ActReason")
+        self.assertEqual(
+            inst.meta.tag[0].system,
+            "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+        )
         self.assertEqual(inst.name[0].family, "Maas")
         self.assertEqual(inst.name[0].given[0], "Luigi")
         self.assertEqual(inst.name[0].prefix[0], "Dr.")
@@ -61,17 +64,17 @@ class PractitionerTests(unittest.TestCase):
         self.assertEqual(inst.telecom[0].use, "work")
         self.assertEqual(inst.telecom[0].value, "+31715269111")
         self.assertEqual(inst.text.status, "generated")
-    
+
     def testPractitioner2(self):
         inst = self.instantiate_from("practitioner-example-f001-evdb.json")
         self.assertIsNotNone(inst, "Must have instantiated a Practitioner instance")
         self.implPractitioner2(inst)
-        
+
         js = inst.as_json()
         self.assertEqual("Practitioner", js["resourceType"])
         inst2 = practitioner.Practitioner(js)
         self.implPractitioner2(inst2)
-    
+
     def implPractitioner2(self, inst):
         self.assertEqual(inst.address[0].city, "Den Burg")
         self.assertEqual(inst.address[0].country, "NLD")
@@ -90,7 +93,10 @@ class PractitionerTests(unittest.TestCase):
         self.assertEqual(inst.identifier[1].value, "129IDH4OP733")
         self.assertEqual(inst.meta.tag[0].code, "HTEST")
         self.assertEqual(inst.meta.tag[0].display, "test health data")
-        self.assertEqual(inst.meta.tag[0].system, "http://terminology.hl7.org/CodeSystem/v3-ActReason")
+        self.assertEqual(
+            inst.meta.tag[0].system,
+            "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+        )
         self.assertEqual(inst.name[0].family, "van den broek")
         self.assertEqual(inst.name[0].given[0], "Eric")
         self.assertEqual(inst.name[0].suffix[0], "MD")
@@ -105,41 +111,46 @@ class PractitionerTests(unittest.TestCase):
         self.assertEqual(inst.telecom[2].use, "work")
         self.assertEqual(inst.telecom[2].value, "0205664440")
         self.assertEqual(inst.text.status, "generated")
-    
+
     def testPractitioner3(self):
         inst = self.instantiate_from("practitioner-example-xcda1.json")
         self.assertIsNotNone(inst, "Must have instantiated a Practitioner instance")
         self.implPractitioner3(inst)
-        
+
         js = inst.as_json()
         self.assertEqual("Practitioner", js["resourceType"])
         inst2 = practitioner.Practitioner(js)
         self.implPractitioner3(inst2)
-    
+
     def implPractitioner3(self, inst):
         self.assertEqual(inst.id, "xcda1")
-        self.assertEqual(inst.identifier[0].system, "http://healthcare.example.org/identifiers/staff")
+        self.assertEqual(
+            inst.identifier[0].system, "http://healthcare.example.org/identifiers/staff"
+        )
         self.assertEqual(inst.identifier[0].use, "official")
         self.assertEqual(inst.identifier[0].value, "D234123")
         self.assertEqual(inst.meta.tag[0].code, "HTEST")
         self.assertEqual(inst.meta.tag[0].display, "test health data")
-        self.assertEqual(inst.meta.tag[0].system, "http://terminology.hl7.org/CodeSystem/v3-ActReason")
+        self.assertEqual(
+            inst.meta.tag[0].system,
+            "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+        )
         self.assertEqual(inst.name[0].family, "Dopplemeyer")
         self.assertEqual(inst.name[0].given[0], "Sherry")
         self.assertEqual(inst.telecom[0].system, "email")
         self.assertEqual(inst.telecom[0].value, "john.doe@healthcare.example.org")
         self.assertEqual(inst.text.status, "generated")
-    
+
     def testPractitioner4(self):
         inst = self.instantiate_from("practitioner-example-f007-sh.json")
         self.assertIsNotNone(inst, "Must have instantiated a Practitioner instance")
         self.implPractitioner4(inst)
-        
+
         js = inst.as_json()
         self.assertEqual("Practitioner", js["resourceType"])
         inst2 = practitioner.Practitioner(js)
         self.implPractitioner4(inst2)
-    
+
     def implPractitioner4(self, inst):
         self.assertEqual(inst.address[0].city, "Den Burg")
         self.assertEqual(inst.address[0].country, "NLD")
@@ -158,7 +169,10 @@ class PractitionerTests(unittest.TestCase):
         self.assertEqual(inst.identifier[1].value, "567IUI51C154")
         self.assertEqual(inst.meta.tag[0].code, "HTEST")
         self.assertEqual(inst.meta.tag[0].display, "test health data")
-        self.assertEqual(inst.meta.tag[0].system, "http://terminology.hl7.org/CodeSystem/v3-ActReason")
+        self.assertEqual(
+            inst.meta.tag[0].system,
+            "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+        )
         self.assertEqual(inst.name[0].family, "Heps")
         self.assertEqual(inst.name[0].given[0], "Simone")
         self.assertEqual(inst.name[0].suffix[0], "MD")
@@ -173,17 +187,17 @@ class PractitionerTests(unittest.TestCase):
         self.assertEqual(inst.telecom[2].use, "work")
         self.assertEqual(inst.telecom[2].value, "0205669283")
         self.assertEqual(inst.text.status, "generated")
-    
+
     def testPractitioner5(self):
         inst = self.instantiate_from("practitioner-example-f204-ce.json")
         self.assertIsNotNone(inst, "Must have instantiated a Practitioner instance")
         self.implPractitioner5(inst)
-        
+
         js = inst.as_json()
         self.assertEqual("Practitioner", js["resourceType"])
         inst2 = practitioner.Practitioner(js)
         self.implPractitioner5(inst2)
-    
+
     def implPractitioner5(self, inst):
         self.assertEqual(inst.address[0].city, "Den helder")
         self.assertEqual(inst.address[0].country, "NLD")
@@ -200,44 +214,50 @@ class PractitionerTests(unittest.TestCase):
         self.assertEqual(inst.identifier[0].value, "12345678904")
         self.assertEqual(inst.meta.tag[0].code, "HTEST")
         self.assertEqual(inst.meta.tag[0].display, "test health data")
-        self.assertEqual(inst.meta.tag[0].system, "http://terminology.hl7.org/CodeSystem/v3-ActReason")
+        self.assertEqual(
+            inst.meta.tag[0].system,
+            "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+        )
         self.assertEqual(inst.name[0].text, "Carla Espinosa")
         self.assertEqual(inst.name[0].use, "usual")
         self.assertEqual(inst.telecom[0].system, "phone")
         self.assertEqual(inst.telecom[0].use, "work")
         self.assertEqual(inst.telecom[0].value, "+31715262169")
         self.assertEqual(inst.text.status, "generated")
-    
+
     def testPractitioner6(self):
         inst = self.instantiate_from("practitioner-example-xcda-author.json")
         self.assertIsNotNone(inst, "Must have instantiated a Practitioner instance")
         self.implPractitioner6(inst)
-        
+
         js = inst.as_json()
         self.assertEqual("Practitioner", js["resourceType"])
         inst2 = practitioner.Practitioner(js)
         self.implPractitioner6(inst2)
-    
+
     def implPractitioner6(self, inst):
         self.assertEqual(inst.id, "xcda-author")
         self.assertEqual(inst.meta.tag[0].code, "HTEST")
         self.assertEqual(inst.meta.tag[0].display, "test health data")
-        self.assertEqual(inst.meta.tag[0].system, "http://terminology.hl7.org/CodeSystem/v3-ActReason")
+        self.assertEqual(
+            inst.meta.tag[0].system,
+            "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+        )
         self.assertEqual(inst.name[0].family, "Hippocrates")
         self.assertEqual(inst.name[0].given[0], "Harold")
         self.assertEqual(inst.name[0].suffix[0], "MD")
         self.assertEqual(inst.text.status, "generated")
-    
+
     def testPractitioner7(self):
         inst = self.instantiate_from("practitioner-example-f201-ab.json")
         self.assertIsNotNone(inst, "Must have instantiated a Practitioner instance")
         self.implPractitioner7(inst)
-        
+
         js = inst.as_json()
         self.assertEqual("Practitioner", js["resourceType"])
         inst2 = practitioner.Practitioner(js)
         self.implPractitioner7(inst2)
-    
+
     def implPractitioner7(self, inst):
         self.assertTrue(inst.active)
         self.assertEqual(inst.address[0].city, "Den helder")
@@ -256,7 +276,10 @@ class PractitionerTests(unittest.TestCase):
         self.assertEqual(inst.identifier[0].value, "12345678901")
         self.assertEqual(inst.meta.tag[0].code, "HTEST")
         self.assertEqual(inst.meta.tag[0].display, "test health data")
-        self.assertEqual(inst.meta.tag[0].system, "http://terminology.hl7.org/CodeSystem/v3-ActReason")
+        self.assertEqual(
+            inst.meta.tag[0].system,
+            "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+        )
         self.assertEqual(inst.name[0].family, "Bronsig")
         self.assertEqual(inst.name[0].given[0], "Arend")
         self.assertEqual(inst.name[0].prefix[0], "Dr.")
@@ -264,22 +287,24 @@ class PractitionerTests(unittest.TestCase):
         self.assertEqual(inst.name[0].use, "official")
         self.assertEqual(inst.qualification[0].code.coding[0].code, "41672002")
         self.assertEqual(inst.qualification[0].code.coding[0].display, "Pulmonologist")
-        self.assertEqual(inst.qualification[0].code.coding[0].system, "http://snomed.info/sct")
+        self.assertEqual(
+            inst.qualification[0].code.coding[0].system, "http://snomed.info/sct"
+        )
         self.assertEqual(inst.telecom[0].system, "phone")
         self.assertEqual(inst.telecom[0].use, "work")
         self.assertEqual(inst.telecom[0].value, "+31715269111")
         self.assertEqual(inst.text.status, "generated")
-    
+
     def testPractitioner8(self):
         inst = self.instantiate_from("practitioner-example-f004-rb.json")
         self.assertIsNotNone(inst, "Must have instantiated a Practitioner instance")
         self.implPractitioner8(inst)
-        
+
         js = inst.as_json()
         self.assertEqual("Practitioner", js["resourceType"])
         inst2 = practitioner.Practitioner(js)
         self.implPractitioner8(inst2)
-    
+
     def implPractitioner8(self, inst):
         self.assertEqual(inst.address[0].city, "Amsterdam")
         self.assertEqual(inst.address[0].country, "NLD")
@@ -302,7 +327,10 @@ class PractitionerTests(unittest.TestCase):
         self.assertEqual(inst.identifier[1].value, "523ASA1LK927")
         self.assertEqual(inst.meta.tag[0].code, "HTEST")
         self.assertEqual(inst.meta.tag[0].display, "test health data")
-        self.assertEqual(inst.meta.tag[0].system, "http://terminology.hl7.org/CodeSystem/v3-ActReason")
+        self.assertEqual(
+            inst.meta.tag[0].system,
+            "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+        )
         self.assertEqual(inst.name[0].family, "Briet")
         self.assertEqual(inst.name[0].given[0], "Ronald")
         self.assertEqual(inst.name[0].suffix[0], "MD")
@@ -317,17 +345,17 @@ class PractitionerTests(unittest.TestCase):
         self.assertEqual(inst.telecom[2].use, "work")
         self.assertEqual(inst.telecom[2].value, "0205664440")
         self.assertEqual(inst.text.status, "generated")
-    
+
     def testPractitioner9(self):
         inst = self.instantiate_from("practitioner-example-f002-pv.json")
         self.assertIsNotNone(inst, "Must have instantiated a Practitioner instance")
         self.implPractitioner9(inst)
-        
+
         js = inst.as_json()
         self.assertEqual("Practitioner", js["resourceType"])
         inst2 = practitioner.Practitioner(js)
         self.implPractitioner9(inst2)
-    
+
     def implPractitioner9(self, inst):
         self.assertEqual(inst.address[0].city, "Den Burg")
         self.assertEqual(inst.address[0].country, "NLD")
@@ -346,7 +374,10 @@ class PractitionerTests(unittest.TestCase):
         self.assertEqual(inst.identifier[1].value, "174BIP3JH438")
         self.assertEqual(inst.meta.tag[0].code, "HTEST")
         self.assertEqual(inst.meta.tag[0].display, "test health data")
-        self.assertEqual(inst.meta.tag[0].system, "http://terminology.hl7.org/CodeSystem/v3-ActReason")
+        self.assertEqual(
+            inst.meta.tag[0].system,
+            "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+        )
         self.assertEqual(inst.name[0].family, "Voigt")
         self.assertEqual(inst.name[0].given[0], "Pieter")
         self.assertEqual(inst.name[0].suffix[0], "MD")
@@ -361,17 +392,17 @@ class PractitionerTests(unittest.TestCase):
         self.assertEqual(inst.telecom[2].use, "work")
         self.assertEqual(inst.telecom[2].value, "0205669382")
         self.assertEqual(inst.text.status, "generated")
-    
+
     def testPractitioner10(self):
         inst = self.instantiate_from("practitioner-example-f006-rvdb.json")
         self.assertIsNotNone(inst, "Must have instantiated a Practitioner instance")
         self.implPractitioner10(inst)
-        
+
         js = inst.as_json()
         self.assertEqual("Practitioner", js["resourceType"])
         inst2 = practitioner.Practitioner(js)
         self.implPractitioner10(inst2)
-    
+
     def implPractitioner10(self, inst):
         self.assertEqual(inst.address[0].city, "Den Burg")
         self.assertEqual(inst.address[0].country, "NLD")
@@ -390,7 +421,10 @@ class PractitionerTests(unittest.TestCase):
         self.assertEqual(inst.identifier[1].value, "134IDY41W988")
         self.assertEqual(inst.meta.tag[0].code, "HTEST")
         self.assertEqual(inst.meta.tag[0].display, "test health data")
-        self.assertEqual(inst.meta.tag[0].system, "http://terminology.hl7.org/CodeSystem/v3-ActReason")
+        self.assertEqual(
+            inst.meta.tag[0].system,
+            "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+        )
         self.assertEqual(inst.name[0].family, "van den Berk")
         self.assertEqual(inst.name[0].given[0], "Rob")
         self.assertEqual(inst.name[0].suffix[0], "MD")
@@ -405,4 +439,3 @@ class PractitionerTests(unittest.TestCase):
         self.assertEqual(inst.telecom[2].use, "work")
         self.assertEqual(inst.telecom[2].value, "0205664987")
         self.assertEqual(inst.text.status, "generated")
-

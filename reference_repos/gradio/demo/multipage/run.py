@@ -6,15 +6,17 @@ with gr.Blocks() as demo:
     name = gr.Textbox(label="Name")
     output = gr.Textbox(label="Output Box")
     greet_btn = gr.Button("Greet")
+
     @gr.on([greet_btn.click, name.submit], inputs=name, outputs=output)
     def greet(name):
         return "Hello " + name + "!"
-    
+
     @gr.render(inputs=name, triggers=[output.change])
     def spell_out(name):
         with gr.Row():
             for letter in name:
                 gr.Textbox(letter)
+
 
 with demo.route("Up") as incrementer_demo:
     num = gr.Number()
@@ -28,9 +30,11 @@ with demo.route("Up") as incrementer_demo:
     for i in range(100):
         gr.Textbox()
 
+
 def wait(x):
     time.sleep(2)
     return x
+
 
 identity_iface = gr.Interface(wait, "image", "image")
 

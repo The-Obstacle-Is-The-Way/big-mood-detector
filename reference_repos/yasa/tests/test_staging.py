@@ -27,7 +27,11 @@ class TestStaging(unittest.TestCase):
     def test_sleep_staging(self):
         """Test sleep staging"""
         sls = SleepStaging(
-            raw, eeg_name="C4", eog_name="EOG1", emg_name="EMG1", metadata=dict(age=21, male=False)
+            raw,
+            eeg_name="C4",
+            eog_name="EOG1",
+            emg_name="EMG1",
+            metadata=dict(age=21, male=False),
         )
         print(sls)
         print(str(sls))

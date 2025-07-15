@@ -1,7 +1,9 @@
 import gradio as gr
 
+
 def welcome(name):
     return f"Welcome to Gradio, {name}!"
+
 
 js = """
 function createGradioAnimation() {

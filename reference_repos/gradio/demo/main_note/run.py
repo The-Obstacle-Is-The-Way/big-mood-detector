@@ -10,10 +10,12 @@ A4 = 440
 C0 = A4 * pow(2, -4.75)
 name = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
 
+
 def get_pitch(freq):
     h = round(12 * log2(freq / C0))
     n = h % 12
     return name[n]
+
 
 def main_note(audio):
     rate, y = audio
@@ -37,13 +39,14 @@ def main_note(audio):
     volume_per_pitch = {k: float(v) for k, v in volume_per_pitch.items()}
     return volume_per_pitch
 
+
 demo = gr.Interface(
     main_note,
     gr.Audio(sources=["microphone"]),
     gr.Label(num_top_classes=4),
     examples=[
-        [os.path.join(os.path.dirname(__file__),"audio/recording1.wav")],
-        [os.path.join(os.path.dirname(__file__),"audio/cantina.wav")],
+        [os.path.join(os.path.dirname(__file__), "audio/recording1.wav")],
+        [os.path.join(os.path.dirname(__file__), "audio/cantina.wav")],
     ],
 )
 

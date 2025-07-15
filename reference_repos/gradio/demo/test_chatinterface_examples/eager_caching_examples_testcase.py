@@ -1,5 +1,6 @@
 import gradio as gr
 
+
 def generate(
     message: str,
     chat_history: list[dict],

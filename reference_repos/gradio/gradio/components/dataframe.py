@@ -62,26 +62,28 @@ class Dataframe(Component):
 
     def __init__(
         self,
-        value: pd.DataFrame
-        | Styler
-        | np.ndarray
-        | pl.DataFrame
-        | list
-        | list[list]
-        | dict
-        | str
-        | Callable
-        | None = None,
+        value: (
+            pd.DataFrame
+            | Styler
+            | np.ndarray
+            | pl.DataFrame
+            | list
+            | list[list]
+            | dict
+            | str
+            | Callable
+            | None
+        ) = None,
         *,
         headers: list[str] | None = None,
         row_count: int | tuple[int, str] = (1, "dynamic"),
         col_count: int | tuple[int, str] | None = None,
-        datatype: Literal[
-            "str", "number", "bool", "date", "markdown", "html", "image", "auto"
-        ]
-        | Sequence[
-            Literal["str", "number", "bool", "date", "markdown", "html"]
-        ] = "str",
+        datatype: (
+            Literal[
+                "str", "number", "bool", "date", "markdown", "html", "image", "auto"
+            ]
+            | Sequence[Literal["str", "number", "bool", "date", "markdown", "html"]]
+        ) = "str",
         type: Literal["pandas", "numpy", "array", "polars"] = "pandas",
         latex_delimiters: list[dict[str, str | bool]] | None = None,
         label: str | I18nData | None = None,
@@ -185,10 +187,12 @@ class Dataframe(Component):
         self.max_height = max_height
         self.line_breaks = line_breaks
         self.column_widths = [
-            w
-            if isinstance(w, str)
-            and (w.endswith("px") or w.endswith("%") or w == "auto")
-            else f"{w}px"
+            (
+                w
+                if isinstance(w, str)
+                and (w.endswith("px") or w.endswith("%") or w == "auto")
+                else f"{w}px"
+            )
             for w in (column_widths or [])
         ]
         self.show_fullscreen_button = show_fullscreen_button
@@ -225,11 +229,11 @@ class Dataframe(Component):
         self._value_description = (
             "a pandas dataframe"
             if type == "pandas"
-            else "a list of lists"
-            if type == "array"
-            else "a numpy array"
-            if type == "numpy"
-            else "a polars dataframe"
+            else (
+                "a list of lists"
+                if type == "array"
+                else "a numpy array" if type == "numpy" else "a polars dataframe"
+            )
         )
 
     def preprocess(
@@ -272,15 +276,17 @@ class Dataframe(Component):
 
     @staticmethod
     def is_empty(
-        value: pd.DataFrame
-        | Styler
-        | np.ndarray
-        | pl.DataFrame
-        | list
-        | list[list]
-        | dict
-        | str
-        | None,
+        value: (
+            pd.DataFrame
+            | Styler
+            | np.ndarray
+            | pl.DataFrame
+            | list
+            | list[list]
+            | dict
+            | str
+            | None
+        ),
     ) -> bool:
         """
         Checks if the value of the dataframe provided is empty.
@@ -310,15 +316,17 @@ class Dataframe(Component):
 
     def get_headers(
         self,
-        value: pd.DataFrame
-        | Styler
-        | np.ndarray
-        | pl.DataFrame
-        | list
-        | list[list]
-        | dict
-        | str
-        | None,
+        value: (
+            pd.DataFrame
+            | Styler
+            | np.ndarray
+            | pl.DataFrame
+            | list
+            | list[list]
+            | dict
+            | str
+            | None
+        ),
     ) -> list[str]:
         """
         Returns the headers of the dataframes based on the value provided. For values
@@ -345,15 +353,17 @@ class Dataframe(Component):
 
     @staticmethod
     def get_cell_data(
-        value: pd.DataFrame
-        | Styler
-        | np.ndarray
-        | pl.DataFrame
-        | list
-        | list[list]
-        | dict
-        | str
-        | None,
+        value: (
+            pd.DataFrame
+            | Styler
+            | np.ndarray
+            | pl.DataFrame
+            | list
+            | list[list]
+            | dict
+            | str
+            | None
+        ),
     ) -> list[list[Any]]:
         """
         Gets the cell data (as a list of lists) from the value provided.
@@ -396,15 +406,17 @@ class Dataframe(Component):
 
     @staticmethod
     def get_metadata(
-        value: pd.DataFrame
-        | Styler
-        | np.ndarray
-        | pl.DataFrame
-        | list
-        | list[list]
-        | dict
-        | str
-        | None,
+        value: (
+            pd.DataFrame
+            | Styler
+            | np.ndarray
+            | pl.DataFrame
+            | list
+            | list[list]
+            | dict
+            | str
+            | None
+        ),
     ) -> dict[str, list[list]] | None:
         """
         Gets the metadata from the value provided.
@@ -421,15 +433,17 @@ class Dataframe(Component):
 
     def postprocess(
         self,
-        value: pd.DataFrame
-        | Styler
-        | np.ndarray
-        | pl.DataFrame
-        | list
-        | list[list]
-        | dict
-        | str
-        | None,
+        value: (
+            pd.DataFrame
+            | Styler
+            | np.ndarray
+            | pl.DataFrame
+            | list
+            | list[list]
+            | dict
+            | str
+            | None
+        ),
     ) -> DataframeData:
         """
         Parameters:
@@ -605,15 +619,17 @@ class Dataframe(Component):
 
     def process_example(
         self,
-        value: pd.DataFrame
-        | Styler
-        | np.ndarray
-        | pl.DataFrame
-        | list
-        | list[list]
-        | dict
-        | str
-        | None,
+        value: (
+            pd.DataFrame
+            | Styler
+            | np.ndarray
+            | pl.DataFrame
+            | list
+            | list[list]
+            | dict
+            | str
+            | None
+        ),
     ):
         import pandas as pd
 

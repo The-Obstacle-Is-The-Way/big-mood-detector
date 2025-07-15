@@ -16,7 +16,10 @@ if not auth_token:
 model_id = "CompVis/stable-diffusion-v1-4"
 device = "cpu"
 pipe = StableDiffusionPipeline.from_pretrained(
-    model_id, token=auth_token, variant="fp16", torch_dtype=torch.float16,
+    model_id,
+    token=auth_token,
+    variant="fp16",
+    torch_dtype=torch.float16,
 )
 pipe = pipe.to(device)
 

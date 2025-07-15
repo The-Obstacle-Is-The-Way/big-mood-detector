@@ -17,5 +17,6 @@ with gr.Blocks() as demo:
                 gr.Textbox(str(random.randint(0, 100)))
             gr.Button("DONE 2")
 
+
 if __name__ == "__main__":
     demo.queue(default_concurrency_limit=64).launch()

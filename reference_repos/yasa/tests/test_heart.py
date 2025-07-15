@@ -39,7 +39,9 @@ class TestHeart(unittest.TestCase):
         assert epochs_nothresh["duration"].min() == 30  # 1 epoch
 
         # Equal length
-        epochs_eq, _ = hrv_stage(data, sf, hypno=hypno, threshold="5min", equal_length=True)
+        epochs_eq, _ = hrv_stage(
+            data, sf, hypno=hypno, threshold="5min", equal_length=True
+        )
         assert epochs_eq["duration"].nunique() == 1
         assert epochs_eq["duration"].unique()[0] == 300
 

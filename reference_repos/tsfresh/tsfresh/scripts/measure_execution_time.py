@@ -85,9 +85,9 @@ class TimingTask(luigi.Task):
             "n_ids": self.num_ids,
             "n_jobs": self.n_jobs,
             "feature": single_parameter_name,
-            "number_parameters": len(single_parameter_params)
-            if single_parameter_params
-            else 0,
+            "number_parameters": (
+                len(single_parameter_params) if single_parameter_params else 0
+            ),
             "time_series_length": int((df["id"] == 0).sum()),
             "try_number": self.try_number,
         }

@@ -1,13 +1,16 @@
 import gradio as gr
 import time
 
+
 def count(n):
     for i in range(int(n)):
         time.sleep(0.5)
         yield i
 
+
 def show(n):
     return str(list(range(int(n))))
+
 
 with gr.Blocks() as demo:
     with gr.Column():

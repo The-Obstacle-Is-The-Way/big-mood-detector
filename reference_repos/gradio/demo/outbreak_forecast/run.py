@@ -3,6 +3,7 @@ from math import sqrt
 import numpy as np
 import pandas as pd
 
+
 def outbreak(plot_type, r, month, countries, social_distancing):
     months = ["January", "February", "March", "April", "May"]
     m = months.index(month)
@@ -47,17 +48,28 @@ def outbreak(plot_type, r, month, countries, social_distancing):
         from bokeh.models import ColumnDataSource
 
         source = ColumnDataSource(df)
-        fig = figure(title="Outbreak in " + month, x_axis_label="Days since Day 0", y_axis_label="Cases")
+        fig = figure(
+            title="Outbreak in " + month,
+            x_axis_label="Days since Day 0",
+            y_axis_label="Cases",
+        )
         for country in countries:
             fig.line("day", country, source=source, legend_label=country)
         return fig
     else:
         raise ValueError("A plot type must be selected")
 
+
 inputs = [
-    gr.Dropdown(["Matplotlib", "Plotly", "Altair", "Bokeh"], label="Plot Type", value="Matplotlib"),
+    gr.Dropdown(
+        ["Matplotlib", "Plotly", "Altair", "Bokeh"],
+        label="Plot Type",
+        value="Matplotlib",
+    ),
     gr.Slider(1, 4, 3.2, label="R"),
-    gr.Dropdown(["January", "February", "March", "April", "May"], label="Month", value="March"),
+    gr.Dropdown(
+        ["January", "February", "March", "April", "May"], label="Month", value="March"
+    ),
     gr.CheckboxGroup(
         ["USA", "Canada", "Mexico", "UK"], label="Countries", value=["USA", "Canada"]
     ),

@@ -1,7 +1,9 @@
 import gradio as gr
 
+
 def increase(num):
     return num + 1
+
 
 with gr.Blocks() as demo:
     a = gr.Number(label="a")

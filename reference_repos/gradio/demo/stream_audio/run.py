@@ -2,6 +2,7 @@ import gradio as gr
 import numpy as np
 import time
 
+
 def add_to_stream(audio, instream):
     time.sleep(1)
     if audio is None:
@@ -11,6 +12,7 @@ def add_to_stream(audio, instream):
     else:
         ret = (audio[0], np.concatenate((instream[1], audio[1])))
     return ret, ret
+
 
 with gr.Blocks() as demo:
     inp = gr.Audio(sources=["microphone"])

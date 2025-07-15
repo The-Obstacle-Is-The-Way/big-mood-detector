@@ -214,9 +214,9 @@ def test_mcp_sse_transport(test_mcp_app):
                 headers={"Content-Type": "application/json"},
             )
 
-            assert message_response.is_success, (
-                f"Failed with status {message_response.status_code}: {message_response.text}"
-            )
+            assert (
+                message_response.is_success
+            ), f"Failed with status {message_response.status_code}: {message_response.text}"
 
 
 def make_app():
@@ -292,8 +292,8 @@ def test_mcp_mount_gradio_app():
                     headers={"Content-Type": "application/json"},
                 )
 
-                assert message_response.is_success, (
-                    f"Failed with status {message_response.status_code}: {message_response.text}"
-                )
+                assert (
+                    message_response.is_success
+                ), f"Failed with status {message_response.status_code}: {message_response.text}"
     finally:
         process.terminate()

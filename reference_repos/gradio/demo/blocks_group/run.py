@@ -1,10 +1,14 @@
 import gradio as gr
 
+
 def greet(name):
     return "Hello " + name + "!"
 
+
 with gr.Blocks() as demo:
-    gr.Markdown("### This is a couple of elements without any gr.Group. Form elements naturally group together anyway.")
+    gr.Markdown(
+        "### This is a couple of elements without any gr.Group. Form elements naturally group together anyway."
+    )
     gr.Textbox("A")
     gr.Number(3)
     gr.Button()
@@ -46,7 +50,9 @@ with gr.Blocks() as demo:
             gr.Image()
             gr.Audio()
 
-    gr.Markdown("### Several columns grouped together. If columns are uneven, there is a gray group background.")
+    gr.Markdown(
+        "### Several columns grouped together. If columns are uneven, there is a gray group background."
+    )
     with gr.Group():
         with gr.Row():
             with gr.Column():
@@ -62,12 +68,16 @@ with gr.Blocks() as demo:
                     gr.Number(scale=2)
                     gr.Textbox()
 
-    gr.Markdown("### container=False removes label, padding, and block border, placing elements 'directly' on background.")
-    gr.Radio([1,2,3], container=False)
+    gr.Markdown(
+        "### container=False removes label, padding, and block border, placing elements 'directly' on background."
+    )
+    gr.Radio([1, 2, 3], container=False)
     gr.Textbox(container=False)
     gr.Image("https://picsum.photos/id/237/200/300", container=False, height=200)
 
-    gr.Markdown("### Textbox, Dropdown, and Number input boxes takes up full space when within a group without a container.")
+    gr.Markdown(
+        "### Textbox, Dropdown, and Number input boxes takes up full space when within a group without a container."
+    )
 
     with gr.Group():
         name = gr.Textbox(label="Name")
@@ -89,20 +99,24 @@ with gr.Blocks() as demo:
             go = gr.Button("go", scale=0)
 
     with gr.Column():
-        gr.Radio([1,2,3], container=False)
+        gr.Radio([1, 2, 3], container=False)
         gr.Slider(0, 20, container=False)
 
     with gr.Group():
         with gr.Row():
-            gr.Dropdown(["a", "b", "c"], interactive=True, container=False, elem_id="here2")
+            gr.Dropdown(
+                ["a", "b", "c"], interactive=True, container=False, elem_id="here2"
+            )
             gr.Number(container=False)
             gr.Textbox(container=False)
 
     with gr.Row():
         with gr.Column():
-            gr.Dropdown(["a", "b", "c"], interactive=True, container=False, elem_id="here2")
+            gr.Dropdown(
+                ["a", "b", "c"], interactive=True, container=False, elem_id="here2"
+            )
         with gr.Column():
-           gr.Number(container=False)
+            gr.Number(container=False)
         with gr.Column():
             gr.Textbox(container=False)
 

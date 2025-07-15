@@ -1,4 +1,3 @@
-
 from .test import Test
 
-__all__ = ['Test']
+__all__ = ["Test"]

@@ -5,6 +5,7 @@ import time
 sleep_time = 0.1
 long_sleep_time = 1
 
+
 def generate_response(message, history):
     start_time = time.time()
     responses = [
@@ -16,9 +17,9 @@ def generate_response(message, history):
     time.sleep(sleep_time)
 
     main_thought = ChatMessage(
-            content="",
-            metadata={"title": "Using Weather Tool", "id": 1, "status": "pending"},
-        )
+        content="",
+        metadata={"title": "Using Weather Tool", "id": 1, "status": "pending"},
+    )
 
     responses.append(main_thought)
 
@@ -30,7 +31,12 @@ def generate_response(message, history):
     responses.append(
         ChatMessage(
             content="Received weather from weather.com.",
-            metadata={"title": "Checking weather.com", "parent_id": 1, "id": 2, "duration": 0.05},
+            metadata={
+                "title": "Checking weather.com",
+                "parent_id": 1,
+                "id": 2,
+                "duration": 0.05,
+            },
         )
     )
     yield responses
@@ -38,9 +44,14 @@ def generate_response(message, history):
     sunny_start_time = time.time()
     time.sleep(sleep_time)
     sunny_thought = ChatMessage(
-            content="API Error when connecting to sunny.org 💥",
-            metadata={"title": "Checking sunny.org", "parent_id": 1, "id": 3, "status": "pending"},
-        )
+        content="API Error when connecting to sunny.org 💥",
+        metadata={
+            "title": "Checking sunny.org",
+            "parent_id": 1,
+            "id": 3,
+            "status": "pending",
+        },
+    )
 
     responses.append(sunny_thought)
     yield responses
@@ -49,8 +60,12 @@ def generate_response(message, history):
     responses.append(
         ChatMessage(
             content="Failed again",
-            metadata={"title": "I will try again", "id": 4, "parent_id": 3, "duration": 0.1},
-
+            metadata={
+                "title": "I will try again",
+                "id": 4,
+                "parent_id": 3,
+                "duration": 0.1,
+            },
         )
     )
     sunny_thought.metadata["status"] = "done"
@@ -70,11 +85,12 @@ def generate_response(message, history):
     )
     yield responses
 
+
 demo = gr.ChatInterface(
     generate_response,
     type="messages",
     title="Nested Thoughts Chat Interface",
-    examples=["What is the weather in San Francisco right now?"]
+    examples=["What is the weather in San Francisco right now?"],
 )
 
 if __name__ == "__main__":

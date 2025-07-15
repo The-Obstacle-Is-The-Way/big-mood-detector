@@ -7,6 +7,6 @@ with gr.Blocks() as demo:
         gr.Label(f"${df['price'].min()}", label="Cheapest Flight")
     gr.DataFrame(df)
 
-    
+
 if __name__ == "__main__":
     demo.launch()

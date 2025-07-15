@@ -1,4 +1,5 @@
 """Facilitate working with FHIR dates and times."""
+
 # 2014-2024, SMART Health IT.
 
 import datetime
@@ -38,8 +39,11 @@ class FHIRDate:
 
         if jsonval is not None:
             if not isinstance(jsonval, str):
-                raise TypeError("Expecting string when initializing {}, but got {}"
-                    .format(type(self), type(jsonval)))
+                raise TypeError(
+                    "Expecting string when initializing {}, but got {}".format(
+                        type(self), type(jsonval)
+                    )
+                )
             if not self._REGEX.fullmatch(jsonval):
                 raise ValueError("does not match expected format")
             self.date = self._from_string(jsonval)
@@ -47,7 +51,7 @@ class FHIRDate:
         self.origval: Union[str, None] = jsonval
 
     def __setattr__(self, prop, value):
-        if prop in {'date', self._FIELD}:
+        if prop in {"date", self._FIELD}:
             self.origval = None
             # Keep these two fields in sync
             object.__setattr__(self, self._FIELD, value)
@@ -70,20 +74,22 @@ class FHIRDate:
 
     @classmethod
     def with_json(cls, jsonobj: Union[str, list]):
-        """ Initialize a date from an ISO date string.
-        """
+        """Initialize a date from an ISO date string."""
         if isinstance(jsonobj, str):
             return cls(jsonobj)
 
         if isinstance(jsonobj, list):
             return [cls(jsonval) for jsonval in jsonobj]
 
-        raise TypeError("`cls.with_json()` only takes string or list of strings, but you provided {}"
-            .format(type(jsonobj)))
+        raise TypeError(
+            "`cls.with_json()` only takes string or list of strings, but you provided {}".format(
+                type(jsonobj)
+            )
+        )
 
     @classmethod
     def with_json_and_owner(cls, jsonobj: Union[str, list], owner):
-        """ Added for compatibility reasons to FHIRElement; "owner" is
+        """Added for compatibility reasons to FHIRElement; "owner" is
         discarded.
         """
         return cls.with_json(jsonobj)
@@ -99,7 +105,9 @@ class FHIRDate:
     ##################################
 
     # Pulled from spec for date
-    _REGEX = re.compile(r"([0-9]([0-9]([0-9][1-9]|[1-9]0)|[1-9]00)|[1-9]000)(-(0[1-9]|1[0-2])(-(0[1-9]|[1-2][0-9]|3[0-1]))?)?")
+    _REGEX = re.compile(
+        r"([0-9]([0-9]([0-9][1-9]|[1-9]0)|[1-9]00)|[1-9]000)(-(0[1-9]|1[0-2])(-(0[1-9]|[1-2][0-9]|3[0-1]))?)?"
+    )
     _FIELD = "date"
 
     @staticmethod

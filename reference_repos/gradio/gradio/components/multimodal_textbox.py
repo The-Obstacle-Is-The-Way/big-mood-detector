@@ -63,9 +63,11 @@ class MultimodalTextbox(FormComponent):
         self,
         value: str | dict[str, str | list] | Callable | None = None,
         *,
-        sources: list[Literal["upload", "microphone"]]
-        | Literal["upload", "microphone"]
-        | None = None,
+        sources: (
+            list[Literal["upload", "microphone"]]
+            | Literal["upload", "microphone"]
+            | None
+        ) = None,
         file_types: list[str] | None = None,
         file_count: Literal["single", "multiple", "directory"] = "single",
         lines: int = 1,
@@ -220,12 +222,14 @@ class MultimodalTextbox(FormComponent):
         text = value.get("text", "")
         if "files" in value and isinstance(value["files"], list):
             files = [
-                cast(FileData, file)
-                if isinstance(file, FileData | dict)
-                else FileData(
-                    path=file,
-                    orig_name=Path(file).name,
-                    mime_type=client_utils.get_mimetype(file),
+                (
+                    cast(FileData, file)
+                    if isinstance(file, FileData | dict)
+                    else FileData(
+                        path=file,
+                        orig_name=Path(file).name,
+                        mime_type=client_utils.get_mimetype(file),
+                    )
                 )
                 for file in value["files"]
             ]

@@ -18,13 +18,19 @@ function fib(n) {
 }
 """
 
+
 def chat(message, history):
     if "python" in message.lower():
-        return "Type Python or JavaScript to see the code.", gr.Code(language="python", value=python_code)
+        return "Type Python or JavaScript to see the code.", gr.Code(
+            language="python", value=python_code
+        )
     elif "javascript" in message.lower():
-        return "Type Python or JavaScript to see the code.", gr.Code(language="javascript", value=js_code)
+        return "Type Python or JavaScript to see the code.", gr.Code(
+            language="javascript", value=js_code
+        )
     else:
         return "Please ask about Python or JavaScript.", None
+
 
 with gr.Blocks() as demo:
     code = gr.Code(render=False)
@@ -35,7 +41,7 @@ with gr.Blocks() as demo:
                 chat,
                 examples=["Python", "JavaScript"],
                 additional_outputs=[code],
-                type="messages"
+                type="messages",
             )
         with gr.Column():
             gr.Markdown("<center><h1>Code Artifacts</h1></center>")

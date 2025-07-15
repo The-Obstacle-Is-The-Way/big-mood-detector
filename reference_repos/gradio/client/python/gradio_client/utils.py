@@ -186,7 +186,9 @@ class Status(Enum):
             ServerMessage.progress: Status.PROGRESS,
             ServerMessage.log: Status.LOG,
             ServerMessage.server_stopped: Status.FINISHED,
-        }[msg]  # type: ignore
+        }[
+            msg
+        ]  # type: ignore
 
 
 @dataclass
@@ -342,9 +344,11 @@ async def get_pred_from_ws(
                     success=resp.get("success"),
                     time=datetime.now(),
                     eta=resp.get("rank_eta"),
-                    progress_data=ProgressUnit.from_msg(resp["progress_data"])
-                    if has_progress
-                    else None,
+                    progress_data=(
+                        ProgressUnit.from_msg(resp["progress_data"])
+                        if has_progress
+                        else None
+                    ),
                 )
                 output = resp.get("output", {}).get("data", [])
                 if output and status_update.code != Status.FINISHED:
@@ -494,9 +498,11 @@ def stream_sse_v0(
                             success=resp.get("success"),
                             time=datetime.now(),
                             eta=resp.get("rank_eta"),
-                            progress_data=ProgressUnit.from_msg(resp["progress_data"])
-                            if has_progress
-                            else None,
+                            progress_data=(
+                                ProgressUnit.from_msg(resp["progress_data"])
+                                if has_progress
+                                else None
+                            ),
                         )
                         output = resp.get("output", {}).get("data", [])
                         if output and status_update.code != Status.FINISHED:
@@ -563,9 +569,11 @@ def stream_sse_v1plus(
                     success=msg.get("success"),
                     time=datetime.now(),
                     eta=msg.get("rank_eta"),
-                    progress_data=ProgressUnit.from_msg(msg["progress_data"])
-                    if "progress_data" in msg
-                    else None,
+                    progress_data=(
+                        ProgressUnit.from_msg(msg["progress_data"])
+                        if "progress_data" in msg
+                        else None
+                    ),
                     log=log_message,
                 )
                 output = msg.get("output", {}).get("data", [])

@@ -110,9 +110,9 @@ class TestClientInitialization:
             )
             client = Client("fake/space", httpx_kwargs={"cookies": cookies})
             for call in mocked.call_args_list:
-                assert call.kwargs["cookies"] == expected, (
-                    "Client instantiation missing cookies"
-                )
+                assert (
+                    call.kwargs["cookies"] == expected
+                ), "Client instantiation missing cookies"
 
         # _login overrides cookies
         response = httpx.Response(200)

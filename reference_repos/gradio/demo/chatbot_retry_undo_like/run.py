@@ -3,6 +3,7 @@ import gradio as gr
 
 client = InferenceClient()
 
+
 def respond(
     prompt: str,
     history,
@@ -14,24 +15,25 @@ def respond(
     yield history
 
     response = {"role": "assistant", "content": ""}
-    for message in client.chat_completion( # type: ignore
+    for message in client.chat_completion(  # type: ignore
         history,
         temperature=0.95,
         top_p=0.9,
         max_tokens=512,
         stream=True,
-        model="HuggingFaceH4/zephyr-7b-beta"
+        model="HuggingFaceH4/zephyr-7b-beta",
     ):
         response["content"] += message.choices[0].delta.content or ""
         yield history + [response]
 
 
 def handle_undo(history, undo_data: gr.UndoData):
-    return history[:undo_data.index], history[undo_data.index]['content']
+    return history[: undo_data.index], history[undo_data.index]["content"]
+
 
 def handle_retry(history, retry_data: gr.RetryData):
-    new_history = history[:retry_data.index]
-    previous_prompt = history[retry_data.index]['content']
+    new_history = history[: retry_data.index]
+    previous_prompt = history[retry_data.index]["content"]
     yield from respond(previous_prompt, new_history)
 
 

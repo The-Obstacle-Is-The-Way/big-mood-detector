@@ -4,7 +4,7 @@ from openai import OpenAI
 import numpy as np
 from chunking import TextChunker
 from tqdm import tqdm
-import requests 
+import requests
 import voyageai
 
 # vo = voyageai.Client(api_key=os.getenv("VOYAGE_API_KEY"),)
@@ -20,18 +20,18 @@ db_client = libsql.create_client_sync(url, auth_token=auth_token)
 
 # def embed_and_upload(title, _type, url, contents):
 #     documents_embeddings = vo.embed(contents, model="voyage-3", input_type="document").embeddings
-    
+
 #     values = [
 #         (title, _type, url, content, np.array(embedding, dtype=np.float32))
 #         for content, embedding in zip(contents, documents_embeddings)
 #     ]
-    
+
 #     placeholders = ','.join(['(?, ?, ?, ?, ?)'] * len(contents))
-    
+
 #     flattened_values = [item for tup in values for item in tup]
-    
+
 #     db_client.execute(
-#         f"INSERT INTO EMBEDDINGS (title, type, url, content, embedding) VALUES {placeholders}", 
+#         f"INSERT INTO EMBEDDINGS (title, type, url, content, embedding) VALUES {placeholders}",
 #         flattened_values
 #     )
 #     return
@@ -66,7 +66,7 @@ db_client = libsql.create_client_sync(url, auth_token=auth_token)
 
 #     return description
 
-# for guide in tqdm(guides[1:]): # ignore weird 
+# for guide in tqdm(guides[1:]): # ignore weird
 #     description = describe_page(guide["content"])
 #     chunks = chunker.chunk_page(guide["title"], guide["slug"], description, guide["type"])
 #     try:
@@ -91,7 +91,7 @@ db_client = libsql.create_client_sync(url, auth_token=auth_token)
 # def get_demo_descriptions():
 #     results = db_client.execute(
 #         """
-#         SELECT 
+#         SELECT
 #             MIN(id) as id,
 #             title,
 #             type,
@@ -136,8 +136,8 @@ for title, requirements in tqdm(demo_to_reqs.items()):
         """UPDATE EMBEDDINGS 
         SET requirements = ?
         WHERE type = 'DEMO' AND title = ?
-        """, 
-        (requirements, title.replace("_", " ").capitalize())
+        """,
+        (requirements, title.replace("_", " ").capitalize()),
     )
     print(title.replace("_", " ").capitalize())
 
@@ -149,10 +149,10 @@ for title, requirements in tqdm(demo_to_reqs.items()):
 
 # for title, requirements in tqdm(demo_to_reqs.items()):
 #     db_client.execute(
-#         """UPDATE EMBEDDINGS 
+#         """UPDATE EMBEDDINGS
 #         SET requirements = ?
 #         WHERE type = 'DEMO' AND title = ?
-#         """, 
+#         """,
 #         (requirements, title.replace("_", " ").capitalize())
 #     )
 #     print(title.replace("_", " ").capitalize())

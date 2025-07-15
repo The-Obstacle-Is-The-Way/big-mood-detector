@@ -43,7 +43,9 @@ with gr.Blocks() as demo:
             incorrect_field = gr.Markdown("# Incorrect: 0")
             gr.Markdown("Card Statistics: ")
             results_table = gr.Dataframe(headers=["Card", "Correct", "Incorrect"])
-        practice_btn.click(start_practice, inputs=[flashcards_table], outputs=[practice_tab, tabs])
+        practice_btn.click(
+            start_practice, inputs=[flashcards_table], outputs=[practice_tab, tabs]
+        )
 
         def load_new_card(flashcards):
             card = random.choice(flashcards)
@@ -77,8 +79,7 @@ with gr.Blocks() as demo:
 
         def mark_incorrect(card, results):
             if card[0] not in results:
-                results[card[0]] = [
-                    0, 0]
+                results[card[0]] = [0, 0]
             results[card[0]][1] += 1
             incorrect_count = sum(result[1] for result in results.values())
             return (
@@ -96,7 +97,11 @@ with gr.Blocks() as demo:
             [results, correct_field, results_table],
         )
 
-        incorrect_btn.click(mark_incorrect, [selected_card, results], [results, incorrect_field, results_table])
+        incorrect_btn.click(
+            mark_incorrect,
+            [selected_card, results],
+            [results, incorrect_field, results_table],
+        )
 
         # set results tab to visible when correct or incorrect button is clicked
         correct_btn.click(fn=toggle_results_tab, outputs=[results_tab])

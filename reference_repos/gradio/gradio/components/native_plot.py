@@ -50,8 +50,9 @@ class NativePlot(Component):
         y_title: str | None = None,
         color_title: str | None = None,
         x_bin: str | float | None = None,
-        y_aggregate: Literal["sum", "mean", "median", "min", "max", "count"]
-        | None = None,
+        y_aggregate: (
+            Literal["sum", "mean", "median", "min", "max", "count"] | None
+        ) = None,
         color_map: dict[str, str] | None = None,
         x_lim: list[float] | None = None,
         y_lim: list[float | None] = None,

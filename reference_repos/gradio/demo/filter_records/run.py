@@ -1,7 +1,9 @@
 import gradio as gr
 
+
 def filter_records(records, gender):
     return records[records["gender"] == gender]
+
 
 demo = gr.Interface(
     filter_records,

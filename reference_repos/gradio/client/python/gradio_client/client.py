@@ -346,17 +346,19 @@ class Client:
         to_id: str | None = None,
         hf_token: str | Literal[False] | None = False,
         private: bool = True,
-        hardware: Literal[
-            "cpu-basic",
-            "cpu-upgrade",
-            "t4-small",
-            "t4-medium",
-            "a10g-small",
-            "a10g-large",
-            "a100-large",
-        ]
-        | SpaceHardware
-        | None = None,
+        hardware: (
+            Literal[
+                "cpu-basic",
+                "cpu-upgrade",
+                "t4-small",
+                "t4-medium",
+                "a10g-small",
+                "a10g-large",
+                "a100-large",
+            ]
+            | SpaceHardware
+            | None
+        ) = None,
         secrets: dict[str, str] | None = None,
         sleep_timeout: int = 5,
         max_workers: int = 40,

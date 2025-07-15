@@ -47,42 +47,48 @@ class ScatterPlot(Plot):
         color_legend_title: str | None = None,
         size_legend_title: str | None = None,
         shape_legend_title: str | None = None,
-        color_legend_position: Literal[
-            "left",
-            "right",
-            "top",
-            "bottom",
-            "top-left",
-            "top-right",
-            "bottom-left",
-            "bottom-right",
-            "none",
-        ]
-        | None = None,
-        size_legend_position: Literal[
-            "left",
-            "right",
-            "top",
-            "bottom",
-            "top-left",
-            "top-right",
-            "bottom-left",
-            "bottom-right",
-            "none",
-        ]
-        | None = None,
-        shape_legend_position: Literal[
-            "left",
-            "right",
-            "top",
-            "bottom",
-            "top-left",
-            "top-right",
-            "bottom-left",
-            "bottom-right",
-            "none",
-        ]
-        | None = None,
+        color_legend_position: (
+            Literal[
+                "left",
+                "right",
+                "top",
+                "bottom",
+                "top-left",
+                "top-right",
+                "bottom-left",
+                "bottom-right",
+                "none",
+            ]
+            | None
+        ) = None,
+        size_legend_position: (
+            Literal[
+                "left",
+                "right",
+                "top",
+                "bottom",
+                "top-left",
+                "top-right",
+                "bottom-left",
+                "bottom-right",
+                "none",
+            ]
+            | None
+        ) = None,
+        shape_legend_position: (
+            Literal[
+                "left",
+                "right",
+                "top",
+                "bottom",
+                "top-left",
+                "top-right",
+                "bottom-left",
+                "bottom-right",
+                "none",
+            ]
+            | None
+        ) = None,
         height: int | None = None,
         width: int | None = None,
         x_lim: list[int | float] | None = None,
@@ -215,42 +221,48 @@ class ScatterPlot(Plot):
         color_legend_title: str | None = None,
         size_legend_title: str | None = None,
         shape_legend_title: str | None = None,
-        color_legend_position: Literal[
-            "left",
-            "right",
-            "top",
-            "bottom",
-            "top-left",
-            "top-right",
-            "bottom-left",
-            "bottom-right",
-            "none",
-        ]
-        | None = None,
-        size_legend_position: Literal[
-            "left",
-            "right",
-            "top",
-            "bottom",
-            "top-left",
-            "top-right",
-            "bottom-left",
-            "bottom-right",
-            "none",
-        ]
-        | None = None,
-        shape_legend_position: Literal[
-            "left",
-            "right",
-            "top",
-            "bottom",
-            "top-left",
-            "top-right",
-            "bottom-left",
-            "bottom-right",
-            "none",
-        ]
-        | None = None,
+        color_legend_position: (
+            Literal[
+                "left",
+                "right",
+                "top",
+                "bottom",
+                "top-left",
+                "top-right",
+                "bottom-left",
+                "bottom-right",
+                "none",
+            ]
+            | None
+        ) = None,
+        size_legend_position: (
+            Literal[
+                "left",
+                "right",
+                "top",
+                "bottom",
+                "top-left",
+                "top-right",
+                "bottom-left",
+                "bottom-right",
+                "none",
+            ]
+            | None
+        ) = None,
+        shape_legend_position: (
+            Literal[
+                "left",
+                "right",
+                "top",
+                "bottom",
+                "top-left",
+                "top-right",
+                "bottom-left",
+                "bottom-right",
+                "none",
+            ]
+            | None
+        ) = None,
         height: int | None = None,
         width: int | None = None,
         x_lim: list[int | float] | None = None,
@@ -267,17 +279,21 @@ class ScatterPlot(Plot):
                 x,  # type: ignore
                 title=x_title or x,  # type: ignore
                 scale=AltairPlot.create_scale(x_lim),  # type: ignore
-                axis=alt.Axis(labelAngle=x_label_angle)
-                if x_label_angle is not None
-                else alt.Axis(),
+                axis=(
+                    alt.Axis(labelAngle=x_label_angle)
+                    if x_label_angle is not None
+                    else alt.Axis()
+                ),
             ),  # ignore: type
             "y": alt.Y(
                 y,  # type: ignore
                 title=y_title or y,  # type: ignore
                 scale=AltairPlot.create_scale(y_lim),  # type: ignore
-                axis=alt.Axis(labelAngle=y_label_angle)
-                if y_label_angle is not None
-                else alt.Axis(),
+                axis=(
+                    alt.Axis(labelAngle=y_label_angle)
+                    if y_label_angle is not None
+                    else alt.Axis()
+                ),
             ),
         }
         properties = {}

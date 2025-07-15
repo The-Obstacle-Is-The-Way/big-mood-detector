@@ -49,30 +49,34 @@ class LinePlot(Plot):
         y_label_angle: float | None = None,
         color_legend_title: str | None = None,
         stroke_dash_legend_title: str | None = None,
-        color_legend_position: Literal[
-            "left",
-            "right",
-            "top",
-            "bottom",
-            "top-left",
-            "top-right",
-            "bottom-left",
-            "bottom-right",
-            "none",
-        ]
-        | None = None,
-        stroke_dash_legend_position: Literal[
-            "left",
-            "right",
-            "top",
-            "bottom",
-            "top-left",
-            "top-right",
-            "bottom-left",
-            "bottom-right",
-            "none",
-        ]
-        | None = None,
+        color_legend_position: (
+            Literal[
+                "left",
+                "right",
+                "top",
+                "bottom",
+                "top-left",
+                "top-right",
+                "bottom-left",
+                "bottom-right",
+                "none",
+            ]
+            | None
+        ) = None,
+        stroke_dash_legend_position: (
+            Literal[
+                "left",
+                "right",
+                "top",
+                "bottom",
+                "top-left",
+                "top-right",
+                "bottom-left",
+                "bottom-right",
+                "none",
+            ]
+            | None
+        ) = None,
         height: int | None = None,
         width: int | None = None,
         x_lim: list[int] | None = None,
@@ -206,30 +210,34 @@ class LinePlot(Plot):
         y_label_angle: float | None = None,
         color_legend_title: str | None = None,
         stroke_dash_legend_title: str | None = None,
-        color_legend_position: Literal[
-            "left",
-            "right",
-            "top",
-            "bottom",
-            "top-left",
-            "top-right",
-            "bottom-left",
-            "bottom-right",
-            "none",
-        ]
-        | None = None,
-        stroke_dash_legend_position: Literal[
-            "left",
-            "right",
-            "top",
-            "bottom",
-            "top-left",
-            "top-right",
-            "bottom-left",
-            "bottom-right",
-            "none",
-        ]
-        | None = None,
+        color_legend_position: (
+            Literal[
+                "left",
+                "right",
+                "top",
+                "bottom",
+                "top-left",
+                "top-right",
+                "bottom-left",
+                "bottom-right",
+                "none",
+            ]
+            | None
+        ) = None,
+        stroke_dash_legend_position: (
+            Literal[
+                "left",
+                "right",
+                "top",
+                "bottom",
+                "top-left",
+                "top-right",
+                "bottom-left",
+                "bottom-right",
+                "none",
+            ]
+            | None
+        ) = None,
         height: int | None = None,
         width: int | None = None,
         x_lim: list[int] | None = None,
@@ -243,17 +251,21 @@ class LinePlot(Plot):
                 x,
                 title=x_title or x,
                 scale=AltairPlot.create_scale(x_lim),
-                axis=alt.Axis(labelAngle=x_label_angle)
-                if x_label_angle is not None
-                else alt.Axis(),
+                axis=(
+                    alt.Axis(labelAngle=x_label_angle)
+                    if x_label_angle is not None
+                    else alt.Axis()
+                ),
             ),
             "y": alt.Y(
                 y,
                 title=y_title or y,
                 scale=AltairPlot.create_scale(y_lim),
-                axis=alt.Axis(labelAngle=y_label_angle)
-                if y_label_angle is not None
-                else alt.Axis(),
+                axis=(
+                    alt.Axis(labelAngle=y_label_angle)
+                    if y_label_angle is not None
+                    else alt.Axis()
+                ),
             ),
         }
         properties = {}

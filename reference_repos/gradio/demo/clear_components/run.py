@@ -8,6 +8,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
+
 def random_plot():
     start_year = 2020
     x = np.arange(start_year, start_year + 5)
@@ -20,6 +21,7 @@ def random_plot():
     series += np.random.rand(year_count)
     ax.plot(x, series, plt_format)
     return fig
+
 
 images = [
     "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=387&q=80",
@@ -67,11 +69,17 @@ highlighted_text_output_2 = [
 
 highlighted_text = "Does Chicago have any Pakistani restaurants"
 
+
 def random_model3d():
     model_3d = random.choice(
-        [os.path.join(model3d_dir, model) for model in os.listdir(model3d_dir) if model != "source.txt"]
+        [
+            os.path.join(model3d_dir, model)
+            for model in os.listdir(model3d_dir)
+            if model != "source.txt"
+        ]
     )
     return model_3d
+
 
 components = [
     gr.Textbox(value=lambda: datetime.now(), label="Current Time"),
@@ -97,9 +105,7 @@ components = [
         choices=["a", "b", "c", "d", "e"],
         value=lambda: random.choice(["a", "b", "c"]),
     ),
-    gr.Image(
-        value=lambda: random.choice(images)
-    ),
+    gr.Image(value=lambda: random.choice(images)),
     gr.Video(value=lambda: os.path.join(file_dir, "world.mp4")),
     gr.Audio(value=lambda: os.path.join(file_dir, "cantina.wav")),
     gr.File(
@@ -129,13 +135,12 @@ components = [
             ]
         )
     ),
-    gr.Gallery(
-        value=lambda: images
-    ),
+    gr.Gallery(value=lambda: images),
     gr.Model3D(value=random_model3d),
     gr.Plot(value=random_plot),
     gr.Markdown(value=lambda: f"### {random.choice(['Hello', 'Hi', 'Goodbye!'])}"),
 ]
+
 
 def evaluate_values(*args):
     are_false = []
@@ -147,6 +152,7 @@ def evaluate_values(*args):
         else:
             are_false.append(not a)
     return all(are_false)
+
 
 with gr.Blocks() as demo:
     for i, component in enumerate(components):
@@ -160,12 +166,12 @@ with gr.Blocks() as demo:
     hide.click(
         lambda: [c.__class__(visible=False) for c in clear_button_and_components],
         inputs=[],
-        outputs=clear_button_and_components
+        outputs=clear_button_and_components,
     )
     reveal.click(
         lambda: [c.__class__(visible=True) for c in clear_button_and_components],
         inputs=[],
-        outputs=clear_button_and_components
+        outputs=clear_button_and_components,
     )
     get_value = gr.Button(value="Get Values")
     get_value.click(evaluate_values, components, result)

@@ -25,7 +25,9 @@ hypno_txt = np.array(["W", "W", "W", "N1", "N2", "N2", "N3", "N3", "R"])
 def create_raw(npts, ch_names=["F4-M1", "F3-M2"], sf=100):
     """Utility function for test fit to data."""
     nchan = len(ch_names)
-    info = mne.create_info(ch_names=ch_names, sfreq=sf, ch_types=["eeg"] * nchan, verbose=0)
+    info = mne.create_info(
+        ch_names=ch_names, sfreq=sf, ch_types=["eeg"] * nchan, verbose=0
+    )
     data = np.random.rand(nchan, npts)
     raw = mne.io.RawArray(data, info, verbose=0)
     return raw
@@ -50,7 +52,9 @@ class TestHypno(unittest.TestCase):
 
         # Now test fit to data
         # .. Using MNE Raw
-        assert np.array_equal(hypno_fit_to_data(hypno100, create_raw(nhyp100)), hypno100)
+        assert np.array_equal(
+            hypno_fit_to_data(hypno100, create_raw(nhyp100)), hypno100
+        )
         assert hypno_fit_to_data(hypno100, create_raw(27250)).size == 27250
         assert hypno_fit_to_data(hypno100, create_raw(26750)).size == 26750
         # .. Using Numpy + SF
@@ -65,14 +69,22 @@ class TestHypno(unittest.TestCase):
         assert hypno_fit_to_data(hypno100, rand(26750)).size == 26750
 
         # Two steps combined
-        assert hypno_upsample_to_data(hypno, sf_hypno=1 / 30, data=create_raw(26750)).size == 26750
         assert (
-            hypno_upsample_to_data(hypno, sf_hypno=1 / 30, data=rand(27250), sf_data=100).size
+            hypno_upsample_to_data(hypno, sf_hypno=1 / 30, data=create_raw(26750)).size
+            == 26750
+        )
+        assert (
+            hypno_upsample_to_data(
+                hypno, sf_hypno=1 / 30, data=rand(27250), sf_data=100
+            ).size
             == 27250
         )
         assert (
             hypno_upsample_to_data(
-                hypno, sf_hypno=1 / 30, data=rand(2 * (hypno100.size + 250)), sf_data=200
+                hypno,
+                sf_hypno=1 / 30,
+                data=rand(2 * (hypno100.size + 250)),
+                sf_data=200,
             ).size
             == 2 * 27250
         )
@@ -80,11 +92,43 @@ class TestHypno(unittest.TestCase):
     def test_periods(self):
         """Test periods detection."""
         # TEST 1: BINARY VECTOR
-        x = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0]
+        x = [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            1,
+            1,
+            0,
+            0,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            0,
+            0,
+        ]
 
         # 1a. No thresholding
         expected = pd.DataFrame(
-            {"values": [0, 1, 0, 1, 0], "start": [0, 11, 14, 16, 25], "length": [11, 3, 2, 9, 2]}
+            {
+                "values": [0, 1, 0, 1, 0],
+                "start": [0, 11, 14, 16, 25],
+                "length": [11, 3, 2, 9, 2],
+            }
         )
 
         kwargs = dict(
@@ -93,12 +137,16 @@ class TestHypno(unittest.TestCase):
             check_column_type=False,
             check_frame_type=False,
         )
-        assert_frame_equal(hfp(x, sf_hypno=1 / 60, threshold="0min"), expected, **kwargs)
+        assert_frame_equal(
+            hfp(x, sf_hypno=1 / 60, threshold="0min"), expected, **kwargs
+        )
         assert_frame_equal(hfp(x, sf_hypno=1, threshold="0min"), expected, **kwargs)
 
         # 1b. With thresholding
         expected = pd.DataFrame({"values": [0, 1], "start": [0, 16], "length": [11, 9]})
-        assert_frame_equal(hfp(x, sf_hypno=1 / 60, threshold="5min"), expected, **kwargs)
+        assert_frame_equal(
+            hfp(x, sf_hypno=1 / 60, threshold="5min"), expected, **kwargs
+        )
         assert hfp(x, sf_hypno=1, threshold="5min").size == 0
 
         # 1c. Equal length
@@ -110,7 +158,9 @@ class TestHypno(unittest.TestCase):
             }
         )
         assert_frame_equal(
-            hfp(x, sf_hypno=1 / 60, threshold="2min", equal_length=True), expected, **kwargs
+            hfp(x, sf_hypno=1 / 60, threshold="2min", equal_length=True),
+            expected,
+            **kwargs,
         )
 
         # TEST 2: MULTI-CLASS VECTOR
@@ -123,12 +173,16 @@ class TestHypno(unittest.TestCase):
                 "length": [4, 1, 6, 3, 1, 1, 1],
             }
         )
-        assert_frame_equal(hfp(x, sf_hypno=1 / 60, threshold="0min"), expected, **kwargs)
+        assert_frame_equal(
+            hfp(x, sf_hypno=1 / 60, threshold="0min"), expected, **kwargs
+        )
 
         # With a string dtype
         expected["values"] = expected["values"].astype(str)
         assert_frame_equal(
-            hfp(np.array(x).astype(str), sf_hypno=1 / 60, threshold="0min"), expected, **kwargs
+            hfp(np.array(x).astype(str), sf_hypno=1 / 60, threshold="0min"),
+            expected,
+            **kwargs,
         )
 
     def test_simulation(self):
@@ -140,7 +194,8 @@ class TestHypno(unittest.TestCase):
         # Handling different n_stages
         assert simulate_hypnogram(tib=1000, n_stages=2).hypno.nunique() == 2
         np.testing.assert_array_equal(
-            simulate_hypnogram(tib=4, seed=1, n_stages=3).as_int(), [0, 2, 2, 2, 2, 2, 2, 2]
+            simulate_hypnogram(tib=4, seed=1, n_stages=3).as_int(),
+            [0, 2, 2, 2, 2, 2, 2, 2],
         )
 
         # Handling different frequencies
@@ -164,7 +219,9 @@ class TestHypno(unittest.TestCase):
         )
         simulate_hypnogram(tib=2, trans_probas=trans_probas)
         simulate_hypnogram(tib=2, init_probas=trans_probas.loc["WAKE"])
-        simulate_hypnogram(tib=2, trans_probas=trans_probas, init_probas=trans_probas.loc["WAKE"])
+        simulate_hypnogram(
+            tib=2, trans_probas=trans_probas, init_probas=trans_probas.loc["WAKE"]
+        )
         # Setting all probabilities between stages as zero
         trans_probas.loc[:, :] = np.eye(5, 5)
         assert not simulate_hypnogram(trans_probas=trans_probas).as_int().any()

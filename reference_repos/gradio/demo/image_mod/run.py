@@ -1,8 +1,10 @@
 import gradio as gr
 import os
 
+
 def image_mod(image):
     return image.rotate(45)
+
 
 new_samples = [
     [os.path.join(os.path.dirname(__file__), "images/logo.png")],
@@ -22,7 +24,11 @@ with gr.Blocks() as demo:
     )
 
     btn = gr.Button("Update Examples")
-    btn.click(lambda : gr.Dataset(samples=new_samples), None, interface.examples_handler.dataset)
+    btn.click(
+        lambda: gr.Dataset(samples=new_samples),
+        None,
+        interface.examples_handler.dataset,
+    )
 
 if __name__ == "__main__":
     demo.launch()

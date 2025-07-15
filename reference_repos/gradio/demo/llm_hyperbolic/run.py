@@ -1,4 +1,4 @@
-# This is a simple general-purpose chatbot built on top of Hyperbolic API. 
+# This is a simple general-purpose chatbot built on top of Hyperbolic API.
 # Before running this, make sure you have exported your Hyperbolic API key as an environment variable:
 # export HYPERBOLIC_API_KEY="your-hyperbolic-api-key"
 
@@ -13,16 +13,19 @@ client = OpenAI(
     api_key=api_key,
 )
 
+
 def predict(message, history):
     history.append({"role": "user", "content": message})
-    stream = client.chat.completions.create(messages=history, model="gpt-4o-mini", stream=True)
+    stream = client.chat.completions.create(
+        messages=history, model="gpt-4o-mini", stream=True
+    )
     chunks = []
     for chunk in stream:
         chunks.append(chunk.choices[0].delta.content or "")
         yield "".join(chunks)
 
+
 demo = gr.ChatInterface(predict, type="messages")
 
 if __name__ == "__main__":
     demo.launch()
-

@@ -1,16 +1,22 @@
 import gradio as gr
 
+
 def test_select_is_defined(n, evt: gr.SelectData):
     assert isinstance(evt.index, list)
     assert isinstance(evt.index[0], int)
     return n + 1
 
+
 with gr.Blocks() as demo:
     with gr.Row():
         with gr.Column():
-            input_img = gr.Image(type="filepath", label="Input Image", sources=["upload", "clipboard"])
+            input_img = gr.Image(
+                type="filepath", label="Input Image", sources=["upload", "clipboard"]
+            )
         with gr.Column():
-            output_img = gr.Image(type="filepath", label="Output Image", sources=["upload", "clipboard"])
+            output_img = gr.Image(
+                type="filepath", label="Output Image", sources=["upload", "clipboard"]
+            )
         with gr.Column():
             num_change = gr.Number(label="# Change Events", value=0)
             num_input = gr.Number(label="# Input Events", value=0)
@@ -19,7 +25,9 @@ with gr.Blocks() as demo:
             num_clear = gr.Number(label="# Clear Events", value=0)
             num_select = gr.Number(label="# Select Events", value=0)
 
-        input_img.upload(lambda s, n: (s, n + 1), [input_img, num_load], [output_img, num_load])
+        input_img.upload(
+            lambda s, n: (s, n + 1), [input_img, num_load], [output_img, num_load]
+        )
         input_img.input(lambda n: n + 1, num_input, num_input)
         input_img.change(lambda n: n + 1, num_change, num_change)
         input_img.clear(lambda n: n + 1, num_clear, num_clear)

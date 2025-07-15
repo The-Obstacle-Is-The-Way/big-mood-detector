@@ -28,7 +28,9 @@ with gr.Blocks() as demo:
 
     chat_evt = btn.click(add_user, chatbot, chatbot).then(add_bot, chatbot, chatbot)
     for i in range(25):
-        chat_evt = chat_evt.then(add_user, chatbot, chatbot).then(add_bot, chatbot, chatbot)
+        chat_evt = chat_evt.then(add_user, chatbot, chatbot).then(
+            add_bot, chatbot, chatbot
+        )
 
     increase = lambda x: x + 1
 

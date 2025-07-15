@@ -1,5 +1,4 @@
-"""This file shows how to use YASA in combination with Visbrain.
-"""
+"""This file shows how to use YASA in combination with Visbrain."""
 
 import numpy as np
 from visbrain.gui import Sleep  # type: ignore reportMissingImports

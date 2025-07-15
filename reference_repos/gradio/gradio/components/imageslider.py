@@ -188,11 +188,13 @@ class ImageSlider(Component):
 
     def postprocess(
         self,
-        value: tuple[
-            np.ndarray | PIL.Image.Image | str | Path | None,
-            np.ndarray | PIL.Image.Image | str | Path | None,
-        ]
-        | None,
+        value: (
+            tuple[
+                np.ndarray | PIL.Image.Image | str | Path | None,
+                np.ndarray | PIL.Image.Image | str | Path | None,
+            ]
+            | None
+        ),
     ) -> SliderData | None:
         """
         Parameters:

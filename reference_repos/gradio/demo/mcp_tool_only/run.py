@@ -1,5 +1,6 @@
 import gradio as gr
 
+
 def slice_list(lst: list, start: int, end: int) -> list:
     """
     A tool that slices a list given a start and end index.
@@ -12,6 +13,7 @@ def slice_list(lst: list, start: int, end: int) -> list:
     """
     return lst[start:end]
 
+
 with gr.Blocks() as demo:
     gr.Markdown(
         """
@@ -20,8 +22,6 @@ with gr.Blocks() as demo:
         This tool is MCP-only, so it does not have a UI.
         """
     )
-    gr.api(
-        slice_list
-    )
+    gr.api(slice_list)
 
 _, url, _ = demo.launch(mcp_server=True)

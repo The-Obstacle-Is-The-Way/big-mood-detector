@@ -83,9 +83,11 @@ INTERFACE_TEMPLATE = '''
 def create_pyi(class_code: str, events: list[EventListener | str]):
     template = Template(INTERFACE_TEMPLATE)
     event_template = [
-        e
-        if isinstance(e, EventListener)
-        else EventListener(event_name=e, event_specific_args=[])
+        (
+            e
+            if isinstance(e, EventListener)
+            else EventListener(event_name=e, event_specific_args=[])
+        )
         for e in events
     ]
     return template.render(events=event_template, contents=class_code)

@@ -92,7 +92,9 @@ class RangedFileResponse(Response):
         self.headers["content-length"] = str(content_length)
         pass
 
-    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:  # noqa: ARG002
+    async def __call__(
+        self, scope: Scope, receive: Receive, send: Send
+    ) -> None:  # noqa: ARG002
         if self.stat_result is None:
             try:
                 stat_result = await aio_stat(self.path)

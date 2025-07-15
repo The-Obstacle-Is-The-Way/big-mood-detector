@@ -15,7 +15,9 @@ class TestPlotting(unittest.TestCase):
     def test_topoplot(self):
         """Test topoplot"""
         data = pd.Series(
-            [4, 8, 7, 1, 2, 3, 5], index=["F4", "F3", "C4", "C3", "P3", "P4", "Oz"], name="Values"
+            [4, 8, 7, 1, 2, 3, 5],
+            index=["F4", "F3", "C4", "C3", "P3", "P4", "Oz"],
+            name="Values",
         )
         _ = topoplot(data, title="My first topoplot")
         _ = topoplot(data, vmin=0, vmax=8, cbar_title="Hello")
@@ -23,7 +25,8 @@ class TestPlotting(unittest.TestCase):
         _ = topoplot(data, sensors="ko", res=64, names="values", show_names=True)
 
         data = pd.Series(
-            [-4, -8, -7, -1, -2, -3], index=["F4-M1", "F3-M1", "C4-M1", "C3-M1", "P3-M1", "P4-M1"]
+            [-4, -8, -7, -1, -2, -3],
+            index=["F4-M1", "F3-M1", "C4-M1", "C3-M1", "P3-M1", "P4-M1"],
         )
         _ = topoplot(data)
         _ = topoplot(data, vmin=0, vmax=8, cbar_title="Hello")

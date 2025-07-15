@@ -124,7 +124,7 @@ html_static_path = ["_static"]
 
 # From https://rackerlabs.github.io/docs-rackspace/tools/rtd-tables.html
 html_css_files = [
-    'theme_override.css',
+    "theme_override.css",
 ]
 
 # Output file base name for HTML help builder.

@@ -1,7 +1,9 @@
 import gradio as gr
 
+
 def image(im):
     return im
+
 
 with gr.Blocks() as demo:
     im = gr.Image()

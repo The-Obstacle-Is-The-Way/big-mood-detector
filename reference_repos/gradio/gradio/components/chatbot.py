@@ -200,7 +200,7 @@ class Chatbot(Component):
 
     def __init__(
         self,
-        value: (list[MessageDict | Message] | TupleFormat | Callable | None) = None,
+        value: list[MessageDict | Message] | TupleFormat | Callable | None = None,
         *,
         type: Literal["messages", "tuples"] | None = None,
         label: str | I18nData | None = None,
@@ -448,9 +448,11 @@ class Chatbot(Component):
             capitalized_component = (
                 chat_message.component.upper()
                 if chat_message.component in ("json", "html")
-                else "Model3D"
-                if chat_message.component == "model3d"
-                else chat_message.component.capitalize()
+                else (
+                    "Model3D"
+                    if chat_message.component == "model3d"
+                    else chat_message.component.capitalize()
+                )
             )
             component = import_component_and_data(capitalized_component)
             if component is not None:
@@ -536,14 +538,16 @@ class Chatbot(Component):
 
     def _postprocess_content(
         self,
-        chat_message: str
-        | tuple
-        | list
-        | FileDataDict
-        | FileData
-        | GradioComponent
-        | ComponentMessage
-        | None,
+        chat_message: (
+            str
+            | tuple
+            | list
+            | FileDataDict
+            | FileData
+            | GradioComponent
+            | ComponentMessage
+            | None
+        ),
     ) -> str | FileMessage | ComponentMessage | None:
         if chat_message is None:
             return None

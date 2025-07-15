@@ -13,22 +13,24 @@ from fhirclient.models.fhirtime import FHIRTime
 
 class ImplementationGuideTests(unittest.TestCase):
     def instantiate_from(self, filename):
-        datadir = os.path.join(os.path.dirname(__file__), '..', 'data', 'examples')
-        with io.open(os.path.join(datadir, filename), 'r', encoding='utf-8') as handle:
+        datadir = os.path.join(os.path.dirname(__file__), "..", "data", "examples")
+        with io.open(os.path.join(datadir, filename), "r", encoding="utf-8") as handle:
             js = json.load(handle)
             self.assertEqual("ImplementationGuide", js["resourceType"])
         return implementationguide.ImplementationGuide(js)
-    
+
     def testImplementationGuide1(self):
         inst = self.instantiate_from("implementationguide-example.json")
-        self.assertIsNotNone(inst, "Must have instantiated a ImplementationGuide instance")
+        self.assertIsNotNone(
+            inst, "Must have instantiated a ImplementationGuide instance"
+        )
         self.implImplementationGuide1(inst)
-        
+
         js = inst.as_json()
         self.assertEqual("ImplementationGuide", js["resourceType"])
         inst2 = implementationguide.ImplementationGuide(js)
         self.implImplementationGuide1(inst2)
-    
+
     def implImplementationGuide1(self, inst):
         self.assertEqual(inst.contact[0].name, "ONC")
         self.assertEqual(inst.contact[0].telecom[0].system, "url")
@@ -36,10 +38,15 @@ class ImplementationGuideTests(unittest.TestCase):
         self.assertEqual(inst.contact[1].name, "HL7")
         self.assertEqual(inst.contact[1].telecom[0].system, "url")
         self.assertEqual(inst.contact[1].telecom[0].value, "http://hl7.org/fhir")
-        self.assertEqual(inst.copyright, "Published by ONC under the standard FHIR license (CC0)")
+        self.assertEqual(
+            inst.copyright, "Published by ONC under the standard FHIR license (CC0)"
+        )
         self.assertEqual(inst.date.datetime, FHIRDateTime("2015-01-01").datetime)
         self.assertEqual(inst.date.as_json(), "2015-01-01")
-        self.assertEqual(inst.definition.grouping[0].description, "Base package (not broken up into multiple packages)")
+        self.assertEqual(
+            inst.definition.grouping[0].description,
+            "Base package (not broken up into multiple packages)",
+        )
         self.assertEqual(inst.definition.grouping[0].name, "test")
         self.assertEqual(inst.definition.page.generation, "html")
         self.assertEqual(inst.definition.page.nameUrl, "patient-example.html")
@@ -49,13 +56,24 @@ class ImplementationGuideTests(unittest.TestCase):
         self.assertEqual(inst.definition.page.title, "Example Patient Page")
         self.assertEqual(inst.definition.parameter[0].code, "apply")
         self.assertEqual(inst.definition.parameter[0].value, "version")
-        self.assertEqual(inst.definition.resource[0].description, "A test example to show how an implementation guide works")
-        self.assertEqual(inst.definition.resource[0].exampleCanonical, "http://hl7.org/fhir/us/core/StructureDefinition/patient")
+        self.assertEqual(
+            inst.definition.resource[0].description,
+            "A test example to show how an implementation guide works",
+        )
+        self.assertEqual(
+            inst.definition.resource[0].exampleCanonical,
+            "http://hl7.org/fhir/us/core/StructureDefinition/patient",
+        )
         self.assertEqual(inst.definition.resource[0].name, "Test Example")
-        self.assertEqual(inst.dependsOn[0].uri, "http://hl7.org/fhir/ImplementationGuide/uscore")
+        self.assertEqual(
+            inst.dependsOn[0].uri, "http://hl7.org/fhir/ImplementationGuide/uscore"
+        )
         self.assertFalse(inst.experimental)
         self.assertEqual(inst.fhirVersion[0], "4.0.1")
-        self.assertEqual(inst.global_fhir[0].profile, "http://hl7.org/fhir/us/core/StructureDefinition/patient")
+        self.assertEqual(
+            inst.global_fhir[0].profile,
+            "http://hl7.org/fhir/us/core/StructureDefinition/patient",
+        )
         self.assertEqual(inst.global_fhir[0].type, "Patient")
         self.assertEqual(inst.id, "example")
         self.assertEqual(inst.jurisdiction[0].coding[0].code, "US")
@@ -69,8 +87,13 @@ class ImplementationGuideTests(unittest.TestCase):
         self.assertEqual(inst.manifest.page[0].name, "patient-test.html")
         self.assertEqual(inst.manifest.page[0].title, "Test Patient Example")
         self.assertEqual(inst.manifest.rendering, "http://hl7.org/fhir/us/daf")
-        self.assertEqual(inst.manifest.resource[0].exampleCanonical, "http://hl7.org/fhir/us/core/StructureDefinition/patient")
-        self.assertEqual(inst.manifest.resource[0].relativePath, "patient-test.html#patient-test")
+        self.assertEqual(
+            inst.manifest.resource[0].exampleCanonical,
+            "http://hl7.org/fhir/us/core/StructureDefinition/patient",
+        )
+        self.assertEqual(
+            inst.manifest.resource[0].relativePath, "patient-test.html#patient-test"
+        )
         self.assertEqual(inst.name, "Data Access Framework (DAF)")
         self.assertEqual(inst.packageId, "hl7.fhir.us.daf")
         self.assertEqual(inst.publisher, "ONC / HL7 Joint project")
@@ -78,4 +101,3 @@ class ImplementationGuideTests(unittest.TestCase):
         self.assertEqual(inst.text.status, "generated")
         self.assertEqual(inst.url, "http://hl7.org/fhir/us/daf")
         self.assertEqual(inst.version, "0")
-

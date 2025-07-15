@@ -13,9 +13,13 @@ with gr.Blocks() as demo:
         with gr.Row():
             for i in range(count):
                 with gr.Column(variant="panel", min_width=200):
-                    gr.Textbox(placeholder="Track Name", key=f"name-{i}", show_label=False)
+                    gr.Textbox(
+                        placeholder="Track Name", key=f"name-{i}", show_label=False
+                    )
                     track_audio = gr.Audio(label=f"Track {i}", key=f"track-{i}")
-                    track_volume = gr.Slider(0, 100, value=100, label="Volume", key=f"volume-{i}")
+                    track_volume = gr.Slider(
+                        0, 100, value=100, label="Volume", key=f"volume-{i}"
+                    )
                     audios.append(track_audio)
                     volumes.append(track_volume)
 
@@ -28,9 +32,20 @@ with gr.Blocks() as demo:
                     if output is None:
                         output = final_track
                     else:
-                        min_shape = tuple(min(s1, s2) for s1, s2 in zip(output.shape, final_track.shape))
-                        trimmed_output = output[:min_shape[0], ...][:, :min_shape[1], ...] if output.ndim > 1 else output[:min_shape[0]]
-                        trimmed_final = final_track[:min_shape[0], ...][:, :min_shape[1], ...] if final_track.ndim > 1 else final_track[:min_shape[0]]
+                        min_shape = tuple(
+                            min(s1, s2)
+                            for s1, s2 in zip(output.shape, final_track.shape)
+                        )
+                        trimmed_output = (
+                            output[: min_shape[0], ...][:, : min_shape[1], ...]
+                            if output.ndim > 1
+                            else output[: min_shape[0]]
+                        )
+                        trimmed_final = (
+                            final_track[: min_shape[0], ...][:, : min_shape[1], ...]
+                            if final_track.ndim > 1
+                            else final_track[: min_shape[0]]
+                        )
                         output += trimmed_output + trimmed_final
                 return (sr, output)
 

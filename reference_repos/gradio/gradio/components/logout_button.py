@@ -33,8 +33,9 @@ class LogoutButton(Button):
         inputs: Component | Sequence[Component] | set[Component] | None = None,
         variant: Literal["primary", "secondary", "stop"] = "secondary",
         size: Literal["sm", "lg"] = "lg",
-        icon: str
-        | None = "https://huggingface.co/front/assets/huggingface_logo-noborder.svg",
+        icon: (
+            str | None
+        ) = "https://huggingface.co/front/assets/huggingface_logo-noborder.svg",
         # Link to logout page (which will delete the session cookie and redirect to landing page).
         link: str | None = "/gradio_api/logout",
         visible: bool = True,

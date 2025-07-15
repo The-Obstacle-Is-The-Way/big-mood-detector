@@ -9,15 +9,20 @@ from fhirclient import server
 
 from fhirclient.models import bundle
 from fhirclient.models.bundle import Bundle
-from fhirclient._utils import _get_next_link, _sanitize_next_link, _execute_pagination_request, _fetch_next_page, \
-    iter_pages
+from fhirclient._utils import (
+    _get_next_link,
+    _sanitize_next_link,
+    _execute_pagination_request,
+    _fetch_next_page,
+    iter_pages,
+)
 
 
 class TestUtilsPagination(unittest.TestCase):
 
     def instantiate_from(self, filename):
-        datadir = os.path.join(os.path.dirname(__file__), 'data', 'examples')
-        with io.open(os.path.join(datadir, filename), 'r', encoding='utf-8') as handle:
+        datadir = os.path.join(os.path.dirname(__file__), "data", "examples")
+        with io.open(os.path.join(datadir, filename), "r", encoding="utf-8") as handle:
             js = json.load(handle)
             self.assertEqual("Bundle", js["resourceType"])
         return bundle.Bundle(js)
@@ -94,7 +99,9 @@ class TestUtilsPagination(unittest.TestCase):
             _execute_pagination_request(sanitized_link, mock_server)
 
     @patch("requests.get")
-    def test_execute_pagination_request_returns_last_bundle_if_no_next_link(self, mock_get):
+    def test_execute_pagination_request_returns_last_bundle_if_no_next_link(
+        self, mock_get
+    ):
         mock_response = MagicMock()
         mock_response.json.return_value = {
             "resourceType": "Bundle",
@@ -111,7 +118,7 @@ class TestUtilsPagination(unittest.TestCase):
 
         # Check that the result is the Bundle itself, not None
         self.assertIsInstance(result, Bundle)
-        self.assertTrue(hasattr(result, 'entry'))
+        self.assertTrue(hasattr(result, "entry"))
         mock_get.assert_called_once_with(sanitized_link)
 
     @patch("fhirclient._utils._execute_pagination_request")
@@ -151,9 +158,13 @@ class TestUtilsPagination(unittest.TestCase):
         self.assertIsInstance(pages[0], Bundle)
         self.assertIsInstance(pages[1], Bundle)
 
-        self.assertNotEqual(pages[0].as_json(), pages[1].as_json())  # Ensure the two pages are different
+        self.assertNotEqual(
+            pages[0].as_json(), pages[1].as_json()
+        )  # Ensure the two pages are different
         self.assertEqual(pages[0].as_json(), inst.as_json())
-        self.assertEqual(pages[1].as_json(), inst_page2.as_json())  # Ensure the second page is correct
+        self.assertEqual(
+            pages[1].as_json(), inst_page2.as_json()
+        )  # Ensure the second page is correct
 
         # Ensure that _fetch_next_page was called twice
         self.assertEqual(mock_fetch_next_page.call_count, 1)

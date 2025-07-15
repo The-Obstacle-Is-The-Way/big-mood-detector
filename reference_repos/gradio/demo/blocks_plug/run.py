@@ -1,7 +1,9 @@
 import gradio as gr
 
+
 def change_tab():
     return gr.Tabs(selected=2)
+
 
 identity_demo, input_demo, output_demo = gr.Blocks(), gr.Blocks(), gr.Blocks()
 

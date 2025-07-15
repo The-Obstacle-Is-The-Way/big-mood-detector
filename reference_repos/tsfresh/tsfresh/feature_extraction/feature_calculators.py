@@ -1110,9 +1110,11 @@ def fft_coefficient(x, param):
             raise ValueError('`agg` must be "real", "imag", "angle" or "abs"')
 
     res = [
-        complex_agg(fft[config["coeff"]], config["attr"])
-        if config["coeff"] < len(fft)
-        else np.nan
+        (
+            complex_agg(fft[config["coeff"]], config["attr"])
+            if config["coeff"] < len(fft)
+            else np.nan
+        )
         for config in param
     ]
     index = [f'attr_"{config["attr"]}"__coeff_{config["coeff"]}' for config in param]
@@ -1541,7 +1543,9 @@ def change_quantiles(x, ql, qh, isabs, f_agg):
     try:
         bin_cat = pd.qcut(x, [ql, qh], labels=False)
         bin_cat_0 = bin_cat == 0
-    except ValueError:  # Occurs when ql are qh effectively equal, e.g. x is not long enough or is too categorical
+    except (
+        ValueError
+    ):  # Occurs when ql are qh effectively equal, e.g. x is not long enough or is too categorical
         return 0.0
     # We only count changes that start and end inside the corridor
     ind = (bin_cat_0 & _roll(bin_cat_0, 1))[1:]

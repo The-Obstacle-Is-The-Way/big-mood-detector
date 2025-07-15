@@ -10,8 +10,16 @@ data = [
 
 headers = ["Model", "% Correct (LeetCode Hard)"]
 
+
 def get_styling(values):
-    return [["", f"background: linear-gradient(90deg, rgba(220, 242, 220) {row[1]}%, transparent {row[1]}%)"] for row in values]
+    return [
+        [
+            "",
+            f"background: linear-gradient(90deg, rgba(220, 242, 220) {row[1]}%, transparent {row[1]}%)",
+        ]
+        for row in values
+    ]
+
 
 def get_display_value(values):
     display_values = []
@@ -22,6 +30,7 @@ def get_display_value(values):
         else:
             display_values.append([row[0], row[1]])
     return display_values
+
 
 styling = get_styling(data)
 display_value = get_display_value(data)

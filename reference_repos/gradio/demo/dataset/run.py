@@ -35,7 +35,7 @@ with gr.Blocks() as demo:
         samples=[[True], [True], [False], [True], [False], [False]],
     )
 
-    c_2 = gr.CheckboxGroup(visible=False, choices=['a', 'b', 'c'])
+    c_2 = gr.CheckboxGroup(visible=False, choices=["a", "b", "c"])
     gr.Dataset(
         label="CheckboxGroup",
         components=[c_2],

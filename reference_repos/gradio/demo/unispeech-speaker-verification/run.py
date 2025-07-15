@@ -49,15 +49,22 @@ feature_extractor = AutoFeatureExtractor.from_pretrained(model_name)
 model = AutoModelForAudioXVector.from_pretrained(model_name).to(device)
 cosine_sim = torch.nn.CosineSimilarity(dim=-1)
 
+
 def similarity_fn(path1, path2):
     if not (path1 and path2):
-        return '<b style="color:red">ERROR: Please record audio for *both* speakers!</b>'
+        return (
+            '<b style="color:red">ERROR: Please record audio for *both* speakers!</b>'
+        )
     wav1, _ = apply_effects_file(path1, EFFECTS)
     wav2, _ = apply_effects_file(path2, EFFECTS)
     print(wav1.shape, wav2.shape)
 
-    input1 = feature_extractor(wav1.squeeze(0), return_tensors="pt", sampling_rate=16000).input_values.to(device)
-    input2 = feature_extractor(wav2.squeeze(0), return_tensors="pt", sampling_rate=16000).input_values.to(device)
+    input1 = feature_extractor(
+        wav1.squeeze(0), return_tensors="pt", sampling_rate=16000
+    ).input_values.to(device)
+    input2 = feature_extractor(
+        wav2.squeeze(0), return_tensors="pt", sampling_rate=16000
+    ).input_values.to(device)
 
     with torch.no_grad():
         emb1 = model(input1).embeddings
@@ -72,6 +79,7 @@ def similarity_fn(path1, path2):
         output = OUTPUT_FAIL.format(similarity * 100)
 
     return output
+
 
 inputs = [
     gr.Audio(sources=["microphone"], type="filepath", label="Speaker #1"),
@@ -112,4 +120,3 @@ demo = gr.Interface(
 
 if __name__ == "__main__":
     demo.launch()
-

@@ -2,7 +2,7 @@ import gradio as gr
 
 with gr.Blocks() as demo:
     gr.Markdown(
-    r"""
+        r"""
     # Hello World! $\frac{\sqrt{x + y}}{4}$ is today's lesson
 
     ## the $\sqrt{x + y}$ is first
@@ -20,7 +20,8 @@ with gr.Blocks() as demo:
     Start typing below to see the output.
 
     I spent $5 at the grocery store. Then I bought a $2.50 ice cream cone.
-    """)
+    """
+    )
 
 if __name__ == "__main__":
     demo.launch()

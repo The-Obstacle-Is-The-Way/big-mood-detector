@@ -14,7 +14,7 @@ with gr.Blocks() as demo:
         bot_message = random.choice(["How are you?", "I love you", "I'm very hungry"])
         history.append({"role": "assistant", "content": ""})
         for character in bot_message:
-            history[-1]['content'] += character
+            history[-1]["content"] += character
             time.sleep(0.05)
             yield history
 

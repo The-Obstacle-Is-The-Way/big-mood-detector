@@ -1,5 +1,6 @@
 import gradio as gr
 
+
 def generate(
     message: str,
     chat_history: list[dict],
@@ -20,7 +21,6 @@ demo = gr.ChatInterface(
     cache_examples=False,
     type="tuples",
 )
-
 
 
 if __name__ == "__main__":

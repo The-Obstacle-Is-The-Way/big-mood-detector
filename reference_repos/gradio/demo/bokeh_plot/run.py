@@ -7,6 +7,7 @@ from bokeh.sampledata.autompg2 import autompg2 as df
 from bokeh.sampledata.penguins import data
 from bokeh.transform import factor_cmap, jitter, factor_mark
 
+
 def get_plot(plot_type):
     if plot_type == "map":
         plot = figure(
@@ -78,6 +79,7 @@ def get_plot(plot_type):
         p.legend.location = "top_left"
         p.legend.title = "Species"
         return p
+
 
 with gr.Blocks() as demo:
     with gr.Row():

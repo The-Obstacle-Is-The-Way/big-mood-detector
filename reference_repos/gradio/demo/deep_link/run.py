@@ -1,8 +1,10 @@
 import gradio as gr
 import random
 
+
 def random_response(message, history):
     return random.choice(["Hi!", "Hello!", "Greetings!"])
+
 
 with gr.Blocks() as demo:
     gr.ChatInterface(
