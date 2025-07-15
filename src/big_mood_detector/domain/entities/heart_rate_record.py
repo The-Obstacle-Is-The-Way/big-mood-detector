@@ -8,7 +8,6 @@ Following Domain-Driven Design and Clean Architecture principles.
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-from typing import Optional
 
 
 class HeartMetricType(Enum):
@@ -41,11 +40,11 @@ class MotionContext(Enum):
     UNKNOWN = "unknown"
 
     @classmethod
-    def from_string(cls, value: Optional[str]) -> "MotionContext":
+    def from_string(cls, value: str | None) -> "MotionContext":
         """Create MotionContext from string value."""
         if not value:
             return cls.UNKNOWN
-        
+
         for context in cls:
             if context.value == value.lower():
                 return context
@@ -108,7 +107,10 @@ class HeartRateRecord:
 
         Clinical threshold: <50 bpm (bradycardia)
         """
-        if self.metric_type not in [HeartMetricType.HEART_RATE, HeartMetricType.RESTING_HEART_RATE]:
+        if self.metric_type not in [
+            HeartMetricType.HEART_RATE,
+            HeartMetricType.RESTING_HEART_RATE,
+        ]:
             return False
 
         return self.value < 50

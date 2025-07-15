@@ -117,9 +117,7 @@ class HeartRateParser:
         value = float(record_dict["value"])
 
         # Parse motion context
-        motion_context = MotionContext.from_string(
-            record_dict.get("motionContext")
-        )
+        motion_context = MotionContext.from_string(record_dict.get("motionContext"))
 
         return HeartRateRecord(
             source_name=record_dict["sourceName"],
