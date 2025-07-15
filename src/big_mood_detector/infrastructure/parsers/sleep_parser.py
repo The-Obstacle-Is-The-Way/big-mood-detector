@@ -9,12 +9,15 @@ Following SOLID principles:
 - Open/Closed: Extensible for new sleep record types
 - Liskov Substitution: Can be substituted with other parsers
 - Interface Segregation: Focused interface for sleep parsing
-- Dependency Inversion: Depends on abstractions (will add later)
+- Dependency Inversion: Returns domain entities, not raw data
 """
 
-from typing import List, Dict, Any
+from datetime import datetime
+from typing import List, Dict, Any, Optional
 from xml.etree import ElementTree as ET
 from xml.etree.ElementTree import ParseError
+
+from big_mood_detector.domain.entities.sleep_record import SleepRecord, SleepState
 
 
 class SleepParser:
@@ -23,6 +26,9 @@ class SleepParser:
     # Constants following DRY principle
     SLEEP_RECORD_TYPE = "HKCategoryTypeIdentifierSleepAnalysis"
     RECORD_TAG = "Record"
+    
+    # Date format from HealthKit exports
+    HEALTHKIT_DATE_FORMAT = "%Y-%m-%d %H:%M:%S %z"
     
     def __init__(self):
         """Initialize sleep parser."""
@@ -59,6 +65,16 @@ class SleepParser:
         
         return sleep_records
     
+    def parse_to_entities(self, xml_data: str) -> List[SleepRecord]:
+        """
+        Parse XML and return domain entities.
+        
+        This method follows Open/Closed principle - extends functionality
+        without modifying existing parse() method.
+        """
+        raw_records = self.parse(xml_data)
+        return [self._to_domain_entity(record) for record in raw_records]
+    
     def _extract_sleep_data(self, element: ET.Element) -> Dict[str, Any]:
         """
         Extract sleep data from a single XML element.
@@ -71,3 +87,20 @@ class SleepParser:
             "endDate": element.get("endDate"),
             "value": element.get("value"),
         }
+    
+    def _to_domain_entity(self, raw_record: Dict[str, Any]) -> SleepRecord:
+        """
+        Convert raw dictionary to domain entity.
+        
+        Factory Method pattern - encapsulates object creation.
+        """
+        return SleepRecord(
+            source_name=raw_record["sourceName"],
+            start_date=self._parse_date(raw_record["startDate"]),
+            end_date=self._parse_date(raw_record["endDate"]),
+            state=SleepState.from_healthkit_value(raw_record["value"])
+        )
+    
+    def _parse_date(self, date_string: str) -> datetime:
+        """Parse HealthKit date format to datetime object."""
+        return datetime.strptime(date_string, self.HEALTHKIT_DATE_FORMAT)
