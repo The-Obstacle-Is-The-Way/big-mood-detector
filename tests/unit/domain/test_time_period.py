@@ -148,7 +148,9 @@ class TestTimePeriod:
 
         # ACT & ASSERT
         assert period.contains(datetime(2024, 1, 1, 12, 0, tzinfo=UTC))
-        assert period.contains(datetime(2024, 1, 1, 9, 0, tzinfo=UTC))  # Start inclusive
+        assert period.contains(
+            datetime(2024, 1, 1, 9, 0, tzinfo=UTC)
+        )  # Start inclusive
         assert period.contains(datetime(2024, 1, 1, 17, 0, tzinfo=UTC))  # End inclusive
         assert not period.contains(datetime(2024, 1, 1, 8, 59, tzinfo=UTC))
         assert not period.contains(datetime(2024, 1, 1, 17, 1, tzinfo=UTC))

@@ -71,4 +71,3 @@ class TimePeriod:
     def __str__(self) -> str:
         """Human-readable representation."""
         return f"{self.start.isoformat()} to {self.end.isoformat()} ({self.duration_hours:.1f}h)"
-

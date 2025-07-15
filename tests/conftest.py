@@ -4,7 +4,6 @@ Minimal conftest.py for Big Mood Detector test suite.
 Provides basic fixtures for TDD workflow.
 """
 
-
 import pytest
 
 
@@ -64,4 +63,3 @@ def expected_sleep_data():
             "value": "HKCategoryValueSleepAnalysisInBed",
         },
     ]
-

@@ -78,4 +78,3 @@ class SleepRecord:
             SleepState.AWAKE: "disrupted",
         }
         return quality_map.get(self.state)
-

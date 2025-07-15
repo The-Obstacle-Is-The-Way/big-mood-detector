@@ -104,4 +104,3 @@ class SleepParser:
     def _parse_date(self, date_string: str) -> datetime:
         """Parse HealthKit date format to datetime object."""
         return datetime.strptime(date_string, self.HEALTHKIT_DATE_FORMAT)
-

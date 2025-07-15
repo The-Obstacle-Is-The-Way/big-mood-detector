@@ -35,13 +35,13 @@ class ActivityParser:
     def parse(self, xml_data: str) -> list[dict[str, Any]]:
         """
         Parse XML data and extract activity records.
-        
+
         Args:
             xml_data: Raw XML string from Apple Health export
-            
+
         Returns:
             List of activity record dictionaries
-            
+
         Raises:
             ValueError: If XML is invalid
         """
@@ -62,10 +62,10 @@ class ActivityParser:
     def parse_to_entities(self, xml_data: str) -> list[ActivityRecord]:
         """
         Parse XML data to domain entities.
-        
+
         Args:
             xml_data: Raw XML string from Apple Health export
-            
+
         Returns:
             List of ActivityRecord domain entities
         """

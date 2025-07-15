@@ -34,7 +34,7 @@ class ActivityType(Enum):
 class ActivityRecord:
     """
     Immutable activity record entity.
-    
+
     Represents a single activity measurement from health tracking.
     """
 
@@ -83,7 +83,7 @@ class ActivityRecord:
     def is_high_activity(self) -> bool:
         """
         Determine if this represents high activity level.
-        
+
         Clinical significance for mood episodes:
         - Manic: Very high step counts (>15000/day)
         - Depressive: Very low step counts (<2000/day)
@@ -116,7 +116,7 @@ class ActivityRecord:
     def can_aggregate_with(self, other: "ActivityRecord") -> bool:
         """
         Check if this record can be aggregated with another.
-        
+
         Records can be aggregated if they:
         - Are the same type
         - Have the same unit

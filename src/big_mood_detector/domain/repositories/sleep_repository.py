@@ -55,4 +55,3 @@ class SleepRepositoryInterface(ABC):
     async def delete_by_period(self, period: TimePeriod) -> int:
         """Delete sleep records within a time period. Returns count deleted."""
         pass
-
