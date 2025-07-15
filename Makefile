@@ -39,21 +39,31 @@ setup: install-dev pre-commit
 test:
 	pytest --cov=big_mood_detector --cov-report=term-missing --cov-report=html
 
+test-parallel:
+	pytest -n auto --cov=big_mood_detector --cov-report=term-missing
+
 test-fast:
-	pytest -m "not slow and not integration" --cov=big_mood_detector
+	pytest -m "not slow and not integration" --cov=big_mood_detector -n auto
 
 test-slow:
 	pytest -m "slow"
 
 test-integration:
-	pytest -m "integration"
+	pytest -m "integration" -n auto
 
 test-ml:
 	pytest -m "ml" --cov=big_mood_detector.ml
 
+test-clinical:
+	pytest -m "clinical" --verbose
+
 # Watch mode for TDD
 test-watch:
 	pytest-watch --clear --onpass="echo '✅ Tests passed'" --onfail="echo '❌ Tests failed'"
+
+# Parallel TDD watch mode
+test-watch-parallel:
+	pytest-watch -n auto --clear --onpass="echo '✅ Parallel tests passed'" --onfail="echo '❌ Parallel tests failed'"
 
 # Code quality targets
 lint:

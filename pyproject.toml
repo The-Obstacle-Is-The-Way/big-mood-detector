@@ -2,6 +2,9 @@
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
+[tool.hatchling.build.targets.wheel]
+packages = ["src/big_mood_detector"]
+
 [project]
 name = "big-mood-detector"
 version = "0.1.0"
@@ -66,6 +69,8 @@ dev = [
     "pytest-asyncio>=0.21.0",
     "pytest-cov>=4.1.0",
     "pytest-mock>=3.12.0",
+    "pytest-xdist>=3.5.0",  # parallel testing
+    "pytest-watch>=4.2.0",  # TDD watch mode
     "httpx>=0.25.0",  # for testing FastAPI
     "factory-boy>=3.3.0",
     
@@ -180,7 +185,7 @@ python_functions = ["test_*"]
 
 # Coverage Configuration
 [tool.coverage.run]
-source = ["big_mood_detector"]
+source = ["src/big_mood_detector"]
 omit = [
     "*/tests/*",
     "*/migrations/*",
