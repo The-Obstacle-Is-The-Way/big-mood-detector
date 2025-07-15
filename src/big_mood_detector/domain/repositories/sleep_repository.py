@@ -7,7 +7,6 @@ Following Repository Pattern and Dependency Inversion Principle.
 
 from abc import ABC, abstractmethod
 from datetime import datetime
-from typing import List, Optional
 
 from big_mood_detector.domain.entities.sleep_record import SleepRecord
 from big_mood_detector.domain.value_objects.time_period import TimePeriod
@@ -26,29 +25,29 @@ class SleepRepositoryInterface(ABC):
         pass
 
     @abstractmethod
-    async def save_batch(self, sleep_records: List[SleepRecord]) -> None:
+    async def save_batch(self, sleep_records: list[SleepRecord]) -> None:
         """Persist multiple sleep records efficiently."""
         pass
 
     @abstractmethod
-    async def get_by_id(self, record_id: str) -> Optional[SleepRecord]:
+    async def get_by_id(self, record_id: str) -> SleepRecord | None:
         """Retrieve a sleep record by ID."""
         pass
 
     @abstractmethod
-    async def get_by_period(self, period: TimePeriod) -> List[SleepRecord]:
+    async def get_by_period(self, period: TimePeriod) -> list[SleepRecord]:
         """Retrieve all sleep records within a time period."""
         pass
 
     @abstractmethod
     async def get_by_date_range(
         self, start_date: datetime, end_date: datetime
-    ) -> List[SleepRecord]:
+    ) -> list[SleepRecord]:
         """Retrieve sleep records within a date range."""
         pass
 
     @abstractmethod
-    async def get_latest(self, limit: int = 10) -> List[SleepRecord]:
+    async def get_latest(self, limit: int = 10) -> list[SleepRecord]:
         """Retrieve the most recent sleep records."""
         pass
 
@@ -56,3 +55,4 @@ class SleepRepositoryInterface(ABC):
     async def delete_by_period(self, period: TimePeriod) -> int:
         """Delete sleep records within a time period. Returns count deleted."""
         pass
+

@@ -4,14 +4,11 @@ Factory classes for generating test health data.
 Uses factory-boy pattern for creating realistic test data that mimics clinical scenarios.
 """
 
+import random
+from datetime import datetime, timedelta
+
 import factory
 import factory.fuzzy
-from datetime import datetime, timedelta
-from typing import Dict, List
-import random
-
-from big_mood_detector.domain.entities.health_data import HealthData
-from big_mood_detector.domain.value_objects.mood_state import MoodState
 
 
 class HealthKitDataFactory(factory.Factory):
@@ -36,7 +33,7 @@ class HealthKitDataFactory(factory.Factory):
             }
         }
 
-    def _generate_step_data(self, start_date: datetime) -> List[Dict]:
+    def _generate_step_data(self, start_date: datetime) -> list[dict]:
         """Generate realistic step count data with bipolar patterns."""
         data = []
         for i in range(30):  # 30 days of data
@@ -61,7 +58,7 @@ class HealthKitDataFactory(factory.Factory):
 
         return data
 
-    def _generate_heart_rate_data(self, start_date: datetime) -> List[Dict]:
+    def _generate_heart_rate_data(self, start_date: datetime) -> list[dict]:
         """Generate heart rate data throughout the day."""
         data = []
         for day in range(30):
@@ -86,7 +83,7 @@ class HealthKitDataFactory(factory.Factory):
 
         return data
 
-    def _generate_sleep_data(self, start_date: datetime) -> List[Dict]:
+    def _generate_sleep_data(self, start_date: datetime) -> list[dict]:
         """Generate sleep analysis data."""
         data = []
         for day in range(30):
@@ -119,7 +116,7 @@ class HealthKitDataFactory(factory.Factory):
 
         return data
 
-    def _generate_active_energy_data(self, start_date: datetime) -> List[Dict]:
+    def _generate_active_energy_data(self, start_date: datetime) -> list[dict]:
         """Generate active energy burned data."""
         data = []
         for day in range(30):

@@ -8,10 +8,8 @@ Following Domain-Driven Design and Clean Code principles.
 from collections import defaultdict
 from dataclasses import dataclass
 from datetime import date, datetime, time, timedelta
-from typing import List, Dict, Optional, Tuple
 
-from big_mood_detector.domain.entities.sleep_record import SleepRecord, SleepState
-from big_mood_detector.domain.value_objects.time_period import TimePeriod
+from big_mood_detector.domain.entities.sleep_record import SleepRecord
 
 
 @dataclass(frozen=True)
@@ -31,9 +29,9 @@ class DailySleepSummary:
     sleep_fragmentation_index: float  # Higher = more fragmented
 
     # Circadian rhythm indicators
-    earliest_bedtime: Optional[time] = None
-    latest_wake_time: Optional[time] = None
-    mid_sleep_time: Optional[datetime] = None  # Midpoint of main sleep
+    earliest_bedtime: time | None = None
+    latest_wake_time: time | None = None
+    mid_sleep_time: datetime | None = None  # Midpoint of main sleep
 
     @property
     def is_clinically_significant(self) -> bool:
@@ -54,8 +52,8 @@ class SleepAggregator:
     """
 
     def aggregate_daily(
-        self, sleep_records: List[SleepRecord]
-    ) -> Dict[date, DailySleepSummary]:
+        self, sleep_records: list[SleepRecord]
+    ) -> dict[date, DailySleepSummary]:
         """
         Aggregate sleep records into daily summaries.
 
@@ -79,8 +77,8 @@ class SleepAggregator:
         return summaries
 
     def _group_by_date(
-        self, records: List[SleepRecord]
-    ) -> Dict[date, List[SleepRecord]]:
+        self, records: list[SleepRecord]
+    ) -> dict[date, list[SleepRecord]]:
         """Group sleep records by the date they primarily belong to."""
         grouped = defaultdict(list)
 
@@ -115,7 +113,7 @@ class SleepAggregator:
             )
 
     def _create_daily_summary(
-        self, day: date, records: List[SleepRecord]
+        self, day: date, records: list[SleepRecord]
     ) -> DailySleepSummary:
         """Create a daily summary from sleep records."""
         # Calculate basic metrics
@@ -152,7 +150,7 @@ class SleepAggregator:
             mid_sleep_time=mid_sleep,
         )
 
-    def _calculate_fragmentation(self, sleep_sessions: List[SleepRecord]) -> float:
+    def _calculate_fragmentation(self, sleep_sessions: list[SleepRecord]) -> float:
         """
         Calculate sleep fragmentation index.
 
@@ -181,8 +179,8 @@ class SleepAggregator:
         return total_gap_time / total_period if total_period > 0 else 0.0
 
     def _calculate_circadian_markers(
-        self, records: List[SleepRecord]
-    ) -> Tuple[Optional[time], Optional[time], Optional[datetime]]:
+        self, records: list[SleepRecord]
+    ) -> tuple[time | None, time | None, datetime | None]:
         """Calculate circadian rhythm markers from sleep records."""
         if not records:
             return None, None, None

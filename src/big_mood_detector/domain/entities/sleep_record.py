@@ -8,7 +8,6 @@ Following Domain-Driven Design principles.
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-from typing import Optional
 
 
 class SleepState(Enum):
@@ -43,7 +42,7 @@ class SleepRecord:
     end_date: datetime
     state: SleepState
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate business rules."""
         if self.end_date <= self.start_date:
             raise ValueError("End date must be after start date")
@@ -68,7 +67,7 @@ class SleepRecord:
         }
 
     @property
-    def sleep_quality_indicator(self) -> Optional[str]:
+    def sleep_quality_indicator(self) -> str | None:
         """Get sleep quality based on state."""
         quality_map = {
             SleepState.DEEP: "restorative",

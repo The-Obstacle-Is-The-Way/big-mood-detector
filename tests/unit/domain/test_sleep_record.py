@@ -4,8 +4,9 @@ Tests for Sleep Record Domain Entity
 Following TDD and ensuring business rules are enforced.
 """
 
+from datetime import UTC, datetime
+
 import pytest
-from datetime import datetime, timezone, timedelta
 
 from big_mood_detector.domain.entities.sleep_record import SleepRecord, SleepState
 
@@ -45,8 +46,8 @@ class TestSleepRecord:
     def test_create_valid_sleep_record(self):
         """Test creating a valid sleep record."""
         # ARRANGE
-        start = datetime(2024, 1, 1, 23, 0, tzinfo=timezone.utc)
-        end = datetime(2024, 1, 2, 7, 0, tzinfo=timezone.utc)
+        start = datetime(2024, 1, 1, 23, 0, tzinfo=UTC)
+        end = datetime(2024, 1, 2, 7, 0, tzinfo=UTC)
 
         # ACT
         record = SleepRecord(
@@ -67,8 +68,8 @@ class TestSleepRecord:
         # ARRANGE
         record = SleepRecord(
             source_name="Apple Watch",
-            start_date=datetime(2024, 1, 1, 23, 0, tzinfo=timezone.utc),
-            end_date=datetime(2024, 1, 2, 7, 0, tzinfo=timezone.utc),
+            start_date=datetime(2024, 1, 1, 23, 0, tzinfo=UTC),
+            end_date=datetime(2024, 1, 2, 7, 0, tzinfo=UTC),
             state=SleepState.ASLEEP,
         )
 
@@ -79,8 +80,8 @@ class TestSleepRecord:
     def test_invalid_date_range_raises_error(self):
         """Test that end date must be after start date."""
         # ARRANGE
-        start = datetime(2024, 1, 2, 7, 0, tzinfo=timezone.utc)
-        end = datetime(2024, 1, 1, 23, 0, tzinfo=timezone.utc)
+        start = datetime(2024, 1, 2, 7, 0, tzinfo=UTC)
+        end = datetime(2024, 1, 1, 23, 0, tzinfo=UTC)
 
         # ACT & ASSERT
         with pytest.raises(ValueError, match="End date must be after start date"):
@@ -94,8 +95,8 @@ class TestSleepRecord:
     def test_empty_source_name_raises_error(self):
         """Test that empty source name is not allowed."""
         # ARRANGE
-        start = datetime(2024, 1, 1, 23, 0, tzinfo=timezone.utc)
-        end = datetime(2024, 1, 2, 7, 0, tzinfo=timezone.utc)
+        start = datetime(2024, 1, 1, 23, 0, tzinfo=UTC)
+        end = datetime(2024, 1, 2, 7, 0, tzinfo=UTC)
 
         # ACT & ASSERT
         with pytest.raises(ValueError, match="Source name is required"):
@@ -106,8 +107,8 @@ class TestSleepRecord:
     def test_duration_hours_calculation(self):
         """Test duration calculation in hours."""
         # ARRANGE
-        start = datetime(2024, 1, 1, 23, 0, tzinfo=timezone.utc)
-        end = datetime(2024, 1, 2, 7, 30, tzinfo=timezone.utc)
+        start = datetime(2024, 1, 1, 23, 0, tzinfo=UTC)
+        end = datetime(2024, 1, 2, 7, 30, tzinfo=UTC)
         record = SleepRecord(
             source_name="Apple Watch",
             start_date=start,
@@ -121,8 +122,8 @@ class TestSleepRecord:
     def test_is_actual_sleep_property(self):
         """Test identification of actual sleep vs in bed."""
         # ARRANGE
-        base_start = datetime(2024, 1, 1, 23, 0, tzinfo=timezone.utc)
-        base_end = datetime(2024, 1, 2, 7, 0, tzinfo=timezone.utc)
+        base_start = datetime(2024, 1, 1, 23, 0, tzinfo=UTC)
+        base_end = datetime(2024, 1, 2, 7, 0, tzinfo=UTC)
 
         # ACT & ASSERT
         asleep = SleepRecord("Watch", base_start, base_end, SleepState.ASLEEP)
@@ -143,8 +144,8 @@ class TestSleepRecord:
     def test_sleep_quality_indicator(self):
         """Test sleep quality categorization."""
         # ARRANGE
-        base_start = datetime(2024, 1, 1, 23, 0, tzinfo=timezone.utc)
-        base_end = datetime(2024, 1, 2, 7, 0, tzinfo=timezone.utc)
+        base_start = datetime(2024, 1, 1, 23, 0, tzinfo=UTC)
+        base_end = datetime(2024, 1, 2, 7, 0, tzinfo=UTC)
 
         # ACT & ASSERT
         deep = SleepRecord("Watch", base_start, base_end, SleepState.DEEP)

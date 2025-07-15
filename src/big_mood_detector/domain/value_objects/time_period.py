@@ -21,7 +21,7 @@ class TimePeriod:
     start: datetime
     end: datetime
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate time period invariants."""
         if self.end <= self.start:
             raise ValueError(f"Invalid time period: {self.start} to {self.end}")

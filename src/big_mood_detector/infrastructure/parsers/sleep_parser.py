@@ -13,7 +13,7 @@ Following SOLID principles:
 """
 
 from datetime import datetime
-from typing import List, Dict, Any
+from typing import Any
 from xml.etree import ElementTree as ET
 from xml.etree.ElementTree import ParseError
 
@@ -30,11 +30,11 @@ class SleepParser:
     # Date format from HealthKit exports
     HEALTHKIT_DATE_FORMAT = "%Y-%m-%d %H:%M:%S %z"
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize sleep parser."""
         pass
 
-    def parse(self, xml_data: str) -> List[Dict[str, Any]]:
+    def parse(self, xml_data: str) -> list[dict[str, Any]]:
         """
         Parse Apple HealthKit XML and extract sleep records.
 
@@ -54,7 +54,7 @@ class SleepParser:
         try:
             root = ET.fromstring(xml_data)
         except ParseError as e:
-            raise ValueError(f"Invalid XML: {str(e)}")
+            raise ValueError(f"Invalid XML: {str(e)}") from e
 
         sleep_records = []
 
@@ -65,7 +65,7 @@ class SleepParser:
 
         return sleep_records
 
-    def parse_to_entities(self, xml_data: str) -> List[SleepRecord]:
+    def parse_to_entities(self, xml_data: str) -> list[SleepRecord]:
         """
         Parse XML and return domain entities.
 
@@ -75,7 +75,7 @@ class SleepParser:
         raw_records = self.parse(xml_data)
         return [self._to_domain_entity(record) for record in raw_records]
 
-    def _extract_sleep_data(self, element: ET.Element) -> Dict[str, Any]:
+    def _extract_sleep_data(self, element: ET.Element) -> dict[str, Any]:
         """
         Extract sleep data from a single XML element.
 
@@ -88,7 +88,7 @@ class SleepParser:
             "value": element.get("value"),
         }
 
-    def _to_domain_entity(self, raw_record: Dict[str, Any]) -> SleepRecord:
+    def _to_domain_entity(self, raw_record: dict[str, Any]) -> SleepRecord:
         """
         Convert raw dictionary to domain entity.
 
