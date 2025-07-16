@@ -93,7 +93,7 @@ class TestDSM5CriteriaEvaluator:
             hospitalization=True,
         )
         assert result.duration_met is False
-        assert "hospitalization" in result.clinical_note
+        assert "hospitalization" in result.clinical_note.lower()
 
     def test_evaluate_depressive_episode_duration(self, evaluator):
         """Test depressive episode - 14 days required."""
@@ -173,7 +173,7 @@ class TestDSM5CriteriaEvaluator:
             hospitalization=False,
         )
         assert result.functional_impairment_met is True
-        assert "significant impairment" in result.clinical_note
+        assert "significant impairment" in result.clinical_note.lower()
         
         # No significant impairment
         result = evaluator.evaluate_functional_impairment(

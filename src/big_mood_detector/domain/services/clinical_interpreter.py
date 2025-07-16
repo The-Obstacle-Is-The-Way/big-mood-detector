@@ -29,6 +29,9 @@ from big_mood_detector.domain.services.episode_interpreter import (
 from big_mood_detector.domain.services.treatment_recommender import (
     TreatmentRecommender,
 )
+from big_mood_detector.domain.services.dsm5_criteria_evaluator import (
+    DSM5CriteriaEvaluator,
+)
 
 
 # Re-export enums for backward compatibility
@@ -166,6 +169,7 @@ class ClinicalInterpreter:
         self.episode_interpreter = EpisodeInterpreter(config)
         self.biomarker_interpreter = BiomarkerInterpreter(config)
         self.treatment_recommender = TreatmentRecommender(config)
+        self.dsm5_evaluator = DSM5CriteriaEvaluator(config)
 
     def interpret_depression_score(
         self,
