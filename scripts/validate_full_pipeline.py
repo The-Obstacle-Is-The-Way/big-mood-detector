@@ -205,7 +205,7 @@ def validate_activity_extraction():
     print(f"Created {len(test_records)} hourly activity records")
 
     # Extract sequence
-    sequence = extractor.extract_sequence(test_records, base_date)
+    sequence = extractor.extract_daily_sequence(test_records, base_date)
 
     if sequence and len(sequence.values) == 1440:
         print("✅ Extracted 1440-point activity sequence")
