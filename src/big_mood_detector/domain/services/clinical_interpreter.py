@@ -23,14 +23,14 @@ from big_mood_detector.domain.services.clinical_thresholds import (
     ClinicalThresholdsConfig,
     load_clinical_thresholds,
 )
+from big_mood_detector.domain.services.dsm5_criteria_evaluator import (
+    DSM5CriteriaEvaluator,
+)
 from big_mood_detector.domain.services.episode_interpreter import (
     EpisodeInterpreter,
 )
 from big_mood_detector.domain.services.treatment_recommender import (
     TreatmentRecommender,
-)
-from big_mood_detector.domain.services.dsm5_criteria_evaluator import (
-    DSM5CriteriaEvaluator,
 )
 
 
@@ -478,53 +478,20 @@ class ClinicalInterpreter:
         """
         Evaluate if episode duration meets DSM-5 criteria.
 
-        DSM-5 Duration Requirements:
-        - Manic: ≥7 days (or any duration if hospitalization)
-        - Hypomanic: ≥4 days
-        - Depressive: ≥14 days
-        - Mixed: Follows primary episode requirements
+        Delegates to DSM5CriteriaEvaluator for the actual evaluation.
         """
-        # Get duration requirements from config
-        duration_config = self.config.dsm5_duration
+        # Delegate to the specialized evaluator
+        result = self.dsm5_evaluator.evaluate_episode_duration(
+            episode_type=episode_type.value,
+            symptom_days=symptom_days,
+            hospitalization=hospitalization,
+        )
 
-        # Check requirements based on episode type
-        duration_met = False
-        required_days = 0
-
-        if episode_type == EpisodeType.MANIC:
-            required_days = duration_config.manic_days
-            duration_met = symptom_days >= required_days or hospitalization
-        elif episode_type == EpisodeType.HYPOMANIC:
-            required_days = duration_config.hypomanic_days
-            duration_met = symptom_days >= required_days and not hospitalization
-        elif episode_type == EpisodeType.DEPRESSIVE:
-            required_days = duration_config.depressive_days
-            duration_met = symptom_days >= required_days
-        elif "mixed" in episode_type.value:
-            # Mixed episodes follow primary pole duration
-            if "depressive" in episode_type.value:
-                required_days = duration_config.depressive_days
-            else:
-                required_days = duration_config.manic_days
-            duration_met = symptom_days >= required_days or (
-                "manic" in episode_type.value and hospitalization
-            )
-
-        # Create criteria result
-        if duration_met:
-            note = f"Episode duration of {symptom_days} days meets DSM-5 criteria"
-        else:
-            # Format message to match test expectations
-            episode_name = episode_type.value.replace("_", " ")
-            note = f"Duration insufficient for {episode_name} episode ({symptom_days} days < {required_days} days required)"
-
-        if hospitalization and episode_type == EpisodeType.MANIC:
-            note += " (hospitalization overrides duration requirement)"
-
+        # Convert to legacy DSM5Criteria format for backward compatibility
         return DSM5Criteria(
-            meets_dsm5_criteria=duration_met,
-            clinical_note=note,
-            duration_met=duration_met,
+            meets_dsm5_criteria=result.meets_criteria,
+            clinical_note=result.clinical_note,
+            duration_met=result.duration_met,
             symptom_count_met=True,  # Assume this was evaluated separately
             functional_impairment=True,  # Assume this was evaluated separately
         )

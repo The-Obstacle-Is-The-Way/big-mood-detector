@@ -5,8 +5,8 @@ Following TDD approach - writing tests first for the DSM5CriteriaEvaluator
 that will be extracted from ClinicalInterpreter.
 """
 
+
 import pytest
-from datetime import datetime, timedelta
 
 from big_mood_detector.domain.services.clinical_thresholds import (
     load_clinical_thresholds,
@@ -38,7 +38,7 @@ class TestDSM5CriteriaEvaluator:
             symptom_days=8,
             hospitalization=False,
         )
-        
+
         assert result.duration_met is True
         assert result.meets_criteria is True
         assert "meets DSM-5 criteria" in result.clinical_note
@@ -50,7 +50,7 @@ class TestDSM5CriteriaEvaluator:
             symptom_days=5,
             hospitalization=False,
         )
-        
+
         assert result.duration_met is False
         assert result.meets_criteria is False
         assert "insufficient" in result.clinical_note.lower()
@@ -63,7 +63,7 @@ class TestDSM5CriteriaEvaluator:
             symptom_days=2,
             hospitalization=True,
         )
-        
+
         assert result.duration_met is True
         assert result.meets_criteria is True
         assert "hospitalization overrides" in result.clinical_note
@@ -77,7 +77,7 @@ class TestDSM5CriteriaEvaluator:
             hospitalization=False,
         )
         assert result.duration_met is True
-        
+
         # Insufficient duration
         result = evaluator.evaluate_episode_duration(
             episode_type="hypomanic",
@@ -85,7 +85,7 @@ class TestDSM5CriteriaEvaluator:
             hospitalization=False,
         )
         assert result.duration_met is False
-        
+
         # Hospitalization invalidates hypomania (becomes mania)
         result = evaluator.evaluate_episode_duration(
             episode_type="hypomanic",
@@ -104,7 +104,7 @@ class TestDSM5CriteriaEvaluator:
             hospitalization=False,
         )
         assert result.duration_met is True
-        
+
         # Insufficient duration
         result = evaluator.evaluate_episode_duration(
             episode_type="depressive",
@@ -123,7 +123,7 @@ class TestDSM5CriteriaEvaluator:
             hospitalization=False,
         )
         assert result.duration_met is True
-        
+
         # Manic mixed - 7 days or hospitalization
         result = evaluator.evaluate_episode_duration(
             episode_type="manic_with_mixed_features",
@@ -142,7 +142,7 @@ class TestDSM5CriteriaEvaluator:
             "sleep_disturbance",
             "psychomotor_change",
         ]
-        
+
         result = evaluator.evaluate_symptom_count(
             symptoms=symptoms,
             episode_type="depressive",
@@ -154,7 +154,7 @@ class TestDSM5CriteriaEvaluator:
     def test_evaluate_symptom_count_insufficient(self, evaluator):
         """Test insufficient symptoms for diagnosis."""
         symptoms = ["depressed_mood", "anhedonia", "sleep_disturbance"]
-        
+
         result = evaluator.evaluate_symptom_count(
             symptoms=symptoms,
             episode_type="depressive",
@@ -174,7 +174,7 @@ class TestDSM5CriteriaEvaluator:
         )
         assert result.functional_impairment_met is True
         assert "significant impairment" in result.clinical_note.lower()
-        
+
         # No significant impairment
         result = evaluator.evaluate_functional_impairment(
             work_impairment=False,
@@ -189,12 +189,12 @@ class TestDSM5CriteriaEvaluator:
         result = evaluator.evaluate_complete_criteria(
             episode_type="manic",
             symptom_days=8,
-            symptoms=["elevated_mood", "decreased_sleep", "grandiosity", 
+            symptoms=["elevated_mood", "decreased_sleep", "grandiosity",
                      "flight_of_ideas", "increased_activity", "poor_judgment"],
             hospitalization=False,
             functional_impairment=True,
         )
-        
+
         assert result.meets_all_criteria is True
         assert result.duration_criteria.duration_met is True
         assert result.symptom_criteria.symptom_count_met is True
@@ -210,9 +210,9 @@ class TestDSM5CriteriaEvaluator:
             hospitalization=False,
             functional_impairment=True,
         )
-        
+
         summary = evaluator.generate_clinical_summary(evaluation)
-        
+
         assert "depressive episode" in summary.lower()
         assert "duration: insufficient" in summary.lower()
         assert "symptoms: 3/5" in summary.lower()

@@ -10,8 +10,7 @@ Design Patterns:
 - Dependency Injection: Configuration injected
 """
 
-from dataclasses import dataclass, field
-from typing import Any
+from dataclasses import dataclass
 
 from big_mood_detector.domain.services.clinical_thresholds import (
     ClinicalThresholdsConfig,
@@ -96,11 +95,11 @@ class DSM5CriteriaEvaluator:
             Duration criteria evaluation result
         """
         duration_config = self.config.dsm5_duration
-        
+
         # Determine required duration based on episode type
         required_days = 0
         duration_met = False
-        
+
         if episode_type == "manic":
             required_days = duration_config.manic_days
             # Hospitalization overrides duration requirement for mania
@@ -124,7 +123,7 @@ class DSM5CriteriaEvaluator:
             duration_met = symptom_days >= required_days or (
                 "manic" in episode_type and hospitalization
             )
-        
+
         # Generate clinical note
         if duration_met:
             note = f"Episode duration of {symptom_days} days meets DSM-5 criteria"
@@ -135,7 +134,7 @@ class DSM5CriteriaEvaluator:
                 note = "Hospitalization invalidates hypomanic episode (would be manic)"
             else:
                 note = f"Duration insufficient for {episode_type} episode ({symptom_days} days < {required_days} days required)"
-        
+
         return DurationCriteria(
             duration_met=duration_met,
             meets_criteria=duration_met,
@@ -160,7 +159,7 @@ class DSM5CriteriaEvaluator:
             Symptom count criteria evaluation result
         """
         symptom_count = len(symptoms)
-        
+
         # Determine required symptom count
         if "depressive" in episode_type:
             required_count = self.DEPRESSION_MIN_SYMPTOMS
@@ -172,15 +171,15 @@ class DSM5CriteriaEvaluator:
                 required_count = self.DEPRESSION_MIN_SYMPTOMS
             else:
                 required_count = self.MANIA_MIN_SYMPTOMS
-        
+
         symptom_count_met = symptom_count >= required_count
-        
+
         # Generate clinical note
         if symptom_count_met:
             note = f"{symptom_count} symptoms meets minimum requirement of {required_count}"
         else:
             note = f"Insufficient symptoms: {symptom_count} < {required_count} required"
-        
+
         return SymptomCriteria(
             symptom_count_met=symptom_count_met,
             symptom_count=symptom_count,
@@ -208,7 +207,7 @@ class DSM5CriteriaEvaluator:
             Functional impairment evaluation result
         """
         impairment_domains = []
-        
+
         if work_impairment:
             impairment_domains.append("work/occupational")
         if social_impairment:
@@ -217,16 +216,16 @@ class DSM5CriteriaEvaluator:
             impairment_domains.append("self-care")
         if hospitalization:
             impairment_domains.append("hospitalization required")
-        
+
         # DSM-5 requires significant impairment in at least one domain
         functional_impairment_met = len(impairment_domains) > 0
-        
+
         # Generate clinical note
         if functional_impairment_met:
             note = f"Significant impairment in: {', '.join(impairment_domains)}"
         else:
             note = "No significant functional impairment documented"
-        
+
         return FunctionalCriteria(
             functional_impairment_met=functional_impairment_met,
             impairment_domains=impairment_domains,
@@ -264,29 +263,29 @@ class DSM5CriteriaEvaluator:
         duration = self.evaluate_episode_duration(
             episode_type, symptom_days, hospitalization
         )
-        
+
         symptom_count = self.evaluate_symptom_count(symptoms, episode_type)
-        
+
         functional = self.evaluate_functional_impairment(
             work_impairment=work_impairment or functional_impairment,
             social_impairment=social_impairment,
             self_care_impairment=self_care_impairment,
             hospitalization=hospitalization,
         )
-        
+
         # All criteria must be met
         meets_all = (
             duration.meets_criteria and
             symptom_count.symptom_count_met and
             functional.functional_impairment_met
         )
-        
+
         # Generate summary
         if meets_all:
             summary = f"Meets DSM-5 criteria for {episode_type} episode"
         else:
             summary = f"Does not meet DSM-5 criteria for {episode_type} episode"
-        
+
         return CompleteDSM5Evaluation(
             meets_all_criteria=meets_all,
             duration_criteria=duration,
@@ -307,29 +306,29 @@ class DSM5CriteriaEvaluator:
             Human-readable clinical summary
         """
         parts = []
-        
+
         # Episode type
         parts.append(f"DSM-5 Evaluation for {evaluation.episode_type.title()} Episode:")
-        
+
         # Duration
         if evaluation.duration_criteria.duration_met:
             parts.append(f"- Duration: Sufficient ({evaluation.duration_criteria.actual_days} days)")
         else:
             parts.append(f"- Duration: Insufficient ({evaluation.duration_criteria.actual_days}/{evaluation.duration_criteria.required_days} days)")
-        
+
         # Symptoms
         parts.append(f"- Symptoms: {evaluation.symptom_criteria.symptom_count}/{evaluation.symptom_criteria.required_count}")
-        
+
         # Functional impairment
         if evaluation.functional_criteria.functional_impairment_met:
             parts.append(f"- Functional impairment: Present ({', '.join(evaluation.functional_criteria.impairment_domains)})")
         else:
             parts.append("- Functional impairment: Not documented")
-        
+
         # Overall conclusion
         if evaluation.meets_all_criteria:
             parts.append(f"\nConclusion: Meets DSM-5 criteria for {evaluation.episode_type} episode")
         else:
-            parts.append(f"\nConclusion: Does not meet full DSM-5 criteria")
-        
+            parts.append("\nConclusion: Does not meet full DSM-5 criteria")
+
         return "\n".join(parts)
