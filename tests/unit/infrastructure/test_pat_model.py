@@ -170,7 +170,7 @@ class TestPATModel:
 
         # Create test sequences
         sequences = []
-        for i in range(batch_size):
+        for _ in range(batch_size):
             sequences.append(
                 PATSequence(
                     end_date=date(2025, 5, 15),
