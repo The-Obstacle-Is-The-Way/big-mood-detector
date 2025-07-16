@@ -70,6 +70,23 @@ class DSM5Criteria:
 
 
 @dataclass
+class EarlyWarningResult:
+    """Early warning detection result."""
+    depression_warning: bool = False
+    mania_warning: bool = False
+    trigger_intervention: bool = False
+    warning_signs: list[str] = field(default_factory=list)
+
+
+@dataclass
+class ConfidenceAdjustment:
+    """Confidence adjustment based on data quality."""
+    adjusted_confidence: float
+    reliability: str  # high, medium, low
+    limitations: list[str] = field(default_factory=list)
+
+
+@dataclass
 class ClinicalInterpretation:
     """Complete clinical interpretation of mood state."""
     risk_level: RiskLevel
@@ -483,3 +500,48 @@ class ClinicalInterpreter:
             symptom_count_met=True,  # Assume this was evaluated separately
             functional_impairment=True,  # Assume this was evaluated separately
         )
+    
+    def detect_early_warnings(
+        self,
+        sleep_increase_hours: float = 0,
+        sleep_decrease_hours: float = 0,
+        activity_increase_percent: float = 0,
+        activity_decrease_percent: float = 0,
+        circadian_delay_hours: float = 0,
+        speech_rate_increase: bool = False,
+        consecutive_days: int = 1,
+    ) -> EarlyWarningResult:
+        """Detect early warning signs of mood episodes."""
+        result = EarlyWarningResult()
+        
+        # Depression warnings
+        if sleep_increase_hours > 2:
+            result.warning_signs.append("Significant sleep increase")
+            result.depression_warning = True
+        
+        if activity_decrease_percent > 30:
+            result.warning_signs.append("Major activity reduction")
+            result.depression_warning = True
+        
+        if circadian_delay_hours > 1:
+            result.warning_signs.append("Circadian phase delay")
+            result.depression_warning = True
+        
+        # Mania warnings
+        if sleep_decrease_hours > 2:
+            result.warning_signs.append("Significant sleep reduction")
+            result.mania_warning = True
+        
+        if activity_increase_percent > 50:
+            result.warning_signs.append("Major activity increase")
+            result.mania_warning = True
+        
+        if speech_rate_increase:
+            result.warning_signs.append("Increased speech rate")
+            result.mania_warning = True
+        
+        # Trigger intervention if multiple signs for consecutive days
+        if len(result.warning_signs) >= 3 and consecutive_days >= 3:
+            result.trigger_intervention = True
+        
+        return result
