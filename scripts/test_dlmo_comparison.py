@@ -234,7 +234,7 @@ def main():
     print("-" * 60)
 
     # Plot activity-based
-    fig1 = plot_cbt_rhythm(
+    plot_cbt_rhythm(
         calc,
         sleep_records,
         activity_records,
@@ -246,7 +246,7 @@ def main():
     print("Saved: dlmo_activity_based.png")
 
     # Plot sleep-based
-    fig2 = plot_cbt_rhythm(
+    plot_cbt_rhythm(
         calc,
         sleep_records,
         activity_records,

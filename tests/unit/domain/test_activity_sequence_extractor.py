@@ -5,7 +5,7 @@ Tests minute-level activity sequence extraction for PAT (Principal Activity Time
 calculation, critical for circadian rhythm analysis in bipolar disorder.
 """
 
-from datetime import date, datetime, timedelta
+from datetime import date, datetime
 
 import numpy as np
 import pytest
@@ -16,8 +16,6 @@ from big_mood_detector.domain.entities.activity_record import (
 )
 from big_mood_detector.domain.services.activity_sequence_extractor import (
     ActivitySequenceExtractor,
-    MinuteLevelSequence,
-    PATAnalysisResult,
 )
 
 

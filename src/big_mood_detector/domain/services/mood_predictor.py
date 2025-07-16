@@ -14,7 +14,6 @@ import pickle
 import warnings
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List, Optional
 
 import numpy as np
 
@@ -50,7 +49,7 @@ class MoodPrediction:
         """Return the highest risk value."""
         return max(self.depression_risk, self.hypomanic_risk, self.manic_risk)
 
-    def to_dict(self) -> Dict[str, float]:
+    def to_dict(self) -> dict[str, float]:
         """Convert to dictionary for serialization."""
         return {
             "depression_risk": float(round(self.depression_risk, 4)),
@@ -72,7 +71,7 @@ class MoodPredictor:
     - Manic Episode (ME)
     """
 
-    def __init__(self, model_dir: Optional[Path] = None):
+    def __init__(self, model_dir: Path | None = None):
         """
         Initialize predictor with model directory.
 
@@ -162,7 +161,7 @@ class MoodPredictor:
             confidence=confidence,
         )
 
-    def predict_batch(self, feature_list: List[np.ndarray]) -> List[MoodPrediction]:
+    def predict_batch(self, feature_list: list[np.ndarray]) -> list[MoodPrediction]:
         """
         Predict mood risks for multiple days.
 
@@ -203,7 +202,7 @@ class MoodPredictor:
         """Check if models are successfully loaded."""
         return len(self.models) > 0
 
-    def get_model_info(self) -> Dict[str, any]:
+    def get_model_info(self) -> dict[str, any]:
         """Get information about loaded models."""
         info = {}
         for mood_type, model in self.models.items():

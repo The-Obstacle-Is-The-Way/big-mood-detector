@@ -18,13 +18,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 from big_mood_detector.application.mood_prediction_pipeline import (
     MoodPredictionPipeline,
 )
-from big_mood_detector.domain.services.activity_aggregator import ActivityAggregator
-from big_mood_detector.domain.services.advanced_feature_engineering import (
-    AdvancedFeatureEngineer,
-)
-from big_mood_detector.domain.services.heart_rate_aggregator import HeartRateAggregator
 from big_mood_detector.domain.services.mood_predictor import MoodPredictor
-from big_mood_detector.domain.services.sleep_aggregator import SleepAggregator
 
 
 def main():
@@ -96,7 +90,7 @@ def main():
             print(f"   ✗ Error predicting for {idx}: {e}")
 
     # 5. Display results
-    print(f"\n5. Results Summary:")
+    print("\n5. Results Summary:")
     print("-" * 60)
 
     if predictions:

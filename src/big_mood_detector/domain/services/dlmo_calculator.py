@@ -22,7 +22,6 @@ Design Principles:
 import math
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta
-from typing import List, Optional, Tuple, Union
 
 import numpy as np
 from scipy.signal import find_peaks
@@ -40,7 +39,7 @@ class LightActivityProfile:
     """
 
     date: date
-    hourly_values: List[float]  # 24 values, one per hour
+    hourly_values: list[float]  # 24 values, one per hour
     data_type: str  # 'light', 'activity', or 'combined'
 
     @property
@@ -110,13 +109,13 @@ class DLMOCalculator:
 
     def calculate_dlmo(
         self,
-        sleep_records: Optional[List[SleepRecord]] = None,
-        activity_records: Optional[List[ActivityRecord]] = None,
-        target_date: Optional[date] = None,
+        sleep_records: list[SleepRecord] | None = None,
+        activity_records: list[ActivityRecord] | None = None,
+        target_date: date | None = None,
         days_to_model: int = 14,
         use_activity: bool = True,
-        day_length_hours: Optional[float] = None,
-    ) -> Optional[CircadianPhaseResult]:
+        day_length_hours: float | None = None,
+    ) -> CircadianPhaseResult | None:
         """
         Calculate DLMO using activity and/or sleep data.
 
@@ -160,8 +159,8 @@ class DLMOCalculator:
         return self._extract_dlmo_enhanced(cbt_rhythm, target_date)
 
     def _create_activity_profiles(
-        self, activity_records: List[ActivityRecord], target_date: date, days: int
-    ) -> List[LightActivityProfile]:
+        self, activity_records: list[ActivityRecord], target_date: date, days: int
+    ) -> list[LightActivityProfile]:
         """
         Create activity-based light profiles with dynamic thresholds.
         """
@@ -194,8 +193,8 @@ class DLMOCalculator:
         return profiles
 
     def _calculate_hourly_activity(
-        self, activity_records: List[ActivityRecord], target_date: date
-    ) -> List[float]:
+        self, activity_records: list[ActivityRecord], target_date: date
+    ) -> list[float]:
         """Calculate total activity for each hour of the day."""
         hourly_totals = [0.0] * 24
 
@@ -225,8 +224,8 @@ class DLMOCalculator:
         return 0.0
 
     def _create_light_profiles_from_sleep(
-        self, sleep_records: List[SleepRecord], target_date: date, days: int
-    ) -> List[LightActivityProfile]:
+        self, sleep_records: list[SleepRecord], target_date: date, days: int
+    ) -> list[LightActivityProfile]:
         """
         Create light profiles from sleep/wake patterns (fallback method).
         """
@@ -261,8 +260,8 @@ class DLMOCalculator:
         return profiles
 
     def _apply_seasonal_adjustment(
-        self, profiles: List[LightActivityProfile]
-    ) -> List[LightActivityProfile]:
+        self, profiles: list[LightActivityProfile]
+    ) -> list[LightActivityProfile]:
         """
         Apply seasonal adjustment for winter months.
 
@@ -285,8 +284,8 @@ class DLMOCalculator:
         return adjusted
 
     def _run_circadian_model(
-        self, profiles: List[LightActivityProfile]
-    ) -> List[Tuple[float, float]]:
+        self, profiles: list[LightActivityProfile]
+    ) -> list[tuple[float, float]]:
         """
         Run circadian pacemaker model with proper initial conditions.
 
@@ -332,7 +331,7 @@ class DLMOCalculator:
 
         return cbt_rhythm
 
-    def _get_initial_conditions_from_limit_cycle(self) -> Tuple[float, float, float]:
+    def _get_initial_conditions_from_limit_cycle(self) -> tuple[float, float, float]:
         """
         Get initial conditions from limit cycle with standard sleep schedule.
 
@@ -378,7 +377,7 @@ class DLMOCalculator:
 
     def _circadian_derivatives_with_suppression(
         self, x: float, xc: float, n: float, light: float
-    ) -> Tuple[float, float, float]:
+    ) -> tuple[float, float, float]:
         """
         Calculate derivatives with light suppression effect.
 
@@ -421,7 +420,7 @@ class DLMOCalculator:
         return self.A0 * (light**self.P / (light**self.P + self.I0**self.P))
 
     def _extract_dlmo_enhanced(
-        self, cbt_rhythm: List[Tuple[float, float]], target_date: date
+        self, cbt_rhythm: list[tuple[float, float]], target_date: date
     ) -> CircadianPhaseResult:
         """
         Extract DLMO from CBT rhythm using enhanced minimum detection.

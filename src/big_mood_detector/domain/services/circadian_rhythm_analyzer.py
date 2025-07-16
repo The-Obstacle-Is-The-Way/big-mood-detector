@@ -12,8 +12,6 @@ Design Principles:
 
 import math
 from dataclasses import dataclass
-from datetime import date, time
-from typing import List, Optional, Tuple
 
 from big_mood_detector.domain.services.activity_sequence_extractor import (
     MinuteLevelSequence,
@@ -65,7 +63,7 @@ class CircadianRhythmAnalyzer:
     M10_HOURS = 10  # Most active 10 hours
 
     def calculate_metrics(
-        self, sequences: List[MinuteLevelSequence]
+        self, sequences: list[MinuteLevelSequence]
     ) -> CircadianMetrics:
         """
         Calculate comprehensive circadian rhythm metrics.
@@ -98,7 +96,7 @@ class CircadianRhythmAnalyzer:
         )
 
     def calculate_interdaily_stability(
-        self, sequences: List[MinuteLevelSequence]
+        self, sequences: list[MinuteLevelSequence]
     ) -> float:
         """
         Calculate Interdaily Stability (IS).
@@ -139,7 +137,7 @@ class CircadianRhythmAnalyzer:
         return max(0.0, min(1.0, is_score))
 
     def calculate_intradaily_variability(
-        self, sequences: List[MinuteLevelSequence]
+        self, sequences: list[MinuteLevelSequence]
     ) -> float:
         """
         Calculate Intradaily Variability (IV).
@@ -184,7 +182,7 @@ class CircadianRhythmAnalyzer:
         return iv_score
 
     def calculate_relative_amplitude(
-        self, sequences: List[MinuteLevelSequence]
+        self, sequences: list[MinuteLevelSequence]
     ) -> float:
         """
         Calculate Relative Amplitude (RA).
@@ -206,7 +204,7 @@ class CircadianRhythmAnalyzer:
         ra = (l5m10.m10_value - l5m10.l5_value) / (l5m10.m10_value + l5m10.l5_value)
         return max(0.0, min(1.0, ra))
 
-    def calculate_l5_m10(self, sequences: List[MinuteLevelSequence]) -> L5M10Analysis:
+    def calculate_l5_m10(self, sequences: list[MinuteLevelSequence]) -> L5M10Analysis:
         """
         Calculate L5 (least active 5 hours) and M10 (most active 10 hours).
 
@@ -261,7 +259,7 @@ class CircadianRhythmAnalyzer:
         )
 
     def calculate_l5_timing_consistency(
-        self, sequences: List[MinuteLevelSequence]
+        self, sequences: list[MinuteLevelSequence]
     ) -> float:
         """
         Calculate how consistent the L5 (rest) period timing is across days.
@@ -311,8 +309,8 @@ class CircadianRhythmAnalyzer:
 
     def detect_phase_shift(
         self,
-        week1_sequences: List[MinuteLevelSequence],
-        week2_sequences: List[MinuteLevelSequence],
+        week1_sequences: list[MinuteLevelSequence],
+        week2_sequences: list[MinuteLevelSequence],
     ) -> float:
         """
         Detect phase shift between two periods.
@@ -337,7 +335,7 @@ class CircadianRhythmAnalyzer:
 
         return shift
 
-    def calculate_disruption_score(self, sequences: List[MinuteLevelSequence]) -> float:
+    def calculate_disruption_score(self, sequences: list[MinuteLevelSequence]) -> float:
         """
         Calculate overall circadian disruption score.
 
@@ -368,8 +366,8 @@ class CircadianRhythmAnalyzer:
         return max(0.0, min(1.0, disruption_score))
 
     def _calculate_average_hourly_profile(
-        self, sequences: List[MinuteLevelSequence], per_minute: bool = False
-    ) -> List[float]:
+        self, sequences: list[MinuteLevelSequence], per_minute: bool = False
+    ) -> list[float]:
         """Calculate average activity for each hour across all days."""
         if not sequences:
             return [0.0] * 24

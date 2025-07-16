@@ -5,17 +5,14 @@ Tests the infrastructure for handling sparse temporal health data,
 including alignment, interpolation, and quality assessment.
 """
 
-from datetime import date, datetime, timedelta
-from typing import Dict, List, Optional
+from datetime import date, timedelta
 
 import numpy as np
 import pandas as pd
-import pytest
 
 from big_mood_detector.infrastructure.sparse_data_handler import (
     AlignmentStrategy,
     DataDensity,
-    DensityMetrics,
     InterpolationMethod,
     SparseDataHandler,
 )

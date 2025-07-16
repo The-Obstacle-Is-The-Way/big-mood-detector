@@ -11,8 +11,7 @@ Design Patterns:
 """
 
 from dataclasses import dataclass, field
-from datetime import date, datetime, timedelta
-from typing import List, Optional
+from datetime import date, datetime
 
 from big_mood_detector.domain.entities.sleep_record import SleepRecord
 
@@ -30,7 +29,7 @@ class SleepWindow:
     end_time: datetime
     episode_count: int
     total_duration_hours: float
-    gap_hours: List[float] = field(default_factory=list)
+    gap_hours: list[float] = field(default_factory=list)
 
     @property
     def window_span_hours(self) -> float:
@@ -93,8 +92,8 @@ class SleepWindowAnalyzer:
         self.merge_threshold_hours = merge_threshold_hours
 
     def analyze_sleep_episodes(
-        self, episodes: List[SleepRecord], target_date: Optional[date] = None
-    ) -> List[SleepWindow]:
+        self, episodes: list[SleepRecord], target_date: date | None = None
+    ) -> list[SleepWindow]:
         """
         Analyze sleep episodes and merge into windows.
 
@@ -136,9 +135,9 @@ class SleepWindowAnalyzer:
         sorted_episodes = sorted(episodes, key=lambda e: e.start_date)
 
         # Initialize with first episode
-        windows: List[SleepWindow] = []
+        windows: list[SleepWindow] = []
         current_window_episodes = [sorted_episodes[0]]
-        current_gaps: List[float] = []
+        current_gaps: list[float] = []
 
         # Process remaining episodes
         for episode in sorted_episodes[1:]:
@@ -165,7 +164,7 @@ class SleepWindowAnalyzer:
         return windows
 
     def get_analysis_summary(
-        self, episodes: List[SleepRecord], days: int
+        self, episodes: list[SleepRecord], days: int
     ) -> WindowAnalysisResult:
         """
         Get comprehensive analysis summary for a period.
@@ -264,7 +263,7 @@ class SleepWindowAnalyzer:
             return 0.0
 
     def _create_window(
-        self, episodes: List[SleepRecord], gaps: List[float]
+        self, episodes: list[SleepRecord], gaps: list[float]
     ) -> SleepWindow:
         """
         Create a sleep window from episodes.
@@ -287,7 +286,7 @@ class SleepWindowAnalyzer:
             gap_hours=gaps,
         )
 
-    def _calculate_total_sleep_hours(self, episodes: List[SleepRecord]) -> float:
+    def _calculate_total_sleep_hours(self, episodes: list[SleepRecord]) -> float:
         """
         Calculate total sleep hours, handling overlapping episodes.
 

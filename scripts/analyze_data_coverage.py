@@ -5,9 +5,7 @@ Analyze Data Coverage and Quality
 This script provides a detailed analysis of data coverage and quality.
 """
 
-import json
 import sys
-from datetime import date, datetime
 from pathlib import Path
 
 import pandas as pd

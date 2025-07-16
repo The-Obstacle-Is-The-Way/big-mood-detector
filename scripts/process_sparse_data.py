@@ -11,7 +11,6 @@ from pathlib import Path
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from datetime import date
 
 from big_mood_detector.application.mood_prediction_pipeline import (
     MoodPredictionPipeline,
@@ -41,7 +40,7 @@ def main():
     )
 
     if not df.empty:
-        print(f"\n=== Feature Summary ===")
+        print("\n=== Feature Summary ===")
         print(f"Date range: {df.index.min()} to {df.index.max()}")
         print(f"Total days: {len(df)}")
 

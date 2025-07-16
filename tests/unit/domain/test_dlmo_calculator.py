@@ -8,10 +8,6 @@ from datetime import date, datetime, timedelta
 
 import pytest
 
-from big_mood_detector.domain.entities.activity_record import (
-    ActivityRecord,
-    ActivityType,
-)
 from big_mood_detector.domain.entities.sleep_record import SleepRecord, SleepState
 from big_mood_detector.domain.services.dlmo_calculator import (
     CircadianPhaseResult,

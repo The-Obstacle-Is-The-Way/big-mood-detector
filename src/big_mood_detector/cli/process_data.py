@@ -43,10 +43,10 @@ def main():
 Examples:
   # Process XML export
   %(prog)s --input export.xml --output features.csv
-  
+
   # Process JSON directory with date range
   %(prog)s --input health_data/ --output features.csv --start-date 2024-01-01
-  
+
   # Verbose mode for debugging
   %(prog)s --input export.xml --output features.csv --verbose
         """,

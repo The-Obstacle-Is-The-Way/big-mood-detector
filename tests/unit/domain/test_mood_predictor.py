@@ -2,7 +2,6 @@
 Unit tests for Mood Predictor Service
 """
 
-from pathlib import Path
 
 import numpy as np
 import pytest

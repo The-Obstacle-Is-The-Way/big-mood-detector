@@ -4,7 +4,7 @@ Test DLMO calculation to debug constant values.
 """
 
 import sys
-from datetime import date, datetime, timedelta
+from datetime import date, datetime
 from pathlib import Path
 
 # Add parent directory to path
@@ -108,7 +108,7 @@ def main():
         result = calculator.calculate_dlmo(sleep_records, target_date, days_to_model=3)
 
         if result:
-            print(f"\nResults:")
+            print("\nResults:")
             print(f"  DLMO Time: {result.dlmo_time} ({result.dlmo_hour:.2f} hours)")
             print(f"  CBT Minimum: {result.cbt_min_hour:.2f} hours")
             print(f"  CBT Amplitude: {result.cbt_amplitude:.4f}")

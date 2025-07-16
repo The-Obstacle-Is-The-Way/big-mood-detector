@@ -8,11 +8,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 import csv
 import json
-from datetime import date, datetime
 
-from big_mood_detector.domain.services.advanced_feature_engineering import (
-    AdvancedFeatureEngineer,
-)
 from big_mood_detector.domain.services.feature_extraction_service import (
     FeatureExtractionService,
 )
@@ -35,21 +31,21 @@ def main():
     # Parse data
     print("Parsing sleep data...")
     sleep_file = data_dir / "Sleep Analysis.json"
-    with open(sleep_file, "r") as f:
+    with open(sleep_file) as f:
         sleep_data = json.load(f)
     sleep_records = sleep_parser.parse(sleep_data)
     print(f"  Found {len(sleep_records)} sleep records")
 
     print("\nParsing heart rate data...")
     heart_rate_file = data_dir / "Heart Rate.json"
-    with open(heart_rate_file, "r") as f:
+    with open(heart_rate_file) as f:
         heart_rate_data = json.load(f)
     heart_rate_records = heart_rate_parser.parse(heart_rate_data)
     print(f"  Found {len(heart_rate_records)} heart rate records")
 
     print("\nParsing activity data...")
     step_count_file = data_dir / "Step Count.json"
-    with open(step_count_file, "r") as f:
+    with open(step_count_file) as f:
         step_data = json.load(f)
     activity_records = activity_parser.parse(step_data)
     print(f"  Found {len(activity_records)} activity records")

@@ -5,22 +5,17 @@ Tests the calculation of circadian rhythm metrics (IS, IV, RA, L5/M10)
 critical for bipolar disorder detection and phase analysis.
 """
 
-from datetime import date, datetime, timedelta
+from datetime import date, timedelta
 
 import numpy as np
 import pytest
 
-from big_mood_detector.domain.entities.activity_record import (
-    ActivityRecord,
-    ActivityType,
-)
 from big_mood_detector.domain.services.activity_sequence_extractor import (
     MinuteLevelSequence,
 )
 from big_mood_detector.domain.services.circadian_rhythm_analyzer import (
     CircadianMetrics,
     CircadianRhythmAnalyzer,
-    L5M10Analysis,
 )
 
 

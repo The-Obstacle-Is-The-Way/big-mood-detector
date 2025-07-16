@@ -5,15 +5,13 @@ Tests the merging of sleep episodes within 3.75-hour windows,
 critical for accurate bipolar disorder detection.
 """
 
-from datetime import datetime, timedelta
+from datetime import datetime
 
 import pytest
 
 from big_mood_detector.domain.entities.sleep_record import SleepRecord, SleepState
 from big_mood_detector.domain.services.sleep_window_analyzer import (
-    SleepWindow,
     SleepWindowAnalyzer,
-    WindowAnalysisResult,
 )
 
 

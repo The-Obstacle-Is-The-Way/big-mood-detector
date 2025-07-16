@@ -16,14 +16,10 @@ Design Principles:
 from dataclasses import dataclass
 from datetime import date, timedelta
 from pathlib import Path
-from typing import Dict, Iterator, List, Optional
 
 import numpy as np
 import pandas as pd
 
-from big_mood_detector.domain.entities.activity_record import ActivityRecord
-from big_mood_detector.domain.entities.heart_rate_record import HeartRateRecord
-from big_mood_detector.domain.entities.sleep_record import SleepRecord
 from big_mood_detector.domain.services.activity_sequence_extractor import (
     ActivitySequenceExtractor,
 )
@@ -40,9 +36,6 @@ from big_mood_detector.infrastructure.parsers.xml.streaming_adapter import (
     StreamingXMLParser,
 )
 from big_mood_detector.infrastructure.sparse_data_handler import (
-    AlignmentStrategy,
-    DataDensity,
-    InterpolationMethod,
     SparseDataHandler,
 )
 
@@ -107,7 +100,7 @@ class DailyFeatures:
     circadian_phase_std: float
     circadian_phase_zscore: float
 
-    def to_dict(self) -> Dict[str, float]:
+    def to_dict(self) -> dict[str, float]:
         """Convert to dictionary for DataFrame creation."""
         return {
             "date": self.date,
@@ -160,11 +153,11 @@ class MoodPredictionPipeline:
 
     def __init__(
         self,
-        sleep_analyzer: Optional[SleepWindowAnalyzer] = None,
-        activity_extractor: Optional[ActivitySequenceExtractor] = None,
-        circadian_analyzer: Optional[CircadianRhythmAnalyzer] = None,
-        dlmo_calculator: Optional[DLMOCalculator] = None,
-        sparse_handler: Optional[SparseDataHandler] = None,
+        sleep_analyzer: SleepWindowAnalyzer | None = None,
+        activity_extractor: ActivitySequenceExtractor | None = None,
+        circadian_analyzer: CircadianRhythmAnalyzer | None = None,
+        dlmo_calculator: DLMOCalculator | None = None,
+        sparse_handler: SparseDataHandler | None = None,
     ):
         """
         Initialize with domain services.
@@ -186,8 +179,8 @@ class MoodPredictionPipeline:
         self,
         export_path: Path,
         output_path: Path,
-        start_date: Optional[date] = None,
-        end_date: Optional[date] = None,
+        start_date: date | None = None,
+        end_date: date | None = None,
     ) -> pd.DataFrame:
         """
         Process complete Apple Health export.
@@ -262,7 +255,7 @@ class MoodPredictionPipeline:
 
         return df
 
-    def _process_xml_export(self, xml_path: Path) -> Dict[str, List]:
+    def _process_xml_export(self, xml_path: Path) -> dict[str, list]:
         """Process Apple Health XML export."""
         records = {"sleep": [], "activity": [], "heart_rate": []}
 
@@ -281,7 +274,7 @@ class MoodPredictionPipeline:
 
         return records
 
-    def _process_json_export(self, json_dir: Path) -> Dict[str, List]:
+    def _process_json_export(self, json_dir: Path) -> dict[str, list]:
         """Process Health Auto Export JSON files."""
         records = {"sleep": [], "activity": [], "heart_rate": []}
 
@@ -306,10 +299,10 @@ class MoodPredictionPipeline:
 
     def _extract_daily_features(
         self,
-        records: Dict[str, List],
-        start_date: Optional[date],
-        end_date: Optional[date],
-    ) -> List[DailyFeatures]:
+        records: dict[str, list],
+        start_date: date | None,
+        end_date: date | None,
+    ) -> list[DailyFeatures]:
         """
         Extract 36 features for each day.
 
@@ -449,7 +442,7 @@ class MoodPredictionPipeline:
 
     def _calculate_daily_metrics(
         self, sleep_windows, activity_sequence, circadian_metrics, dlmo_result
-    ) -> Optional[Dict]:
+    ) -> dict | None:
         """Calculate raw metrics for a single day."""
         if not sleep_windows:
             return None
@@ -499,10 +492,10 @@ class MoodPredictionPipeline:
     def _calculate_features_with_stats(
         self,
         current_date: date,
-        daily_metrics: Dict,
-        sleep_window: List[Dict],
-        circadian_window: List[Dict],
-    ) -> Optional[DailyFeatures]:
+        daily_metrics: dict,
+        sleep_window: list[dict],
+        circadian_window: list[dict],
+    ) -> DailyFeatures | None:
         """Calculate features with mean, std, and z-scores."""
         if not daily_metrics or not daily_metrics["sleep"]:
             return None
@@ -617,8 +610,8 @@ class MoodPredictionPipeline:
 def process_health_data(
     input_path: str,
     output_path: str,
-    start_date: Optional[str] = None,
-    end_date: Optional[str] = None,
+    start_date: str | None = None,
+    end_date: str | None = None,
 ) -> pd.DataFrame:
     """
     Process health data from command line.

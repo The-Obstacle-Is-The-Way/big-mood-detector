@@ -10,11 +10,8 @@ Design Patterns:
 - Value Objects: Immutable sequence and analysis results
 """
 
-from dataclasses import dataclass, field
-from datetime import date, datetime, time, timedelta
-from typing import List, Optional, Tuple
-
-import numpy as np
+from dataclasses import dataclass
+from datetime import date, datetime
 
 from big_mood_detector.domain.entities.activity_record import (
     ActivityRecord,
@@ -31,7 +28,7 @@ class MinuteLevelSequence:
     """
 
     date: date
-    activity_values: List[float]  # Length 1440
+    activity_values: list[float]  # Length 1440
 
     @property
     def total_activity(self) -> float:
@@ -48,7 +45,7 @@ class MinuteLevelSequence:
         """Maximum activity in any single minute."""
         return max(self.activity_values) if self.activity_values else 0
 
-    def get_hour_totals(self) -> List[float]:
+    def get_hour_totals(self) -> list[float]:
         """Get total activity for each hour (24 values)."""
         hour_totals = []
         for hour in range(24):
@@ -66,7 +63,7 @@ class MinuteLevelSequence:
         idx = min(idx, len(sorted_values) - 1)
         return sorted_values[idx]
 
-    def get_smoothed_values(self, window_size: int = 5) -> List[float]:
+    def get_smoothed_values(self, window_size: int = 5) -> list[float]:
         """Get moving average smoothed values."""
         if window_size <= 1:
             return self.activity_values.copy()
@@ -115,7 +112,7 @@ class ActivitySequenceExtractor:
     MINUTES_PER_HOUR = 60
 
     def extract_daily_sequence(
-        self, records: List[ActivityRecord], target_date: date
+        self, records: list[ActivityRecord], target_date: date
     ) -> MinuteLevelSequence:
         """
         Extract minute-level activity sequence for a specific date.
@@ -177,7 +174,7 @@ class ActivitySequenceExtractor:
         return MinuteLevelSequence(date=target_date, activity_values=activity_values)
 
     def calculate_pat(
-        self, records: List[ActivityRecord], target_date: date
+        self, records: list[ActivityRecord], target_date: date
     ) -> PATAnalysisResult:
         """
         Calculate Principal Activity Time and related metrics.
@@ -257,7 +254,7 @@ class ActivitySequenceExtractor:
 
     def calculate_circadian_alignment(
         self,
-        records: List[ActivityRecord],
+        records: list[ActivityRecord],
         target_date: date,
         sleep_start_hour: int = 23,
         sleep_end_hour: int = 7,

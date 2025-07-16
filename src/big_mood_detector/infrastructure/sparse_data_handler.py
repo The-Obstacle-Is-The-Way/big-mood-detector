@@ -7,16 +7,13 @@ and variable data density. Implements 2025 best practices for robust analysis.
 Based on research in docs/sparse_temporal_data_research_2025.md
 """
 
-import warnings
 from dataclasses import dataclass
-from datetime import date, datetime, timedelta
+from datetime import date
 from enum import Enum, auto
-from typing import Dict, List, Optional, Tuple, Union
 
 import numpy as np
 import pandas as pd
 from scipy import interpolate
-from scipy.signal import find_peaks
 
 
 class DataDensity(Enum):
@@ -58,7 +55,7 @@ class DensityMetrics:
     max_gap_days: int  # Largest gap in days
     consecutive_days: int  # Longest consecutive run
     total_days: int  # Total days in range
-    missing_patterns: Dict  # Patterns in missingness
+    missing_patterns: dict  # Patterns in missingness
     density_class: DataDensity
 
     @property
@@ -73,9 +70,9 @@ class ProcessingStrategy:
 
     algorithm: str
     confidence: float
-    interpolation_method: Optional[InterpolationMethod]
-    features_available: List[str]
-    warnings: List[str]
+    interpolation_method: InterpolationMethod | None
+    features_available: list[str]
+    warnings: list[str]
 
 
 class SparseDataHandler:
@@ -101,7 +98,7 @@ class SparseDataHandler:
         self.min_confidence_threshold = min_confidence_threshold
 
     def assess_density(
-        self, dates: Union[List[date], pd.DatetimeIndex]
+        self, dates: list[date] | pd.DatetimeIndex
     ) -> DensityMetrics:
         """
         Assess the density and quality of temporal data.
@@ -176,8 +173,8 @@ class SparseDataHandler:
         )
 
     def _analyze_missing_patterns(
-        self, dates: List[date], start: date, end: date
-    ) -> Dict:
+        self, dates: list[date], start: date, end: date
+    ) -> dict:
         """Analyze patterns in missing data."""
         date_set = set(dates)
         all_dates = pd.date_range(start, end, freq="D")
@@ -202,7 +199,7 @@ class SparseDataHandler:
             "periodic": self._check_periodic_pattern(missing_dates),
         }
 
-    def _check_periodic_pattern(self, missing_dates: List[date]) -> bool:
+    def _check_periodic_pattern(self, missing_dates: list[date]) -> bool:
         """Check if missing dates follow a periodic pattern."""
         if len(missing_dates) < 3:
             return False
@@ -225,7 +222,7 @@ class SparseDataHandler:
 
     def align_sensors(
         self,
-        sensor_data: Dict[str, pd.DataFrame],
+        sensor_data: dict[str, pd.DataFrame],
         strategy: AlignmentStrategy = AlignmentStrategy.INTERSECTION,
     ) -> pd.DataFrame:
         """
@@ -334,7 +331,7 @@ class SparseDataHandler:
         self,
         df: pd.DataFrame,
         method: InterpolationMethod = InterpolationMethod.LINEAR,
-        max_gap_hours: Optional[int] = None,
+        max_gap_hours: int | None = None,
     ) -> pd.DataFrame:
         """
         Interpolate missing values with appropriate method.
@@ -455,7 +452,7 @@ class SparseDataHandler:
 
         return result
 
-    def extract_missingness_features(self, df: pd.DataFrame) -> Dict[str, float]:
+    def extract_missingness_features(self, df: pd.DataFrame) -> dict[str, float]:
         """
         Extract features from missing data patterns.
 
@@ -517,7 +514,7 @@ class SparseDataHandler:
 
         return features
 
-    def compute_confidence(self, dates: Union[List[date], pd.DatetimeIndex]) -> float:
+    def compute_confidence(self, dates: list[date] | pd.DatetimeIndex) -> float:
         """
         Compute confidence score based on data density.
 
@@ -548,7 +545,7 @@ class SparseDataHandler:
 
         return np.clip(confidence, 0.0, 1.0)
 
-    def select_processing_strategy(self, dates: List[date]) -> ProcessingStrategy:
+    def select_processing_strategy(self, dates: list[date]) -> ProcessingStrategy:
         """
         Select appropriate processing strategy based on data characteristics.
 
@@ -594,8 +591,8 @@ class SparseDataHandler:
             )
 
     def get_available_features(
-        self, dates: Union[List[date], pd.DatetimeIndex]
-    ) -> Dict[str, bool]:
+        self, dates: list[date] | pd.DatetimeIndex
+    ) -> dict[str, bool]:
         """
         Determine which features can be calculated given data density.
 
@@ -628,10 +625,10 @@ class SparseDataHandler:
 
     def find_analysis_windows(
         self,
-        sleep_dates: List[date],
-        activity_dates: List[date],
+        sleep_dates: list[date],
+        activity_dates: list[date],
         min_overlap_days: int = 3,
-    ) -> List[Tuple[date, date]]:
+    ) -> list[tuple[date, date]]:
         """
         Find windows where multiple sensors have sufficient overlap.
 
@@ -670,7 +667,7 @@ class SparseDataHandler:
 
         return windows
 
-    def get_recommendation(self, windows: List[Tuple[date, date]]) -> str:
+    def get_recommendation(self, windows: list[tuple[date, date]]) -> str:
         """Get recommendation based on available windows."""
         if not windows:
             return "Use sensor-specific analysis"
@@ -680,8 +677,8 @@ class SparseDataHandler:
             return "Sufficient overlap for integrated analysis"
 
     def find_consecutive_windows(
-        self, dates: List[date], min_consecutive_days: int = 3
-    ) -> List[List[date]]:
+        self, dates: list[date], min_consecutive_days: int = 3
+    ) -> list[list[date]]:
         """
         Find windows of consecutive days.
 

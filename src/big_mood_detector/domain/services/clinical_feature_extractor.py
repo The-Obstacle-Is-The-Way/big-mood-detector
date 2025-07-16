@@ -20,8 +20,7 @@ Design Principles:
 """
 
 from dataclasses import dataclass, field
-from datetime import date, datetime, timedelta
-from typing import Any, Dict, List, Optional
+from datetime import date, timedelta
 
 import numpy as np
 
@@ -110,7 +109,7 @@ class SeoulXGBoostFeatures:
     is_phase_delayed: bool = False
     is_irregular_pattern: bool = False
 
-    def to_xgboost_features(self) -> List[float]:
+    def to_xgboost_features(self) -> list[float]:
         """
         Convert to 36-element feature vector for XGBoost model.
 
@@ -173,16 +172,16 @@ class ClinicalFeatureSet:
 
     date: date
     seoul_features: SeoulXGBoostFeatures
-    pat_sequence: Optional[PATSequence] = None
+    pat_sequence: PATSequence | None = None
 
     # Clinical indicators
     is_clinically_significant: bool = False
-    clinical_notes: List[str] = field(default_factory=list)
+    clinical_notes: list[str] = field(default_factory=list)
 
     # Risk scores (populated after model inference)
-    depression_risk_score: Optional[float] = None
-    mania_risk_score: Optional[float] = None
-    hypomania_risk_score: Optional[float] = None
+    depression_risk_score: float | None = None
+    mania_risk_score: float | None = None
+    hypomania_risk_score: float | None = None
 
 
 class ClinicalFeatureExtractor:
@@ -203,9 +202,9 @@ class ClinicalFeatureExtractor:
 
     def extract_seoul_features(
         self,
-        sleep_records: List[SleepRecord],
-        activity_records: List[ActivityRecord],
-        heart_records: List[HeartRateRecord],
+        sleep_records: list[SleepRecord],
+        activity_records: list[ActivityRecord],
+        heart_records: list[HeartRateRecord],
         target_date: date,
         min_days_required: int = 7,
     ) -> SeoulXGBoostFeatures:
@@ -344,8 +343,8 @@ class ClinicalFeatureExtractor:
         )
 
     def extract_pat_sequence(
-        self, activity_records: List[ActivityRecord], end_date: date
-    ) -> Optional[PATSequence]:
+        self, activity_records: list[ActivityRecord], end_date: date
+    ) -> PATSequence | None:
         """
         Extract 7-day PAT sequence for transformer model.
 
@@ -367,9 +366,9 @@ class ClinicalFeatureExtractor:
 
     def extract_clinical_features(
         self,
-        sleep_records: List[SleepRecord],
-        activity_records: List[ActivityRecord],
-        heart_records: List[HeartRateRecord],
+        sleep_records: list[SleepRecord],
+        activity_records: list[ActivityRecord],
+        heart_records: list[HeartRateRecord],
         target_date: date,
         include_pat_sequence: bool = False,
     ) -> ClinicalFeatureSet:
@@ -436,7 +435,7 @@ class ClinicalFeatureExtractor:
         )
 
     def _extract_sleep_onset_hour(
-        self, sleep_records: List[SleepRecord], target_date: date
+        self, sleep_records: list[SleepRecord], target_date: date
     ) -> float:
         """Extract sleep onset hour for target date."""
         for record in sleep_records:
@@ -445,7 +444,7 @@ class ClinicalFeatureExtractor:
         return 23.0  # Default
 
     def _extract_wake_time_hour(
-        self, sleep_records: List[SleepRecord], target_date: date
+        self, sleep_records: list[SleepRecord], target_date: date
     ) -> float:
         """Extract wake time hour for target date."""
         for record in sleep_records:
@@ -454,7 +453,7 @@ class ClinicalFeatureExtractor:
         return 7.0  # Default
 
     def _calculate_sleep_fragmentation(
-        self, sleep_records: List[SleepRecord], target_date: date
+        self, sleep_records: list[SleepRecord], target_date: date
     ) -> float:
         """Calculate sleep fragmentation index."""
         # Count number of sleep episodes on target date
@@ -466,7 +465,7 @@ class ClinicalFeatureExtractor:
         return min(1.0, (len(episodes) - 1) / 3.0)
 
     def _calculate_activity_variance(
-        self, activity_records: List[ActivityRecord]
+        self, activity_records: list[ActivityRecord]
     ) -> float:
         """Calculate variance in activity levels."""
         if not activity_records:
@@ -476,7 +475,7 @@ class ClinicalFeatureExtractor:
         return float(np.var(values))
 
     def _calculate_hr_circadian_range(
-        self, heart_records: List[HeartRateRecord]
+        self, heart_records: list[HeartRateRecord]
     ) -> float:
         """Calculate circadian range in heart rate."""
         if not heart_records:
@@ -486,7 +485,7 @@ class ClinicalFeatureExtractor:
         return max(values) - min(values)
 
     def _find_hr_minimum_hour(
-        self, heart_records: List[HeartRateRecord], target_date: date
+        self, heart_records: list[HeartRateRecord], target_date: date
     ) -> float:
         """Find hour of minimum heart rate."""
         if not heart_records:

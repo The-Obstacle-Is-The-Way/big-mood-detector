@@ -6,7 +6,6 @@ Tests the comprehensive feature extraction pipeline for Seoul XGBoost approach.
 from datetime import date, datetime, timedelta
 
 import numpy as np
-import pytest
 
 from big_mood_detector.domain.entities.activity_record import (
     ActivityRecord,

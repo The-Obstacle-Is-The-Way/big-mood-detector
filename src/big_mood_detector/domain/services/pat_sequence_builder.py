@@ -18,7 +18,6 @@ Design Principles:
 
 from dataclasses import dataclass
 from datetime import date, timedelta
-from typing import List, Optional, Tuple
 
 import numpy as np
 
@@ -39,7 +38,7 @@ class PATSequence:
 
     end_date: date  # Last day of the sequence
     activity_values: np.ndarray  # Shape: (10080,)
-    missing_days: List[date]  # Days with no data
+    missing_days: list[date]  # Days with no data
     data_quality_score: float  # 0-1, based on completeness
 
     @property
@@ -105,7 +104,7 @@ class PATSequenceBuilder:
     MINUTES_PER_DAY = 1440
     TOTAL_MINUTES = SEQUENCE_DAYS * MINUTES_PER_DAY  # 10,080
 
-    def __init__(self, sequence_extractor: Optional[ActivitySequenceExtractor] = None):
+    def __init__(self, sequence_extractor: ActivitySequenceExtractor | None = None):
         """
         Initialize builder with optional custom extractor.
 
@@ -116,7 +115,7 @@ class PATSequenceBuilder:
 
     def build_sequence(
         self,
-        activity_records: List[ActivityRecord],
+        activity_records: list[ActivityRecord],
         end_date: date,
         interpolate_missing: bool = True,
     ) -> PATSequence:
@@ -173,11 +172,11 @@ class PATSequenceBuilder:
 
     def build_multiple_sequences(
         self,
-        activity_records: List[ActivityRecord],
+        activity_records: list[ActivityRecord],
         start_date: date,
         end_date: date,
         stride_days: int = 1,
-    ) -> List[PATSequence]:
+    ) -> list[PATSequence]:
         """
         Build multiple overlapping sequences for a date range.
 
@@ -204,7 +203,7 @@ class PATSequenceBuilder:
         return sequences
 
     def _combine_sequences(
-        self, daily_sequences: List[MinuteLevelSequence]
+        self, daily_sequences: list[MinuteLevelSequence]
     ) -> np.ndarray:
         """
         Combine daily sequences into a single 7-day array.
@@ -223,7 +222,7 @@ class PATSequenceBuilder:
         return np.array(all_values, dtype=np.float32)
 
     def _interpolate_missing_days(
-        self, values: np.ndarray, missing_days: List[date], start_date: date
+        self, values: np.ndarray, missing_days: list[date], start_date: date
     ) -> np.ndarray:
         """
         Interpolate missing days using neighboring data.

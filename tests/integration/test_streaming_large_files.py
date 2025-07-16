@@ -68,7 +68,7 @@ class TestStreamingLargeFiles:
                 print(f"  Processed {counts['total']:,} records...")
 
         # Final report
-        print(f"\nFinal counts:")
+        print("\nFinal counts:")
         print(f"  Sleep records: {counts['sleep']:,}")
         print(f"  Activity records: {counts['activity']:,}")
         print(f"  Heart rate records: {counts['heart']:,}")
