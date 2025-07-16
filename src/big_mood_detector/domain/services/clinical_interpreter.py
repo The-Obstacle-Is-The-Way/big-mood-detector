@@ -173,6 +173,7 @@ class ClinicalInterpreter:
         self.biomarker_interpreter = BiomarkerInterpreter(config)
         self.treatment_recommender = TreatmentRecommender(config)
         self.dsm5_evaluator = DSM5CriteriaEvaluator(config)
+        self.risk_assessor = RiskLevelAssessor(config)
 
     def interpret_depression_score(
         self,
