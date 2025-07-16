@@ -7,7 +7,7 @@ Following Clean Architecture infrastructure patterns.
 
 import xml.etree.ElementTree as ET
 from datetime import datetime
-from typing import Any
+from typing import Any, Union
 from xml.etree.ElementTree import ParseError
 
 from big_mood_detector.domain.entities.activity_record import (
@@ -32,12 +32,12 @@ class ActivityParser:
         "HKQuantityTypeIdentifierAppleStandTime",
     ]
 
-    def parse(self, xml_data: str) -> list[dict[str, Any]]:
+    def parse(self, xml_data: Union[str, ET.Element]) -> list[dict[str, Any]]:
         """
         Parse XML data and extract activity records.
 
         Args:
-            xml_data: Raw XML string from Apple Health export
+            xml_data: Raw XML string or ElementTree.Element from Apple Health export
 
         Returns:
             List of activity record dictionaries
@@ -45,10 +45,17 @@ class ActivityParser:
         Raises:
             ValueError: If XML is invalid
         """
-        try:
-            root = ET.fromstring(xml_data)
-        except ParseError as e:
-            raise ValueError(f"Invalid XML: {str(e)}") from e
+        if isinstance(xml_data, str):
+            try:
+                root = ET.fromstring(xml_data)
+            except ParseError as e:
+                raise ValueError(f"Invalid XML: {str(e)}") from e
+        elif isinstance(xml_data, ET.Element):
+            root = xml_data
+        else:
+            raise ValueError(
+                f"Expected string or ElementTree.Element, got {type(xml_data)}"
+            )
 
         activity_records = []
 
@@ -59,12 +66,12 @@ class ActivityParser:
 
         return activity_records
 
-    def parse_to_entities(self, xml_data: str) -> list[ActivityRecord]:
+    def parse_to_entities(self, xml_data: Union[str, ET.Element]) -> list[ActivityRecord]:
         """
         Parse XML data to domain entities.
 
         Args:
-            xml_data: Raw XML string from Apple Health export
+            xml_data: Raw XML string or ElementTree.Element from Apple Health export
 
         Returns:
             List of ActivityRecord domain entities

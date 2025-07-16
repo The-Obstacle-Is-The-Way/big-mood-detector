@@ -7,7 +7,7 @@ Following Clean Architecture infrastructure patterns.
 
 import xml.etree.ElementTree as ET
 from datetime import datetime
-from typing import Any
+from typing import Any, Union
 from xml.etree.ElementTree import ParseError
 
 from big_mood_detector.domain.entities.heart_rate_record import (
@@ -31,12 +31,12 @@ class HeartRateParser:
         "HKQuantityTypeIdentifierHeartRateRecoveryOneMinute",
     ]
 
-    def parse(self, xml_data: str) -> list[dict[str, Any]]:
+    def parse(self, xml_data: Union[str, ET.Element]) -> list[dict[str, Any]]:
         """
         Parse XML data and extract heart rate records.
 
         Args:
-            xml_data: Raw XML string from Apple Health export
+            xml_data: Raw XML string or ElementTree.Element from Apple Health export
 
         Returns:
             List of heart rate record dictionaries
@@ -44,10 +44,17 @@ class HeartRateParser:
         Raises:
             ValueError: If XML is invalid
         """
-        try:
-            root = ET.fromstring(xml_data)
-        except ParseError as e:
-            raise ValueError(f"Invalid XML: {str(e)}") from e
+        if isinstance(xml_data, str):
+            try:
+                root = ET.fromstring(xml_data)
+            except ParseError as e:
+                raise ValueError(f"Invalid XML: {str(e)}") from e
+        elif isinstance(xml_data, ET.Element):
+            root = xml_data
+        else:
+            raise ValueError(
+                f"Expected string or ElementTree.Element, got {type(xml_data)}"
+            )
 
         heart_records = []
 
@@ -58,12 +65,12 @@ class HeartRateParser:
 
         return heart_records
 
-    def parse_to_entities(self, xml_data: str) -> list[HeartRateRecord]:
+    def parse_to_entities(self, xml_data: Union[str, ET.Element]) -> list[HeartRateRecord]:
         """
         Parse XML data to domain entities.
 
         Args:
-            xml_data: Raw XML string from Apple Health export
+            xml_data: Raw XML string or ElementTree.Element from Apple Health export
 
         Returns:
             List of HeartRateRecord domain entities
@@ -99,9 +106,11 @@ class HeartRateParser:
         }
 
         # Extract motion context if present
-        motion_context_elem = record_element.find("HeartRateMotionContext")
-        if motion_context_elem is not None:
-            data["motionContext"] = motion_context_elem.text
+        # Check for MetadataEntry with HKMetadataKeyHeartRateMotionContext
+        for metadata in record_element.findall("MetadataEntry"):
+            if metadata.get("key") == "HKMetadataKeyHeartRateMotionContext":
+                data["motionContext"] = metadata.get("value")
+                break
 
         return data
 

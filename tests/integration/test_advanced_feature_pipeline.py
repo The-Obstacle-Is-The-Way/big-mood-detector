@@ -27,7 +27,7 @@ class TestAdvancedFeaturePipeline:
 <HealthData locale="en_US">
   <ExportDate value="2024-01-20 10:00:00 -0800"/>
   
-  <!-- Multiple days of sleep data for temporal features -->
+  <!-- Multiple days of sleep data for temporal features (need at least 7 days history) -->
   <Record type="HKCategoryTypeIdentifierSleepAnalysis" sourceName="Apple Watch" value="HKCategoryValueSleepAnalysisAsleepCore" startDate="2024-01-01 23:00:00 -0800" endDate="2024-01-02 03:00:00 -0800"/>
   <Record type="HKCategoryTypeIdentifierSleepAnalysis" sourceName="Apple Watch" value="HKCategoryValueSleepAnalysisAsleepREM" startDate="2024-01-02 03:00:00 -0800" endDate="2024-01-02 05:00:00 -0800"/>
   <Record type="HKCategoryTypeIdentifierSleepAnalysis" sourceName="Apple Watch" value="HKCategoryValueSleepAnalysisAsleepDeep" startDate="2024-01-02 05:00:00 -0800" endDate="2024-01-02 07:00:00 -0800"/>
@@ -38,15 +38,34 @@ class TestAdvancedFeaturePipeline:
   <Record type="HKCategoryTypeIdentifierSleepAnalysis" sourceName="Apple Watch" value="HKCategoryValueSleepAnalysisAsleepCore" startDate="2024-01-03 23:15:00 -0800" endDate="2024-01-04 03:15:00 -0800"/>
   <Record type="HKCategoryTypeIdentifierSleepAnalysis" sourceName="Apple Watch" value="HKCategoryValueSleepAnalysisAsleepDeep" startDate="2024-01-04 03:15:00 -0800" endDate="2024-01-04 06:45:00 -0800"/>
   
+  <Record type="HKCategoryTypeIdentifierSleepAnalysis" sourceName="Apple Watch" value="HKCategoryValueSleepAnalysisAsleepCore" startDate="2024-01-04 23:00:00 -0800" endDate="2024-01-05 07:00:00 -0800"/>
+  <Record type="HKCategoryTypeIdentifierSleepAnalysis" sourceName="Apple Watch" value="HKCategoryValueSleepAnalysisAsleepCore" startDate="2024-01-05 22:45:00 -0800" endDate="2024-01-06 06:45:00 -0800"/>
+  <Record type="HKCategoryTypeIdentifierSleepAnalysis" sourceName="Apple Watch" value="HKCategoryValueSleepAnalysisAsleepCore" startDate="2024-01-06 23:30:00 -0800" endDate="2024-01-07 07:30:00 -0800"/>
+  <Record type="HKCategoryTypeIdentifierSleepAnalysis" sourceName="Apple Watch" value="HKCategoryValueSleepAnalysisAsleepCore" startDate="2024-01-07 23:00:00 -0800" endDate="2024-01-08 07:00:00 -0800"/>
+  <Record type="HKCategoryTypeIdentifierSleepAnalysis" sourceName="Apple Watch" value="HKCategoryValueSleepAnalysisAsleepCore" startDate="2024-01-08 22:30:00 -0800" endDate="2024-01-09 06:30:00 -0800"/>
+  <Record type="HKCategoryTypeIdentifierSleepAnalysis" sourceName="Apple Watch" value="HKCategoryValueSleepAnalysisAsleepCore" startDate="2024-01-09 23:00:00 -0800" endDate="2024-01-10 07:00:00 -0800"/>
+  
   <!-- Activity data -->
   <Record type="HKQuantityTypeIdentifierStepCount" sourceName="iPhone" value="8000" startDate="2024-01-02 08:00:00 -0800" endDate="2024-01-02 18:00:00 -0800" unit="count"/>
   <Record type="HKQuantityTypeIdentifierStepCount" sourceName="iPhone" value="12000" startDate="2024-01-03 08:00:00 -0800" endDate="2024-01-03 18:00:00 -0800" unit="count"/>
   <Record type="HKQuantityTypeIdentifierStepCount" sourceName="iPhone" value="6000" startDate="2024-01-04 08:00:00 -0800" endDate="2024-01-04 18:00:00 -0800" unit="count"/>
+  <Record type="HKQuantityTypeIdentifierStepCount" sourceName="iPhone" value="9000" startDate="2024-01-05 08:00:00 -0800" endDate="2024-01-05 18:00:00 -0800" unit="count"/>
+  <Record type="HKQuantityTypeIdentifierStepCount" sourceName="iPhone" value="7500" startDate="2024-01-06 08:00:00 -0800" endDate="2024-01-06 18:00:00 -0800" unit="count"/>
+  <Record type="HKQuantityTypeIdentifierStepCount" sourceName="iPhone" value="10000" startDate="2024-01-07 08:00:00 -0800" endDate="2024-01-07 18:00:00 -0800" unit="count"/>
+  <Record type="HKQuantityTypeIdentifierStepCount" sourceName="iPhone" value="8500" startDate="2024-01-08 08:00:00 -0800" endDate="2024-01-08 18:00:00 -0800" unit="count"/>
+  <Record type="HKQuantityTypeIdentifierStepCount" sourceName="iPhone" value="11000" startDate="2024-01-09 08:00:00 -0800" endDate="2024-01-09 18:00:00 -0800" unit="count"/>
+  <Record type="HKQuantityTypeIdentifierStepCount" sourceName="iPhone" value="9500" startDate="2024-01-10 08:00:00 -0800" endDate="2024-01-10 18:00:00 -0800" unit="count"/>
   
   <!-- Heart rate data -->
   <Record type="HKQuantityTypeIdentifierHeartRate" sourceName="Apple Watch" value="65" startDate="2024-01-02 06:00:00 -0800" endDate="2024-01-02 06:01:00 -0800" unit="count/min"/>
   <Record type="HKQuantityTypeIdentifierHeartRate" sourceName="Apple Watch" value="70" startDate="2024-01-03 06:00:00 -0800" endDate="2024-01-03 06:01:00 -0800" unit="count/min"/>
   <Record type="HKQuantityTypeIdentifierHeartRate" sourceName="Apple Watch" value="68" startDate="2024-01-04 06:00:00 -0800" endDate="2024-01-04 06:01:00 -0800" unit="count/min"/>
+  <Record type="HKQuantityTypeIdentifierHeartRate" sourceName="Apple Watch" value="66" startDate="2024-01-05 06:00:00 -0800" endDate="2024-01-05 06:01:00 -0800" unit="count/min"/>
+  <Record type="HKQuantityTypeIdentifierHeartRate" sourceName="Apple Watch" value="64" startDate="2024-01-06 06:00:00 -0800" endDate="2024-01-06 06:01:00 -0800" unit="count/min"/>
+  <Record type="HKQuantityTypeIdentifierHeartRate" sourceName="Apple Watch" value="67" startDate="2024-01-07 06:00:00 -0800" endDate="2024-01-07 06:01:00 -0800" unit="count/min"/>
+  <Record type="HKQuantityTypeIdentifierHeartRate" sourceName="Apple Watch" value="69" startDate="2024-01-08 06:00:00 -0800" endDate="2024-01-08 06:01:00 -0800" unit="count/min"/>
+  <Record type="HKQuantityTypeIdentifierHeartRate" sourceName="Apple Watch" value="65" startDate="2024-01-09 06:00:00 -0800" endDate="2024-01-09 06:01:00 -0800" unit="count/min"/>
+  <Record type="HKQuantityTypeIdentifierHeartRate" sourceName="Apple Watch" value="66" startDate="2024-01-10 06:00:00 -0800" endDate="2024-01-10 06:01:00 -0800" unit="count/min"/>
 </HealthData>"""
         
         # Create a temporary file
@@ -65,9 +84,10 @@ class TestAdvancedFeaturePipeline:
         parser = UnifiedHealthDataParser()
         parser.add_xml_export(sample_xml_file)
 
-        sleep_records = parser.get_all_sleep_records()
-        activity_records = parser.get_all_activity_records()
-        heart_records = parser.get_all_heart_rate_records()
+        all_records = parser.get_all_records()
+        sleep_records = all_records['sleep']
+        activity_records = all_records['activity']
+        heart_records = all_records['heart_rate']
 
         # Extract advanced features
         service = FeatureExtractionService()
@@ -118,9 +138,10 @@ class TestAdvancedFeaturePipeline:
         parser = UnifiedHealthDataParser()
         parser.add_xml_export(sample_xml_file)
 
-        sleep_records = parser.get_all_sleep_records()
-        activity_records = parser.get_all_activity_records()
-        heart_records = parser.get_all_heart_rate_records()
+        all_records = parser.get_all_records()
+        sleep_records = all_records['sleep']
+        activity_records = all_records['activity']
+        heart_records = all_records['heart_rate']
 
         # Extract features
         service = FeatureExtractionService()
@@ -161,9 +182,10 @@ class TestAdvancedFeaturePipeline:
         parser = UnifiedHealthDataParser()
         parser.add_xml_export(sample_xml_file)
 
-        sleep_records = parser.get_all_sleep_records()
-        activity_records = parser.get_all_activity_records()
-        heart_records = parser.get_all_heart_rate_records()
+        all_records = parser.get_all_records()
+        sleep_records = all_records['sleep']
+        activity_records = all_records['activity']
+        heart_records = all_records['heart_rate']
 
         # Extract features
         service = FeatureExtractionService()

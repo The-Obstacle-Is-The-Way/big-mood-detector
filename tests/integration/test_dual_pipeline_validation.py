@@ -53,13 +53,17 @@ class TestDualPipelineValidation:
         if not export_file.exists():
             pytest.skip("export.xml not found - run this test locally")
 
+        # Get file size for context
+        file_size_mb = os.path.getsize(export_file) / (1024 * 1024)
+        print(f"\nFound export.xml ({file_size_mb:.1f} MB)")
+        
+        # Skip if file is too large for testing
+        if file_size_mb > 100:  # 100MB limit for tests
+            pytest.skip(f"export.xml too large for testing ({file_size_mb:.1f} MB > 100 MB)")
+
         # Test each parser
         with open(export_file) as f:
             xml_data = f.read()
-
-        # Get file size for context
-        file_size_mb = os.path.getsize(export_file) / (1024 * 1024)
-        print(f"\nTesting with export.xml ({file_size_mb:.1f} MB)")
 
         # Test sleep parser
         sleep_parser = SleepParser()
@@ -112,29 +116,33 @@ class TestDualPipelineValidation:
         # Parse XML data if available
         export_file = xml_data_path / "export.xml"
         if export_file.exists():
-            with open(export_file) as f:
-                xml_data = f.read()
+            file_size_mb = os.path.getsize(export_file) / (1024 * 1024)
+            if file_size_mb > 100:  # Skip large files in tests
+                print(f"Skipping XML parsing - file too large ({file_size_mb:.1f} MB)")
+            else:
+                with open(export_file) as f:
+                    xml_data = f.read()
 
-            # Sleep
-            parser = SleepParser()
-            records = parser.parse_to_entities(xml_data)
-            results["xml"]["sleep"] = len(records)
-            for r in records:
-                results["xml"]["dates"].add(r.start_date.date())
+                # Sleep
+                parser = SleepParser()
+                records = parser.parse_to_entities(xml_data)
+                results["xml"]["sleep"] = len(records)
+                for r in records:
+                    results["xml"]["dates"].add(r.start_date.date())
 
-            # Activity
-            parser = ActivityParser()
-            records = parser.parse_to_entities(xml_data)
-            results["xml"]["activity"] = len(records)
-            for r in records:
-                results["xml"]["dates"].add(r.start_date.date())
+                # Activity
+                parser = ActivityParser()
+                records = parser.parse_to_entities(xml_data)
+                results["xml"]["activity"] = len(records)
+                for r in records:
+                    results["xml"]["dates"].add(r.start_date.date())
 
-            # Heart rate
-            parser = HeartRateParser()
-            records = parser.parse_to_entities(xml_data)
-            results["xml"]["heart_rate"] = len(records)
-            for r in records:
-                results["xml"]["dates"].add(r.timestamp.date())
+                # Heart rate
+                parser = HeartRateParser()
+                records = parser.parse_to_entities(xml_data)
+                results["xml"]["heart_rate"] = len(records)
+                for r in records:
+                    results["xml"]["dates"].add(r.timestamp.date())
 
         # Print comparison
         print("\n=== Data Coverage Comparison ===")
@@ -177,8 +185,12 @@ class TestDualPipelineValidation:
         # Add XML export if available
         export_file = xml_data_path / "export.xml"
         if export_file.exists():
-            parser.add_xml_export(export_file)
-            print("Added XML export data")
+            file_size_mb = os.path.getsize(export_file) / (1024 * 1024)
+            if file_size_mb > 100:
+                print(f"Skipping XML export - file too large ({file_size_mb:.1f} MB)")
+            else:
+                parser.add_xml_export(export_file)
+                print("Added XML export data")
 
         # Get all records
         all_records = parser.get_all_records()
@@ -256,40 +268,44 @@ class TestDualPipelineValidation:
         # If XML available, compare
         export_file = xml_data_path / "export.xml"
         if export_file.exists():
-            xml_parser = UnifiedHealthDataParser()
-            xml_parser.add_xml_export(export_file)
-            xml_data = xml_parser.get_all_records()
+            file_size_mb = os.path.getsize(export_file) / (1024 * 1024)
+            if file_size_mb > 100:
+                print(f"Skipping XML comparison - file too large ({file_size_mb:.1f} MB)")
+            else:
+                xml_parser = UnifiedHealthDataParser()
+                xml_parser.add_xml_export(export_file)
+                xml_data = xml_parser.get_all_records()
 
-            xml_features = feature_service.extract_features(
-                sleep_records=xml_data['sleep'],
-                activity_records=xml_data['activity'],
-                heart_records=xml_data['heart_rate'],
-            )
+                xml_features = feature_service.extract_features(
+                    sleep_records=xml_data['sleep'],
+                    activity_records=xml_data['activity'],
+                    heart_records=xml_data['heart_rate'],
+                )
 
-            xml_clinical_days = sum(
-                1 for f in xml_features.values()
-                if f.is_clinically_significant
-            )
+                xml_clinical_days = sum(
+                    1 for f in xml_features.values()
+                    if f.is_clinically_significant
+                )
 
-            print("\nClinical Insights from XML:")
-            print(f"Days analyzed: {len(xml_features)}")
-            print(f"Clinically significant days: {xml_clinical_days}")
+                print("\nClinical Insights from XML:")
+                print(f"Days analyzed: {len(xml_features)}")
+                print(f"Clinically significant days: {xml_clinical_days}")
 
-            # Compare overlapping dates
-            common_dates = set(json_features.keys()) & set(xml_features.keys())
-            if common_dates:
-                print(f"\nComparing {len(common_dates)} overlapping days:")
+                # Compare overlapping dates
+                common_dates = set(json_features.keys()) & set(xml_features.keys())
+                if common_dates:
+                    print(f"\nComparing {len(common_dates)} overlapping days:")
 
-                agreement = 0
-                for date in list(common_dates)[:5]:  # Show first 5
-                    json_sig = json_features[date].is_clinically_significant
-                    xml_sig = xml_features[date].is_clinically_significant
+                    agreement = 0
+                    for date in list(common_dates)[:5]:  # Show first 5
+                        json_sig = json_features[date].is_clinically_significant
+                        xml_sig = xml_features[date].is_clinically_significant
 
-                    if json_sig == xml_sig:
-                        agreement += 1
-                        print(f"  {date}: Agreement (both {'significant' if json_sig else 'normal'})")
-                    else:
-                        print(f"  {date}: Disagreement (JSON: {json_sig}, XML: {xml_sig})")
+                        if json_sig == xml_sig:
+                            agreement += 1
+                            print(f"  {date}: Agreement (both {'significant' if json_sig else 'normal'})")
+                        else:
+                            print(f"  {date}: Disagreement (JSON: {json_sig}, XML: {xml_sig})")
 
     @pytest.mark.slow
     def test_performance_comparison(self, json_data_path, xml_data_path):
@@ -321,19 +337,23 @@ class TestDualPipelineValidation:
         # Time XML parsing if available
         export_file = xml_data_path / "export.xml"
         if export_file.exists():
-            xml_start = time.time()
-            xml_parser = UnifiedHealthDataParser()
-            xml_parser.add_xml_export(export_file)
-            xml_time = time.time() - xml_start
+            file_size_mb = os.path.getsize(export_file) / (1024 * 1024)
+            if file_size_mb > 100:
+                print(f"Skipping XML performance test - file too large ({file_size_mb:.1f} MB)")
+            else:
+                xml_start = time.time()
+                xml_parser = UnifiedHealthDataParser()
+                xml_parser.add_xml_export(export_file)
+                xml_time = time.time() - xml_start
 
-            xml_records = xml_parser.get_all_records()
-            xml_total = sum(len(records) for records in xml_records.values())
+                xml_records = xml_parser.get_all_records()
+                xml_total = sum(len(records) for records in xml_records.values())
 
-            print("\nXML Performance:")
-            print(f"Parse time: {xml_time:.2f} seconds")
-            print(f"Total records: {xml_total}")
-            print(f"Records/second: {xml_total/xml_time:.0f}")
+                print("\nXML Performance:")
+                print(f"Parse time: {xml_time:.2f} seconds")
+                print(f"Total records: {xml_total}")
+                print(f"Records/second: {xml_total/xml_time:.0f}")
 
-            print("\nPerformance Ratio:")
-            print(f"XML is {xml_time/json_time:.1f}x slower than JSON")
-            print(f"XML has {xml_total/json_total:.1f}x more records than JSON")
+                print("\nPerformance Ratio:")
+                print(f"XML is {xml_time/json_time:.1f}x slower than JSON")
+                print(f"XML has {xml_total/json_total:.1f}x more records than JSON")

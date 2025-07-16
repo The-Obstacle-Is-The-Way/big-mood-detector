@@ -13,7 +13,7 @@ Following SOLID principles:
 """
 
 from datetime import datetime
-from typing import Any
+from typing import Any, Union
 from xml.etree import ElementTree as ET
 from xml.etree.ElementTree import ParseError
 
@@ -34,12 +34,12 @@ class SleepParser:
         """Initialize sleep parser."""
         pass
 
-    def parse(self, xml_data: str) -> list[dict[str, Any]]:
+    def parse(self, xml_data: Union[str, ET.Element]) -> list[dict[str, Any]]:
         """
         Parse Apple HealthKit XML and extract sleep records.
 
         Args:
-            xml_data: XML string containing HealthKit export data
+            xml_data: XML string or ElementTree.Element containing HealthKit export data
 
         Returns:
             List of sleep record dictionaries with keys:
@@ -51,10 +51,17 @@ class SleepParser:
         Raises:
             ValueError: If XML is invalid or malformed
         """
-        try:
-            root = ET.fromstring(xml_data)
-        except ParseError as e:
-            raise ValueError(f"Invalid XML: {str(e)}") from e
+        if isinstance(xml_data, str):
+            try:
+                root = ET.fromstring(xml_data)
+            except ParseError as e:
+                raise ValueError(f"Invalid XML: {str(e)}") from e
+        elif isinstance(xml_data, ET.Element):
+            root = xml_data
+        else:
+            raise ValueError(
+                f"Expected string or ElementTree.Element, got {type(xml_data)}"
+            )
 
         sleep_records = []
 
@@ -65,7 +72,7 @@ class SleepParser:
 
         return sleep_records
 
-    def parse_to_entities(self, xml_data: str) -> list[SleepRecord]:
+    def parse_to_entities(self, xml_data: Union[str, ET.Element]) -> list[SleepRecord]:
         """
         Parse XML and return domain entities.
 
