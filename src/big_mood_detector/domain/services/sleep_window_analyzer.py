@@ -107,20 +107,10 @@ class SleepWindowAnalyzer:
         Raises:
             ValueError: If episodes contains None or invalid types
         """
-        # Validate input
-        if episodes is None:
-            return []
-
-        # Filter out None episodes and validate types
-        valid_episodes = []
-        for e in episodes:
-            if e is None:
-                continue
-            if not isinstance(e, SleepRecord):
-                raise ValueError(f"Expected SleepRecord, got {type(e).__name__}")
-            valid_episodes.append(e)
-
-        episodes = valid_episodes
+        # Since episodes is typed as list[SleepRecord], we can trust the type system
+        # But we'll validate if passed from untrusted sources
+        if not all(isinstance(e, SleepRecord) for e in episodes):
+            raise ValueError("All episodes must be SleepRecord instances")
 
         # Filter episodes for target date if specified
         if target_date:
