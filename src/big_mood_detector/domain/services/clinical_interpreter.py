@@ -129,6 +129,27 @@ class ClinicalInterpreter:
     - Seoul National XGBoost study
     - VA clinical guidelines
     """
+    
+    def __init__(self, config: ClinicalThresholdsConfig | None = None):
+        """
+        Initialize the clinical interpreter.
+        
+        Args:
+            config: Clinical thresholds configuration. If None, loads from default path.
+        """
+        if config is None:
+            default_path = Path("config/clinical_thresholds.yaml")
+            if default_path.exists():
+                config = load_clinical_thresholds(default_path)
+            else:
+                # Fall back to embedded defaults if config file not found
+                # This maintains backward compatibility
+                self._use_defaults = True
+                self.config = None
+                return
+        
+        self.config = config
+        self._use_defaults = False
 
     def interpret_depression_score(
         self,
