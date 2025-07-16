@@ -300,6 +300,7 @@ class DLMOCalculatorV3:
         cbt_rhythm = []
         for hour, state_x, state_xc, _ in last_day_states:
             # CBT is proportional to circadian state
+            # CBT minimum when cos(x) = -1, which is at x = π
             cbt = -state_xc * math.cos(state_x)
             cbt_rhythm.append((hour, cbt))
         
@@ -324,17 +325,17 @@ class DLMOCalculatorV3:
             else:
                 hourly_lux.append(self.ASLEEP_LUX)
         
-        # Initialize directly to target phase
-        # For 11pm-7am sleeper with lights 7am-11pm:
-        # CBT min should be at 4-5 AM (hour 4-5)
-        # This is 21-22 hours after lights-on at 7am
-        # Phase accumulates at ~π/12 per hour, so phase at hour 4 ≈ π
-        x = math.pi         # Direct initialization at minimum
-        xc = 1.0            # Normal amplitude
-        n = 0.0             # Fully depleted (night state)
+        # Initialize for proper CBT minimum timing
+        # For 11pm-7am sleeper, CBT min should be at 4-5 AM
+        # Phase evolution: starts at wake (7am), minimum 21 hours later
+        # Phase advances ~π/12 per hour during wake, slower during sleep
+        # Empirically calibrated for this light schedule
+        x = -2.5    # Initial phase for proper evolution
+        xc = 1.0    # Normal amplitude
+        n = 0.1     # Low photoreceptor state
         
-        # Run for fewer days to preserve phase
-        for day in range(7):
+        # Run for standard duration to establish rhythm
+        for day in range(14):
             for hour in range(24):
                 light = hourly_lux[hour]
                 # Run for one hour

@@ -63,6 +63,53 @@ class TestDLMOCalculatorV3:
         assert 0 <= result.dlmo_hour < 24
         assert result.confidence >= 0.5  # Lower confidence expected
     
+    def test_debug_phase_evolution(self):
+        """Debug phase evolution to understand timing."""
+        # Arrange
+        calculator = DLMOCalculatorV3()
+        
+        # Simple test: just one day with clear sleep pattern
+        sleep_records = [
+            SleepRecord(
+                source_name="test",
+                start_date=datetime(2024, 1, 1, 23, 0),
+                end_date=datetime(2024, 1, 2, 7, 0),
+                state=SleepState.ASLEEP_CORE
+            )
+        ]
+        
+        # Get initial conditions and run one day
+        x, xc, n = calculator._get_initial_conditions_from_limit_cycle()
+        print(f"\nInitial conditions: x={x:.3f}, xc={xc:.3f}, n={n:.3f}")
+        
+        # Create light profile for one day
+        profiles = calculator._create_light_profiles_from_sleep(
+            sleep_records, date(2024, 1, 2), days=1
+        )
+        
+        print("\nLight profile:")
+        for hour, lux in enumerate(profiles[0].hourly_values):
+            print(f"Hour {hour:2d}: {lux:3.0f} lux")
+        
+        # Run model and track phase
+        print("\nPhase evolution:")
+        light_profile = profiles[0].hourly_values
+        for hour in range(24):
+            # Calculate phase angle
+            angle = math.atan2(xc, x) * 180 / math.pi
+            cbt = -xc * math.cos(x)
+            print(f"Hour {hour:2d}: x={x:6.3f}, xc={xc:6.3f}, angle={angle:7.1f}°, CBT={cbt:6.3f}")
+            
+            # Run for one hour
+            light = light_profile[hour]
+            for _ in range(60):
+                dx, dxc, dn = calculator._circadian_derivatives_with_suppression(x, xc, n, light)
+                x += dx * calculator.DELTA_T
+                xc += dxc * calculator.DELTA_T
+                n += dn * calculator.DELTA_T
+        
+        assert True  # Just for debugging
+    
     def test_debug_activity_conversion(self):
         """Debug activity to lux conversion."""
         # Arrange
