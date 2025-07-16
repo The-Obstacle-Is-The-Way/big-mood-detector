@@ -42,14 +42,14 @@ class MoodPrediction:
             "hypomanic": self.hypomanic_risk,
             "manic": self.manic_risk,
         }
-        return max(risks, key=risks.get)
+        return max(risks, key=lambda k: risks[k])
 
     @property
     def highest_risk_value(self) -> float:
         """Return the highest risk value."""
         return max(self.depression_risk, self.hypomanic_risk, self.manic_risk)
 
-    def to_dict(self) -> dict[str, float]:
+    def to_dict(self) -> dict[str, float | str]:
         """Convert to dictionary for serialization."""
         return {
             "depression_risk": float(round(self.depression_risk, 4)),

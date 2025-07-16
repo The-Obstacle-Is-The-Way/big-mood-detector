@@ -84,9 +84,9 @@ class PATSequence:
         std = np.std(self.activity_values)
 
         if std > 0:
-            return (self.activity_values - mean) / std
+            return np.array((self.activity_values - mean) / std)
         else:
-            return self.activity_values - mean
+            return np.array(self.activity_values - mean)
 
 
 class PATSequenceBuilder:

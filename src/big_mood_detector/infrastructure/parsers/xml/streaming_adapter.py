@@ -125,20 +125,20 @@ class StreamingXMLParser:
                     # Create minimal XML for parser compatibility
                     elem = self._dict_to_element(record_dict)
                     sleep_entities = self.sleep_parser.parse_to_entities(elem)
-                    for entity in sleep_entities:
-                        yield entity
+                    for sleep_entity in sleep_entities:
+                        yield sleep_entity
 
                 elif record_type in activity_types:
                     elem = self._dict_to_element(record_dict)
                     activity_entities = self.activity_parser.parse_to_entities(elem)
-                    for entity in activity_entities:
-                        yield entity
+                    for activity_entity in activity_entities:
+                        yield activity_entity
 
                 elif record_type in heart_types:
                     elem = self._dict_to_element(record_dict)
                     heart_entities = self.heart_parser.parse_to_entities(elem)
-                    for entity in heart_entities:
-                        yield entity
+                    for heart_entity in heart_entities:
+                        yield heart_entity
 
             except (ValueError, KeyError):
                 # Skip records that can't be converted
