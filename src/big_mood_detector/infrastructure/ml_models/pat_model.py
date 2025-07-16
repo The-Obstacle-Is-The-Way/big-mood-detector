@@ -166,7 +166,7 @@ class PATModel:
 
         # Get encoder output
         if hasattr(self, '_direct_model') and self._direct_model is not None:
-            # Use direct model for inference
+            # Use direct model for inference (already pooled inside)
             features = self._direct_model.extract_features(model_input)
             features = features.numpy()
         elif self.model is not None:
