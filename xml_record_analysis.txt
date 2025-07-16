@@ -1,0 +1,132 @@
+COMPLETE RECORD TYPE ANALYSIS
+==================================================
+
+HKQuantityTypeIdentifierBasalEnergyBurned: 164,210
+  Date range: 2022-09-11 to 2025-07-15
+
+HKQuantityTypeIdentifierDistanceWalkingRunning: 140,179
+  Date range: 2017-12-10 to 2025-07-15
+  Attributes: {'type': 'HKQuantityTypeIdentifierDistanceWalkingRunning', 'sourceName': 'John’s iPhone', 'sourceVersion': '18.1', 'device': '<<HKDevice: 0xd1399d0e0>, name:iPhone, manufacturer:Apple Inc., model:iPhone, hardware:iPhone17,2, software:18.1, creation date:2024-10-12 13:18:10 +0000>', 'unit': 'mi', 'creationDate': '2024-10-12 09:37:34 -0400', 'startDate': '2024-10-12 09:26:31 -0400', 'endDate': '2024-10-12 09:36:14 -0400', 'value': '0.0592664'}
+
+HKQuantityTypeIdentifierActiveEnergyBurned: 139,282
+  Date range: 2022-09-11 to 2025-07-15
+
+HKQuantityTypeIdentifierHeartRate: 139,050
+  Date range: 2024-08-15 to 2025-07-15
+  Attributes: {'type': 'HKQuantityTypeIdentifierHeartRate', 'sourceName': 'Ultrahuman', 'sourceVersion': '2', 'unit': 'count/min', 'creationDate': '2024-08-15 10:44:48 -0400', 'startDate': '2024-08-15 05:45:54 -0400', 'endDate': '2024-08-15 05:45:54 -0400', 'value': '79'}
+
+HKQuantityTypeIdentifierStepCount: 111,889
+  Date range: 2017-12-10 to 2025-07-15
+  Attributes: {'type': 'HKQuantityTypeIdentifierStepCount', 'sourceName': 'John’s iPhone', 'sourceVersion': '18.1', 'device': '<<HKDevice: 0xd1399f020>, name:iPhone, manufacturer:Apple Inc., model:iPhone, hardware:iPhone17,2, software:18.1, creation date:2024-10-12 13:18:10 +0000>', 'unit': 'count', 'creationDate': '2024-10-12 09:37:34 -0400', 'startDate': '2024-10-12 09:26:31 -0400', 'endDate': '2024-10-12 09:36:14 -0400', 'value': '142'}
+
+HKQuantityTypeIdentifierPhysicalEffort: 92,576
+  Date range: 2024-12-12 to 2025-07-15
+
+HKQuantityTypeIdentifierWalkingSpeed: 89,656
+  Date range: 2020-10-31 to 2025-07-15
+
+HKQuantityTypeIdentifierWalkingStepLength: 89,655
+  Date range: 2020-10-31 to 2025-07-15
+  Attributes: {'type': 'HKQuantityTypeIdentifierWalkingStepLength', 'sourceName': 'John’s iPhone', 'sourceVersion': '18.1', 'device': '<<HKDevice: 0xd1399c190>, name:iPhone, manufacturer:Apple Inc., model:iPhone, hardware:iPhone17,2, software:18.1, creation date:2024-10-12 13:18:10 +0000>', 'unit': 'in', 'creationDate': '2024-10-12 09:36:42 -0400', 'startDate': '2024-10-12 09:26:42 -0400', 'endDate': '2024-10-12 09:26:46 -0400', 'value': '34.252'}
+
+HKQuantityTypeIdentifierWalkingDoubleSupportPercentage: 77,424
+  Date range: 2020-10-31 to 2025-07-15
+
+HKQuantityTypeIdentifierHeadphoneAudioExposure: 60,080
+  Date range: 2019-12-05 to 2025-07-15
+
+HKQuantityTypeIdentifierWalkingAsymmetryPercentage: 45,781
+  Date range: 2020-10-31 to 2025-07-15
+
+HKQuantityTypeIdentifierFlightsClimbed: 13,607
+  Date range: 2017-12-10 to 2025-07-14
+
+HKQuantityTypeIdentifierAppleExerciseTime: 12,543
+  Date range: 2024-12-13 to 2025-07-15
+  Attributes: {'type': 'HKQuantityTypeIdentifierAppleExerciseTime', 'sourceName': 'John’s Apple\xa0Watch', 'sourceVersion': '11.2', 'device': '<<HKDevice: 0xd1399e2b0>, name:Apple Watch, manufacturer:Apple Inc., model:Watch, hardware:Watch7,11, software:11.2, creation date:2024-12-13 03:17:42 +0000>', 'unit': 'min', 'creationDate': '2024-12-13 00:27:03 -0400', 'startDate': '2024-12-13 00:22:00 -0400', 'endDate': '2024-12-13 00:23:00 -0400', 'value': '1'}
+
+HKQuantityTypeIdentifierAppleStandTime: 9,606
+  Date range: 2024-12-13 to 2025-07-15
+
+HKQuantityTypeIdentifierEnvironmentalAudioExposure: 6,442
+  Date range: 2024-12-12 to 2025-07-15
+
+HKQuantityTypeIdentifierBodyTemperature: 6,243
+  Date range: 2024-08-15 to 2024-11-09
+
+HKQuantityTypeIdentifierRespiratoryRate: 5,236
+  Date range: 2024-12-13 to 2025-07-15
+
+HKCategoryTypeIdentifierSleepAnalysis: 5,087
+  Date range: 2019-03-18 to 2025-07-15
+  Attributes: {'type': 'HKCategoryTypeIdentifierSleepAnalysis', 'sourceName': 'Clock', 'device': '<<HKDevice: 0xd1399c1e0>, name:iPhone, manufacturer:Apple, model:iPhone, hardware:iPhone10,6, software:12.1.4, creation date:2019-02-16 02:10:34 +0000>', 'creationDate': '2019-03-18 05:33:55 -0400', 'startDate': '2019-03-18 04:42:16 -0400', 'endDate': '2019-03-18 05:00:56 -0400', 'value': 'HKCategoryValueSleepAnalysisInBed'}
+
+HKCategoryTypeIdentifierAppleStandHour: 3,230
+  Date range: 2024-12-12 to 2025-07-15
+
+HKQuantityTypeIdentifierHeartRateVariabilitySDNN: 3,117
+  Date range: 2024-08-15 to 2025-07-15
+  Attributes: {'type': 'HKQuantityTypeIdentifierHeartRateVariabilitySDNN', 'sourceName': 'Ultrahuman', 'sourceVersion': '2', 'unit': 'ms', 'creationDate': '2024-08-15 10:44:48 -0400', 'startDate': '2024-08-15 06:01:15 -0400', 'endDate': '2024-08-15 06:01:15 -0400', 'value': '40'}
+
+HKQuantityTypeIdentifierEnvironmentalSoundReduction: 2,277
+  Date range: 2024-12-13 to 2025-06-20
+
+HKQuantityTypeIdentifierTimeInDaylight: 2,166
+  Date range: 2024-12-13 to 2025-07-15
+
+HKQuantityTypeIdentifierStairDescentSpeed: 806
+  Date range: 2024-12-13 to 2025-07-13
+
+HKQuantityTypeIdentifierStairAscentSpeed: 770
+  Date range: 2024-12-13 to 2025-07-13
+
+HKQuantityTypeIdentifierDistanceCycling: 221
+  Date range: 2025-07-08 to 2025-07-13
+  Attributes: {'type': 'HKQuantityTypeIdentifierDistanceCycling', 'sourceName': 'John’s Apple\xa0Watch', 'sourceVersion': '11.5', 'device': '<<HKDevice: 0xd1399e2b0>, name:Apple Watch, manufacturer:Apple Inc., model:Watch, hardware:Watch7,11, software:11.5, creation date:2025-05-18 15:43:28 +0000>', 'unit': 'mi', 'creationDate': '2025-07-08 18:57:40 -0400', 'startDate': '2025-07-08 18:55:12 -0400', 'endDate': '2025-07-08 18:55:43 -0400', 'value': '0.0176606'}
+
+HKQuantityTypeIdentifierRestingHeartRate: 205
+  Date range: 2022-11-29 to 2025-07-15
+  Attributes: {'type': 'HKQuantityTypeIdentifierRestingHeartRate', 'sourceName': 'Ultrahuman', 'sourceVersion': '2', 'unit': 'count/min', 'creationDate': '2024-08-15 10:44:48 -0400', 'startDate': '2024-08-15 08:40:52 -0400', 'endDate': '2024-08-15 08:40:52 -0400', 'value': '71'}
+
+HKQuantityTypeIdentifierWalkingHeartRateAverage: 170
+  Date range: 2024-12-13 to 2025-07-15
+  Attributes: {'type': 'HKQuantityTypeIdentifierWalkingHeartRateAverage', 'sourceName': 'John’s Apple\xa0Watch', 'sourceVersion': '11.2', 'unit': 'count/min', 'creationDate': '2024-12-13 23:30:36 -0400', 'startDate': '2024-12-13 01:02:14 -0400', 'endDate': '2024-12-13 23:30:32 -0400', 'value': '104'}
+
+HKQuantityTypeIdentifierAppleSleepingBreathingDisturbances: 124
+  Date range: 2024-12-13 to 2025-07-15
+  Attributes: {'type': 'HKQuantityTypeIdentifierAppleSleepingBreathingDisturbances', 'sourceName': 'John’s Apple\xa0Watch', 'sourceVersion': '11.2', 'device': '<<HKDevice: 0xd1399c690>, name:Apple Watch, manufacturer:Apple Inc., model:Watch, hardware:Watch7,11, software:11.2, creation date:2024-12-13 03:17:42 +0000>', 'unit': 'count', 'creationDate': '2024-12-13 07:14:24 -0400', 'startDate': '2024-12-13 03:10:13 -0400', 'endDate': '2024-12-13 07:12:55 -0400', 'value': '1.48974'}
+
+HKQuantityTypeIdentifierAppleWalkingSteadiness: 104
+  Date range: 2023-06-13 to 2025-07-04
+
+HKQuantityTypeIdentifierVO2Max: 95
+  Date range: 2024-12-15 to 2025-07-10
+
+HKQuantityTypeIdentifierAppleSleepingWristTemperature: 94
+  Date range: 2024-12-14 to 2025-07-14
+  Attributes: {'type': 'HKQuantityTypeIdentifierAppleSleepingWristTemperature', 'sourceName': 'John’s Apple\xa0Watch', 'sourceVersion': '11.2', 'device': '<<HKDevice: 0xd1399eb20>, name:Apple Watch, manufacturer:Apple Inc., model:Watch, hardware:Watch7,11, software:11.2, creation date:2024-12-13 03:17:42 +0000>', 'unit': 'degF', 'creationDate': '2024-12-15 05:30:02 -0400', 'startDate': '2024-12-14 21:30:02 -0400', 'endDate': '2024-12-15 05:30:01 -0400', 'value': '96.4236'}
+
+HKQuantityTypeIdentifierSixMinuteWalkTestDistance: 25
+  Date range: 2024-12-27 to 2025-07-11
+  Attributes: {'type': 'HKQuantityTypeIdentifierSixMinuteWalkTestDistance', 'sourceName': 'John’s iPhone', 'sourceVersion': '2956.0.3.0.2', 'unit': 'm', 'creationDate': '2024-12-27 20:32:23 -0400', 'startDate': '2024-12-27 20:32:22 -0400', 'endDate': '2024-12-27 20:32:22 -0400', 'value': '500'}
+
+HKCategoryTypeIdentifierAudioExposureEvent: 23
+  Date range: 2024-12-13 to 2025-07-06
+
+HKQuantityTypeIdentifierBodyMass: 7
+  Date range: 2022-05-08 to 2024-08-15
+
+HKQuantityTypeIdentifierDietaryEnergyConsumed: 2
+  Date range: 2024-11-03 to 2024-11-03
+
+HKQuantityTypeIdentifierHeight: 1
+  Date range: 2023-09-12 to 2023-09-12
+
+HKDataTypeSleepDurationGoal: 1
+  Date range: 2024-08-30 to 2024-08-30
+  Attributes: {'type': 'HKDataTypeSleepDurationGoal', 'sourceName': 'Health', 'sourceVersion': '17.5.1', 'unit': 'hr', 'creationDate': '2024-08-30 21:30:34 -0400', 'startDate': '2024-08-30 21:30:34 -0400', 'endDate': '2024-08-30 21:30:34 -0400', 'value': '8'}
+
+HKQuantityTypeIdentifierHeartRateRecoveryOneMinute: 1
+  Date range: 2025-01-26 to 2025-01-26
+  Attributes: {'type': 'HKQuantityTypeIdentifierHeartRateRecoveryOneMinute', 'sourceName': 'John’s Apple\xa0Watch', 'sourceVersion': '2953.0.30', 'unit': 'count/min', 'creationDate': '2025-01-26 21:33:35 -0400', 'startDate': '2025-01-26 21:33:23 -0400', 'endDate': '2025-01-26 21:33:23 -0400', 'value': '12.4615'}
+

@@ -267,6 +267,12 @@ class DLMOCalculator:
                         ) + timedelta(hours=hour)
                         hour_end = hour_start + timedelta(hours=1)
 
+                        # Make hour_start timezone-aware if sleep dates are timezone-aware
+                        if sleep.start_date.tzinfo is not None:
+                            # Use the timezone from the sleep record
+                            hour_start = hour_start.replace(tzinfo=sleep.start_date.tzinfo)
+                            hour_end = hour_end.replace(tzinfo=sleep.end_date.tzinfo)
+
                         # If this hour overlaps with sleep, set to 0 lux
                         if hour_start < sleep.end_date and hour_end > sleep.start_date:
                             hourly_lux[hour] = self.ASLEEP_LUX

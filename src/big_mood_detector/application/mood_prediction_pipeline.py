@@ -558,18 +558,26 @@ class MoodPredictionPipeline:
         """Process Apple Health XML export."""
         records: dict[str, list] = {"sleep": [], "activity": [], "heart_rate": []}
 
-        # Stream through XML
-        for record in self.xml_parser.iter_records(str(xml_path)):
-            if "Sleep" in record.get("type", ""):
-                # Convert to SleepRecord
-                # Implementation depends on XML structure
-                pass
-            elif "StepCount" in record.get("type", ""):
-                # Convert to ActivityRecord
-                pass
-            elif "HeartRate" in record.get("type", ""):
-                # Convert to HeartRateRecord
-                pass
+        # Use the streaming XML parser to get domain entities directly
+        print("Processing XML export...")
+        
+        # Parse sleep records
+        for entity in self.xml_parser.parse_file(xml_path, entity_type="sleep"):
+            records["sleep"].append(entity)
+            
+        print(f"Found {len(records['sleep'])} sleep records")
+        
+        # Parse activity records
+        for entity in self.xml_parser.parse_file(xml_path, entity_type="activity"):
+            records["activity"].append(entity)
+            
+        print(f"Found {len(records['activity'])} activity records")
+        
+        # Parse heart rate records if needed
+        for entity in self.xml_parser.parse_file(xml_path, entity_type="heart"):
+            records["heart_rate"].append(entity)
+            
+        print(f"Found {len(records['heart_rate'])} heart rate records")
 
         return records
 
