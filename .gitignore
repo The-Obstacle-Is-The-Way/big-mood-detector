@@ -142,5 +142,12 @@ export_*.xml
 # =====================================
 Thumbs.db
 ehthumbs.db
-Desktop.ini reference_repos/
+Desktop.ini
+
+# =====================================
+# Reference Repositories
+# =====================================
+# External repositories for reference - don't track in main repo
+reference_repos/
+
 nhanes/PAXMIN_H.xpt
