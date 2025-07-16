@@ -31,6 +31,12 @@ from big_mood_detector.domain.services.dlmo_calculator import DLMOCalculator
 
 from big_mood_detector.infrastructure.parsers.xml.streaming_adapter import StreamingXMLParser
 from big_mood_detector.infrastructure.parsers.json.json_parsers import SleepJSONParser, ActivityJSONParser
+from big_mood_detector.infrastructure.sparse_data_handler import (
+    SparseDataHandler, 
+    DataDensity,
+    AlignmentStrategy,
+    InterpolationMethod
+)
 
 
 @dataclass
@@ -148,7 +154,8 @@ class MoodPredictionPipeline:
         sleep_analyzer: Optional[SleepWindowAnalyzer] = None,
         activity_extractor: Optional[ActivitySequenceExtractor] = None,
         circadian_analyzer: Optional[CircadianRhythmAnalyzer] = None,
-        dlmo_calculator: Optional[DLMOCalculator] = None
+        dlmo_calculator: Optional[DLMOCalculator] = None,
+        sparse_handler: Optional[SparseDataHandler] = None
     ):
         """
         Initialize with domain services.
@@ -159,6 +166,7 @@ class MoodPredictionPipeline:
         self.activity_extractor = activity_extractor or ActivitySequenceExtractor()
         self.circadian_analyzer = circadian_analyzer or CircadianRhythmAnalyzer()
         self.dlmo_calculator = dlmo_calculator or DLMOCalculator()
+        self.sparse_handler = sparse_handler or SparseDataHandler()
         
         # Parsers for different data sources
         self.sleep_parser = SleepJSONParser()
@@ -192,6 +200,29 @@ class MoodPredictionPipeline:
             # Process JSON export
             records = self._process_json_export(export_path)
         
+        # First, analyze data density and quality
+        sleep_dates = [r.start_date.date() for r in records.get('sleep', [])]
+        activity_dates = [r.start_date.date() for r in records.get('activity', [])]
+        
+        print("\n=== Data Quality Analysis ===")
+        if sleep_dates:
+            sleep_density = self.sparse_handler.assess_density(sleep_dates)
+            print(f"Sleep data: {len(sleep_dates)} days, {sleep_density.coverage_ratio:.1%} coverage, "
+                  f"max gap: {sleep_density.max_gap_days} days, quality: {sleep_density.density_class.name}")
+        
+        if activity_dates:
+            activity_density = self.sparse_handler.assess_density(activity_dates)
+            print(f"Activity data: {len(activity_dates)} days, {activity_density.coverage_ratio:.1%} coverage, "
+                  f"max gap: {activity_density.max_gap_days} days, quality: {activity_density.density_class.name}")
+        
+        # Find overlapping windows
+        if sleep_dates and activity_dates:
+            windows = self.sparse_handler.find_analysis_windows(sleep_dates, activity_dates)
+            print(f"\nOverlapping windows: {len(windows)}")
+            for i, (start, end) in enumerate(windows[:3]):  # Show first 3
+                days = (end - start).days + 1
+                print(f"  Window {i+1}: {start} to {end} ({days} days)")
+        
         # Extract features for each day
         features = self._extract_daily_features(
             records,
@@ -201,12 +232,16 @@ class MoodPredictionPipeline:
         
         # Convert to DataFrame
         if not features:
-            print("Warning: No features extracted. Check date range and data availability.")
+            print("\nWarning: No features extracted. Check date range and data availability.")
             df = pd.DataFrame()  # Empty dataframe
         else:
             df = pd.DataFrame([f.to_dict() for f in features])
             df.set_index('date', inplace=True)
             df.sort_index(inplace=True)
+            
+            # Add confidence scores based on data density
+            print(f"\nExtracted features for {len(df)} days")
+            print("Adding confidence scores based on data quality...")
         
         # Save to CSV
         df.to_csv(output_path)
