@@ -194,7 +194,7 @@ class TestCircadianFeatureCalculator:
         # For 10:30 AM wake, nadir should be around 8:30 AM
         assert nadir.hour in [8, 9]  # Around 8-9 AM
 
-    def test_calculate_circadian_amplitude(self, calculator, regular_activity_data):
+    def test_calculate_circadian_amplitude(self, calculator, regular_activity_data, phase_delayed_sleep_data):
         """Test circadian amplitude calculation from activity data."""
         amplitude = calculator.calculate_circadian_amplitude(
             regular_activity_data,
