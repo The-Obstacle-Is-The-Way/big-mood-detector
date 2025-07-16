@@ -10,10 +10,9 @@ Design Patterns:
 - Template Method: Common aggregation structure with customizable steps
 """
 
-from collections.abc import Callable
-from dataclasses import dataclass, field
-from datetime import date, datetime, timedelta
-from typing import Any, Protocol
+from dataclasses import dataclass
+from datetime import date, timedelta
+from typing import Any
 
 import numpy as np
 
