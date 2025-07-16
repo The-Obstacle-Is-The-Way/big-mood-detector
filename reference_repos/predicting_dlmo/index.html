@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <title>Phase Calculator</title>
+
+  <!-- Bootstrap core CSS -->
+  <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+  <link href="https://fonts.googleapis.com/css?family=Roboto+Mono:300" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet">
+
+
+  <!-- Custom styles for this template -->
+  <link href="css/predicting_dlmo.css" rel="stylesheet">
+
+</head>
+
+<body id="page-top">
+
+  <!-- Navigation -->
+  <nav class="navbar navbar-expand-lg navbar-light fixed-top" id="mainNav">
+    <div class="container">
+      <a class="navbar-brand js-scroll-trigger" href="#page-top">Phase Calculator</a>
+      <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse"
+        data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false"
+        aria-label="Toggle navigation">
+        Menu
+        <i class="fas fa-bars"></i>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarResponsive">
+        <ul class="navbar-nav ml-auto">
+          <li class="nav-item">
+            <a class="nav-link js-scroll-trigger" href="#about">About</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link js-scroll-trigger" href="http://www.github.com/ojwalch/predicting_dlmo">Source Code</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <section class="text-center">
+    <div class="container h-100">
+      <div class="row h-100">
+        <div class="col-lg-6 my-auto">
+          <div class="header-content mx-auto">
+            <h1 class="mb-5">Predict DLMO with math modeling</h1>
+            <p>This tool converts actigraphy data into a prediction of DLMO time using mathematical models of the human
+              circadian clock. To try it, upload actigraphy files (in .csv format) using the button below. You can
+              upload multiple files at a time. <br><br> <i>Only tested in Safari, Chrome, and Firefox.</i></p>
+
+            <div class="upload-wrapper">
+              <header>
+                <label class="btn btn-outline btn-xl">
+
+                  <input type="file" multiple="multiple" onchange="showFile()">
+                  Upload csv files
+                </label>
+              </header>
+              <div id="show-text"></div>
+            </div>
+
+
+          </div>
+        </div>
+        <div class="col-lg-6 my-auto">
+          <div class="summary" id="summary" style="width: 100%; overflow: auto; height: 400px;"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="about text-center" id="about">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-8 mx-auto">
+          <h2 class="section-heading">About</h2>
+          <p> Created by <b><a href="https://www.researchgate.net/profile/Philip_Cheng7">Philip Cheng, PhD</a></b> and
+            <b>Olivia Walch, PhD</b></p>
+          <p> Research supporting this tool is funded by the National Heart Lung and Blood Institute (K23HL138166)</p>
+
+          <p>This website is a prototype that uses a mathematical model of the circadian clock to predict timing of DLMO
+            from actigraphy data. The output of the model is <b>hours after midnight</b> (in the local timezone of the
+            browser) on the last day in the actigraphy file. Please reach out to the authors if you have any questions.
+          </p>
+          <p> You can download the template for your actigraphy data <a href="template.csv">here</a> and sample data <a
+              href="sample.csv">here</a>. We don't store any of the data you upload. </p>
+          <p> <b>Important notes:</b> Significant amounts of NaN data will affect the accuracy of the model as will
+            periods where the watch was not worn at the beginning and ending of collection. Those epochs should be
+            deleted prior to upload. Remember: <i>"Garbage in, garbage out"</i>!
+          </p>
+          <p> <u>For validation information, or to cite the use of this tool</u>:
+            <br> Cheng P, Walch O, Huang, Y., Mayer, C., Sagong, C., Cuamatzi Castelan, A., Burgess, HJ, Roth, T.,
+            Forger, D., Drake, CL. (in press). Predicting circadian misalignment with wearable technology: Validation of
+            wrist-worn actigraphy and photometry in night shift workers, <i>SLEEP</i>
+          <p>Want to try an iOS implementation of DLMO prediction? A TestFlight build for APSS 2023 is available <a href="https://testflight.apple.com/join/xtn93aOz">here</a>.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="container">
+      <p>Source code (Javascript and MATLAB) available <a href="http://www.github.com/ojwalch/predicting_dlmo">on
+          Github</a>.</p>
+    </div>
+  </footer>
+
+  <!-- Bootstrap core JavaScript -->
+  <script src="vendor/jquery/jquery.min.js"></script>
+  <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Plugin JavaScript -->
+  <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+  <script type="text/javascript" src="js/date.js"></script>
+
+  <!-- Custom scripts for this template -->
+  <script src="js/predicting_dlmo.js"></script>
+
+  <script type="text/javascript" src="js/models.js"></script>
+  <script type="text/javascript" src="js/read_file.js"></script>
+
+</body>
+
+</html>
