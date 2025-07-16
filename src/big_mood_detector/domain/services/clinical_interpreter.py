@@ -168,35 +168,70 @@ class ClinicalInterpreter:
         - PHQ-9 15-19: Moderately severe
         - PHQ-9 20-27: Severe
         """
-        # Determine risk level
-        if phq_score < 5:
-            risk_level = RiskLevel.LOW
-            episode_type = EpisodeType.NONE
-            summary = "Depression screening within normal range."
-        elif phq_score < 10:
-            risk_level = RiskLevel.LOW
-            episode_type = EpisodeType.NONE
-            summary = "Mild depressive symptoms below clinical threshold."
-        elif phq_score < 15:
-            risk_level = RiskLevel.MODERATE
-            episode_type = EpisodeType.DEPRESSIVE
-            summary = "Moderate depression detected requiring clinical attention."
-        elif phq_score < 20:
-            risk_level = RiskLevel.HIGH
-            episode_type = EpisodeType.DEPRESSIVE
-            summary = "Moderately severe depression requiring prompt intervention."
+        # Use configuration values if available, otherwise fall back to defaults
+        if self.config:
+            cutoffs = self.config.depression.phq_cutoffs
+            sleep_threshold = self.config.depression.sleep_hours.hypersomnia_threshold
+            severe_activity = self.config.depression.activity_steps.severe_reduction
+            moderate_threshold = self.config.depression.phq_cutoffs.moderate.min
         else:
-            risk_level = RiskLevel.CRITICAL
-            episode_type = EpisodeType.DEPRESSIVE
-            summary = "Severe depression requiring immediate intervention."
+            # Fallback to embedded defaults
+            sleep_threshold = 12
+            severe_activity = 2000
+            moderate_threshold = 10
+        
+        # Determine risk level using configuration
+        if self.config:
+            if phq_score <= cutoffs.none.max:
+                risk_level = RiskLevel.LOW
+                episode_type = EpisodeType.NONE
+                summary = "Depression screening within normal range."
+            elif phq_score <= cutoffs.mild.max:
+                risk_level = RiskLevel.LOW
+                episode_type = EpisodeType.NONE
+                summary = "Mild depressive symptoms below clinical threshold."
+            elif phq_score <= cutoffs.moderate.max:
+                risk_level = RiskLevel.MODERATE
+                episode_type = EpisodeType.DEPRESSIVE
+                summary = "Moderate depression detected requiring clinical attention."
+            elif phq_score <= cutoffs.moderately_severe.max:
+                risk_level = RiskLevel.HIGH
+                episode_type = EpisodeType.DEPRESSIVE
+                summary = "Moderately severe depression requiring prompt intervention."
+            else:
+                risk_level = RiskLevel.CRITICAL
+                episode_type = EpisodeType.DEPRESSIVE
+                summary = "Severe depression requiring immediate intervention."
+        else:
+            # Fallback logic for backward compatibility
+            if phq_score < 5:
+                risk_level = RiskLevel.LOW
+                episode_type = EpisodeType.NONE
+                summary = "Depression screening within normal range."
+            elif phq_score < 10:
+                risk_level = RiskLevel.LOW
+                episode_type = EpisodeType.NONE
+                summary = "Mild depressive symptoms below clinical threshold."
+            elif phq_score < 15:
+                risk_level = RiskLevel.MODERATE
+                episode_type = EpisodeType.DEPRESSIVE
+                summary = "Moderate depression detected requiring clinical attention."
+            elif phq_score < 20:
+                risk_level = RiskLevel.HIGH
+                episode_type = EpisodeType.DEPRESSIVE
+                summary = "Moderately severe depression requiring prompt intervention."
+            else:
+                risk_level = RiskLevel.CRITICAL
+                episode_type = EpisodeType.DEPRESSIVE
+                summary = "Severe depression requiring immediate intervention."
 
         # Check biomarker red flags
-        if sleep_hours > 12:  # Critical long sleep
+        if sleep_hours > sleep_threshold:  # Critical long sleep
             summary += " Hypersomnia pattern detected."
             if risk_level == RiskLevel.LOW:
                 risk_level = RiskLevel.MODERATE
 
-        if activity_steps < 2000 and risk_level != RiskLevel.CRITICAL:
+        if activity_steps < severe_activity and risk_level != RiskLevel.CRITICAL:
             summary += " Severe activity reduction noted."
 
         if suicidal_ideation:
@@ -212,7 +247,7 @@ class ClinicalInterpreter:
             confidence=0.85,  # Base confidence
             clinical_summary=summary,
             recommendations=recommendations,
-            dsm5_criteria_met=(phq_score >= 10),
+            dsm5_criteria_met=(phq_score >= moderate_threshold),
             clinical_features={
                 "phq_score": phq_score,
                 "sleep_hours": sleep_hours,
