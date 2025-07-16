@@ -89,22 +89,24 @@ def main():
         print(f"    Activity: {row['total_steps']} steps, sedentary: {row['sedentary_hours']:.1f}h")
         print(f"    Heart: {row['avg_resting_hr']:.0f} bpm, HRV: {row['hrv_sdnn']:.1f}")
     
-    # Extract advanced features
-    print("\nExtracting advanced features for XGBoost...")
-    advanced_engineer = AdvancedFeatureEngineer()
+    # Extract advanced features would require daily summaries
+    print("\nNote: Advanced features extraction requires aggregated daily summaries.")
+    print("Currently we have extracted clinical features which include:")
+    print("  - Sleep metrics (duration, efficiency, timing)")
+    print("  - Activity metrics (steps, sedentary time)")
+    print("  - Heart rate metrics (resting HR, HRV)")
     
-    # Prepare aggregated data structure
-    aggregated_data = {
-        'sleep': sleep_records,
-        'heart_rate': heart_rate_records,
-        'activity': activity_records
+    # Placeholder for advanced features
+    advanced_features = {
+        "note": "Advanced features require daily aggregation",
+        "features_needed": [
+            "sleep_regularity_index",
+            "interdaily_stability", 
+            "intradaily_variability",
+            "relative_amplitude",
+            "circadian_phase_markers"
+        ]
     }
-    
-    advanced_features = advanced_engineer.extract_features(aggregated_data)
-    
-    print(f"\nExtracted {len(advanced_features)} advanced features:")
-    for name, value in list(advanced_features.items())[:10]:  # Show first 10
-        print(f"  {name}: {value:.4f}" if isinstance(value, (int, float)) else f"  {name}: {value}")
     
     # Save results
     output_dir = Path("output")
