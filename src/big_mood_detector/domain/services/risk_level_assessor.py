@@ -13,7 +13,6 @@ Design Patterns:
 """
 
 from dataclasses import dataclass, field
-from typing import Optional
 
 from big_mood_detector.domain.services.clinical_thresholds import (
     ClinicalThresholdsConfig,
@@ -63,7 +62,7 @@ class RiskTrajectory:
 class RiskLevelAssessor:
     """
     Assesses clinical risk levels based on multiple factors.
-    
+
     This service focuses solely on risk assessment logic,
     extracted from the monolithic ClinicalInterpreter.
     """
@@ -80,8 +79,8 @@ class RiskLevelAssessor:
     def assess_depression_risk(
         self,
         phq_score: float,
-        sleep_hours: Optional[float] = None,
-        activity_steps: Optional[int] = None,
+        sleep_hours: float | None = None,
+        activity_steps: int | None = None,
         suicidal_ideation: bool = False,
     ) -> RiskAssessment:
         """
@@ -99,7 +98,7 @@ class RiskLevelAssessor:
         risk_factors = []
         missing_factors = []
         confidence = 1.0
-        
+
         # Determine base risk from PHQ score
         phq_cutoffs = self.config.depression.phq_cutoffs
         if phq_score < phq_cutoffs.none.max:
@@ -121,10 +120,10 @@ class RiskLevelAssessor:
             risk_level = "critical"
             rationale = "Very severe depression"
             risk_factors.append("very severe PHQ-9 score")
-        
+
         # Biomarker modulation
         biomarker_modifier = 1.0
-        
+
         if sleep_hours is not None:
             sleep_thresholds = self.config.depression.sleep_hours
             if sleep_hours < sleep_thresholds.normal_min:
@@ -136,7 +135,7 @@ class RiskLevelAssessor:
         else:
             missing_factors.append("sleep data")
             confidence *= 0.9
-        
+
         if activity_steps is not None:
             activity_threshold = self.config.depression.activity_steps.severe_reduction
             if activity_steps <= activity_threshold:  # Include boundary
@@ -145,22 +144,22 @@ class RiskLevelAssessor:
         else:
             missing_factors.append("activity data")
             confidence *= 0.9
-        
+
         # Apply biomarker modifier and potentially upgrade risk
         if biomarker_modifier > 1.3 and risk_level == "moderate":
             risk_level = "high"
             rationale += " with severe biomarker severity"
-        
+
         # Critical upgrade for suicidal ideation
         if suicidal_ideation:
             risk_level = "critical"
             rationale = "Suicidal ideation present - immediate intervention required"
             risk_factors.append("suicidal ideation")
-        
+
         # Adjust confidence for missing data
         if missing_factors:
             rationale += f" (limited data: {', '.join(missing_factors)} missing)"
-        
+
         return RiskAssessment(
             risk_level=risk_level,
             severity_score=phq_score,
@@ -175,8 +174,8 @@ class RiskLevelAssessor:
     def assess_mania_risk(
         self,
         asrm_score: float,
-        sleep_hours: Optional[float] = None,
-        activity_steps: Optional[int] = None,
+        sleep_hours: float | None = None,
+        activity_steps: int | None = None,
         psychotic_features: bool = False,
     ) -> RiskAssessment:
         """
@@ -192,7 +191,7 @@ class RiskLevelAssessor:
             Risk assessment result
         """
         risk_factors = []
-        
+
         # Determine base risk from ASRM score
         asrm_cutoffs = self.config.mania.asrm_cutoffs
         if asrm_score < asrm_cutoffs.none.max:
@@ -210,20 +209,20 @@ class RiskLevelAssessor:
             risk_level = "critical"
             rationale = "Severe manic episode"
             risk_factors.append("very high ASRM score")
-        
+
         # Biomarker assessment
         if sleep_hours is not None and sleep_hours < self.config.mania.sleep_hours.reduced_threshold:
             risk_factors.append("reduced sleep")
-        
+
         if activity_steps is not None and activity_steps >= self.config.mania.activity_steps.elevated_threshold:
             risk_factors.append("hyperactivity")
-        
+
         # Critical upgrade for psychotic features
         if psychotic_features:
             risk_level = "critical"
             rationale = "Manic episode with psychotic features - immediate intervention required"
             risk_factors.append("psychotic features")
-        
+
         return RiskAssessment(
             risk_level=risk_level,
             severity_score=asrm_score,
@@ -241,7 +240,7 @@ class RiskLevelAssessor:
         racing_thoughts: bool = False,
         anhedonia: bool = False,
         increased_energy: bool = False,
-        **kwargs,
+        **kwargs: bool,
     ) -> MixedStateAssessment:
         """
         Assess risk for mixed mood states.
@@ -259,7 +258,7 @@ class RiskLevelAssessor:
         """
         risk_factors = []
         mixed_features = 0
-        
+
         # Count mixed features
         if sleep_disturbance:
             mixed_features += 1
@@ -273,12 +272,12 @@ class RiskLevelAssessor:
         if increased_energy:
             mixed_features += 1
             risk_factors.append("increased energy")
-        
+
         # Both poles elevated
         if phq_score >= self.config.depression.phq_cutoffs.moderate.min and \
            asrm_score >= self.config.mania.asrm_cutoffs.hypomanic.min:
             risk_factors.append("concurrent depression and mania symptoms")
-        
+
         # Determine risk level based on mixed features
         if mixed_features >= 3:
             risk_level = "high"
@@ -289,13 +288,13 @@ class RiskLevelAssessor:
         else:
             risk_level = "moderate"
             rationale = "Possible mixed state"
-        
+
         # Upgrade to critical if severe
         if phq_score >= self.config.depression.phq_cutoffs.severe.min or \
            asrm_score >= self.config.mania.asrm_cutoffs.manic_moderate.min:
             risk_level = "critical"
             rationale = "Severe mixed episode"
-        
+
         # Determine dominant pole
         if phq_score > asrm_score * 1.5:
             dominant_pole = "depressive"
@@ -303,7 +302,7 @@ class RiskLevelAssessor:
             dominant_pole = "manic"
         else:
             dominant_pole = "balanced"
-        
+
         return MixedStateAssessment(
             risk_level=risk_level,
             severity_score=max(phq_score, asrm_score),
@@ -328,7 +327,7 @@ class RiskLevelAssessor:
             Composite risk assessment
         """
         component_risks = {}
-        
+
         # Assess each component
         if "depression_score" in factors:
             dep_risk = self._score_to_risk_level(
@@ -336,32 +335,32 @@ class RiskLevelAssessor:
                 self.config.depression.phq_cutoffs,
             )
             component_risks["depression"] = dep_risk
-        
+
         if "mania_score" in factors:
             mania_risk = self._score_to_risk_level(
                 factors["mania_score"],
                 self.config.mania.asrm_cutoffs,
             )
             component_risks["mania"] = mania_risk
-        
+
         # Determine overall risk and primary concern
         risk_scores = {"low": 0, "moderate": 1, "high": 2, "critical": 3}
         max_risk = "low"
         primary_concern = "none"
-        
+
         for domain, risk in component_risks.items():
             if risk_scores.get(risk, 0) > risk_scores.get(max_risk, 0):
                 max_risk = risk
                 primary_concern = domain
-        
+
         # Additional risk factors
         if factors.get("medication_adherence", 1.0) < 0.7:
             if max_risk == "moderate":
                 max_risk = "high"
-        
+
         summary = f"Composite assessment shows {max_risk} risk with primary concern: {primary_concern}. "
-        summary += f"Multiple risk factors present across domains."
-        
+        summary += "Multiple risk factors present across domains."
+
         return CompositeRiskAssessment(
             overall_risk_level=max_risk,
             primary_concern=primary_concern,
@@ -394,30 +393,30 @@ class RiskLevelAssessor:
                 clinical_note="Insufficient history for trajectory analysis",
                 predicted_trajectory="unknown",
             )
-        
+
         # Calculate trend
         scores = [r["score"] for r in historical_risks] + [current_score]
-        
+
         # Simple linear regression for trend
         n = len(scores)
         x = list(range(n))
         x_mean = sum(x) / n
         y_mean = sum(scores) / n
-        
+
         numerator = sum((x[i] - x_mean) * (scores[i] - y_mean) for i in range(n))
         denominator = sum((x[i] - x_mean) ** 2 for i in range(n))
-        
+
         if denominator == 0:
             velocity = 0.0
         else:
             velocity = numerator / denominator
-        
+
         # Determine trend
-        if velocity > 0.5:
+        if velocity > 0.1:
             trend = "worsening"
-            note = "Risk scores showing escalating pattern"
+            note = "Risk scores showing increasing trend"
             predicted = "continued_worsening"
-        elif velocity < -0.5:
+        elif velocity < -0.1:
             trend = "improving"
             note = "Risk scores showing improvement"
             predicted = "continued_improvement"
@@ -425,7 +424,7 @@ class RiskLevelAssessor:
             trend = "stable"
             note = "Risk scores relatively stable"
             predicted = "stable"
-        
+
         return RiskTrajectory(
             trend=trend,
             velocity=velocity,
@@ -433,7 +432,7 @@ class RiskLevelAssessor:
             predicted_trajectory=predicted,
         )
 
-    def _score_to_risk_level(self, score: float, cutoffs) -> str:
+    def _score_to_risk_level(self, score: float, cutoffs: object) -> str:
         """Convert score to risk level based on cutoffs."""
         if hasattr(cutoffs, "none") and score < cutoffs.none.max:
             return "low"

@@ -620,51 +620,57 @@ class ClinicalInterpreter:
         dates: list[datetime],
         episode_type: EpisodeType,
     ) -> RiskTrend:
-        """Analyze trend in risk scores over time."""
-        if len(risk_scores) < 2:
-            return RiskTrend(
-                direction="stable",
-                velocity=0.0,
-                clinical_note="Insufficient data for trend analysis",
-            )
+        """Analyze trend in risk scores over time - delegates to RiskLevelAssessor."""
+        # Convert to format expected by RiskLevelAssessor
+        historical_risks = []
+        for i in range(len(risk_scores) - 1):
+            historical_risks.append({
+                "date": dates[i].isoformat() if i < len(dates) else f"T-{len(risk_scores)-i}",
+                "risk_level": self._score_to_risk_level(risk_scores[i]),
+                "score": risk_scores[i]
+            })
 
-        # Calculate trend using simple linear regression
-        n = len(risk_scores)
-        x = list(range(n))
+        # Get current risk level
+        current_risk_level = self._score_to_risk_level(risk_scores[-1])
+        current_score = risk_scores[-1]
 
-        # Calculate slope
-        x_mean = sum(x) / n
-        y_mean = sum(risk_scores) / n
-
-        numerator = sum((x[i] - x_mean) * (risk_scores[i] - y_mean) for i in range(n))
-        denominator = sum((x[i] - x_mean) ** 2 for i in range(n))
-
-        if denominator == 0:
-            slope = 0.0
-        else:
-            slope = numerator / denominator
-
-        # Determine direction
-        if slope > 0.1:
-            direction = "worsening"
-        elif slope < -0.1:
-            direction = "improving"
-        else:
-            direction = "stable"
-
-        # Generate clinical note
-        if direction == "worsening":
-            note = f"Risk scores showing increasing trend for {episode_type.value} episode"
-        elif direction == "improving":
-            note = "Risk scores showing decreasing trend, clinical improvement noted"
-        else:
-            note = f"Risk scores remain stable for {episode_type.value} monitoring"
-
-        return RiskTrend(
-            direction=direction,
-            velocity=slope,  # Keep sign to indicate direction
-            clinical_note=note,
+        # Delegate to RiskLevelAssessor
+        trajectory = self.risk_assessor.analyze_risk_trajectory(
+            historical_risks=historical_risks,
+            current_risk_level=current_risk_level,
+            current_score=current_score,
         )
+
+        # Convert back to legacy RiskTrend format
+        return RiskTrend(
+            direction=trajectory.trend,
+            velocity=trajectory.velocity,
+            clinical_note=trajectory.clinical_note,
+        )
+
+    def _score_to_risk_level(self, score: float) -> str:
+        """Convert numeric score to risk level string."""
+        # Handle normalized scores (0-1 range) and absolute scores
+        if score <= 1.0:
+            # Normalized scores
+            if score < 0.25:
+                return "low"
+            elif score < 0.5:
+                return "moderate"
+            elif score < 0.75:
+                return "high"
+            else:
+                return "critical"
+        else:
+            # Absolute scores (e.g., PHQ-9, ASRM)
+            if score < 5:
+                return "low"
+            elif score < 10:
+                return "moderate"
+            elif score < 15:
+                return "high"
+            else:
+                return "critical"
 
     def calculate_personalized_thresholds(
         self,

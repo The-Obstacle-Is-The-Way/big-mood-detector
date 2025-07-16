@@ -38,7 +38,7 @@ class TestRiskLevelAssessor:
             activity_steps=6000,
             suicidal_ideation=False,
         )
-        
+
         assert result.risk_level == "low"
         assert result.severity_score == 2.0
         assert result.confidence >= 0.8
@@ -52,7 +52,7 @@ class TestRiskLevelAssessor:
             activity_steps=2000,  # Low activity
             suicidal_ideation=False,
         )
-        
+
         assert result.risk_level == "moderate"
         assert result.severity_score == 12.0
         assert len(result.risk_factors) >= 1  # PHQ score
@@ -66,7 +66,7 @@ class TestRiskLevelAssessor:
             activity_steps=1000,
             suicidal_ideation=True,
         )
-        
+
         assert result.risk_level == "critical"  # Upgraded due to SI
         assert result.severity_score == 18.0
         assert "suicidal ideation" in result.clinical_rationale.lower()
@@ -80,7 +80,7 @@ class TestRiskLevelAssessor:
             activity_steps=6000,
             psychotic_features=False,
         )
-        
+
         assert result.risk_level == "low"
         assert result.severity_score == 2.0
         assert "no manic symptoms" in result.clinical_rationale.lower()
@@ -93,7 +93,7 @@ class TestRiskLevelAssessor:
             activity_steps=15000,  # Increased activity
             psychotic_features=False,
         )
-        
+
         assert result.risk_level == "moderate"
         assert "hypomanic" in result.clinical_rationale.lower()
         assert len(result.risk_factors) >= 2  # ASRM + sleep (activity boundary not met)
@@ -106,7 +106,7 @@ class TestRiskLevelAssessor:
             activity_steps=25000,
             psychotic_features=True,
         )
-        
+
         assert result.risk_level == "critical"
         assert "psychotic features" in result.clinical_rationale.lower()
         assert result.requires_immediate_action is True
@@ -120,7 +120,7 @@ class TestRiskLevelAssessor:
             racing_thoughts=True,
             anhedonia=True,
         )
-        
+
         assert result.risk_level in ["high", "critical"]
         assert "mixed" in result.clinical_rationale.lower()
         assert result.mixed_features_count >= 3
@@ -136,9 +136,9 @@ class TestRiskLevelAssessor:
             "circadian_misalignment": True,
             "medication_adherence": 0.6,  # Poor
         }
-        
+
         result = assessor.calculate_composite_risk(factors)
-        
+
         assert result.overall_risk_level in ["moderate", "high", "critical"]  # PHQ 15 is severe
         assert result.primary_concern == "depression"
         assert "multiple risk factors" in result.clinical_summary.lower()
@@ -151,16 +151,16 @@ class TestRiskLevelAssessor:
             {"date": "2024-01-15", "risk_level": "moderate", "score": 8.0},
             {"date": "2024-02-01", "risk_level": "high", "score": 15.0},
         ]
-        
+
         result = assessor.analyze_risk_trajectory(
             historical_risks,
             current_risk_level="high",
             current_score=16.0,
         )
-        
+
         assert result.trend == "worsening"
         assert result.velocity > 0  # Increasing risk
-        assert "escalating" in result.clinical_note.lower()
+        assert "increasing" in result.clinical_note.lower()
         assert result.predicted_trajectory == "continued_worsening"
 
     def test_biomarker_risk_modulation(self, assessor):
@@ -172,7 +172,7 @@ class TestRiskLevelAssessor:
             activity_steps=500,  # Severe hypoactivity
             suicidal_ideation=False,
         )
-        
+
         # Risk should be upgraded due to biomarkers
         assert result.risk_level == "high"
         assert "biomarker severity" in result.clinical_rationale.lower()
@@ -186,7 +186,7 @@ class TestRiskLevelAssessor:
             activity_steps=None,  # Missing data
             suicidal_ideation=False,
         )
-        
+
         assert result.risk_level == "high"
         assert result.confidence < 0.85  # Reduced confidence (0.9 * 0.9 = 0.81)
         assert "limited data" in result.clinical_rationale.lower()
