@@ -127,7 +127,7 @@ class RiskLevelAssessor:
         
         if sleep_hours is not None:
             sleep_thresholds = self.config.depression.sleep_hours
-            if sleep_hours < sleep_thresholds.insomnia_threshold:
+            if sleep_hours < sleep_thresholds.normal_min:
                 risk_factors.append("severe insomnia")
                 biomarker_modifier *= 1.2
             elif sleep_hours > sleep_thresholds.hypersomnia_threshold:
@@ -138,8 +138,8 @@ class RiskLevelAssessor:
             confidence *= 0.9
         
         if activity_steps is not None:
-            activity_threshold = self.config.depression.activity_steps.sedentary_threshold
-            if activity_steps < activity_threshold:
+            activity_threshold = self.config.depression.activity_steps.severe_reduction
+            if activity_steps <= activity_threshold:  # Include boundary
                 risk_factors.append("severe hypoactivity")
                 biomarker_modifier *= 1.2
         else:
@@ -149,7 +149,7 @@ class RiskLevelAssessor:
         # Apply biomarker modifier and potentially upgrade risk
         if biomarker_modifier > 1.3 and risk_level == "moderate":
             risk_level = "high"
-            rationale += " with severe biomarker abnormalities"
+            rationale += " with severe biomarker severity"
         
         # Critical upgrade for suicidal ideation
         if suicidal_ideation:
@@ -202,7 +202,7 @@ class RiskLevelAssessor:
             risk_level = "moderate"
             rationale = "Hypomanic symptoms present"
             risk_factors.append("elevated ASRM score")
-        elif asrm_score < asrm_cutoffs.manic.max:
+        elif asrm_score < asrm_cutoffs.manic_moderate.max:
             risk_level = "high"
             rationale = "Manic episode likely"
             risk_factors.append("high ASRM score")
@@ -212,10 +212,10 @@ class RiskLevelAssessor:
             risk_factors.append("very high ASRM score")
         
         # Biomarker assessment
-        if sleep_hours is not None and sleep_hours < self.config.biomarkers.sleep.mania_risk_threshold.max:
+        if sleep_hours is not None and sleep_hours < self.config.mania.sleep_hours.reduced_threshold:
             risk_factors.append("reduced sleep")
         
-        if activity_steps is not None and activity_steps > self.config.biomarkers.activity.mania_risk_threshold.min:
+        if activity_steps is not None and activity_steps >= self.config.mania.activity_steps.elevated_threshold:
             risk_factors.append("hyperactivity")
         
         # Critical upgrade for psychotic features
@@ -292,7 +292,7 @@ class RiskLevelAssessor:
         
         # Upgrade to critical if severe
         if phq_score >= self.config.depression.phq_cutoffs.severe.min or \
-           asrm_score >= self.config.mania.asrm_cutoffs.manic.min:
+           asrm_score >= self.config.mania.asrm_cutoffs.manic_moderate.min:
             risk_level = "critical"
             rationale = "Severe mixed episode"
         
@@ -435,11 +435,19 @@ class RiskLevelAssessor:
 
     def _score_to_risk_level(self, score: float, cutoffs) -> str:
         """Convert score to risk level based on cutoffs."""
-        if score < cutoffs.none.max:
+        if hasattr(cutoffs, "none") and score < cutoffs.none.max:
             return "low"
-        elif score < cutoffs.mild.max:
-            return "moderate"
+        elif hasattr(cutoffs, "mild") and score < cutoffs.mild.max:
+            return "low"
         elif hasattr(cutoffs, "moderate") and score < cutoffs.moderate.max:
+            return "moderate"
+        elif hasattr(cutoffs, "moderately_severe") and score < cutoffs.moderately_severe.max:
+            return "high"
+        elif hasattr(cutoffs, "severe") and score < cutoffs.severe.max:
+            return "high"
+        elif hasattr(cutoffs, "hypomanic") and score < cutoffs.hypomanic.max:
+            return "moderate"
+        elif hasattr(cutoffs, "manic_moderate") and score < cutoffs.manic_moderate.max:
             return "high"
         else:
             return "critical"
