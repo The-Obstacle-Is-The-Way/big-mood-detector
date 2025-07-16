@@ -195,17 +195,26 @@ class EnsembleOrchestrator:
         prediction_date: np.datetime64 | None,
     ) -> MoodPrediction:
         """Run prediction with PAT-enhanced features."""
+        if self.pat_builder is None or self.pat_model is None:
+            raise RuntimeError("PAT model or builder not available")
+            
         # Build PAT sequence
         if prediction_date:
+            # Convert numpy datetime64 to date
+            from datetime import datetime
+            date_obj = datetime.utcfromtimestamp(prediction_date.astype('datetime64[s]').astype(int)).date()
             sequence = self.pat_builder.build_sequence(
-                activity_records, end_date=prediction_date
+                activity_records, end_date=date_obj
             )
         else:
             # Use last available date
             dates = [r.start_date.date() for r in activity_records]
-            sequence = self.pat_builder.build_sequence(
-                activity_records, end_date=max(dates) if dates else None
-            )
+            if dates:
+                sequence = self.pat_builder.build_sequence(
+                    activity_records, end_date=max(dates)
+                )
+            else:
+                raise ValueError("No activity records provided")
 
         # Extract PAT features
         pat_features = self.pat_model.extract_features(sequence)
@@ -236,6 +245,9 @@ class EnsembleOrchestrator:
             )
 
         if xgboost_pred is None:
+            if pat_pred is None:
+                # This should never happen due to the check above
+                raise RuntimeError("Both predictions are None")
             return pat_pred
 
         if pat_pred is None:

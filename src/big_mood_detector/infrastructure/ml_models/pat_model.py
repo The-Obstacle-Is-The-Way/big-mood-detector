@@ -181,14 +181,15 @@ class PATModel:
             # Use direct model for inference (already pooled inside)
             features = self._direct_model.extract_features(model_input)
             features = features.numpy()
-        elif self.model is not None:
-            # Use standard Keras model
-            # Predict returns shape (batch_size, num_patches, embed_dim)
-            features = self.model.predict(model_input, verbose=0)
-            # Average pool over sequence dimension
-            features = np.mean(features, axis=1)
         else:
-            raise RuntimeError("No model available for inference")
+            if self.model is not None:
+                # Use standard Keras model
+                # Predict returns shape (batch_size, num_patches, embed_dim)
+                features = self.model.predict(model_input, verbose=0)
+                # Average pool over sequence dimension
+                features = np.mean(features, axis=1)
+            else:
+                raise RuntimeError("No model available for inference")
 
         # Return 1D feature vector
         return features.squeeze()  # type: ignore[no-any-return]
@@ -214,12 +215,13 @@ class PATModel:
             # Use direct model for batch inference (already pooled)
             features = self._direct_model.extract_features(batch_input)
             features = features.numpy()
-        elif self.model is not None:
-            features = self.model.predict(batch_input, verbose=0)
-            # Average pool over sequence dimension
-            features = np.mean(features, axis=1)
         else:
-            raise RuntimeError("No model available for inference")
+            if self.model is not None:
+                features = self.model.predict(batch_input, verbose=0)
+                # Average pool over sequence dimension
+                features = np.mean(features, axis=1)
+            else:
+                raise RuntimeError("No model available for inference")
 
         return features  # type: ignore[no-any-return]
 
