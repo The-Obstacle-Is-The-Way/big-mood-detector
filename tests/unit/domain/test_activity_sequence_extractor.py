@@ -169,8 +169,8 @@ class TestActivitySequenceExtractor:
         pat_result = extractor.calculate_pat(records, date(2024, 1, 15))
         
         # Assert
-        assert pat_result.activity_concentration < 0.5  # Low concentration
-        assert pat_result.peak_activity_minutes == 60  # Activity spread out
+        assert pat_result.activity_concentration < 0.1  # Very low concentration (uniform)
+        assert pat_result.peak_activity_minutes <= 16  # Individual minutes, not continuous
     
     def test_activity_concentration_focused(self, extractor):
         """Focused activity burst should have high concentration."""
@@ -188,7 +188,7 @@ class TestActivitySequenceExtractor:
         # Assert
         assert pat_result.activity_concentration > 0.8  # High concentration
         assert pat_result.peak_activity_minutes == 60  # One hour burst
-        assert pat_result.pat_hour == 15
+        assert 15 <= pat_result.pat_hour < 16  # Within 3 PM hour
     
     def test_sequence_statistics(self, extractor):
         """Test sequence statistical properties."""

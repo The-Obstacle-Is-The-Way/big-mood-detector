@@ -277,8 +277,8 @@ class ActivitySequenceExtractor:
         """
         Calculate how concentrated activity is (0-1).
         
-        Uses coefficient of variation approach.
-        High concentration = activity in short bursts.
+        Uses normalized entropy approach.
+        High concentration = activity in few hours.
         Low concentration = activity spread throughout day.
         """
         if sequence.total_activity == 0:
@@ -286,23 +286,32 @@ class ActivitySequenceExtractor:
         
         # Get hourly distribution
         hour_totals = sequence.get_hour_totals()
-        active_hours = [h for h in hour_totals if h > 0]
         
-        if not active_hours:
+        # Calculate proportion of activity in each hour
+        proportions = []
+        for total in hour_totals:
+            if total > 0:
+                proportions.append(total / sequence.total_activity)
+        
+        if not proportions:
             return 0.0
         
-        # Calculate concentration using Gini coefficient
-        sorted_hours = sorted(active_hours)
-        n = len(sorted_hours)
-        cumsum = 0.0
+        # Calculate entropy (measure of spread)
+        import math
+        entropy = 0.0
+        for p in proportions:
+            if p > 0:
+                entropy -= p * math.log(p)
         
-        for i, value in enumerate(sorted_hours):
-            cumsum += (2 * (i + 1) - n - 1) * value
+        # Maximum possible entropy (uniform distribution)
+        max_entropy = math.log(len(proportions))
         
-        gini = cumsum / (n * sum(sorted_hours))
+        # Normalize: 0 = uniform (low concentration), 1 = focused (high concentration)
+        if max_entropy == 0:
+            return 1.0  # All activity in one hour
         
-        # Normalize to 0-1 range
-        return max(0.0, min(1.0, gini))
+        concentration = 1.0 - (entropy / max_entropy)
+        return max(0.0, min(1.0, concentration))
     
     def _find_peak_activity_duration(
         self, 
@@ -312,10 +321,22 @@ class ActivitySequenceExtractor:
         if sequence.total_activity == 0:
             return 0
         
-        # Find 90th percentile threshold
-        threshold = sequence.get_percentile(90)
+        # For uniform distribution, use total active minutes
+        if sequence.active_minutes == 0:
+            return 0
+            
+        # Calculate threshold as mean of non-zero activities
+        non_zero_activities = [v for v in sequence.activity_values if v > 0]
+        if not non_zero_activities:
+            return 0
+            
+        mean_activity = sum(non_zero_activities) / len(non_zero_activities)
         
-        # Count consecutive minutes above threshold
+        # For uniform activity, threshold should capture most activity
+        # For focused activity, threshold should be lower to capture the burst
+        threshold = mean_activity * 0.5  # 50% of mean activity
+        
+        # Find longest continuous period above threshold
         max_duration = 0
         current_duration = 0
         
