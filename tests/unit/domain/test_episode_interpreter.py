@@ -8,7 +8,6 @@ Following TDD - writing tests first.
 import pytest
 
 from big_mood_detector.domain.services.clinical_thresholds import (
-    ClinicalThresholdsConfig,
     load_clinical_thresholds,
 )
 
@@ -25,7 +24,9 @@ class TestEpisodeInterpreter:
     @pytest.fixture
     def interpreter(self, config):
         """Create episode interpreter with test config."""
-        from big_mood_detector.domain.services.episode_interpreter import EpisodeInterpreter
+        from big_mood_detector.domain.services.episode_interpreter import (
+            EpisodeInterpreter,
+        )
         return EpisodeInterpreter(config)
 
     def test_interpret_depression_normal_range(self, interpreter):
@@ -35,7 +36,7 @@ class TestEpisodeInterpreter:
             sleep_hours=7.5,
             activity_steps=6000,
         )
-        
+
         assert result.risk_level == "low"
         assert result.episode_type == "none"
         assert result.dsm5_criteria_met is False
@@ -48,7 +49,7 @@ class TestEpisodeInterpreter:
             sleep_hours=7.5,
             activity_steps=6000,
         )
-        
+
         assert result.risk_level == "moderate"
         assert result.episode_type == "depressive"
         assert result.dsm5_criteria_met is True
@@ -62,7 +63,7 @@ class TestEpisodeInterpreter:
             activity_steps=6000,
             suicidal_ideation=True,
         )
-        
+
         assert result.risk_level == "critical"
         assert "urgent assessment needed" in result.clinical_summary.lower()
 
@@ -73,7 +74,7 @@ class TestEpisodeInterpreter:
             sleep_hours=7.0,
             activity_steps=8000,
         )
-        
+
         assert result.risk_level == "low"
         assert result.episode_type == "none"
         assert result.dsm5_criteria_met is False
@@ -85,7 +86,7 @@ class TestEpisodeInterpreter:
             sleep_hours=2.5,  # Critical
             activity_steps=8000,
         )
-        
+
         assert result.risk_level == "critical"
         assert result.episode_type == "manic"
         assert "critical sleep reduction" in result.clinical_summary.lower()
@@ -102,7 +103,7 @@ class TestEpisodeInterpreter:
             increased_energy=True,
             decreased_sleep=True,
         )
-        
+
         assert result.episode_type == "depressive_with_mixed_features"
         assert result.risk_level == "high"
         assert "mixed features" in result.clinical_summary.lower()
@@ -111,12 +112,12 @@ class TestEpisodeInterpreter:
         """Test that interpreter uses injected configuration."""
         # Test at exact threshold boundary
         moderate_threshold = config.depression.phq_cutoffs.moderate.min
-        
+
         result = interpreter.interpret_depression(
             phq_score=moderate_threshold,
             sleep_hours=7.5,
             activity_steps=6000,
         )
-        
+
         assert result.risk_level == "moderate"
         assert result.dsm5_criteria_met is True

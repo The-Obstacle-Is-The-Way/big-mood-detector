@@ -24,7 +24,9 @@ class TestTreatmentRecommender:
     @pytest.fixture
     def recommender(self, config):
         """Create treatment recommender with test config."""
-        from big_mood_detector.domain.services.treatment_recommender import TreatmentRecommender
+        from big_mood_detector.domain.services.treatment_recommender import (
+            TreatmentRecommender,
+        )
         return TreatmentRecommender(config)
 
     def test_recommend_for_acute_mania(self, recommender):
@@ -34,7 +36,7 @@ class TestTreatmentRecommender:
             severity="high",
             current_medications=[],
         )
-        
+
         assert len(recommendations) > 0
         # Should include first-line treatments
         med_names = [r.medication for r in recommendations]
@@ -48,7 +50,7 @@ class TestTreatmentRecommender:
             severity="moderate",
             current_medications=[],
         )
-        
+
         assert len(recommendations) > 0
         med_names = [r.medication for r in recommendations]
         assert "quetiapine" in med_names  # First-line for bipolar depression
@@ -60,7 +62,7 @@ class TestTreatmentRecommender:
             severity="high",
             current_medications=["lithium"],
         )
-        
+
         med_names = [r.medication for r in recommendations]
         assert "lithium" not in med_names
 
@@ -71,7 +73,7 @@ class TestTreatmentRecommender:
             severity="high",
             current_medications=[],
         )
-        
+
         assert len(recommendations) > 0
         med_names = [r.medication for r in recommendations]
         # Should include second-line treatments for mixed features
@@ -85,7 +87,7 @@ class TestTreatmentRecommender:
             current_medications=[],
             mood_state="depressed",
         )
-        
+
         assert decision.approved is False
         assert "monotherapy is contraindicated" in decision.rationale
 
@@ -97,7 +99,7 @@ class TestTreatmentRecommender:
             current_medications=["lithium"],
             mood_state="depressed",
         )
-        
+
         assert decision.approved is True
         assert "mood stabilizer coverage" in decision.rationale
 
@@ -109,7 +111,7 @@ class TestTreatmentRecommender:
             current_medications=[],
             rapid_cycling=True,
         )
-        
+
         med_names = [r.medication for r in recommendations]
         assert "lamotrigine" not in med_names  # Contraindicated in rapid cycling
 
@@ -120,13 +122,13 @@ class TestTreatmentRecommender:
             severity="critical",
             current_medications=[],
         )
-        
+
         # Should include hospitalization evaluation
         assert any("hospitalization" in r.medication.lower() for r in recommendations)
         # Check for any urgent-related text
         assert any(
-            "urgent" in r.description.lower() or 
-            "immediate" in r.description.lower() 
+            "urgent" in r.description.lower() or
+            "immediate" in r.description.lower()
             for r in recommendations
         )
 
@@ -137,7 +139,7 @@ class TestTreatmentRecommender:
             severity="moderate",
             current_medications=[],
         )
-        
+
         for rec in recommendations:
             assert rec.medication
             assert rec.evidence_level

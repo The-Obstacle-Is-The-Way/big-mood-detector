@@ -11,7 +11,7 @@ Design Patterns:
 """
 
 from dataclasses import dataclass
-from typing import Protocol
+from typing import Any, Protocol
 
 from big_mood_detector.domain.services.clinical_thresholds import (
     ClinicalThresholdsConfig,
@@ -30,8 +30,8 @@ class EpisodeInterpretation:
 
 class EpisodeInterpreterProtocol(Protocol):
     """Protocol for episode interpretation strategies."""
-    
-    def interpret(self, **kwargs) -> EpisodeInterpretation:
+
+    def interpret(self, **kwargs: Any) -> EpisodeInterpretation:
         """Interpret episode based on inputs."""
         ...
 
@@ -39,20 +39,20 @@ class EpisodeInterpreterProtocol(Protocol):
 class EpisodeInterpreter:
     """
     Interprets mood episodes based on clinical scores and biomarkers.
-    
+
     This is extracted from the original ClinicalInterpreter to follow
     Single Responsibility Principle.
     """
-    
+
     def __init__(self, config: ClinicalThresholdsConfig):
         """
         Initialize with clinical thresholds configuration.
-        
+
         Args:
             config: Clinical thresholds configuration
         """
         self.config = config
-    
+
     def interpret_depression(
         self,
         phq_score: float,
@@ -62,11 +62,11 @@ class EpisodeInterpreter:
     ) -> EpisodeInterpretation:
         """
         Interpret depression based on PHQ-8/9 scores and biomarkers.
-        
+
         Uses configuration-driven thresholds instead of hard-coded values.
         """
         cutoffs = self.config.depression.phq_cutoffs
-        
+
         # Determine base risk level and episode type
         if phq_score <= cutoffs.none.max:
             risk_level = "low"
@@ -88,29 +88,29 @@ class EpisodeInterpreter:
             risk_level = "critical"
             episode_type = "depressive"
             summary = "Severe depression requiring immediate intervention."
-        
+
         # Apply biomarker modifiers
         if sleep_hours > self.config.depression.sleep_hours.hypersomnia_threshold:
             summary += " Hypersomnia pattern detected."
             if risk_level == "low":
                 risk_level = "moderate"
-        
+
         if activity_steps < self.config.depression.activity_steps.severe_reduction:
             if risk_level != "critical":
                 summary += " Severe activity reduction noted."
-        
+
         # Critical override for suicidal ideation
         if suicidal_ideation:
             risk_level = "critical"
             summary += " Suicidal ideation present - urgent assessment needed."
-        
+
         return EpisodeInterpretation(
             risk_level=risk_level,
             episode_type=episode_type,
             dsm5_criteria_met=(phq_score >= self.config.depression.phq_cutoffs.moderate.min),
             clinical_summary=summary,
         )
-    
+
     def interpret_mania(
         self,
         asrm_score: float,
@@ -122,7 +122,7 @@ class EpisodeInterpreter:
         Interpret mania/hypomania based on ASRM scores and biomarkers.
         """
         cutoffs = self.config.mania.asrm_cutoffs
-        
+
         # Determine base risk level and episode type
         if asrm_score <= cutoffs.none.max:
             risk_level = "low"
@@ -140,32 +140,32 @@ class EpisodeInterpreter:
             risk_level = "critical"
             episode_type = "manic"
             summary = "Severe manic symptoms requiring immediate intervention."
-        
+
         # Critical sleep indicator
         if sleep_hours < self.config.mania.sleep_hours.critical_threshold:
             risk_level = "critical"
             episode_type = "manic"
             summary += " Critical sleep reduction indicates mania."
-        
+
         # Psychotic features override
         if psychotic_features:
             risk_level = "critical"
             episode_type = "manic"
             summary = "Manic episode with psychotic features - immediate hospitalization may be required."
-        
+
         # Activity elevation modifier
         if activity_steps > self.config.mania.activity_steps.extreme_threshold:
             summary += " Significantly elevated activity level."
             if risk_level == "moderate":
                 risk_level = "high"
-        
+
         return EpisodeInterpretation(
             risk_level=risk_level,
             episode_type=episode_type,
             dsm5_criteria_met=(asrm_score >= self.config.mania.asrm_cutoffs.hypomanic.min),
             clinical_summary=summary,
         )
-    
+
     def interpret_mixed_state(
         self,
         phq_score: float,
@@ -182,7 +182,7 @@ class EpisodeInterpreter:
     ) -> EpisodeInterpretation:
         """
         Detect and interpret mixed features based on DSM-5 criteria.
-        
+
         Mixed features require:
         - Full criteria for one pole (depression or mania)
         - ≥3 symptoms from opposite pole
@@ -193,14 +193,14 @@ class EpisodeInterpreter:
             increased_energy,
             decreased_sleep or sleep_hours < self.config.depression.sleep_hours.normal_min
         ])
-        
+
         depressive_symptoms = sum([depressed_mood, anhedonia, guilt])
-        
+
         # Check for mixed features
         depression_threshold = self.config.depression.phq_cutoffs.moderate.min
         mania_threshold = self.config.mania.asrm_cutoffs.hypomanic.min
         min_symptoms = self.config.mixed_features.minimum_opposite_symptoms
-        
+
         if phq_score >= depression_threshold and manic_symptoms >= min_symptoms:
             return EpisodeInterpretation(
                 risk_level="high",
@@ -217,7 +217,7 @@ class EpisodeInterpreter:
                 clinical_summary="Manic episode with mixed features detected.",
                 confidence=0.80,
             )
-        
+
         # No mixed features - interpret as pure episode
         if phq_score >= asrm_score:
             return self.interpret_depression(phq_score, sleep_hours, activity_steps)
