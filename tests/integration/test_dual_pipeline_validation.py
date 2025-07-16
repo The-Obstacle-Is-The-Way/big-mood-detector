@@ -25,6 +25,7 @@ from big_mood_detector.infrastructure.parsers.xml import (
     ActivityParser,
     HeartRateParser,
     SleepParser,
+    StreamingXMLParser,
 )
 
 
@@ -57,31 +58,37 @@ class TestDualPipelineValidation:
         file_size_mb = os.path.getsize(export_file) / (1024 * 1024)
         print(f"\nFound export.xml ({file_size_mb:.1f} MB)")
 
-        # Skip if file is too large for testing
-        if file_size_mb > 100:  # 100MB limit for tests
-            pytest.skip(f"export.xml too large for testing ({file_size_mb:.1f} MB > 100 MB)")
-
-        # Test each parser
-        with open(export_file) as f:
-            xml_data = f.read()
-
-        # Test sleep parser
-        sleep_parser = SleepParser()
-        sleep_records = sleep_parser.parse_to_entities(xml_data)
-        print(f"XML Sleep records: {len(sleep_records)}")
-
-        # Test activity parser
-        activity_parser = ActivityParser()
-        activity_records = activity_parser.parse_to_entities(xml_data)
-        print(f"XML Activity records: {len(activity_records)}")
-
-        # Test heart rate parser
-        heart_parser = HeartRateParser()
-        heart_records = heart_parser.parse_to_entities(xml_data)
-        print(f"XML Heart rate records: {len(heart_records)}")
+        # Use streaming parser for large files
+        streaming_parser = StreamingXMLParser()
+        
+        # Count records by type using streaming
+        sleep_count = 0
+        activity_count = 0
+        heart_count = 0
+        
+        print("Streaming through XML file...")
+        
+        # Stream through all entities
+        for entity in streaming_parser.parse_file(export_file, entity_type='all'):
+            entity_type = type(entity).__name__
+            if 'Sleep' in entity_type:
+                sleep_count += 1
+            elif 'Activity' in entity_type:
+                activity_count += 1
+            elif 'Heart' in entity_type:
+                heart_count += 1
+            
+            # Progress indicator for large files
+            total = sleep_count + activity_count + heart_count
+            if total % 10000 == 0:
+                print(f"  Processed {total:,} records...")
+        
+        print(f"XML Sleep records: {sleep_count:,}")
+        print(f"XML Activity records: {activity_count:,}")
+        print(f"XML Heart rate records: {heart_count:,}")
 
         # Basic validation
-        assert len(sleep_records) > 0 or len(activity_records) > 0 or len(heart_records) > 0, \
+        assert sleep_count > 0 or activity_count > 0 or heart_count > 0, \
             "Should find at least some records"
 
     def test_compare_data_coverage(self, json_data_path, xml_data_path):
