@@ -25,7 +25,7 @@ class DirectPATModel:
 
     def __init__(self, model_size: str = "medium"):
         self.model_size = model_size
-        self.weights = {}
+        self.weights: dict[str, np.ndarray] = {}
         self.config = self._get_config(model_size)
         self.is_loaded = False
         self.layer_norm_epsilon = 1e-12  # Default value
@@ -156,7 +156,7 @@ class DirectPATModel:
             logger.error(f"Failed to load weights: {e}")
             return False
 
-    def _multi_head_attention(self, x, layer_idx):
+    def _multi_head_attention(self, x: tf.Tensor, layer_idx: int) -> tf.Tensor:
         """Compute multi-head attention using loaded weights."""
         batch_size = tf.shape(x)[0]
         seq_len = tf.shape(x)[1]
@@ -223,7 +223,7 @@ class DirectPATModel:
 
         return output
 
-    def _get_sinusoidal_embeddings(self, num_patches, embed_dim):
+    def _get_sinusoidal_embeddings(self, num_patches: int, embed_dim: int) -> tf.Tensor:
         """Generate sinusoidal positional embeddings (from original PAT implementation)."""
         position = tf.range(num_patches, dtype=tf.float32)[:, tf.newaxis]
         div_term = tf.exp(
@@ -241,7 +241,7 @@ class DirectPATModel:
         # Add batch dimension
         return pos_embeddings[tf.newaxis, :, :]
 
-    def _layer_norm(self, x, gamma, beta, epsilon=None):
+    def _layer_norm(self, x: tf.Tensor, gamma: tf.Tensor, beta: tf.Tensor, epsilon: float | None = None) -> tf.Tensor:
         """Apply layer normalization."""
         if epsilon is None:
             epsilon = self.layer_norm_epsilon
@@ -250,7 +250,7 @@ class DirectPATModel:
         x = (x - mean) / tf.sqrt(variance + epsilon)
         return x * gamma + beta
 
-    def _transformer_block(self, x, layer_idx):
+    def _transformer_block(self, x: tf.Tensor, layer_idx: int) -> tf.Tensor:
         """Process through one transformer block."""
         prefix = f"encoder_layer_{layer_idx}"
 
@@ -283,7 +283,7 @@ class DirectPATModel:
         return x
 
     @tf.function
-    def extract_features(self, inputs):
+    def extract_features(self, inputs: np.ndarray) -> tf.Tensor:
         """Extract features from input sequence."""
         if not self.is_loaded:
             raise RuntimeError("Model weights not loaded")
