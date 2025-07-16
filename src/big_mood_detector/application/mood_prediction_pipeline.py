@@ -742,8 +742,12 @@ class MoodPredictionPipeline:
         return daily_features
 
     def _calculate_daily_metrics(
-        self, sleep_windows, activity_sequence, circadian_metrics, dlmo_result
-    ) -> dict | None:
+        self,
+        sleep_windows: Any,
+        activity_sequence: Any,
+        circadian_metrics: Any,
+        dlmo_result: Any,
+    ) -> dict[str, Any] | None:
         """Calculate raw metrics for a single day."""
         if not sleep_windows:
             return None

@@ -24,7 +24,7 @@ from big_mood_detector.application.mood_prediction_pipeline import (
 )
 
 
-def setup_logging(verbose: bool = False):
+def setup_logging(verbose: bool = False) -> None:
     """Configure logging based on verbosity."""
     level = logging.DEBUG if verbose else logging.INFO
     logging.basicConfig(
@@ -34,7 +34,7 @@ def setup_logging(verbose: bool = False):
     )
 
 
-def main():
+def main() -> None:
     """Main entry point for CLI."""
     parser = argparse.ArgumentParser(
         description="Process Apple Health data for mood prediction",
@@ -148,7 +148,7 @@ Examples:
         sys.exit(1)
 
 
-def validate_output(df):
+def validate_output(df: Any) -> None:
     """
     Validate that output has correct format.
 
