@@ -10,7 +10,7 @@ Usage:
 """
 
 import sys
-from datetime import date, datetime, timedelta, timezone
+from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
 
 import numpy as np
@@ -26,7 +26,6 @@ from big_mood_detector.domain.entities.activity_record import (
     ActivityType,
 )
 from big_mood_detector.domain.services.pat_sequence_builder import (
-    PATSequence,
     PATSequenceBuilder,
 )
 from big_mood_detector.infrastructure.ml_models.pat_model import PATModel
@@ -40,7 +39,7 @@ def create_demo_activity_data():
     print("Creating synthetic activity data...")
 
     records = []
-    base_date = datetime(2025, 5, 9, tzinfo=timezone.utc)
+    base_date = datetime(2025, 5, 9, tzinfo=UTC)
 
     # Create 7 days of activity data with realistic patterns
     for day in range(7):
@@ -111,7 +110,7 @@ def demo_pat_model():
 
     # Get model info
     info = pat_model.get_model_info()
-    print(f"\n3. Model Information:")
+    print("\n3. Model Information:")
     print(f"   - Model size: {info['model_size']}")
     print(f"   - Patch size: {info['patch_size']} minutes")
     print(f"   - Number of patches: {info['num_patches']}")
@@ -179,7 +178,7 @@ def demo_xgboost_models():
 
     # Get model info
     info = predictor.get_model_info()
-    print(f"\n3. Model Information:")
+    print("\n3. Model Information:")
     print(f"   - Number of features: {info['num_features']}")
     print(f"   - Models loaded: {', '.join(info['models_loaded'])}")
 
@@ -192,7 +191,7 @@ def demo_xgboost_models():
     try:
         prediction = predictor.predict(demo_features)
 
-        print(f"\n   Risk Scores:")
+        print("\n   Risk Scores:")
         print(f"   - Depression: {prediction.depression_risk:.1%}")
         print(f"   - Hypomanic:  {prediction.hypomanic_risk:.1%}")
         print(f"   - Manic:      {prediction.manic_risk:.1%}")
@@ -268,10 +267,10 @@ def main():
     print("=" * 70)
 
     # Demo PAT model
-    pat_features = demo_pat_model()
+    demo_pat_model()
 
     # Demo XGBoost models
-    prediction = demo_xgboost_models()
+    demo_xgboost_models()
 
     # Demo full pipeline
     demo_full_pipeline()

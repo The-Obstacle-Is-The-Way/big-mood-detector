@@ -11,19 +11,17 @@ learned representations from activity sequences for downstream tasks.
 
 import logging
 from pathlib import Path
-from typing import List, Optional, Union
 
 import numpy as np
 
 try:
     import tensorflow as tf
     from tensorflow import keras
-    from tensorflow.keras import layers
-except ImportError:
+except ImportError as e:
     raise ImportError(
         "TensorFlow is required for PAT model. "
         "Install with: pip install tensorflow>=2.10.0"
-    )
+    ) from e
 
 from big_mood_detector.domain.services.pat_sequence_builder import PATSequence
 
@@ -94,7 +92,7 @@ class PATModel:
         self.encoder_rate = self.config["encoder_rate"]
 
         # Model state
-        self.model: Optional[keras.Model] = None
+        self.model: keras.Model | None = None
         self.is_loaded = False
 
         logger.info(f"Initialized PAT-{model_size.upper()} model wrapper")
@@ -167,7 +165,7 @@ class PATModel:
         # Return 1D feature vector
         return features.squeeze()
 
-    def extract_features_batch(self, sequences: List[PATSequence]) -> np.ndarray:
+    def extract_features_batch(self, sequences: list[PATSequence]) -> np.ndarray:
         """
         Extract features from multiple sequences.
 
@@ -194,7 +192,7 @@ class PATModel:
 
         return features
 
-    def get_attention_weights(self, sequence: PATSequence) -> Optional[np.ndarray]:
+    def get_attention_weights(self, sequence: PATSequence) -> np.ndarray | None:
         """
         Get attention weights for model explainability.
 
@@ -285,13 +283,15 @@ class PATFeatureExtractor:
     Can combine features from multiple PAT model sizes for ensemble approaches.
     """
 
-    def __init__(self, model_sizes: List[str] = ["medium"]):
+    def __init__(self, model_sizes: list[str] | None = None):
         """
         Initialize feature extractor with specified model sizes.
 
         Args:
-            model_sizes: List of model sizes to use
+            model_sizes: List of model sizes to use (defaults to ["medium"])
         """
+        if model_sizes is None:
+            model_sizes = ["medium"]
         self.models = {}
         for size in model_sizes:
             self.models[size] = PATModel(model_size=size)

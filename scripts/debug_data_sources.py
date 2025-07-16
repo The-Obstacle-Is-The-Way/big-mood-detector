@@ -2,7 +2,7 @@
 """Debug data sources to understand XML vs JSON differences."""
 
 import sys
-from datetime import date, datetime
+from datetime import date
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))

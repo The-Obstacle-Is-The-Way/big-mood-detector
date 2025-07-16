@@ -183,7 +183,7 @@ def compare_pipelines():
 
         if all_diffs:
             mean_diff = np.mean(all_diffs)
-            print(f"\nOVERALL COMPARISON:")
+            print("\nOVERALL COMPARISON:")
             print(f"  Average difference across all features: {mean_diff:.2%}")
             print(
                 f"  Features matching within 10%: {sum(d < 0.10 for d in all_diffs) / len(all_diffs):.1%}"

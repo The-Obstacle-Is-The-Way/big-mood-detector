@@ -12,12 +12,10 @@ Usage:
 
 import argparse
 import logging
-import os
 import sys
 import urllib.error
 import urllib.request
 from pathlib import Path
-from typing import Dict, Tuple
 
 # Setup logging
 logging.basicConfig(
@@ -86,7 +84,7 @@ def download_file(url: str, dest_path: Path, description: str = "") -> bool:
         return False
 
 
-def download_pat_models(model_dir: Path) -> Dict[str, bool]:
+def download_pat_models(model_dir: Path) -> dict[str, bool]:
     """
     Download all PAT model weights.
 
@@ -146,7 +144,7 @@ def setup_xgboost_directory(model_dir: Path) -> None:
         logger.info("Created XGBoost README")
 
 
-def check_reference_repo_models() -> Tuple[Dict[str, Path], Dict[str, Path]]:
+def check_reference_repo_models() -> tuple[dict[str, Path], dict[str, Path]]:
     """
     Check if model weights exist in reference repositories.
 

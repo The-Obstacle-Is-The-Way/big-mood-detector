@@ -105,7 +105,7 @@ def test_full_pipeline():
             > 0.5
         ]
         if not high_risk.empty:
-            print(f"\n⚠️  HIGH RISK DAYS (>50%):")
+            print("\n⚠️  HIGH RISK DAYS (>50%):")
             for idx, row in high_risk.iterrows():
                 risk_type = row["highest_risk"]
                 risk_value = row[f"{risk_type}_risk"]

@@ -10,7 +10,6 @@ Based on the Seoul National University and Harvard/Fitbit studies that use
 
 import logging
 from pathlib import Path
-from typing import Dict, List, Optional, Union
 
 import joblib
 import numpy as np
@@ -77,7 +76,7 @@ class XGBoostModelLoader:
 
     def __init__(self):
         """Initialize the model loader."""
-        self.models: Dict[str, any] = {}
+        self.models: dict[str, any] = {}
         self.feature_names = self.FEATURE_NAMES
         self.is_loaded = False
 
@@ -108,7 +107,7 @@ class XGBoostModelLoader:
             logger.error(f"Failed to load {model_type} model: {e}")
             return False
 
-    def load_all_models(self, model_dir: Path) -> Dict[str, bool]:
+    def load_all_models(self, model_dir: Path) -> dict[str, bool]:
         """
         Load all three mood prediction models.
 
@@ -186,7 +185,7 @@ class XGBoostModelLoader:
             confidence=float(confidence),
         )
 
-    def predict_batch(self, features_batch: np.ndarray) -> List[MoodPrediction]:
+    def predict_batch(self, features_batch: np.ndarray) -> list[MoodPrediction]:
         """
         Make predictions for multiple samples.
 
@@ -263,7 +262,7 @@ class XGBoostModelLoader:
         # Could be enhanced with model uncertainty estimates
         return abs(max_risk - 0.5) * 2
 
-    def dict_to_array(self, feature_dict: Dict[str, float]) -> np.ndarray:
+    def dict_to_array(self, feature_dict: dict[str, float]) -> np.ndarray:
         """
         Convert feature dictionary to array in correct order.
 
@@ -301,7 +300,7 @@ class XGBoostMoodPredictor:
         """Initialize the mood predictor."""
         self.model_loader = XGBoostModelLoader()
 
-    def load_models(self, model_dir: Path) -> Dict[str, bool]:
+    def load_models(self, model_dir: Path) -> dict[str, bool]:
         """
         Load mood prediction models.
 
@@ -313,7 +312,7 @@ class XGBoostMoodPredictor:
         """
         return self.model_loader.load_all_models(model_dir)
 
-    def predict(self, features: Union[np.ndarray, Dict[str, float]]) -> MoodPrediction:
+    def predict(self, features: np.ndarray | dict[str, float]) -> MoodPrediction:
         """
         Predict mood episode risks.
 

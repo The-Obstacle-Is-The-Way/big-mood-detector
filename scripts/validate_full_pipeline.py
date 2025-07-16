@@ -11,7 +11,6 @@ Tests all components:
 6. Mood predictions
 """
 
-import json
 import sys
 from datetime import date, datetime, timedelta
 from pathlib import Path
@@ -26,10 +25,11 @@ from big_mood_detector.domain.services.activity_sequence_extractor import (
 )
 from big_mood_detector.domain.services.dlmo_calculator import DLMOCalculator
 from big_mood_detector.domain.services.sleep_window_analyzer import SleepWindowAnalyzer
-from big_mood_detector.infrastructure.parsers.json.health_auto_export_parser import (
-    HealthAutoExportParser,
-)
 from big_mood_detector.infrastructure.parsers.xml import StreamingXMLParser
+from big_mood_detector.infrastructure.parsers.json import (
+    SleepJSONParser,
+    ActivityJSONParser,
+)
 
 
 def print_section(title):
@@ -96,14 +96,13 @@ def validate_json_parsing():
         print(f"❌ JSON directory not found: {json_dir}")
         return
 
-    parser = JSONParser()
-
     # Check for key files
     sleep_file = json_dir / "Sleep Analysis.json"
     activity_file = json_dir / "Step Count.json"
 
     if sleep_file.exists():
-        sleep_data = parser.parse_file(str(sleep_file))
+        sleep_parser = SleepJSONParser()
+        sleep_data = sleep_parser.parse_file(str(sleep_file))
         print(f"✅ Parsed {len(sleep_data)} sleep records from JSON")
         if sleep_data:
             dates = [
@@ -115,7 +114,8 @@ def validate_json_parsing():
         print("❌ Sleep Analysis.json not found")
 
     if activity_file.exists():
-        activity_data = parser.parse_file(str(activity_file))
+        activity_parser = ActivityJSONParser()
+        activity_data = activity_parser.parse_file(str(activity_file))
         print(f"✅ Parsed {len(activity_data)} activity records from JSON")
         if activity_data:
             dates = [
@@ -165,7 +165,7 @@ def validate_sleep_aggregation():
     windows = analyzer.aggregate_sleep_windows(test_records)
 
     if len(windows) == 1:
-        print(f"✅ Successfully merged into 1 window (3.75h threshold working)")
+        print("✅ Successfully merged into 1 window (3.75h threshold working)")
         print(f"   Total duration: {windows[0].total_minutes / 60:.1f} hours")
     else:
         print(f"❌ Expected 1 merged window, got {len(windows)}")
@@ -205,11 +205,11 @@ def validate_activity_extraction():
     sequence = extractor.extract_sequence(test_records, base_date)
 
     if sequence and len(sequence.values) == 1440:
-        print(f"✅ Extracted 1440-point activity sequence")
+        print("✅ Extracted 1440-point activity sequence")
         print(f"   Total steps: {sum(sequence.values)}")
         print(f"   Active hours: {sum(1 for v in sequence.values if v > 0) / 60:.1f}")
     else:
-        print(f"❌ Failed to extract proper sequence")
+        print("❌ Failed to extract proper sequence")
 
 
 def validate_dlmo_calculation():
@@ -254,9 +254,9 @@ def validate_dlmo_calculation():
 
         # Check if DLMO is in expected range
         if 20.0 <= result.dlmo_hour <= 22.0:
-            print(f"   ✅ DLMO timing is physiologically plausible (20-22h expected)")
+            print("   ✅ DLMO timing is physiologically plausible (20-22h expected)")
         else:
-            print(f"   ⚠️  DLMO outside expected range")
+            print("   ⚠️  DLMO outside expected range")
     else:
         print("❌ Failed to calculate DLMO")
 
@@ -290,7 +290,7 @@ def validate_full_pipeline():
 
             # Check for key features
             if "circadian_phase_Z" in df.columns:
-                print(f"\n✅ Circadian phase Z-score present (most important feature)")
+                print("\n✅ Circadian phase Z-score present (most important feature)")
 
             # Check for non-zero values
             non_zero_cols = [col for col in df.columns if df[col].abs().sum() > 0]

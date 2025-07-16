@@ -5,7 +5,7 @@ Tests the building of 7-day activity sequences for the Pretrained Actigraphy Tra
 Following TDD principles - tests written before implementation improvements.
 """
 
-from datetime import date, datetime, timedelta, timezone
+from datetime import UTC, date, datetime, timedelta
 
 import numpy as np
 import pytest
@@ -121,7 +121,7 @@ class TestPATSequenceBuilder:
     def sample_activity_records(self):
         """Create sample activity records for testing."""
         records = []
-        base_date = datetime(2025, 5, 9, tzinfo=timezone.utc)
+        base_date = datetime(2025, 5, 9, tzinfo=UTC)
 
         # Create 7 days of activity data
         for day in range(7):
@@ -178,7 +178,7 @@ class TestPATSequenceBuilder:
         dates_with_data = [9, 10, 12, 14, 15]  # Skip days 11 and 13
 
         for day in dates_with_data:
-            start = datetime(2025, 5, day, 12, 0, tzinfo=timezone.utc)
+            start = datetime(2025, 5, day, 12, 0, tzinfo=UTC)
             end = start + timedelta(minutes=30)
             records.append(
                 ActivityRecord(
@@ -296,8 +296,8 @@ class TestPATSequenceBuilder:
         # Add activity on May 8 (before sequence)
         before_record = ActivityRecord(
             source_name="iPhone",
-            start_date=datetime(2025, 5, 8, 12, 0, tzinfo=timezone.utc),
-            end_date=datetime(2025, 5, 8, 12, 30, tzinfo=timezone.utc),
+            start_date=datetime(2025, 5, 8, 12, 0, tzinfo=UTC),
+            end_date=datetime(2025, 5, 8, 12, 30, tzinfo=UTC),
             activity_type=ActivityType.STEP_COUNT,
             value=1000.0,  # High value to detect if included
             unit="count",
@@ -307,8 +307,8 @@ class TestPATSequenceBuilder:
         # Add activity on May 16 (after sequence)
         after_record = ActivityRecord(
             source_name="iPhone",
-            start_date=datetime(2025, 5, 16, 12, 0, tzinfo=timezone.utc),
-            end_date=datetime(2025, 5, 16, 12, 30, tzinfo=timezone.utc),
+            start_date=datetime(2025, 5, 16, 12, 0, tzinfo=UTC),
+            end_date=datetime(2025, 5, 16, 12, 30, tzinfo=UTC),
             activity_type=ActivityType.STEP_COUNT,
             value=1000.0,  # High value to detect if included
             unit="count",
@@ -318,8 +318,8 @@ class TestPATSequenceBuilder:
         # Add normal activity on May 12 (within sequence)
         within_record = ActivityRecord(
             source_name="iPhone",
-            start_date=datetime(2025, 5, 12, 12, 0, tzinfo=timezone.utc),
-            end_date=datetime(2025, 5, 12, 12, 30, tzinfo=timezone.utc),
+            start_date=datetime(2025, 5, 12, 12, 0, tzinfo=UTC),
+            end_date=datetime(2025, 5, 12, 12, 30, tzinfo=UTC),
             activity_type=ActivityType.STEP_COUNT,
             value=50.0,
             unit="count",
@@ -349,8 +349,8 @@ class TestPATSequenceBuilder:
         # Create minimal test data
         record = ActivityRecord(
             source_name="iPhone",
-            start_date=datetime(2025, 5, 12, 12, 0, tzinfo=timezone.utc),
-            end_date=datetime(2025, 5, 12, 12, 30, tzinfo=timezone.utc),
+            start_date=datetime(2025, 5, 12, 12, 0, tzinfo=UTC),
+            end_date=datetime(2025, 5, 12, 12, 30, tzinfo=UTC),
             activity_type=ActivityType.STEP_COUNT,
             value=50.0,
             unit="count",
@@ -372,7 +372,7 @@ class TestPATIntegrationWithPipeline:
     def sample_activity_records(self):
         """Create sample activity records for testing."""
         records = []
-        base_date = datetime(2025, 5, 9, tzinfo=timezone.utc)
+        base_date = datetime(2025, 5, 9, tzinfo=UTC)
 
         # Create 7 days of activity data
         for day in range(7):

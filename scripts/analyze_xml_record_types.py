@@ -6,7 +6,6 @@ This helps us understand what data types are available in a raw export
 so we can properly configure our parsers.
 """
 
-import sys
 import xml.etree.ElementTree as ET
 from collections import Counter
 from datetime import datetime
@@ -141,7 +140,7 @@ def analyze_xml_export(file_path):
                 f.write(f"  Attributes: {sample_records[record_type]}\n")
             f.write("\n")
 
-    print(f"\nFull analysis saved to xml_record_analysis.txt")
+    print("\nFull analysis saved to xml_record_analysis.txt")
 
 
 if __name__ == "__main__":
