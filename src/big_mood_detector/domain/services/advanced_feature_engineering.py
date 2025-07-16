@@ -200,7 +200,7 @@ class AdvancedFeatureEngineer:
             sleep_efficiency=current_sleep.sleep_efficiency if current_sleep else 0,
             total_steps=current_activity.total_steps if current_activity else 0,
             avg_resting_hr=current_heart.avg_resting_hr if current_heart else 0,
-            hrv_sdnn=current_heart.hrv_sdnn if current_heart else 0,
+            hrv_sdnn=current_heart.avg_hrv_sdnn if current_heart else 0,
             **sleep_features,
             **circadian_features,
             **activity_features,
@@ -262,16 +262,30 @@ class AdvancedFeatureEngineer:
         
         # L5 and M10 calculation (requires hourly activity data)
         # For now, estimate from daily patterns
-        l5_value = min([a.sedentary_minutes for a in recent_activity] or [0])
-        m10_value = max([a.active_minutes for a in recent_activity] or [0])
+        l5_value = min([a.sedentary_hours * 60 for a in recent_activity] or [0])
+        m10_value = max([a.active_hours * 60 for a in recent_activity] or [0])
         
         # Circadian phase calculation
         # Compare to population average or individual baseline
-        avg_sleep_time = np.mean([s.sleep_onset.hour + s.sleep_onset.minute/60 
-                                  for s in recent_sleep])
+        sleep_times = []
+        for s in recent_sleep:
+            sleep_hour = s.sleep_onset.hour + s.sleep_onset.minute/60
+            # Handle late night times (after midnight)
+            if sleep_hour < 12:  # Assume times before noon are late night, not early evening
+                sleep_hour += 24
+            sleep_times.append(sleep_hour)
+        
+        avg_sleep_time = np.mean(sleep_times)
         population_avg = 23.0  # 11 PM typical
         
+        # Calculate phase shift considering 24-hour wrap
         phase_shift = avg_sleep_time - population_avg
+        # Normalize to -12 to +12 range
+        if phase_shift > 12:
+            phase_shift -= 24
+        elif phase_shift < -12:
+            phase_shift += 24
+            
         phase_advance = max(0, -phase_shift)  # Earlier than normal
         phase_delay = max(0, phase_shift)  # Later than normal
         
@@ -315,9 +329,9 @@ class AdvancedFeatureEngineer:
         fragmentation = min(1.0, step_variance / 1000000)  # Normalize
         
         # Sedentary bout analysis
-        sedentary_mins = [a.sedentary_minutes for a in recent_activity]
-        bout_mean = np.mean(sedentary_mins)
-        bout_max = max(sedentary_mins)
+        sedentary_hours = [a.sedentary_hours for a in recent_activity]
+        bout_mean = np.mean(sedentary_hours) * 60  # Convert to minutes
+        bout_max = max(sedentary_hours) * 60  # Convert to minutes
         
         # Activity intensity ratio
         # Estimate from step count distribution
@@ -341,13 +355,13 @@ class AdvancedFeatureEngineer:
         self._update_individual_baseline("sleep", sleep.total_sleep_hours if sleep else 0)
         self._update_individual_baseline("activity", activity.total_steps if activity else 0)
         self._update_individual_baseline("hr", heart.avg_resting_hr if heart else 0)
-        self._update_individual_baseline("hrv", heart.hrv_sdnn if heart else 0)
+        self._update_individual_baseline("hrv", heart.avg_hrv_sdnn if heart else 0)
         
         # Calculate Z-scores
         sleep_z = self._calculate_zscore("sleep", sleep.total_sleep_hours if sleep else 0)
         activity_z = self._calculate_zscore("activity", activity.total_steps if activity else 0)
         hr_z = self._calculate_zscore("hr", heart.avg_resting_hr if heart else 0)
-        hrv_z = self._calculate_zscore("hrv", heart.hrv_sdnn if heart else 0)
+        hrv_z = self._calculate_zscore("hrv", heart.avg_hrv_sdnn if heart else 0)
         
         return {
             "sleep_duration_zscore": sleep_z,
