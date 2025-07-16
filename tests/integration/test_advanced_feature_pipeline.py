@@ -4,6 +4,9 @@ Integration test for advanced feature engineering pipeline
 Demonstrates end-to-end feature extraction for mood prediction.
 """
 
+import pytest
+from pathlib import Path
+import tempfile
 
 from big_mood_detector.domain.services.feature_extraction_service import (
     FeatureExtractionService,
@@ -15,6 +18,46 @@ from big_mood_detector.infrastructure.parsers.parser_factory import (
 
 class TestAdvancedFeaturePipeline:
     """Test complete pipeline with advanced features."""
+
+    @pytest.fixture
+    def sample_xml_file(self):
+        """Create a sample XML file with test data."""
+        xml_content = """<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE HealthData>
+<HealthData locale="en_US">
+  <ExportDate value="2024-01-20 10:00:00 -0800"/>
+  
+  <!-- Multiple days of sleep data for temporal features -->
+  <Record type="HKCategoryTypeIdentifierSleepAnalysis" sourceName="Apple Watch" value="HKCategoryValueSleepAnalysisAsleepCore" startDate="2024-01-01 23:00:00 -0800" endDate="2024-01-02 03:00:00 -0800"/>
+  <Record type="HKCategoryTypeIdentifierSleepAnalysis" sourceName="Apple Watch" value="HKCategoryValueSleepAnalysisAsleepREM" startDate="2024-01-02 03:00:00 -0800" endDate="2024-01-02 05:00:00 -0800"/>
+  <Record type="HKCategoryTypeIdentifierSleepAnalysis" sourceName="Apple Watch" value="HKCategoryValueSleepAnalysisAsleepDeep" startDate="2024-01-02 05:00:00 -0800" endDate="2024-01-02 07:00:00 -0800"/>
+  
+  <Record type="HKCategoryTypeIdentifierSleepAnalysis" sourceName="Apple Watch" value="HKCategoryValueSleepAnalysisAsleepCore" startDate="2024-01-02 22:30:00 -0800" endDate="2024-01-03 02:30:00 -0800"/>
+  <Record type="HKCategoryTypeIdentifierSleepAnalysis" sourceName="Apple Watch" value="HKCategoryValueSleepAnalysisAsleepREM" startDate="2024-01-03 02:30:00 -0800" endDate="2024-01-03 06:30:00 -0800"/>
+  
+  <Record type="HKCategoryTypeIdentifierSleepAnalysis" sourceName="Apple Watch" value="HKCategoryValueSleepAnalysisAsleepCore" startDate="2024-01-03 23:15:00 -0800" endDate="2024-01-04 03:15:00 -0800"/>
+  <Record type="HKCategoryTypeIdentifierSleepAnalysis" sourceName="Apple Watch" value="HKCategoryValueSleepAnalysisAsleepDeep" startDate="2024-01-04 03:15:00 -0800" endDate="2024-01-04 06:45:00 -0800"/>
+  
+  <!-- Activity data -->
+  <Record type="HKQuantityTypeIdentifierStepCount" sourceName="iPhone" value="8000" startDate="2024-01-02 08:00:00 -0800" endDate="2024-01-02 18:00:00 -0800" unit="count"/>
+  <Record type="HKQuantityTypeIdentifierStepCount" sourceName="iPhone" value="12000" startDate="2024-01-03 08:00:00 -0800" endDate="2024-01-03 18:00:00 -0800" unit="count"/>
+  <Record type="HKQuantityTypeIdentifierStepCount" sourceName="iPhone" value="6000" startDate="2024-01-04 08:00:00 -0800" endDate="2024-01-04 18:00:00 -0800" unit="count"/>
+  
+  <!-- Heart rate data -->
+  <Record type="HKQuantityTypeIdentifierHeartRate" sourceName="Apple Watch" value="65" startDate="2024-01-02 06:00:00 -0800" endDate="2024-01-02 06:01:00 -0800" unit="count/min"/>
+  <Record type="HKQuantityTypeIdentifierHeartRate" sourceName="Apple Watch" value="70" startDate="2024-01-03 06:00:00 -0800" endDate="2024-01-03 06:01:00 -0800" unit="count/min"/>
+  <Record type="HKQuantityTypeIdentifierHeartRate" sourceName="Apple Watch" value="68" startDate="2024-01-04 06:00:00 -0800" endDate="2024-01-04 06:01:00 -0800" unit="count/min"/>
+</HealthData>"""
+        
+        # Create a temporary file
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.xml', delete=False) as f:
+            f.write(xml_content)
+            temp_path = f.name
+        
+        yield Path(temp_path)
+        
+        # Cleanup
+        Path(temp_path).unlink(missing_ok=True)
 
     def test_extract_advanced_features_from_xml(self, sample_xml_file):
         """Test extracting 36 research-based features from XML data."""
