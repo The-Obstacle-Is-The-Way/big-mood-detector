@@ -18,6 +18,7 @@ import logging
 import sys
 from datetime import date
 from pathlib import Path
+from typing import Any
 
 from big_mood_detector.application.mood_prediction_pipeline import (
     MoodPredictionPipeline,
