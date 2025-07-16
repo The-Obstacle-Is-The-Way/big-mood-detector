@@ -19,6 +19,10 @@
 !reference_repos/mood_ml/test.csv
 !reference_repos/mood_ml/expected*.csv
 
+# NHANES data files (very large - up to 8.7GB)
+nhanes/*.xpt
+nhanes/*.XPT
+
 # =====================================
 # Python
 # =====================================

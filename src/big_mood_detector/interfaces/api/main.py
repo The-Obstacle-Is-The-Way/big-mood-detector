@@ -5,6 +5,8 @@ This is intentionally minimal - full API development comes after
 core functionality is proven stable.
 """
 
+from typing import Any
+
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 
@@ -21,7 +23,7 @@ app.include_router(clinical_router)
 
 
 @app.get("/health")
-async def health_check():
+async def health_check() -> JSONResponse:
     """Health check endpoint for container orchestration."""
     return JSONResponse(
         status_code=200,
@@ -34,7 +36,7 @@ async def health_check():
 
 
 @app.get("/")
-async def root():
+async def root() -> dict[str, Any]:
     """Root endpoint with basic info."""
     return {
         "message": "Big Mood Detector API",

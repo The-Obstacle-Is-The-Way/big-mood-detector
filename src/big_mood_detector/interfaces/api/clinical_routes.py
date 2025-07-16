@@ -4,16 +4,15 @@ Clinical API Routes
 Exposes clinical interpretation endpoints for mood prediction results.
 """
 
+from typing import Any
+
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
-from typing import Optional
 
 from big_mood_detector.domain.services.clinical_interpreter import (
     ClinicalInterpreter,
-    RiskLevel,
     EpisodeType,
 )
-
 
 router = APIRouter(prefix="/api/v1/clinical", tags=["clinical"])
 interpreter = ClinicalInterpreter()
@@ -60,12 +59,12 @@ class DigitalBiomarkersRequest(BaseModel):
     sleep_duration: float = Field(..., ge=0, le=24, description="Sleep duration in hours")
     sleep_efficiency: float = Field(..., ge=0, le=1, description="Sleep efficiency (0-1)")
     sleep_timing_variance: float = Field(..., ge=0, description="Variance in sleep timing (hours)")
-    daily_steps: Optional[int] = Field(None, ge=0, description="Daily step count")
-    sedentary_hours: Optional[float] = Field(None, ge=0, le=24, description="Sedentary hours per day")
-    activity_variance: Optional[float] = Field(None, ge=0, description="Activity level variance")
-    circadian_phase_advance: Optional[float] = Field(None, description="Circadian phase advance in hours")
-    interdaily_stability: Optional[float] = Field(None, ge=0, le=1, description="Interdaily stability (0-1)")
-    intradaily_variability: Optional[float] = Field(None, ge=0, description="Intradaily variability")
+    daily_steps: int | None = Field(None, ge=0, description="Daily step count")
+    sedentary_hours: float | None = Field(None, ge=0, le=24, description="Sedentary hours per day")
+    activity_variance: float | None = Field(None, ge=0, description="Activity level variance")
+    circadian_phase_advance: float | None = Field(None, description="Circadian phase advance in hours")
+    interdaily_stability: float | None = Field(None, ge=0, le=1, description="Interdaily stability (0-1)")
+    intradaily_variability: float | None = Field(None, ge=0, description="Intradaily variability")
 
 
 class ClinicalInterpretationResponse(BaseModel):
@@ -96,10 +95,10 @@ class BiomarkerInterpretationResponse(BaseModel):
 
 
 @router.post("/interpret/depression", response_model=ClinicalInterpretationResponse)
-async def interpret_depression(request: DepressionAssessmentRequest):
+async def interpret_depression(request: DepressionAssessmentRequest) -> ClinicalInterpretationResponse:
     """
     Interpret depression assessment scores and biomarkers.
-    
+
     Returns clinical risk level, episode type, and treatment recommendations
     based on PHQ-8/9 scores and digital biomarkers.
     """
@@ -110,7 +109,7 @@ async def interpret_depression(request: DepressionAssessmentRequest):
             activity_steps=request.activity_steps,
             suicidal_ideation=request.suicidal_ideation,
         )
-        
+
         return ClinicalInterpretationResponse(
             risk_level=result.risk_level.value,
             episode_type=result.episode_type.value,
@@ -128,14 +127,14 @@ async def interpret_depression(request: DepressionAssessmentRequest):
             clinical_features=result.clinical_features,
         )
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @router.post("/interpret/mania", response_model=ClinicalInterpretationResponse)
-async def interpret_mania(request: ManiaAssessmentRequest):
+async def interpret_mania(request: ManiaAssessmentRequest) -> ClinicalInterpretationResponse:
     """
     Interpret mania/hypomania assessment scores and biomarkers.
-    
+
     Returns clinical risk level, episode type, and treatment recommendations
     based on ASRM scores and digital biomarkers.
     """
@@ -146,7 +145,7 @@ async def interpret_mania(request: ManiaAssessmentRequest):
             activity_steps=request.activity_steps,
             psychotic_features=request.psychotic_features,
         )
-        
+
         return ClinicalInterpretationResponse(
             risk_level=result.risk_level.value,
             episode_type=result.episode_type.value,
@@ -164,14 +163,14 @@ async def interpret_mania(request: ManiaAssessmentRequest):
             clinical_features=result.clinical_features,
         )
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @router.post("/interpret/mixed", response_model=ClinicalInterpretationResponse)
-async def interpret_mixed_state(request: MixedStateAssessmentRequest):
+async def interpret_mixed_state(request: MixedStateAssessmentRequest) -> ClinicalInterpretationResponse:
     """
     Interpret mixed state features based on DSM-5 criteria.
-    
+
     Detects depression with mixed features or mania with mixed features
     when criteria from both poles are present.
     """
@@ -187,7 +186,7 @@ async def interpret_mixed_state(request: MixedStateAssessmentRequest):
             anhedonia=request.anhedonia,
             guilt=request.guilt,
         )
-        
+
         return ClinicalInterpretationResponse(
             risk_level=result.risk_level.value,
             episode_type=result.episode_type.value,
@@ -205,14 +204,14 @@ async def interpret_mixed_state(request: MixedStateAssessmentRequest):
             clinical_features=result.clinical_features,
         )
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @router.post("/evaluate/duration", response_model=DSM5EvaluationResponse)
-async def evaluate_episode_duration(request: EpisodeDurationRequest):
+async def evaluate_episode_duration(request: EpisodeDurationRequest) -> DSM5EvaluationResponse:
     """
     Evaluate if episode duration meets DSM-5 criteria.
-    
+
     DSM-5 requires:
     - Manic: ≥7 days (or any duration with hospitalization)
     - Hypomanic: ≥4 days
@@ -225,20 +224,20 @@ async def evaluate_episode_duration(request: EpisodeDurationRequest):
             "hypomanic": EpisodeType.HYPOMANIC,
             "depressive": EpisodeType.DEPRESSIVE,
         }
-        
+
         episode_type = episode_map.get(request.episode_type.lower())
         if not episode_type:
             raise HTTPException(
                 status_code=400,
                 detail=f"Invalid episode type. Must be one of: {list(episode_map.keys())}"
             )
-        
+
         result = interpreter.evaluate_episode_duration(
             episode_type=episode_type,
             symptom_days=request.symptom_days,
             hospitalization=request.hospitalization,
         )
-        
+
         return DSM5EvaluationResponse(
             meets_dsm5_criteria=result.meets_dsm5_criteria,
             clinical_note=result.clinical_note,
@@ -247,14 +246,14 @@ async def evaluate_episode_duration(request: EpisodeDurationRequest):
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @router.post("/interpret/biomarkers", response_model=BiomarkerInterpretationResponse)
-async def interpret_biomarkers(request: DigitalBiomarkersRequest):
+async def interpret_biomarkers(request: DigitalBiomarkersRequest) -> BiomarkerInterpretationResponse:
     """
     Interpret digital biomarkers for mood episode risk.
-    
+
     Analyzes sleep, activity, and circadian rhythm metrics to identify
     risk factors for manic or depressive episodes.
     """
@@ -265,32 +264,33 @@ async def interpret_biomarkers(request: DigitalBiomarkersRequest):
             sleep_efficiency=request.sleep_efficiency,
             sleep_timing_variance=request.sleep_timing_variance,
         )
-        
+
         # Combine results
         mania_risk = sleep_result.mania_risk_factors
         depression_risk = sleep_result.depression_risk_factors
         clinical_notes = sleep_result.clinical_notes.copy()
         priority = sleep_result.recommendation_priority
-        
+
         # Add activity biomarkers if provided
         if all(v is not None for v in [request.daily_steps, request.sedentary_hours, request.activity_variance]):
+            # Type narrowing - we know these are not None after the check
             activity_result = interpreter.interpret_activity_biomarkers(
-                daily_steps=request.daily_steps,
-                sedentary_hours=request.sedentary_hours,
-                activity_variance=request.activity_variance,
+                daily_steps=request.daily_steps,  # type: ignore[arg-type]
+                sedentary_hours=request.sedentary_hours,  # type: ignore[arg-type]
+                activity_variance=request.activity_variance,  # type: ignore[arg-type]
             )
             mania_risk += activity_result.mania_risk_factors
             depression_risk += activity_result.depression_risk_factors
             clinical_notes.extend(activity_result.clinical_notes)
             if activity_result.recommendation_priority == "urgent":
                 priority = "urgent"
-        
+
         # Add circadian biomarkers if provided
         if all(v is not None for v in [request.circadian_phase_advance, request.interdaily_stability, request.intradaily_variability]):
             circadian_result = interpreter.interpret_circadian_biomarkers(
-                circadian_phase_advance=request.circadian_phase_advance,
-                interdaily_stability=request.interdaily_stability,
-                intradaily_variability=request.intradaily_variability,
+                circadian_phase_advance=request.circadian_phase_advance,  # type: ignore[arg-type]
+                interdaily_stability=request.interdaily_stability,  # type: ignore[arg-type]
+                intradaily_variability=request.intradaily_variability,  # type: ignore[arg-type]
             )
             mania_risk += circadian_result.mania_risk_factors
             depression_risk += circadian_result.depression_risk_factors
@@ -298,7 +298,7 @@ async def interpret_biomarkers(request: DigitalBiomarkersRequest):
             mood_instability = circadian_result.mood_instability_risk
         else:
             mood_instability = "unknown"
-        
+
         return BiomarkerInterpretationResponse(
             mania_risk_factors=mania_risk,
             depression_risk_factors=depression_risk,
@@ -307,14 +307,14 @@ async def interpret_biomarkers(request: DigitalBiomarkersRequest):
             recommendation_priority=priority,
         )
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @router.get("/thresholds")
-async def get_clinical_thresholds():
+async def get_clinical_thresholds() -> dict[str, Any]:
     """
     Get clinical thresholds used for interpretation.
-    
+
     Returns evidence-based thresholds from the Clinical Dossier including
     PHQ-8/9 cutoffs, ASRM cutoffs, sleep duration thresholds, and more.
     """

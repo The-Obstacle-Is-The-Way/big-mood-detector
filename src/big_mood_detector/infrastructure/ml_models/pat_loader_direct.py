@@ -81,7 +81,7 @@ class DirectPATModel:
                                     break
                 except Exception as e:
                     logger.debug(f"Could not read LayerNorm epsilon from H5: {e}. Using default: {self.layer_norm_epsilon}")
-                
+
                 # Load dense layer
                 self.weights["dense_kernel"] = np.array(f["dense"]["dense"]["kernel:0"])
                 self.weights["dense_bias"] = np.array(f["dense"]["dense"]["bias:0"])

@@ -5,17 +5,15 @@ Tests the clinical interpretation of mood prediction scores based on
 DSM-5 criteria and evidence-based thresholds from the Clinical Dossier.
 """
 
-import pytest
 from datetime import datetime, timedelta
-from dataclasses import dataclass
+
+import pytest
 
 from big_mood_detector.domain.services.clinical_interpreter import (
-    ClinicalInterpreter,
     ClinicalInterpretation,
-    RiskLevel,
+    ClinicalInterpreter,
     EpisodeType,
-    ClinicalRecommendation,
-    DSM5Criteria,
+    RiskLevel,
 )
 
 
@@ -229,8 +227,8 @@ class TestClinicalInterpreter:
             circadian_delay_hours=1.5,  # > 1 hour
             consecutive_days=3,
         )
-        assert warnings.depression_warning == True
-        assert warnings.trigger_intervention == True
+        assert warnings.depression_warning
+        assert warnings.trigger_intervention
         assert "sleep increase" in warnings.warning_signs[0].lower()
 
         # Mania early warning
@@ -240,7 +238,7 @@ class TestClinicalInterpreter:
             speech_rate_increase=True,
             consecutive_days=2,
         )
-        assert warnings.mania_warning == True
+        assert warnings.mania_warning
         assert len(warnings.warning_signs) >= 3
 
     def test_treatment_recommendations(self, interpreter):
@@ -303,9 +301,9 @@ class TestClinicalInterpreter:
                 "activity_reduction": 45,
             },
         )
-        
+
         summary = interpreter.generate_clinical_summary(interpretation)
-        
+
         assert "high risk" in summary.lower()
         assert "major depressive episode" in summary.lower()
         assert "dsm-5 criteria" in summary.lower()
@@ -360,7 +358,7 @@ class TestClinicalInterpreter:
             current_medications=[],
             mood_state="depressed",
         )
-        assert decision.approved == False
+        assert not decision.approved
         assert "contraindicated" in decision.rationale.lower()
         assert "antidepressant monotherapy" in decision.rationale.lower()
 
@@ -371,5 +369,5 @@ class TestClinicalInterpreter:
             current_medications=["lithium"],
             mood_state="depressed",
         )
-        assert decision.approved == True
+        assert decision.approved
         assert "mood stabilizer coverage" in decision.rationale.lower()
