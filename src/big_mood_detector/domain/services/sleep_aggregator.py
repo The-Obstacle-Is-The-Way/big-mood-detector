@@ -50,7 +50,7 @@ class DailySleepSummary:
             return datetime.combine(self.date, self.earliest_bedtime)
         # Default to 11 PM if no bedtime data
         return datetime.combine(self.date, time(23, 0))
-    
+
     @property
     def wake_time(self) -> datetime:
         """Estimated wake time from latest wake time."""

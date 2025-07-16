@@ -13,14 +13,14 @@ from big_mood_detector.domain.entities.activity_record import ActivityRecord
 from big_mood_detector.domain.entities.heart_rate_record import HeartRateRecord
 from big_mood_detector.domain.entities.sleep_record import SleepRecord
 from big_mood_detector.domain.services.activity_aggregator import ActivityAggregator
-from big_mood_detector.domain.services.heart_rate_aggregator import (
-    HeartRateAggregator,
-)
-from big_mood_detector.domain.services.sleep_aggregator import SleepAggregator
 from big_mood_detector.domain.services.advanced_feature_engineering import (
     AdvancedFeatureEngineer,
     AdvancedFeatures,
 )
+from big_mood_detector.domain.services.heart_rate_aggregator import (
+    HeartRateAggregator,
+)
+from big_mood_detector.domain.services.sleep_aggregator import SleepAggregator
 
 
 @dataclass(frozen=True)
@@ -321,15 +321,15 @@ class FeatureExtractionService:
     ) -> dict[date, AdvancedFeatures]:
         """
         Extract research-based advanced features for mood prediction.
-        
+
         Implements the 36 features required by Seoul National study.
-        
+
         Args:
             sleep_records: Raw sleep records
             activity_records: Raw activity records
             heart_records: Raw heart rate records
             lookback_days: Days of history for feature calculation
-            
+
         Returns:
             Dictionary mapping dates to advanced features
         """
@@ -337,15 +337,15 @@ class FeatureExtractionService:
         sleep_summaries = self.sleep_aggregator.aggregate_daily(sleep_records)
         activity_summaries = self.activity_aggregator.aggregate_daily(activity_records)
         heart_summaries = self.heart_aggregator.aggregate_daily(heart_records)
-        
+
         # Convert to lists for advanced feature engineering
         all_sleep = sorted(sleep_summaries.values(), key=lambda x: x.date)
         all_activity = sorted(activity_summaries.values(), key=lambda x: x.date)
         all_heart = sorted(heart_summaries.values(), key=lambda x: x.date)
-        
+
         # Get unique dates where we have at least sleep data
         feature_dates = sorted(sleep_summaries.keys())
-        
+
         # Extract advanced features for each date
         advanced_features = {}
         for feature_date in feature_dates:
@@ -353,7 +353,7 @@ class FeatureExtractionService:
             min_date = min(s.date for s in all_sleep) if all_sleep else feature_date
             if (feature_date - min_date).days < 7:  # Need at least 7 days history
                 continue
-                
+
             advanced_features[feature_date] = self.advanced_engineer.extract_advanced_features(
                 current_date=feature_date,
                 historical_sleep=all_sleep,
@@ -361,5 +361,5 @@ class FeatureExtractionService:
                 historical_heart=all_heart,
                 lookback_days=lookback_days,
             )
-            
+
         return advanced_features
