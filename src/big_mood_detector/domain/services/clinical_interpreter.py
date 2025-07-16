@@ -8,7 +8,13 @@ based on DSM-5 criteria and evidence-based guidelines from the Clinical Dossier.
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
+from pathlib import Path
 from typing import Any
+
+from big_mood_detector.domain.services.clinical_thresholds import (
+    ClinicalThresholdsConfig,
+    load_clinical_thresholds,
+)
 
 
 class RiskLevel(Enum):
