@@ -31,7 +31,7 @@ def extract_learned_embeddings(weights_path: Path, output_dir: Path):
                 "pos_embed",
                 "learned_pos_embed",
                 "cls_positional_encoding",
-                "positional_encoding"
+                "positional_encoding",
             ]
 
             found_embeddings = {}
@@ -59,7 +59,9 @@ def extract_learned_embeddings(weights_path: Path, output_dir: Path):
                 # Save the embeddings
                 output_file = output_dir / f"{weights_path.stem}_embeddings.npz"
                 np.savez_compressed(output_file, **found_embeddings)
-                print(f"\n✅ Saved {len(found_embeddings)} embeddings to: {output_file}")
+                print(
+                    f"\n✅ Saved {len(found_embeddings)} embeddings to: {output_file}"
+                )
 
                 # Show embedding info
                 for name, emb in found_embeddings.items():
@@ -91,7 +93,7 @@ def main():
     pat_repo = Path("reference_repos/Pretrained-Actigraphy-Transformer")
 
     print("LEARNED POSITIONAL EMBEDDINGS EXTRACTION")
-    print("="*70)
+    print("=" * 70)
 
     # Check PAT repo
     if pat_repo.exists():
@@ -110,7 +112,9 @@ def main():
                     extract_learned_embeddings(model_path, output_dir)
     else:
         print(f"❌ PAT repository not found at: {pat_repo}")
-        print("   Clone it with: git clone https://github.com/njmei/Pretrained-Actigraphy-Transformer")
+        print(
+            "   Clone it with: git clone https://github.com/njmei/Pretrained-Actigraphy-Transformer"
+        )
 
     # Check our pretrained weights
     print("\n📁 Checking our pretrained weights...")

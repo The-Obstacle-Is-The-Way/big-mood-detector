@@ -81,6 +81,7 @@ def test_xml_parsing():
     except Exception as e:
         print(f"❌ Error parsing XML: {e}")
         import traceback
+
         traceback.print_exc()
         return None, None, None
 
@@ -107,7 +108,9 @@ def test_sleep_analysis(sleep_records):
 
         # Show some statistics
         if windows:
-            durations = [(w.end_time - w.start_time).total_seconds() / 3600 for w in windows]
+            durations = [
+                (w.end_time - w.start_time).total_seconds() / 3600 for w in windows
+            ]
             print("\n📊 Sleep window statistics:")
             print(f"   Average duration: {np.mean(durations):.1f} hours")
             print(f"   Min duration: {np.min(durations):.1f} hours")
@@ -117,13 +120,16 @@ def test_sleep_analysis(sleep_records):
             recent_windows = sorted(windows, key=lambda w: w.start_time)[-5:]
             print("\n   Recent sleep windows:")
             for window in recent_windows:
-                print(f"   - {window.start_time.date()}: {window.total_duration_hours:.1f}h ({window.episode_count} episodes)")
+                print(
+                    f"   - {window.start_time.date()}: {window.total_duration_hours:.1f}h ({window.episode_count} episodes)"
+                )
 
         return windows
 
     except Exception as e:
         print(f"❌ Error analyzing sleep: {e}")
         import traceback
+
         traceback.print_exc()
         return None
 
@@ -170,6 +176,7 @@ def test_activity_sequences(activity_records):
     except Exception as e:
         print(f"❌ Error extracting sequences: {e}")
         import traceback
+
         traceback.print_exc()
         return None
 
@@ -224,11 +231,13 @@ def test_model_predictions(sequences):
             print("\n🔄 Making ensemble prediction...")
             result = orchestrator.predict(
                 statistical_features=stat_features,
-                activity_records=None  # Would pass real records here
+                activity_records=None,  # Would pass real records here
             )
 
             print("\n📊 Prediction results:")
-            print(f"   Depression risk: {result.ensemble_prediction.depression_risk:.1%}")
+            print(
+                f"   Depression risk: {result.ensemble_prediction.depression_risk:.1%}"
+            )
             print(f"   Hypomanic risk: {result.ensemble_prediction.hypomanic_risk:.1%}")
             print(f"   Manic risk: {result.ensemble_prediction.manic_risk:.1%}")
             print(f"   Confidence: {result.ensemble_prediction.confidence:.1%}")
@@ -239,6 +248,7 @@ def test_model_predictions(sequences):
     except Exception as e:
         print(f"❌ Error with predictions: {e}")
         import traceback
+
         traceback.print_exc()
         return None
 
@@ -267,7 +277,9 @@ def main():
 
     # Test 4: Model Predictions
     if activity_records:
-        predictions = test_model_predictions(sequences if 'sequences' in locals() else None)
+        predictions = test_model_predictions(
+            sequences if "sequences" in locals() else None
+        )
 
     # Summary
     print("\n" + "=" * 70)

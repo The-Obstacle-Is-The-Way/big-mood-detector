@@ -23,6 +23,7 @@ class TestClinicalInterpreterRefactored:
     def config(self):
         """Load test configuration."""
         from pathlib import Path
+
         return load_clinical_thresholds(Path("config/clinical_thresholds.yaml"))
 
     @pytest.fixture
@@ -105,11 +106,10 @@ class TestClinicalInterpreterRefactored:
     def test_backward_compatibility(self, interpreter):
         """Test that the refactored version maintains backward compatibility."""
         # Test that all the expected attributes exist
-        assert hasattr(interpreter, 'interpret_depression_score')
-        assert hasattr(interpreter, 'interpret_mania_score')
-        assert hasattr(interpreter, 'interpret_sleep_biomarkers')
-        assert hasattr(interpreter, 'interpret_activity_biomarkers')
-        assert hasattr(interpreter, 'interpret_circadian_biomarkers')
-        assert hasattr(interpreter, 'get_treatment_recommendations')
-        assert hasattr(interpreter, 'apply_clinical_rules')
-
+        assert hasattr(interpreter, "interpret_depression_score")
+        assert hasattr(interpreter, "interpret_mania_score")
+        assert hasattr(interpreter, "interpret_sleep_biomarkers")
+        assert hasattr(interpreter, "interpret_activity_biomarkers")
+        assert hasattr(interpreter, "interpret_circadian_biomarkers")
+        assert hasattr(interpreter, "get_treatment_recommendations")
+        assert hasattr(interpreter, "apply_clinical_rules")

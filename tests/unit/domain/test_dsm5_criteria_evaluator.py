@@ -5,7 +5,6 @@ Following TDD approach - writing tests first for the DSM5CriteriaEvaluator
 that will be extracted from ClinicalInterpreter.
 """
 
-
 import pytest
 
 from big_mood_detector.domain.services.clinical_thresholds import (
@@ -20,6 +19,7 @@ class TestDSM5CriteriaEvaluator:
     def config(self):
         """Load test configuration."""
         from pathlib import Path
+
         return load_clinical_thresholds(Path("config/clinical_thresholds.yaml"))
 
     @pytest.fixture
@@ -29,6 +29,7 @@ class TestDSM5CriteriaEvaluator:
         from big_mood_detector.domain.services.dsm5_criteria_evaluator import (
             DSM5CriteriaEvaluator,
         )
+
         return DSM5CriteriaEvaluator(config)
 
     def test_evaluate_manic_episode_duration_met(self, evaluator):
@@ -189,8 +190,14 @@ class TestDSM5CriteriaEvaluator:
         result = evaluator.evaluate_complete_criteria(
             episode_type="manic",
             symptom_days=8,
-            symptoms=["elevated_mood", "decreased_sleep", "grandiosity",
-                     "flight_of_ideas", "increased_activity", "poor_judgment"],
+            symptoms=[
+                "elevated_mood",
+                "decreased_sleep",
+                "grandiosity",
+                "flight_of_ideas",
+                "increased_activity",
+                "poor_judgment",
+            ],
             hospitalization=False,
             functional_impairment=True,
         )

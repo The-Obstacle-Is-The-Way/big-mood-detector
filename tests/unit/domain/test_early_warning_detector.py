@@ -19,6 +19,7 @@ class TestEarlyWarningDetector:
     def config(self):
         """Load test configuration."""
         from pathlib import Path
+
         return load_clinical_thresholds(Path("config/clinical_thresholds.yaml"))
 
     @pytest.fixture
@@ -28,6 +29,7 @@ class TestEarlyWarningDetector:
         from big_mood_detector.domain.services.early_warning_detector import (
             EarlyWarningDetector,
         )
+
         return EarlyWarningDetector(config)
 
     def test_detect_depression_warning_sleep_increase(self, detector):
@@ -175,7 +177,7 @@ class TestEarlyWarningDetector:
             individual_thresholds={
                 "sleep_sensitivity": 1.2,  # More sensitive to sleep changes
                 "activity_sensitivity": 1.5,  # More sensitive to activity changes
-            }
+            },
         )
 
         assert personalized_result.depression_warning is True

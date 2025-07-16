@@ -19,6 +19,7 @@ class TestRiskLevelAssessor:
     def config(self):
         """Load test configuration."""
         from pathlib import Path
+
         return load_clinical_thresholds(Path("config/clinical_thresholds.yaml"))
 
     @pytest.fixture
@@ -28,6 +29,7 @@ class TestRiskLevelAssessor:
         from big_mood_detector.domain.services.risk_level_assessor import (
             RiskLevelAssessor,
         )
+
         return RiskLevelAssessor(config)
 
     def test_assess_depression_risk_none(self, assessor):
@@ -139,7 +141,11 @@ class TestRiskLevelAssessor:
 
         result = assessor.calculate_composite_risk(factors)
 
-        assert result.overall_risk_level in ["moderate", "high", "critical"]  # PHQ 15 is severe
+        assert result.overall_risk_level in [
+            "moderate",
+            "high",
+            "critical",
+        ]  # PHQ 15 is severe
         assert result.primary_concern == "depression"
         assert "multiple risk factors" in result.clinical_summary.lower()
         assert result.confidence_adjusted is True

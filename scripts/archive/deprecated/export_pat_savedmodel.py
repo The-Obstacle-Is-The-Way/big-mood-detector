@@ -70,8 +70,12 @@ def export_pat_as_savedmodel(model_size: str, weights_path: Path, output_dir: Pa
     # weight operations. For now, we'll document this as a future optimization.
 
     print("\n⚠️  SavedModel export requires converting DirectPATModel to full TF model.")
-    print("    This is a complex optimization that would provide ~80% faster cold starts.")
-    print("    Current implementation uses direct weight loading which is already efficient.")
+    print(
+        "    This is a complex optimization that would provide ~80% faster cold starts."
+    )
+    print(
+        "    Current implementation uses direct weight loading which is already efficient."
+    )
 
     # Instead, let's create an optimized weight format
     optimized_path = output_dir / f"PAT-{model_size.upper()}_optimized.npz"
@@ -85,7 +89,7 @@ def export_pat_as_savedmodel(model_size: str, weights_path: Path, output_dir: Pa
         optimized_path,
         **model.weights,
         config=model.config,
-        layer_norm_epsilon=model.layer_norm_epsilon
+        layer_norm_epsilon=model.layer_norm_epsilon,
     )
 
     save_time = time.time() - start_time
@@ -136,7 +140,7 @@ def main():
     ]
 
     print("PAT MODEL OPTIMIZATION")
-    print("="*70)
+    print("=" * 70)
     print("This will create optimized weight formats for faster loading.")
 
     # Check which models are available

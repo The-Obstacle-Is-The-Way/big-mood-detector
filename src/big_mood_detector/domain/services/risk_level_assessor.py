@@ -22,6 +22,7 @@ from big_mood_detector.domain.services.clinical_thresholds import (
 @dataclass(frozen=True)
 class RiskAssessment:
     """Immutable risk assessment result."""
+
     risk_level: str  # low, moderate, high, critical
     severity_score: float
     confidence: float
@@ -36,6 +37,7 @@ class RiskAssessment:
 @dataclass(frozen=True)
 class MixedStateAssessment(RiskAssessment):
     """Risk assessment specific to mixed states."""
+
     mixed_features_count: int = 0
     dominant_pole: str = "balanced"
 
@@ -43,6 +45,7 @@ class MixedStateAssessment(RiskAssessment):
 @dataclass(frozen=True)
 class CompositeRiskAssessment:
     """Composite risk from multiple sources."""
+
     overall_risk_level: str
     primary_concern: str
     clinical_summary: str
@@ -53,6 +56,7 @@ class CompositeRiskAssessment:
 @dataclass(frozen=True)
 class RiskTrajectory:
     """Risk trajectory analysis over time."""
+
     trend: str  # improving, stable, worsening
     velocity: float
     clinical_note: str
@@ -211,10 +215,16 @@ class RiskLevelAssessor:
             risk_factors.append("very high ASRM score")
 
         # Biomarker assessment
-        if sleep_hours is not None and sleep_hours < self.config.mania.sleep_hours.reduced_threshold:
+        if (
+            sleep_hours is not None
+            and sleep_hours < self.config.mania.sleep_hours.reduced_threshold
+        ):
             risk_factors.append("reduced sleep")
 
-        if activity_steps is not None and activity_steps >= self.config.mania.activity_steps.elevated_threshold:
+        if (
+            activity_steps is not None
+            and activity_steps >= self.config.mania.activity_steps.elevated_threshold
+        ):
             risk_factors.append("hyperactivity")
 
         # Critical upgrade for psychotic features
@@ -274,8 +284,10 @@ class RiskLevelAssessor:
             risk_factors.append("increased energy")
 
         # Both poles elevated
-        if phq_score >= self.config.depression.phq_cutoffs.moderate.min and \
-           asrm_score >= self.config.mania.asrm_cutoffs.hypomanic.min:
+        if (
+            phq_score >= self.config.depression.phq_cutoffs.moderate.min
+            and asrm_score >= self.config.mania.asrm_cutoffs.hypomanic.min
+        ):
             risk_factors.append("concurrent depression and mania symptoms")
 
         # Determine risk level based on mixed features
@@ -290,8 +302,10 @@ class RiskLevelAssessor:
             rationale = "Possible mixed state"
 
         # Upgrade to critical if severe
-        if phq_score >= self.config.depression.phq_cutoffs.severe.min or \
-           asrm_score >= self.config.mania.asrm_cutoffs.manic_moderate.min:
+        if (
+            phq_score >= self.config.depression.phq_cutoffs.severe.min
+            or asrm_score >= self.config.mania.asrm_cutoffs.manic_moderate.min
+        ):
             risk_level = "critical"
             rationale = "Severe mixed episode"
 
@@ -440,7 +454,10 @@ class RiskLevelAssessor:
             return "low"
         elif hasattr(cutoffs, "moderate") and score < cutoffs.moderate.max:
             return "moderate"
-        elif hasattr(cutoffs, "moderately_severe") and score < cutoffs.moderately_severe.max:
+        elif (
+            hasattr(cutoffs, "moderately_severe")
+            and score < cutoffs.moderately_severe.max
+        ):
             return "high"
         elif hasattr(cutoffs, "severe") and score < cutoffs.severe.max:
             return "high"

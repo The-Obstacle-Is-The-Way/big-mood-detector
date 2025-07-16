@@ -19,12 +19,13 @@ from scipy import stats
 
 from big_mood_detector.domain.utils.math_helpers import safe_std, safe_var
 
-T = TypeVar('T')  # Generic type for domain summaries
+T = TypeVar("T")  # Generic type for domain summaries
 
 
 @dataclass(frozen=True)
 class RollingStatistics:
     """Rolling window statistics."""
+
     mean: float
     std: float
     min: float
@@ -35,6 +36,7 @@ class RollingStatistics:
 @dataclass(frozen=True)
 class TrendFeatures:
     """Trend analysis features."""
+
     slope: float  # Rate of change
     r_squared: float  # Goodness of fit
     acceleration: float  # Second derivative
@@ -45,6 +47,7 @@ class TrendFeatures:
 @dataclass(frozen=True)
 class VariabilityFeatures:
     """Variability metrics."""
+
     coefficient_of_variation: float
     range: float
     iqr: float  # Interquartile range
@@ -54,6 +57,7 @@ class VariabilityFeatures:
 @dataclass(frozen=True)
 class PeriodicityFeatures:
     """Periodicity detection results."""
+
     dominant_period_days: int
     period_strength: float  # 0-1, strength of periodicity
     phase_shift: float  # Days offset from expected phase
@@ -62,6 +66,7 @@ class PeriodicityFeatures:
 @dataclass(frozen=True)
 class ChangePoint:
     """Detected change point in time series."""
+
     index: int
     date: Any  # Using Any to avoid circular imports
     magnitude: float
@@ -71,6 +76,7 @@ class ChangePoint:
 @dataclass(frozen=True)
 class CrossDomainCorrelation:
     """Correlation between different health domains."""
+
     pearson_r: float
     spearman_rho: float
     p_value: float
@@ -80,6 +86,7 @@ class CrossDomainCorrelation:
 @dataclass(frozen=True)
 class MomentumFeatures:
     """Momentum (rate of change) features."""
+
     short_term_momentum: float
     long_term_momentum: float
     momentum_divergence: float
@@ -113,10 +120,7 @@ class TemporalFeatureCalculator:
             self.min_period_strength = temporal_config.get("min_period_strength", 0.3)
 
     def calculate_rolling_statistics(
-        self,
-        data: list[T],
-        window_days: int,
-        metric_extractor: Callable[[T], float]
+        self, data: list[T], window_days: int, metric_extractor: Callable[[T], float]
     ) -> RollingStatistics:
         """
         Calculate rolling window statistics.
@@ -155,18 +159,11 @@ class TemporalFeatureCalculator:
             trend = 0.0
 
         return RollingStatistics(
-            mean=mean,
-            std=std,
-            min=min_val,
-            max=max_val,
-            trend=trend
+            mean=mean, std=std, min=min_val, max=max_val, trend=trend
         )
 
     def calculate_trend_features(
-        self,
-        data: list[T],
-        metric_extractor: Callable[[T], float],
-        window_days: int
+        self, data: list[T], metric_extractor: Callable[[T], float], window_days: int
     ) -> TrendFeatures:
         """
         Calculate trend features using linear regression.
@@ -181,8 +178,11 @@ class TemporalFeatureCalculator:
         """
         if not data:
             return TrendFeatures(
-                slope=0, r_squared=0, acceleration=0,
-                is_increasing=False, is_stable=True
+                slope=0,
+                r_squared=0,
+                acceleration=0,
+                is_increasing=False,
+                is_stable=True,
             )
 
         # Extract metrics from window
@@ -191,8 +191,11 @@ class TemporalFeatureCalculator:
 
         if len(window_data) < 2:
             return TrendFeatures(
-                slope=0, r_squared=0, acceleration=0,
-                is_increasing=False, is_stable=True
+                slope=0,
+                r_squared=0,
+                acceleration=0,
+                is_increasing=False,
+                is_stable=True,
             )
 
         # Linear regression
@@ -221,7 +224,11 @@ class TemporalFeatureCalculator:
             acceleration = 0.0
 
         # Determine if stable (low CV)
-        cv = safe_std(window_data) / np.mean(window_data) if np.mean(window_data) != 0 else 0
+        cv = (
+            safe_std(window_data) / np.mean(window_data)
+            if np.mean(window_data) != 0
+            else 0
+        )
         is_stable = cv < self.stability_threshold
 
         return TrendFeatures(
@@ -229,14 +236,11 @@ class TemporalFeatureCalculator:
             r_squared=float(r_squared),
             acceleration=acceleration,
             is_increasing=slope > 0,
-            is_stable=bool(is_stable)
+            is_stable=bool(is_stable),
         )
 
     def calculate_variability_features(
-        self,
-        data: list[T],
-        metric_extractor: Callable[[T], float],
-        window_days: int
+        self, data: list[T], metric_extractor: Callable[[T], float], window_days: int
     ) -> VariabilityFeatures:
         """
         Calculate variability metrics.
@@ -283,14 +287,14 @@ class TemporalFeatureCalculator:
             coefficient_of_variation=float(cv),
             range=float(data_range),
             iqr=float(iqr),
-            mad=float(mad)
+            mad=float(mad),
         )
 
     def calculate_periodicity_features(
         self,
         data: list[T],
         metric_extractor: Callable[[T], float],
-        max_period_days: int = 7
+        max_period_days: int = 7,
     ) -> PeriodicityFeatures:
         """
         Detect periodic patterns (e.g., weekly cycles).
@@ -305,9 +309,7 @@ class TemporalFeatureCalculator:
         """
         if len(data) < max_period_days * 2:
             return PeriodicityFeatures(
-                dominant_period_days=0,
-                period_strength=0,
-                phase_shift=0
+                dominant_period_days=0, period_strength=0, phase_shift=0
             )
 
         metrics = [metric_extractor(d) for d in data]
@@ -327,7 +329,9 @@ class TemporalFeatureCalculator:
 
                 # Calculate correlation with shifted version
                 normalized_array = np.array(normalized)
-                correlation = np.correlate(normalized_array[:-period], normalized_array[period:], mode='valid')[0]
+                correlation = np.correlate(
+                    normalized_array[:-period], normalized_array[period:], mode="valid"
+                )[0]
                 correlation /= len(normalized_array) - period
 
                 if abs(correlation) > best_strength:
@@ -338,7 +342,9 @@ class TemporalFeatureCalculator:
                     # Find which day of period has highest average
                     period_averages = []
                     for day in range(period):
-                        day_values = [metrics[i] for i in range(day, len(metrics), period)]
+                        day_values = [
+                            metrics[i] for i in range(day, len(metrics), period)
+                        ]
                         period_averages.append(np.mean(day_values))
 
                     best_phase = int(np.argmax(period_averages))
@@ -346,14 +352,11 @@ class TemporalFeatureCalculator:
         return PeriodicityFeatures(
             dominant_period_days=best_period,
             period_strength=float(best_strength),
-            phase_shift=float(best_phase)
+            phase_shift=float(best_phase),
         )
 
     def calculate_anomaly_scores(
-        self,
-        data: list[T],
-        metric_extractor: Callable[[T], float],
-        window_days: int
+        self, data: list[T], metric_extractor: Callable[[T], float], window_days: int
     ) -> list[float]:
         """
         Calculate anomaly scores for each day.
@@ -381,7 +384,7 @@ class TemporalFeatureCalculator:
                 window = metrics[:i] if i > 0 else [metrics[0]]
             else:
                 # Use previous window_days
-                window = metrics[i-window_days:i]
+                window = metrics[i - window_days : i]
 
             if len(window) > 1:
                 mean = np.mean(window)
@@ -402,7 +405,7 @@ class TemporalFeatureCalculator:
         self,
         data: list[T],
         metric_extractor: Callable[[T], float],
-        min_segment_days: int = 5
+        min_segment_days: int = 5,
     ) -> list[ChangePoint]:
         """
         Detect significant changes in time series.
@@ -426,8 +429,8 @@ class TemporalFeatureCalculator:
         # Simple method: compare running averages
         for i in range(min_segment_days, len(metrics) - min_segment_days):
             # Compare before and after segments
-            before = metrics[i-min_segment_days:i]
-            after = metrics[i:i+min_segment_days]
+            before = metrics[i - min_segment_days : i]
+            after = metrics[i : i + min_segment_days]
 
             before_mean = np.mean(before)
             after_mean = np.mean(after)
@@ -441,12 +444,16 @@ class TemporalFeatureCalculator:
 
                 # Significant change if effect size > 0.8 (large effect)
                 if effect_size > 0.8:
-                    change_points.append(ChangePoint(
-                        index=i,
-                        date=data[i].date,  # type: ignore[attr-defined]
-                        magnitude=float(after_mean - before_mean),
-                        direction="increase" if after_mean > before_mean else "decrease"
-                    ))
+                    change_points.append(
+                        ChangePoint(
+                            index=i,
+                            date=data[i].date,  # type: ignore[attr-defined]
+                            magnitude=float(after_mean - before_mean),
+                            direction=(
+                                "increase" if after_mean > before_mean else "decrease"
+                            ),
+                        )
+                    )
 
                     # Skip ahead to avoid detecting overlapping changes
                     i += min_segment_days
@@ -459,7 +466,7 @@ class TemporalFeatureCalculator:
         data2: list[T],
         metric1_extractor: Callable[[T], float],
         metric2_extractor: Callable[[T], float],
-        lag_days: int = 0
+        lag_days: int = 0,
     ) -> CrossDomainCorrelation:
         """
         Calculate correlation between two health domains.
@@ -500,7 +507,7 @@ class TemporalFeatureCalculator:
             metrics1 = metrics1[:-lag_days]
             metrics2 = metrics2[lag_days:]
         elif lag_days < 0 and abs(lag_days) < len(metrics1):
-            metrics1 = metrics1[abs(lag_days):]
+            metrics1 = metrics1[abs(lag_days) :]
             metrics2 = metrics2[:lag_days]
 
         # Calculate correlations
@@ -518,7 +525,7 @@ class TemporalFeatureCalculator:
             pearson_r=float(pearson_r),
             spearman_rho=float(spearman_rho),
             p_value=float(p_value),
-            is_significant=p_value < self.significance_level
+            is_significant=p_value < self.significance_level,
         )
 
     def calculate_momentum_features(
@@ -526,7 +533,7 @@ class TemporalFeatureCalculator:
         data: list[T],
         metric_extractor: Callable[[T], float],
         short_window: int = 3,
-        long_window: int = 7
+        long_window: int = 7,
     ) -> MomentumFeatures:
         """
         Calculate momentum (rate of change) features.
@@ -545,7 +552,7 @@ class TemporalFeatureCalculator:
                 short_term_momentum=0,
                 long_term_momentum=0,
                 momentum_divergence=0,
-                is_accelerating=False
+                is_accelerating=False,
             )
 
         metrics = [metric_extractor(d) for d in data]
@@ -578,5 +585,5 @@ class TemporalFeatureCalculator:
             short_term_momentum=short_momentum,
             long_term_momentum=long_momentum,
             momentum_divergence=float(divergence),
-            is_accelerating=is_accelerating
+            is_accelerating=is_accelerating,
         )

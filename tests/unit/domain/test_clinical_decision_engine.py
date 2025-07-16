@@ -21,6 +21,7 @@ class TestClinicalDecisionEngine:
     def config(self):
         """Load test configuration."""
         from pathlib import Path
+
         return load_clinical_thresholds(Path("config/clinical_thresholds.yaml"))
 
     @pytest.fixture
@@ -29,6 +30,7 @@ class TestClinicalDecisionEngine:
         from big_mood_detector.domain.services.clinical_decision_engine import (
             ClinicalDecisionEngine,
         )
+
         return ClinicalDecisionEngine(config)
 
     def test_make_depression_assessment(self, engine):
@@ -43,7 +45,7 @@ class TestClinicalDecisionEngine:
                 "symptom_days": 16,
                 "hospitalization": False,
                 "suicidal_ideation": False,
-            }
+            },
         )
 
         assert assessment.primary_diagnosis == "depressive_episode"
@@ -64,7 +66,7 @@ class TestClinicalDecisionEngine:
                 "symptom_days": 8,
                 "hospitalization": False,
                 "psychotic_features": True,
-            }
+            },
         )
 
         assert assessment.primary_diagnosis == "manic_episode"
@@ -88,7 +90,7 @@ class TestClinicalDecisionEngine:
                 "racing_thoughts": True,
                 "anhedonia": True,
                 "increased_energy": True,
-            }
+            },
         )
 
         assert "mixed" in assessment.primary_diagnosis
@@ -140,7 +142,7 @@ class TestClinicalDecisionEngine:
                 "previous_episodes": 2,
                 "time_since_last_episode_days": 180,
                 "medication_adherent": True,
-            }
+            },
         )
 
         assert decision.recommend_intervention is True
@@ -160,7 +162,7 @@ class TestClinicalDecisionEngine:
                     "lithium": "partial",
                     "quetiapine": "good",
                 },
-            }
+            },
         )
 
         assert "valproate" not in [t.medication for t in decision.recommendations]
@@ -174,10 +176,12 @@ class TestClinicalDecisionEngine:
             biomarkers={},  # Missing biomarkers
             clinical_context={
                 "symptom_days": 15,
-            }
+            },
         )
 
-        assert assessment.confidence < 0.5  # Lower confidence due to incomplete data (0.4 * 0.9 = 0.36)
+        assert (
+            assessment.confidence < 0.5
+        )  # Lower confidence due to incomplete data (0.4 * 0.9 = 0.36)
         assert assessment.data_completeness < 0.5
         assert "limited data" in assessment.limitations[0].lower()
 
@@ -211,7 +215,7 @@ class TestClinicalDecisionEngine:
                     "sleep_sensitive": True,
                     "rapid_cycler": False,
                 },
-            }
+            },
         )
 
         assert personalized.uses_personalized_thresholds is True
@@ -223,11 +227,16 @@ class TestClinicalDecisionEngine:
         integrated = engine.integrate_assessments(
             mood_assessment={"risk_level": "moderate", "episode_type": "depressive"},
             biomarker_assessment={"instability": "high", "circadian_disruption": True},
-            early_warning_assessment={"warnings_detected": True, "trigger_intervention": False},
+            early_warning_assessment={
+                "warnings_detected": True,
+                "trigger_intervention": False,
+            },
             treatment_assessment={"current_effective": False, "needs_adjustment": True},
         )
 
-        assert integrated.overall_clinical_picture == "unstable_with_treatment_resistance"
+        assert (
+            integrated.overall_clinical_picture == "unstable_with_treatment_resistance"
+        )
         assert integrated.priority_actions[0] == "medication_optimization"
         assert len(integrated.integrated_recommendations) >= 3
 

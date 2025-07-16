@@ -24,6 +24,7 @@ from big_mood_detector.domain.utils.math_helpers import clamp
 @dataclass(frozen=True)
 class L5M10Result:
     """Least active 5 hours and most active 10 hours metrics."""
+
     l5_value: float  # Activity level during least active 5 hours
     m10_value: float  # Activity level during most active 10 hours
     l5_onset: datetime | None  # When L5 period starts
@@ -33,6 +34,7 @@ class L5M10Result:
 @dataclass(frozen=True)
 class PhaseShiftResult:
     """Circadian phase shift detection result."""
+
     phase_advance_hours: float  # Hours earlier than normal
     phase_delay_hours: float  # Hours later than normal
     phase_type: str  # "normal", "advanced", "delayed"
@@ -56,12 +58,16 @@ class CircadianFeatureCalculator:
         if config is None:
             # Default population norms
             self.population_sleep_time = 23.0  # 11 PM
-            self.population_wake_time = 7.0     # 7 AM
-            self.phase_threshold = 2.0          # 2 hour deviation
+            self.population_wake_time = 7.0  # 7 AM
+            self.phase_threshold = 2.0  # 2 hour deviation
         else:
             circadian_config = config.get("circadian", {})
-            self.population_sleep_time = circadian_config.get("population_sleep_time", 23.0)
-            self.population_wake_time = circadian_config.get("population_wake_time", 7.0)
+            self.population_sleep_time = circadian_config.get(
+                "population_sleep_time", 23.0
+            )
+            self.population_wake_time = circadian_config.get(
+                "population_wake_time", 7.0
+            )
             self.phase_threshold = circadian_config.get("phase_advance_threshold", 2.0)
 
     def calculate_l5_m10_metrics(
@@ -96,8 +102,9 @@ class CircadianFeatureCalculator:
         m10_values = []
         for summary in activity_summaries:
             # M10 represents activity level during most active period
-            m10_estimate = (summary.active_hours * 60 +
-                          summary.total_active_energy / 5)  # Activity units
+            m10_estimate = (
+                summary.active_hours * 60 + summary.total_active_energy / 5
+            )  # Activity units
             m10_values.append(m10_estimate)
 
         l5_value = float(np.mean(l5_values)) if l5_values else 0
@@ -114,7 +121,7 @@ class CircadianFeatureCalculator:
             l5_value=l5_value,
             m10_value=m10_value,
             l5_onset=l5_onset,
-            m10_onset=m10_onset
+            m10_onset=m10_onset,
         )
 
     def calculate_phase_shifts(
@@ -131,9 +138,7 @@ class CircadianFeatureCalculator:
         """
         if not sleep_summaries:
             return PhaseShiftResult(
-                phase_advance_hours=0.0,
-                phase_delay_hours=0.0,
-                phase_type="unknown"
+                phase_advance_hours=0.0, phase_delay_hours=0.0, phase_type="unknown"
             )
 
         # Calculate average sleep timing
@@ -143,7 +148,9 @@ class CircadianFeatureCalculator:
         for summary in sleep_summaries:
             if summary.earliest_bedtime and summary.latest_wake_time:
                 # Convert to hours since midnight
-                sleep_hour = summary.earliest_bedtime.hour + summary.earliest_bedtime.minute / 60
+                sleep_hour = (
+                    summary.earliest_bedtime.hour + summary.earliest_bedtime.minute / 60
+                )
 
                 # Handle late night times
                 if sleep_hour < 12:  # After midnight
@@ -151,14 +158,14 @@ class CircadianFeatureCalculator:
 
                 sleep_times.append(sleep_hour)
 
-                wake_hour = summary.latest_wake_time.hour + summary.latest_wake_time.minute / 60
+                wake_hour = (
+                    summary.latest_wake_time.hour + summary.latest_wake_time.minute / 60
+                )
                 wake_times.append(wake_hour)
 
         if not sleep_times:
             return PhaseShiftResult(
-                phase_advance_hours=0.0,
-                phase_delay_hours=0.0,
-                phase_type="unknown"
+                phase_advance_hours=0.0, phase_delay_hours=0.0, phase_type="unknown"
             )
 
         avg_sleep_time = np.mean(sleep_times)
@@ -188,10 +195,12 @@ class CircadianFeatureCalculator:
         return PhaseShiftResult(
             phase_advance_hours=float(phase_advance),
             phase_delay_hours=float(phase_delay),
-            phase_type=phase_type
+            phase_type=phase_type,
         )
 
-    def estimate_dlmo(self, sleep_summaries: list[DailySleepSummary]) -> datetime | None:
+    def estimate_dlmo(
+        self, sleep_summaries: list[DailySleepSummary]
+    ) -> datetime | None:
         """
         Estimate Dim Light Melatonin Onset from sleep patterns.
 
@@ -211,7 +220,9 @@ class CircadianFeatureCalculator:
 
         for summary in sleep_summaries:
             if summary.earliest_bedtime:
-                sleep_hour = summary.earliest_bedtime.hour + summary.earliest_bedtime.minute / 60
+                sleep_hour = (
+                    summary.earliest_bedtime.hour + summary.earliest_bedtime.minute / 60
+                )
 
                 # Handle late night times
                 if sleep_hour < 12:
@@ -233,7 +244,7 @@ class CircadianFeatureCalculator:
             hour=int(dlmo_hour),
             minute=int((dlmo_hour % 1) * 60),
             second=0,
-            microsecond=0
+            microsecond=0,
         )
 
         return dlmo_time
@@ -260,7 +271,9 @@ class CircadianFeatureCalculator:
 
         for summary in sleep_summaries:
             if summary.latest_wake_time:
-                wake_hour = summary.latest_wake_time.hour + summary.latest_wake_time.minute / 60
+                wake_hour = (
+                    summary.latest_wake_time.hour + summary.latest_wake_time.minute / 60
+                )
                 wake_times.append(wake_hour)
 
         if not wake_times:
@@ -277,7 +290,7 @@ class CircadianFeatureCalculator:
             hour=int(nadir_hour),
             minute=int((nadir_hour % 1) * 60),
             second=0,
-            microsecond=0
+            microsecond=0,
         )
 
         return nadir_time

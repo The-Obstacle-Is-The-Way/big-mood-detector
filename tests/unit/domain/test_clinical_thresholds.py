@@ -31,64 +31,69 @@ class TestClinicalThresholdsConfig:
                     "mild": {"min": 5, "max": 9},
                     "moderate": {"min": 10, "max": 14},
                     "moderately_severe": {"min": 15, "max": 19},
-                    "severe": {"min": 20, "max": 27}
+                    "severe": {"min": 20, "max": 27},
                 },
                 "sleep_hours": {
                     "hypersomnia_threshold": 12,
                     "normal_min": 6,
-                    "normal_max": 9
+                    "normal_max": 9,
                 },
                 "activity_steps": {
                     "severe_reduction": 2000,
                     "moderate_reduction": 4000,
-                    "normal_min": 5000
-                }
+                    "normal_min": 5000,
+                },
             },
             "mania": {
                 "asrm_cutoffs": {
                     "none": {"min": 0, "max": 5},
                     "hypomanic": {"min": 6, "max": 10},
                     "manic_moderate": {"min": 11, "max": 15},
-                    "manic_severe": {"min": 16, "max": 20}
+                    "manic_severe": {"min": 16, "max": 20},
                 },
-                "sleep_hours": {
-                    "critical_threshold": 3,
-                    "reduced_threshold": 5
-                },
+                "sleep_hours": {"critical_threshold": 3, "reduced_threshold": 5},
                 "activity_steps": {
                     "elevated_threshold": 15000,
-                    "extreme_threshold": 20000
-                }
+                    "extreme_threshold": 20000,
+                },
             },
             "biomarkers": {
                 "circadian": {
                     "phase_advance_threshold": 2.0,
                     "interdaily_stability_low": 0.5,
-                    "intradaily_variability_high": 1.0
+                    "intradaily_variability_high": 1.0,
                 },
                 "sleep": {
                     "efficiency_threshold": 0.85,
-                    "timing_variance_threshold": 2.0
-                }
+                    "timing_variance_threshold": 2.0,
+                },
             },
             "mixed_features": {
                 "minimum_opposite_symptoms": 3,
                 "depression_with_mixed": {
-                    "required_manic_symptoms": ["racing_thoughts", "increased_energy", "decreased_sleep"]
+                    "required_manic_symptoms": [
+                        "racing_thoughts",
+                        "increased_energy",
+                        "decreased_sleep",
+                    ]
                 },
                 "mania_with_mixed": {
-                    "required_depressive_symptoms": ["depressed_mood", "anhedonia", "guilt"]
-                }
+                    "required_depressive_symptoms": [
+                        "depressed_mood",
+                        "anhedonia",
+                        "guilt",
+                    ]
+                },
             },
             "dsm5_duration": {
                 "manic_days": 7,
                 "hypomanic_days": 4,
-                "depressive_days": 14
-            }
+                "depressive_days": 14,
+            },
         }
 
         config_file = tmp_path / "clinical_thresholds.yaml"
-        with open(config_file, 'w') as f:
+        with open(config_file, "w") as f:
             yaml.dump(config_data, f)
 
         return config_file
@@ -154,8 +159,14 @@ class TestClinicalThresholdsConfig:
         config = load_clinical_thresholds(sample_config_path)
 
         assert config.mixed_features.minimum_opposite_symptoms == 3
-        assert "racing_thoughts" in config.mixed_features.depression_with_mixed.required_manic_symptoms
-        assert "depressed_mood" in config.mixed_features.mania_with_mixed.required_depressive_symptoms
+        assert (
+            "racing_thoughts"
+            in config.mixed_features.depression_with_mixed.required_manic_symptoms
+        )
+        assert (
+            "depressed_mood"
+            in config.mixed_features.mania_with_mixed.required_depressive_symptoms
+        )
 
     def test_dsm5_duration_config(self, sample_config_path):
         """Test DSM-5 duration requirements are loaded correctly."""
@@ -173,7 +184,7 @@ class TestClinicalThresholdsConfig:
     def test_invalid_config_structure(self, tmp_path):
         """Test handling of invalid configuration structure."""
         invalid_config = tmp_path / "invalid.yaml"
-        with open(invalid_config, 'w') as f:
+        with open(invalid_config, "w") as f:
             yaml.dump({"invalid": "structure"}, f)
 
         with pytest.raises(ValueError, match="Missing required configuration section"):
@@ -182,7 +193,7 @@ class TestClinicalThresholdsConfig:
     def test_missing_required_fields(self, tmp_path):
         """Test handling of missing required fields."""
         incomplete_config = tmp_path / "incomplete.yaml"
-        with open(incomplete_config, 'w') as f:
+        with open(incomplete_config, "w") as f:
             yaml.dump({"depression": {"phq_cutoffs": {}}}, f)
 
         with pytest.raises(ValueError, match="Missing required"):
@@ -195,9 +206,12 @@ class TestClinicalThresholdsConfig:
         with open(sample_config_path) as f:
             config_data = yaml.safe_load(f)
         # Then make one threshold invalid
-        config_data["depression"]["phq_cutoffs"]["moderate"] = {"min": 15, "max": 10}  # Invalid: min > max
+        config_data["depression"]["phq_cutoffs"]["moderate"] = {
+            "min": 15,
+            "max": 10,
+        }  # Invalid: min > max
 
-        with open(invalid_config, 'w') as f:
+        with open(invalid_config, "w") as f:
             yaml.dump(config_data, f)
 
         with pytest.raises(ValueError, match="Invalid threshold range"):

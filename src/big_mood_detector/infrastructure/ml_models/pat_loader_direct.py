@@ -69,18 +69,26 @@ class DirectPATModel:
                     # Check if epsilon is stored in file attributes
                     if "layer_norm_epsilon" in f.attrs:
                         self.layer_norm_epsilon = float(f.attrs["layer_norm_epsilon"])
-                        logger.info(f"Read LayerNorm epsilon from H5: {self.layer_norm_epsilon}")
+                        logger.info(
+                            f"Read LayerNorm epsilon from H5: {self.layer_norm_epsilon}"
+                        )
                     else:
                         # Try to find it in layer attributes
                         for layer_name in f.keys():
                             if "norm" in layer_name.lower():
                                 layer = f[layer_name]
                                 if hasattr(layer, "attrs") and "epsilon" in layer.attrs:
-                                    self.layer_norm_epsilon = float(layer.attrs["epsilon"])
-                                    logger.info(f"Read LayerNorm epsilon from layer {layer_name}: {self.layer_norm_epsilon}")
+                                    self.layer_norm_epsilon = float(
+                                        layer.attrs["epsilon"]
+                                    )
+                                    logger.info(
+                                        f"Read LayerNorm epsilon from layer {layer_name}: {self.layer_norm_epsilon}"
+                                    )
                                     break
                 except Exception as e:
-                    logger.debug(f"Could not read LayerNorm epsilon from H5: {e}. Using default: {self.layer_norm_epsilon}")
+                    logger.debug(
+                        f"Could not read LayerNorm epsilon from H5: {e}. Using default: {self.layer_norm_epsilon}"
+                    )
 
                 # Load dense layer
                 self.weights["dense_kernel"] = np.array(f["dense"]["dense"]["kernel:0"])
@@ -170,7 +178,9 @@ class DirectPATModel:
             self.config["num_heads"],
             self.config["embed_dim"],
         ), f"Q kernel shape mismatch: {q_kernel_np.shape}"
-        q_kernel = tf.reshape(tf.constant(q_kernel_np), (q_kernel_np.shape[0], -1))  # Shape: (96, 1152)
+        q_kernel = tf.reshape(
+            tf.constant(q_kernel_np), (q_kernel_np.shape[0], -1)
+        )  # Shape: (96, 1152)
         q_bias = tf.reshape(self.weights[f"{prefix}_q_bias"], (-1,))  # Shape: (1152,)
 
         k_kernel_np = self.weights[f"{prefix}_k_kernel"]
@@ -241,7 +251,13 @@ class DirectPATModel:
         # Add batch dimension
         return pos_embeddings[tf.newaxis, :, :]  # type: ignore[no-any-return]
 
-    def _layer_norm(self, x: tf.Tensor, gamma: tf.Tensor, beta: tf.Tensor, epsilon: float | None = None) -> tf.Tensor:
+    def _layer_norm(
+        self,
+        x: tf.Tensor,
+        gamma: tf.Tensor,
+        beta: tf.Tensor,
+        epsilon: float | None = None,
+    ) -> tf.Tensor:
         """Apply layer normalization."""
         if epsilon is None:
             epsilon = self.layer_norm_epsilon

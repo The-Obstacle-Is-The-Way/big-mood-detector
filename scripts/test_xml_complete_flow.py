@@ -23,16 +23,16 @@ def print_header(title):
     """Print formatted section header."""
     print(f"\n{'='*80}")
     print(f" {title}")
-    print('='*80)
+    print("=" * 80)
 
 
 def test_complete_pipeline():
     """Test the complete pipeline from XML to clinical interpretation."""
 
-    print("="*80)
+    print("=" * 80)
     print(" COMPLETE XML PIPELINE TEST")
     print(" XML → Features → Predictions → Clinical Interpretation")
-    print("="*80)
+    print("=" * 80)
 
     # Initialize pipeline
     pipeline = MoodPredictionPipeline()
@@ -45,7 +45,9 @@ def test_complete_pipeline():
         print(f"❌ XML file not found: {xml_path}")
         return
 
-    print(f"\n📁 Processing: {xml_path.name} ({xml_path.stat().st_size / 1024**2:.1f} MB)")
+    print(
+        f"\n📁 Processing: {xml_path.name} ({xml_path.stat().st_size / 1024**2:.1f} MB)"
+    )
 
     # Process recent data
     end_date = date.today()
@@ -65,7 +67,7 @@ def test_complete_pipeline():
             export_path=xml_path,
             output_path=output_path,
             start_date=start_date,
-            end_date=end_date
+            end_date=end_date,
         )
 
         process_time = time.time() - start_time
@@ -80,13 +82,16 @@ def test_complete_pipeline():
             print("\n📊 Sample Features (last 3 days):")
             for idx, row in features_df.tail(3).iterrows():
                 print(f"\n   {row.get('date', idx)}:")
-                print(f"     Sleep duration: {row.get('sleep_percentage_MN', 0)*24:.1f}h")
+                print(
+                    f"     Sleep duration: {row.get('sleep_percentage_MN', 0)*24:.1f}h"
+                )
                 print(f"     Steps: {row.get('long_len_MN', 0)*1000:.0f}")
                 print(f"     Confidence: {row.get('confidence_score', 0):.1%}")
 
     except Exception as e:
         print(f"❌ Pipeline error: {e}")
         import traceback
+
         traceback.print_exc()
         return
 
@@ -98,7 +103,7 @@ def test_complete_pipeline():
         return
 
     # The pipeline already includes predictions in the output
-    prediction_cols = ['depression_risk', 'hypomanic_risk', 'manic_risk']
+    prediction_cols = ["depression_risk", "hypomanic_risk", "manic_risk"]
 
     if all(col in features_df.columns for col in prediction_cols):
         print("✅ Predictions included in pipeline output")
@@ -125,9 +130,9 @@ def test_complete_pipeline():
         print(f"\n📊 Clinical Interpretation for {row.get('date', idx)}:")
 
         # Get prediction values
-        dep_risk = row.get('depression_risk', 0)
-        hypo_risk = row.get('hypomanic_risk', 0)
-        manic_risk = row.get('manic_risk', 0)
+        dep_risk = row.get("depression_risk", 0)
+        hypo_risk = row.get("hypomanic_risk", 0)
+        manic_risk = row.get("manic_risk", 0)
 
         # Convert to PHQ/ASRM scores for interpretation
         # (In production, these would come from actual assessments)
@@ -135,31 +140,33 @@ def test_complete_pipeline():
         asrm_score = int(max(hypo_risk, manic_risk) * 15)  # Scale to 0-15 range
 
         # Get sleep/activity from features
-        sleep_hours = row.get('sleep_percentage_MN', 0.3) * 24
-        daily_steps = row.get('long_len_MN', 8) * 1000
+        sleep_hours = row.get("sleep_percentage_MN", 0.3) * 24
+        daily_steps = row.get("long_len_MN", 8) * 1000
 
-        print(f"   ML Risk: Depression {dep_risk:.1%}, Hypomania {hypo_risk:.1%}, Mania {manic_risk:.1%}")
+        print(
+            f"   ML Risk: Depression {dep_risk:.1%}, Hypomania {hypo_risk:.1%}, Mania {manic_risk:.1%}"
+        )
         print(f"   Biomarkers: Sleep {sleep_hours:.1f}h, Steps {daily_steps:.0f}")
 
         # Depression interpretation
         if phq_score > 4:
             dep_result = interpreter.interpret_depression_score(
-                phq_score=phq_score,
-                sleep_hours=sleep_hours,
-                activity_steps=daily_steps
+                phq_score=phq_score, sleep_hours=sleep_hours, activity_steps=daily_steps
             )
             print("\n   Depression Assessment:")
             print(f"     Risk Level: {dep_result.risk_level.value}")
             print(f"     Summary: {dep_result.clinical_summary}")
             if dep_result.recommendations:
-                print(f"     Recommendation: {dep_result.recommendations[0].medication}")
+                print(
+                    f"     Recommendation: {dep_result.recommendations[0].medication}"
+                )
 
         # Mania interpretation
         if asrm_score > 5:
             mania_result = interpreter.interpret_mania_score(
                 asrm_score=asrm_score,
                 sleep_hours=sleep_hours,
-                activity_steps=daily_steps
+                activity_steps=daily_steps,
             )
             print("\n   Mania Assessment:")
             print(f"     Risk Level: {mania_result.risk_level.value}")
@@ -182,8 +189,10 @@ def test_complete_pipeline():
     print(f"\n💾 Output saved to: {output_path}")
 
     # Check what models were used
-    if 'models_used' in features_df.columns:
-        models = features_df['models_used'].iloc[-1] if len(features_df) > 0 else "unknown"
+    if "models_used" in features_df.columns:
+        models = (
+            features_df["models_used"].iloc[-1] if len(features_df) > 0 else "unknown"
+        )
         print(f"\n🤖 Models used: {models}")
 
     return features_df
@@ -206,12 +215,12 @@ def test_api_integration():
                 "phq_score": 12,
                 "sleep_hours": 5.5,
                 "activity_steps": 4500,
-                "suicidal_ideation": False
+                "suicidal_ideation": False,
             }
 
             response = requests.post(
                 "http://localhost:8000/api/v1/clinical/interpret/depression",
-                json=test_data
+                json=test_data,
             )
 
             if response.status_code == 200:
@@ -223,7 +232,9 @@ def test_api_integration():
             else:
                 print(f"❌ API error: {response.status_code}")
         else:
-            print("⚠️  API not running (start with: uvicorn big_mood_detector.interfaces.api.main:app)")
+            print(
+                "⚠️  API not running (start with: uvicorn big_mood_detector.interfaces.api.main:app)"
+            )
     except requests.exceptions.ConnectionError:
         print("⚠️  API not accessible")
 

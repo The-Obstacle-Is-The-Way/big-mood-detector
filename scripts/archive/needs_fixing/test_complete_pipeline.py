@@ -118,6 +118,7 @@ def test_feature_extraction(repository):
     except Exception as e:
         print(f"❌ Error extracting features: {e}")
         import traceback
+
         traceback.print_exc()
         return None
 
@@ -211,18 +212,20 @@ def test_ensemble_orchestration(pat_model, xgboost_predictor, repository):
     try:
         # Create orchestrator
         orchestrator = EnsembleOrchestrator(
-            xgboost_predictor=xgboost_predictor,
-            pat_model=pat_model
+            xgboost_predictor=xgboost_predictor, pat_model=pat_model
         )
 
         # Get some activity records for testing
-        activity_records = list(repository.get_activity_records())[:10080]  # 7 days worth
+        activity_records = list(repository.get_activity_records())[
+            :10080
+        ]  # 7 days worth
 
         if len(activity_records) < 10080:
             print(f"⚠️  Only {len(activity_records)} activity records available")
 
         # Create mock statistical features for demo
         import numpy as np
+
         stat_features = np.random.randn(36).astype(np.float32)
         stat_features[0] = 7.5  # sleep duration mean
         stat_features[1] = 1.2  # sleep duration std
@@ -230,7 +233,7 @@ def test_ensemble_orchestration(pat_model, xgboost_predictor, repository):
         # Run prediction
         result = orchestrator.predict(
             statistical_features=stat_features,
-            activity_records=activity_records if activity_records else None
+            activity_records=activity_records if activity_records else None,
         )
 
         pred_time = time.time() - start_time
@@ -252,7 +255,9 @@ def test_ensemble_orchestration(pat_model, xgboost_predictor, repository):
 
         if result.pat_enhanced_prediction:
             print("\n   PAT-enhanced contribution:")
-            print(f"     Depression: {result.pat_enhanced_prediction.depression_risk:.1%}")
+            print(
+                f"     Depression: {result.pat_enhanced_prediction.depression_risk:.1%}"
+            )
             print(f"     Weight: {orchestrator.config.pat_weight:.0%}")
 
         return result
@@ -260,6 +265,7 @@ def test_ensemble_orchestration(pat_model, xgboost_predictor, repository):
     except Exception as e:
         print(f"❌ Error in ensemble orchestration: {e}")
         import traceback
+
         traceback.print_exc()
         return None
 

@@ -20,6 +20,7 @@ interpreter = ClinicalInterpreter()
 
 class DepressionAssessmentRequest(BaseModel):
     """Request model for depression assessment."""
+
     phq_score: float = Field(..., ge=0, le=27, description="PHQ-8/9 score (0-27)")
     sleep_hours: float = Field(..., ge=0, le=24, description="Average sleep hours")
     activity_steps: int = Field(..., ge=0, description="Daily step count")
@@ -28,14 +29,18 @@ class DepressionAssessmentRequest(BaseModel):
 
 class ManiaAssessmentRequest(BaseModel):
     """Request model for mania assessment."""
+
     asrm_score: float = Field(..., ge=0, description="ASRM score")
     sleep_hours: float = Field(..., ge=0, le=24, description="Average sleep hours")
     activity_steps: int = Field(..., ge=0, description="Daily step count")
-    psychotic_features: bool = Field(False, description="Presence of psychotic features")
+    psychotic_features: bool = Field(
+        False, description="Presence of psychotic features"
+    )
 
 
 class MixedStateAssessmentRequest(BaseModel):
     """Request model for mixed state assessment."""
+
     phq_score: float = Field(..., ge=0, le=27, description="PHQ-8/9 score")
     asrm_score: float = Field(..., ge=0, description="ASRM score")
     sleep_hours: float = Field(..., ge=0, le=24, description="Average sleep hours")
@@ -49,29 +54,54 @@ class MixedStateAssessmentRequest(BaseModel):
 
 class EpisodeDurationRequest(BaseModel):
     """Request model for episode duration evaluation."""
-    episode_type: str = Field(..., description="Episode type (manic, hypomanic, depressive)")
+
+    episode_type: str = Field(
+        ..., description="Episode type (manic, hypomanic, depressive)"
+    )
     symptom_days: int = Field(..., ge=0, description="Number of days with symptoms")
     hospitalization: bool = Field(False, description="Whether hospitalization occurred")
 
 
 class DigitalBiomarkersRequest(BaseModel):
     """Request model for digital biomarker interpretation."""
-    sleep_duration: float = Field(..., ge=0, le=24, description="Sleep duration in hours")
-    sleep_efficiency: float = Field(..., ge=0, le=1, description="Sleep efficiency (0-1)")
-    sleep_timing_variance: float = Field(..., ge=0, description="Variance in sleep timing (hours)")
+
+    sleep_duration: float = Field(
+        ..., ge=0, le=24, description="Sleep duration in hours"
+    )
+    sleep_efficiency: float = Field(
+        ..., ge=0, le=1, description="Sleep efficiency (0-1)"
+    )
+    sleep_timing_variance: float = Field(
+        ..., ge=0, description="Variance in sleep timing (hours)"
+    )
     daily_steps: int | None = Field(None, ge=0, description="Daily step count")
-    sedentary_hours: float | None = Field(None, ge=0, le=24, description="Sedentary hours per day")
-    activity_variance: float | None = Field(None, ge=0, description="Activity level variance")
-    circadian_phase_advance: float | None = Field(None, description="Circadian phase advance in hours")
-    interdaily_stability: float | None = Field(None, ge=0, le=1, description="Interdaily stability (0-1)")
-    intradaily_variability: float | None = Field(None, ge=0, description="Intradaily variability")
+    sedentary_hours: float | None = Field(
+        None, ge=0, le=24, description="Sedentary hours per day"
+    )
+    activity_variance: float | None = Field(
+        None, ge=0, description="Activity level variance"
+    )
+    circadian_phase_advance: float | None = Field(
+        None, description="Circadian phase advance in hours"
+    )
+    interdaily_stability: float | None = Field(
+        None, ge=0, le=1, description="Interdaily stability (0-1)"
+    )
+    intradaily_variability: float | None = Field(
+        None, ge=0, description="Intradaily variability"
+    )
 
 
 class ClinicalInterpretationResponse(BaseModel):
     """Response model for clinical interpretation."""
-    risk_level: str = Field(..., description="Risk level (low, moderate, high, critical)")
+
+    risk_level: str = Field(
+        ..., description="Risk level (low, moderate, high, critical)"
+    )
     episode_type: str = Field(..., description="Episode type detected")
-    confidence: float = Field(..., ge=0, le=1, description="Prediction confidence (0-1)")
+    confidence: float = Field(
+        ..., ge=0, le=1, description="Prediction confidence (0-1)"
+    )
     clinical_summary: str = Field(..., description="Human-readable clinical summary")
     dsm5_criteria_met: bool = Field(..., description="Whether DSM-5 criteria are met")
     recommendations: list[dict] = Field(..., description="Treatment recommendations")
@@ -80,6 +110,7 @@ class ClinicalInterpretationResponse(BaseModel):
 
 class DSM5EvaluationResponse(BaseModel):
     """Response model for DSM-5 evaluation."""
+
     meets_dsm5_criteria: bool = Field(..., description="Whether criteria are met")
     clinical_note: str = Field(..., description="Clinical explanation")
     duration_met: bool = Field(..., description="Whether duration requirement is met")
@@ -87,15 +118,20 @@ class DSM5EvaluationResponse(BaseModel):
 
 class BiomarkerInterpretationResponse(BaseModel):
     """Response model for biomarker interpretation."""
+
     mania_risk_factors: int = Field(..., description="Number of mania risk factors")
-    depression_risk_factors: int = Field(..., description="Number of depression risk factors")
+    depression_risk_factors: int = Field(
+        ..., description="Number of depression risk factors"
+    )
     mood_instability_risk: str = Field(..., description="Overall mood instability risk")
     clinical_notes: list[str] = Field(..., description="Clinical observations")
     recommendation_priority: str = Field(..., description="Urgency of intervention")
 
 
 @router.post("/interpret/depression", response_model=ClinicalInterpretationResponse)
-async def interpret_depression(request: DepressionAssessmentRequest) -> ClinicalInterpretationResponse:
+async def interpret_depression(
+    request: DepressionAssessmentRequest,
+) -> ClinicalInterpretationResponse:
     """
     Interpret depression assessment scores and biomarkers.
 
@@ -131,7 +167,9 @@ async def interpret_depression(request: DepressionAssessmentRequest) -> Clinical
 
 
 @router.post("/interpret/mania", response_model=ClinicalInterpretationResponse)
-async def interpret_mania(request: ManiaAssessmentRequest) -> ClinicalInterpretationResponse:
+async def interpret_mania(
+    request: ManiaAssessmentRequest,
+) -> ClinicalInterpretationResponse:
     """
     Interpret mania/hypomania assessment scores and biomarkers.
 
@@ -167,7 +205,9 @@ async def interpret_mania(request: ManiaAssessmentRequest) -> ClinicalInterpreta
 
 
 @router.post("/interpret/mixed", response_model=ClinicalInterpretationResponse)
-async def interpret_mixed_state(request: MixedStateAssessmentRequest) -> ClinicalInterpretationResponse:
+async def interpret_mixed_state(
+    request: MixedStateAssessmentRequest,
+) -> ClinicalInterpretationResponse:
     """
     Interpret mixed state features based on DSM-5 criteria.
 
@@ -208,7 +248,9 @@ async def interpret_mixed_state(request: MixedStateAssessmentRequest) -> Clinica
 
 
 @router.post("/evaluate/duration", response_model=DSM5EvaluationResponse)
-async def evaluate_episode_duration(request: EpisodeDurationRequest) -> DSM5EvaluationResponse:
+async def evaluate_episode_duration(
+    request: EpisodeDurationRequest,
+) -> DSM5EvaluationResponse:
     """
     Evaluate if episode duration meets DSM-5 criteria.
 
@@ -229,7 +271,7 @@ async def evaluate_episode_duration(request: EpisodeDurationRequest) -> DSM5Eval
         if not episode_type:
             raise HTTPException(
                 status_code=400,
-                detail=f"Invalid episode type. Must be one of: {list(episode_map.keys())}"
+                detail=f"Invalid episode type. Must be one of: {list(episode_map.keys())}",
             )
 
         result = interpreter.evaluate_episode_duration(
@@ -250,7 +292,9 @@ async def evaluate_episode_duration(request: EpisodeDurationRequest) -> DSM5Eval
 
 
 @router.post("/interpret/biomarkers", response_model=BiomarkerInterpretationResponse)
-async def interpret_biomarkers(request: DigitalBiomarkersRequest) -> BiomarkerInterpretationResponse:
+async def interpret_biomarkers(
+    request: DigitalBiomarkersRequest,
+) -> BiomarkerInterpretationResponse:
     """
     Interpret digital biomarkers for mood episode risk.
 
@@ -272,7 +316,14 @@ async def interpret_biomarkers(request: DigitalBiomarkersRequest) -> BiomarkerIn
         priority = sleep_result.recommendation_priority
 
         # Add activity biomarkers if provided
-        if all(v is not None for v in [request.daily_steps, request.sedentary_hours, request.activity_variance]):
+        if all(
+            v is not None
+            for v in [
+                request.daily_steps,
+                request.sedentary_hours,
+                request.activity_variance,
+            ]
+        ):
             # Type narrowing - we know these are not None after the check
             activity_result = interpreter.interpret_activity_biomarkers(
                 daily_steps=request.daily_steps,  # type: ignore[arg-type]
@@ -286,7 +337,14 @@ async def interpret_biomarkers(request: DigitalBiomarkersRequest) -> BiomarkerIn
                 priority = "urgent"
 
         # Add circadian biomarkers if provided
-        if all(v is not None for v in [request.circadian_phase_advance, request.interdaily_stability, request.intradaily_variability]):
+        if all(
+            v is not None
+            for v in [
+                request.circadian_phase_advance,
+                request.interdaily_stability,
+                request.intradaily_variability,
+            ]
+        ):
             circadian_result = interpreter.interpret_circadian_biomarkers(
                 circadian_phase_advance=request.circadian_phase_advance,  # type: ignore[arg-type]
                 interdaily_stability=request.interdaily_stability,  # type: ignore[arg-type]

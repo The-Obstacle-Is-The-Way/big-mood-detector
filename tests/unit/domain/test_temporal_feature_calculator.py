@@ -23,6 +23,7 @@ class TestTemporalFeatureCalculator:
         from big_mood_detector.domain.services.temporal_feature_calculator import (
             TemporalFeatureCalculator,
         )
+
         return TemporalFeatureCalculator()
 
     @pytest.fixture
@@ -110,14 +111,14 @@ class TestTemporalFeatureCalculator:
         result = calculator.calculate_rolling_statistics(
             stable_sleep_data,
             window_days=7,
-            metric_extractor=lambda s: s.total_sleep_hours
+            metric_extractor=lambda s: s.total_sleep_hours,
         )
 
-        assert hasattr(result, 'mean')
-        assert hasattr(result, 'std')
-        assert hasattr(result, 'min')
-        assert hasattr(result, 'max')
-        assert hasattr(result, 'trend')
+        assert hasattr(result, "mean")
+        assert hasattr(result, "std")
+        assert hasattr(result, "min")
+        assert hasattr(result, "max")
+        assert hasattr(result, "trend")
 
         # With stable data, std should be low
         assert result.std < 0.5
@@ -128,14 +129,14 @@ class TestTemporalFeatureCalculator:
         trend = calculator.calculate_trend_features(
             variable_activity_data,
             metric_extractor=lambda a: a.total_steps,
-            window_days=7
+            window_days=7,
         )
 
-        assert hasattr(trend, 'slope')
-        assert hasattr(trend, 'r_squared')
-        assert hasattr(trend, 'acceleration')
-        assert hasattr(trend, 'is_increasing')
-        assert hasattr(trend, 'is_stable')
+        assert hasattr(trend, "slope")
+        assert hasattr(trend, "r_squared")
+        assert hasattr(trend, "acceleration")
+        assert hasattr(trend, "is_increasing")
+        assert hasattr(trend, "is_stable")
 
         # Last 7 days include weekend variation, so slope might be negative
         # Just check that trend detection works
@@ -147,13 +148,13 @@ class TestTemporalFeatureCalculator:
         variability = calculator.calculate_variability_features(
             stable_heart_data,
             metric_extractor=lambda h: h.avg_resting_hr,
-            window_days=7
+            window_days=7,
         )
 
-        assert hasattr(variability, 'coefficient_of_variation')
-        assert hasattr(variability, 'range')
-        assert hasattr(variability, 'iqr')  # Interquartile range
-        assert hasattr(variability, 'mad')  # Median absolute deviation
+        assert hasattr(variability, "coefficient_of_variation")
+        assert hasattr(variability, "range")
+        assert hasattr(variability, "iqr")  # Interquartile range
+        assert hasattr(variability, "mad")  # Median absolute deviation
 
         # Stable data should have low CV
         assert variability.coefficient_of_variation < 0.1
@@ -163,12 +164,12 @@ class TestTemporalFeatureCalculator:
         periodicity = calculator.calculate_periodicity_features(
             variable_activity_data,
             metric_extractor=lambda a: a.total_steps,
-            max_period_days=7
+            max_period_days=7,
         )
 
-        assert hasattr(periodicity, 'dominant_period_days')
-        assert hasattr(periodicity, 'period_strength')
-        assert hasattr(periodicity, 'phase_shift')
+        assert hasattr(periodicity, "dominant_period_days")
+        assert hasattr(periodicity, "period_strength")
+        assert hasattr(periodicity, "phase_shift")
 
         # Should detect weekly pattern
         assert periodicity.dominant_period_days == 7
@@ -194,7 +195,7 @@ class TestTemporalFeatureCalculator:
         anomaly_scores = calculator.calculate_anomaly_scores(
             anomalous_data,
             metric_extractor=lambda s: s.total_sleep_hours,
-            window_days=7
+            window_days=7,
         )
 
         assert len(anomaly_scores) == len(anomalous_data)
@@ -249,9 +250,7 @@ class TestTemporalFeatureCalculator:
             summaries.append(summary)
 
         change_points = calculator.detect_change_points(
-            summaries,
-            metric_extractor=lambda a: a.total_steps,
-            min_segment_days=5
+            summaries, metric_extractor=lambda a: a.total_steps, min_segment_days=5
         )
 
         assert len(change_points) >= 1
@@ -261,20 +260,22 @@ class TestTemporalFeatureCalculator:
         # But with 5-day windows, it might detect partial changes
         assert abs(change_points[0].magnitude) > 1000
 
-    def test_calculate_cross_domain_correlation(self, calculator, stable_sleep_data, stable_heart_data):
+    def test_calculate_cross_domain_correlation(
+        self, calculator, stable_sleep_data, stable_heart_data
+    ):
         """Test correlation between different domains (sleep-heart)."""
         correlation = calculator.calculate_cross_domain_correlation(
             stable_sleep_data,
             stable_heart_data,
             metric1_extractor=lambda s: s.total_sleep_hours,
             metric2_extractor=lambda h: h.avg_resting_hr,
-            lag_days=0
+            lag_days=0,
         )
 
-        assert hasattr(correlation, 'pearson_r')
-        assert hasattr(correlation, 'spearman_rho')
-        assert hasattr(correlation, 'p_value')
-        assert hasattr(correlation, 'is_significant')
+        assert hasattr(correlation, "pearson_r")
+        assert hasattr(correlation, "spearman_rho")
+        assert hasattr(correlation, "p_value")
+        assert hasattr(correlation, "is_significant")
 
         # Correlation values should be between -1 and 1
         assert -1 <= correlation.pearson_r <= 1
@@ -286,17 +287,13 @@ class TestTemporalFeatureCalculator:
 
         # Should handle empty data gracefully
         rolling_stats = calculator.calculate_rolling_statistics(
-            empty_data,
-            window_days=7,
-            metric_extractor=lambda s: 0
+            empty_data, window_days=7, metric_extractor=lambda s: 0
         )
         assert rolling_stats.mean == 0
         assert rolling_stats.std == 0
 
         trend = calculator.calculate_trend_features(
-            empty_data,
-            metric_extractor=lambda s: 0,
-            window_days=7
+            empty_data, metric_extractor=lambda s: 0, window_days=7
         )
         assert trend.slope == 0
         assert trend.is_stable is True
@@ -324,7 +321,7 @@ class TestTemporalFeatureCalculator:
         rolling_stats = calculator.calculate_rolling_statistics(
             short_data,
             window_days=7,  # Window larger than data
-            metric_extractor=lambda s: s.total_sleep_hours
+            metric_extractor=lambda s: s.total_sleep_hours,
         )
 
         assert rolling_stats.mean == 7.5
@@ -336,17 +333,20 @@ class TestTemporalFeatureCalculator:
             variable_activity_data,
             metric_extractor=lambda a: a.total_steps,
             short_window=3,
-            long_window=7
+            long_window=7,
         )
 
-        assert hasattr(momentum, 'short_term_momentum')
-        assert hasattr(momentum, 'long_term_momentum')
-        assert hasattr(momentum, 'momentum_divergence')
-        assert hasattr(momentum, 'is_accelerating')
+        assert hasattr(momentum, "short_term_momentum")
+        assert hasattr(momentum, "long_term_momentum")
+        assert hasattr(momentum, "momentum_divergence")
+        assert hasattr(momentum, "is_accelerating")
 
         # Short-term momentum should be positive (last 3 days)
         # Long-term might be negative due to weekend variations
         assert isinstance(momentum.short_term_momentum, float)
         assert isinstance(momentum.long_term_momentum, float)
         # Divergence shows difference between short and long term
-        assert momentum.momentum_divergence == momentum.short_term_momentum - momentum.long_term_momentum
+        assert (
+            momentum.momentum_divergence
+            == momentum.short_term_momentum - momentum.long_term_momentum
+        )

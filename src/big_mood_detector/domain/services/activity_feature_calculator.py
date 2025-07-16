@@ -23,6 +23,7 @@ from big_mood_detector.domain.utils.math_helpers import clamp, safe_std, safe_va
 @dataclass(frozen=True)
 class ActivityIntensityMetrics:
     """Activity intensity distribution metrics."""
+
     intensity_ratio: float  # High/low activity ratio
     high_intensity_days: int
     low_intensity_days: int
@@ -32,6 +33,7 @@ class ActivityIntensityMetrics:
 @dataclass(frozen=True)
 class ActivityAnomalies:
     """Detected activity anomalies."""
+
     has_hyperactivity: bool
     has_hypoactivity: bool
     has_irregular_timing: bool
@@ -56,18 +58,24 @@ class ActivityFeatureCalculator:
         if config is None:
             # Default thresholds
             self.high_activity_threshold = 10000  # steps
-            self.low_activity_threshold = 5000   # steps
+            self.low_activity_threshold = 5000  # steps
             self.hyperactivity_threshold = 15000  # steps
-            self.hypoactivity_threshold = 2000   # steps
+            self.hypoactivity_threshold = 2000  # steps
             self.sedentary_threshold_hours = 18  # hours
             self.fragmentation_window = 3  # days for rolling variance
         else:
             activity_config = config.get("activity", {})
             self.high_activity_threshold = activity_config.get("high_threshold", 10000)
             self.low_activity_threshold = activity_config.get("low_threshold", 5000)
-            self.hyperactivity_threshold = activity_config.get("hyperactivity_threshold", 15000)
-            self.hypoactivity_threshold = activity_config.get("hypoactivity_threshold", 2000)
-            self.sedentary_threshold_hours = activity_config.get("sedentary_threshold_hours", 18)
+            self.hyperactivity_threshold = activity_config.get(
+                "hyperactivity_threshold", 15000
+            )
+            self.hypoactivity_threshold = activity_config.get(
+                "hypoactivity_threshold", 2000
+            )
+            self.sedentary_threshold_hours = activity_config.get(
+                "sedentary_threshold_hours", 18
+            )
             self.fragmentation_window = activity_config.get("fragmentation_window", 3)
 
     def calculate_activity_fragmentation(
@@ -95,14 +103,18 @@ class ActivityFeatureCalculator:
         daily_changes = []
 
         for i in range(1, len(step_counts)):
-            if step_counts[i-1] > 0:
-                change_ratio = abs(step_counts[i] - step_counts[i-1]) / step_counts[i-1]
+            if step_counts[i - 1] > 0:
+                change_ratio = (
+                    abs(step_counts[i] - step_counts[i - 1]) / step_counts[i - 1]
+                )
                 daily_changes.append(change_ratio)
 
         if daily_changes:
             # High changes indicate fragmentation
             avg_change = np.mean(daily_changes)
-            indicators.append(clamp(float(avg_change * 2), 0.0, 1.0))  # Scale appropriately
+            indicators.append(
+                clamp(float(avg_change * 2), 0.0, 1.0)
+            )  # Scale appropriately
 
         # 2. Activity variance from summaries
         activity_variances = [a.activity_variance for a in activity_summaries]
@@ -188,7 +200,7 @@ class ActivityFeatureCalculator:
                 intensity_ratio=0.0,
                 high_intensity_days=0,
                 low_intensity_days=0,
-                moderate_intensity_days=0
+                moderate_intensity_days=0,
             )
 
         high_days = 0
@@ -217,7 +229,7 @@ class ActivityFeatureCalculator:
             intensity_ratio=float(intensity_ratio),
             high_intensity_days=high_days,
             low_intensity_days=low_days,
-            moderate_intensity_days=moderate_days
+            moderate_intensity_days=moderate_days,
         )
 
     def calculate_activity_rhythm_strength(
@@ -241,11 +253,17 @@ class ActivityFeatureCalculator:
         indicators = []
 
         # 1. Consistency in peak activity hour
-        peak_hours = [float(a.peak_activity_hour) for a in activity_summaries if a.peak_activity_hour is not None]
+        peak_hours = [
+            float(a.peak_activity_hour)
+            for a in activity_summaries
+            if a.peak_activity_hour is not None
+        ]
         if peak_hours:
             hour_variance = safe_var(peak_hours)
             # Low variance = strong rhythm
-            hour_consistency = 1.0 / (1.0 + hour_variance / 12.0)  # Normalize by half day
+            hour_consistency = 1.0 / (
+                1.0 + hour_variance / 12.0
+            )  # Normalize by half day
             indicators.append(hour_consistency)
 
         # 2. Consistency in active/sedentary balance
@@ -294,18 +312,25 @@ class ActivityFeatureCalculator:
 
         for summary in activity_summaries:
             if summary.earliest_activity:
-                onset_hour = summary.earliest_activity.hour + summary.earliest_activity.minute / 60
+                onset_hour = (
+                    summary.earliest_activity.hour
+                    + summary.earliest_activity.minute / 60
+                )
                 onset_hours.append(onset_hour)
 
             if summary.latest_activity:
-                offset_hour = summary.latest_activity.hour + summary.latest_activity.minute / 60
+                offset_hour = (
+                    summary.latest_activity.hour + summary.latest_activity.minute / 60
+                )
                 offset_hours.append(offset_hour)
 
         # Calculate consistency (inverse of variance)
         onset_consistency = 0.0
         if onset_hours and len(onset_hours) > 1:
             onset_var = safe_var(onset_hours)
-            onset_consistency = 1.0 / (1.0 + onset_var / 6.0)  # Normalize by quarter day
+            onset_consistency = 1.0 / (
+                1.0 + onset_var / 6.0
+            )  # Normalize by quarter day
 
         offset_consistency = 0.0
         if offset_hours and len(offset_hours) > 1:
@@ -331,7 +356,7 @@ class ActivityFeatureCalculator:
                 has_hyperactivity=False,
                 has_hypoactivity=False,
                 has_irregular_timing=False,
-                anomaly_days=[]
+                anomaly_days=[],
             )
 
         hyperactive_days = []
@@ -342,41 +367,51 @@ class ActivityFeatureCalculator:
         step_counts = [a.total_steps for a in activity_summaries]
         if len(step_counts) > 3:
             median_steps = np.median(step_counts)
-            mad = np.median([abs(s - median_steps) for s in step_counts])  # Median absolute deviation
+            mad = np.median(
+                [abs(s - median_steps) for s in step_counts]
+            )  # Median absolute deviation
             threshold_high = median_steps + 3 * mad
             threshold_low = median_steps - 3 * mad
         else:
-            threshold_high = float('inf')
+            threshold_high = float("inf")
             threshold_low = 0
 
         for summary in activity_summaries:
             # Hyperactivity detection
-            if (summary.total_steps > self.hyperactivity_threshold or
-                summary.active_hours > 16 or
-                summary.is_high_activity):
+            if (
+                summary.total_steps > self.hyperactivity_threshold
+                or summary.active_hours > 16
+                or summary.is_high_activity
+            ):
                 hyperactive_days.append(summary.date)
 
             # Hypoactivity detection
-            if (summary.total_steps < self.hypoactivity_threshold or
-                summary.sedentary_hours > 20 or
-                summary.is_low_activity):
+            if (
+                summary.total_steps < self.hypoactivity_threshold
+                or summary.sedentary_hours > 20
+                or summary.is_low_activity
+            ):
                 hypoactive_days.append(summary.date)
 
             # Irregular timing detection
-            if (summary.activity_variance > 0.7 or
-                summary.total_steps > threshold_high or
-                summary.total_steps < threshold_low):
+            if (
+                summary.activity_variance > 0.7
+                or summary.total_steps > threshold_high
+                or summary.total_steps < threshold_low
+            ):
                 irregular_days.append(summary.date)
 
         # Combine all anomaly days
-        all_anomaly_days = list(set(hyperactive_days + hypoactive_days + irregular_days))
+        all_anomaly_days = list(
+            set(hyperactive_days + hypoactive_days + irregular_days)
+        )
         all_anomaly_days.sort()
 
         return ActivityAnomalies(
             has_hyperactivity=len(hyperactive_days) > 0,
             has_hypoactivity=len(hypoactive_days) > 0,
             has_irregular_timing=len(irregular_days) > 0,
-            anomaly_days=all_anomaly_days
+            anomaly_days=all_anomaly_days,
         )
 
     def calculate_step_acceleration(
@@ -411,7 +446,10 @@ class ActivityFeatureCalculator:
         x_mean = np.mean(x_values)
         y_mean = np.mean(y_values)
 
-        numerator = sum((x - x_mean) * (y - y_mean) for x, y in zip(x_values, y_values, strict=False))
+        numerator = sum(
+            (x - x_mean) * (y - y_mean)
+            for x, y in zip(x_values, y_values, strict=False)
+        )
         denominator = sum((x - x_mean) ** 2 for x in x_values)
 
         if denominator == 0:

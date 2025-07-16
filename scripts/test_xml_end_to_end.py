@@ -41,7 +41,7 @@ def print_header(title):
     """Print formatted section header."""
     print(f"\n{'='*80}")
     print(f" {title}")
-    print('='*80)
+    print("=" * 80)
 
 
 def test_xml_parsing():
@@ -53,7 +53,9 @@ def test_xml_parsing():
         print("❌ XML file not found")
         return None, None, None
 
-    print(f"📁 Processing: {xml_path.name} ({xml_path.stat().st_size / 1024**2:.1f} MB)")
+    print(
+        f"📁 Processing: {xml_path.name} ({xml_path.stat().st_size / 1024**2:.1f} MB)"
+    )
 
     parser = StreamingXMLParser()
     sleep_records = []
@@ -119,8 +121,10 @@ def test_sleep_aggregation(sleep_records):
         recent = sorted(windows, key=lambda w: w.start_time)[-3:]
         print("\n📊 Recent Sleep Windows:")
         for w in recent:
-            print(f"   {w.start_time.date()}: {w.total_duration_hours:.1f}h "
-                  f"({w.episode_count} episodes)")
+            print(
+                f"   {w.start_time.date()}: {w.total_duration_hours:.1f}h "
+                f"({w.episode_count} episodes)"
+            )
 
     return windows
 
@@ -182,14 +186,15 @@ def test_feature_engineering(sleep_windows, activity_sequences):
 
     for date in test_dates:
         # Get sleep windows for this date
-        date_windows = [w for w in sleep_windows
-                       if w.start_time.date() <= date <= w.end_time.date()]
+        date_windows = [
+            w for w in sleep_windows if w.start_time.date() <= date <= w.end_time.date()
+        ]
 
         if date_windows and date in activity_sequences:
             features = extractor.extract_clinical_features(
                 sleep_windows=date_windows,
                 activity_sequences={date: activity_sequences[date]},
-                target_date=date
+                target_date=date,
             )
 
             if features:
@@ -252,7 +257,7 @@ def test_ml_predictions(features):
     for i, feature_vector in enumerate(features[:3]):  # Test first 3 days
         result = orchestrator.predict(
             statistical_features=np.array(feature_vector, dtype=np.float32),
-            activity_records=None  # Would pass real records for PAT
+            activity_records=None,  # Would pass real records for PAT
         )
         predictions.append(result)
 
@@ -298,28 +303,30 @@ def test_clinical_interpretation(predictions):
             asrm_score = int(max(ensemble.hypomanic_risk, ensemble.manic_risk) * 5)
 
         print(f"\n📊 Clinical Interpretation {i+1}:")
-        print(f"   ML Predictions: Depression {ensemble.depression_risk:.1%}, "
-              f"Hypomania {ensemble.hypomanic_risk:.1%}, "
-              f"Mania {ensemble.manic_risk:.1%}")
+        print(
+            f"   ML Predictions: Depression {ensemble.depression_risk:.1%}, "
+            f"Hypomania {ensemble.hypomanic_risk:.1%}, "
+            f"Mania {ensemble.manic_risk:.1%}"
+        )
 
         # Interpret depression
         if phq_score > 4:
             dep_result = interpreter.interpret_depression_score(
                 phq_score=phq_score,
                 sleep_hours=7.5,  # Would come from features
-                activity_steps=8000
+                activity_steps=8000,
             )
             print("\n   Depression Assessment:")
             print(f"     Risk Level: {dep_result.risk_level.value}")
             print(f"     Clinical Summary: {dep_result.clinical_summary}")
-            print(f"     Top Recommendation: {dep_result.recommendations[0].medication}")
+            print(
+                f"     Top Recommendation: {dep_result.recommendations[0].medication}"
+            )
 
         # Interpret mania
         if asrm_score > 5:
             mania_result = interpreter.interpret_mania_score(
-                asrm_score=asrm_score,
-                sleep_hours=5.0,
-                activity_steps=15000
+                asrm_score=asrm_score, sleep_hours=5.0, activity_steps=15000
             )
             print("\n   Mania Assessment:")
             print(f"     Risk Level: {mania_result.risk_level.value}")
@@ -329,10 +336,10 @@ def test_clinical_interpretation(predictions):
 
 def run_complete_test():
     """Run the complete end-to-end test."""
-    print("="*80)
+    print("=" * 80)
     print(" XML PIPELINE END-TO-END TEST")
     print(" Testing: Parse → Aggregate → Extract → Engineer → Predict → Interpret")
-    print("="*80)
+    print("=" * 80)
 
     overall_start = time.time()
 
@@ -371,7 +378,9 @@ def run_complete_test():
     print("   ML Predictions: <0.5s")
     print("   Clinical Interpretation: <0.1s")
     print("\n🎯 End-to-End Success:")
-    print("   ✓ XML → Records → Windows → Sequences → Features → Predictions → Clinical")
+    print(
+        "   ✓ XML → Records → Windows → Sequences → Features → Predictions → Clinical"
+    )
 
 
 if __name__ == "__main__":

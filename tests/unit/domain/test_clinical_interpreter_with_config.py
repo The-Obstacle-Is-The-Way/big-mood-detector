@@ -85,7 +85,8 @@ class TestClinicalInterpreterWithConfig:
 
         # Test circadian phase advance
         result = interpreter.interpret_circadian_biomarkers(
-            circadian_phase_advance=config.biomarkers.circadian.phase_advance_threshold + 0.5,  # 2.5
+            circadian_phase_advance=config.biomarkers.circadian.phase_advance_threshold
+            + 0.5,  # 2.5
             interdaily_stability=0.8,
             intradaily_variability=0.5,
         )
@@ -118,7 +119,7 @@ class TestClinicalInterpreterWithConfig:
         # Should detect mixed features with minimum symptoms
         result = interpreter.interpret_mixed_state(
             phq_score=15,  # Depression
-            asrm_score=4,   # Below mania threshold
+            asrm_score=4,  # Below mania threshold
             sleep_hours=4,
             activity_steps=15000,
             racing_thoughts=True,
@@ -133,16 +134,42 @@ class TestClinicalInterpreterWithConfig:
         config = load_clinical_thresholds(Path("config/clinical_thresholds.yaml"))
 
         # Verify threshold ordering
-        assert config.depression.phq_cutoffs.none.max < config.depression.phq_cutoffs.mild.min
-        assert config.depression.phq_cutoffs.mild.max < config.depression.phq_cutoffs.moderate.min
-        assert config.depression.phq_cutoffs.moderate.max < config.depression.phq_cutoffs.moderately_severe.min
-        assert config.depression.phq_cutoffs.moderately_severe.max < config.depression.phq_cutoffs.severe.min
+        assert (
+            config.depression.phq_cutoffs.none.max
+            < config.depression.phq_cutoffs.mild.min
+        )
+        assert (
+            config.depression.phq_cutoffs.mild.max
+            < config.depression.phq_cutoffs.moderate.min
+        )
+        assert (
+            config.depression.phq_cutoffs.moderate.max
+            < config.depression.phq_cutoffs.moderately_severe.min
+        )
+        assert (
+            config.depression.phq_cutoffs.moderately_severe.max
+            < config.depression.phq_cutoffs.severe.min
+        )
 
         # Verify mania thresholds
-        assert config.mania.asrm_cutoffs.none.max < config.mania.asrm_cutoffs.hypomanic.min
-        assert config.mania.asrm_cutoffs.hypomanic.max < config.mania.asrm_cutoffs.manic_moderate.min
-        assert config.mania.asrm_cutoffs.manic_moderate.max < config.mania.asrm_cutoffs.manic_severe.min
+        assert (
+            config.mania.asrm_cutoffs.none.max < config.mania.asrm_cutoffs.hypomanic.min
+        )
+        assert (
+            config.mania.asrm_cutoffs.hypomanic.max
+            < config.mania.asrm_cutoffs.manic_moderate.min
+        )
+        assert (
+            config.mania.asrm_cutoffs.manic_moderate.max
+            < config.mania.asrm_cutoffs.manic_severe.min
+        )
 
         # Verify critical thresholds
-        assert config.mania.sleep_hours.critical_threshold < config.mania.sleep_hours.reduced_threshold
-        assert config.depression.activity_steps.severe_reduction < config.depression.activity_steps.moderate_reduction
+        assert (
+            config.mania.sleep_hours.critical_threshold
+            < config.mania.sleep_hours.reduced_threshold
+        )
+        assert (
+            config.depression.activity_steps.severe_reduction
+            < config.depression.activity_steps.moderate_reduction
+        )

@@ -20,6 +20,7 @@ from big_mood_detector.domain.services.clinical_thresholds import (
 @dataclass
 class BiomarkerInterpretation:
     """Result of biomarker interpretation."""
+
     mania_risk_factors: int = 0
     depression_risk_factors: int = 0
     clinical_notes: list[str] = field(default_factory=list)
@@ -67,7 +68,9 @@ class BiomarkerInterpreter:
         # Critical short sleep (mania indicator)
         if sleep_duration < self.config.mania.sleep_hours.critical_threshold:
             result.mania_risk_factors += 1
-            result.clinical_notes.append("Critical short sleep duration indicates mania risk")
+            result.clinical_notes.append(
+                "Critical short sleep duration indicates mania risk"
+            )
             result.recommendation_priority = "urgent"
 
         # Poor sleep efficiency
@@ -76,13 +79,18 @@ class BiomarkerInterpreter:
             result.clinical_notes.append("Poor sleep efficiency")
 
         # Variable sleep timing
-        if sleep_timing_variance > self.config.biomarkers.sleep.timing_variance_threshold:
+        if (
+            sleep_timing_variance
+            > self.config.biomarkers.sleep.timing_variance_threshold
+        ):
             result.mania_risk_factors += 1
             result.clinical_notes.append("Highly variable sleep schedule")
 
         # Generate summary if risks detected
         if result.mania_risk_factors > 0:
-            result.clinical_summary = f"Sleep analysis reveals {result.mania_risk_factors} risk factors"
+            result.clinical_summary = (
+                f"Sleep analysis reveals {result.mania_risk_factors} risk factors"
+            )
 
         return result
 
@@ -150,12 +158,18 @@ class BiomarkerInterpreter:
             result.clinical_notes.append("Significant circadian phase advance")
 
         # Low interdaily stability
-        if interdaily_stability < self.config.biomarkers.circadian.interdaily_stability_low:
+        if (
+            interdaily_stability
+            < self.config.biomarkers.circadian.interdaily_stability_low
+        ):
             result.mood_instability_risk = "high"
             result.clinical_notes.append("Low circadian rhythm stability")
 
         # High intradaily variability
-        if intradaily_variability > self.config.biomarkers.circadian.intradaily_variability_high:
+        if (
+            intradaily_variability
+            > self.config.biomarkers.circadian.intradaily_variability_high
+        ):
             result.mood_instability_risk = "high"
             result.clinical_notes.append("High circadian fragmentation")
 
@@ -189,15 +203,15 @@ class BiomarkerInterpreter:
 
         # Aggregate risk factors
         combined.mania_risk_factors = (
-            sleep_result.mania_risk_factors +
-            activity_result.mania_risk_factors +
-            circadian_result.mania_risk_factors
+            sleep_result.mania_risk_factors
+            + activity_result.mania_risk_factors
+            + circadian_result.mania_risk_factors
         )
 
         combined.depression_risk_factors = (
-            sleep_result.depression_risk_factors +
-            activity_result.depression_risk_factors +
-            circadian_result.depression_risk_factors
+            sleep_result.depression_risk_factors
+            + activity_result.depression_risk_factors
+            + circadian_result.depression_risk_factors
         )
 
         # Combine clinical notes
@@ -206,11 +220,18 @@ class BiomarkerInterpreter:
         combined.clinical_notes.extend(circadian_result.clinical_notes)
 
         # Set priority based on highest urgency
-        if any(r.recommendation_priority == "urgent" for r in [sleep_result, activity_result, circadian_result]):
+        if any(
+            r.recommendation_priority == "urgent"
+            for r in [sleep_result, activity_result, circadian_result]
+        ):
             combined.recommendation_priority = "urgent"
 
         # Set instability risk to highest level
-        risk_levels = [sleep_result.mood_instability_risk, activity_result.mood_instability_risk, circadian_result.mood_instability_risk]
+        risk_levels = [
+            sleep_result.mood_instability_risk,
+            activity_result.mood_instability_risk,
+            circadian_result.mood_instability_risk,
+        ]
         if "high" in risk_levels:
             combined.mood_instability_risk = "high"
         elif "moderate" in risk_levels:

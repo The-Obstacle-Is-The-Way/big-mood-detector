@@ -19,6 +19,7 @@ class TestEpisodeInterpreter:
     def config(self):
         """Load test configuration."""
         from pathlib import Path
+
         return load_clinical_thresholds(Path("config/clinical_thresholds.yaml"))
 
     @pytest.fixture
@@ -27,6 +28,7 @@ class TestEpisodeInterpreter:
         from big_mood_detector.domain.services.episode_interpreter import (
             EpisodeInterpreter,
         )
+
         return EpisodeInterpreter(config)
 
     def test_interpret_depression_normal_range(self, interpreter):
@@ -95,7 +97,7 @@ class TestEpisodeInterpreter:
         """Test mixed state detection with opposite pole symptoms."""
         result = interpreter.interpret_mixed_state(
             phq_score=15.0,  # Depression
-            asrm_score=3.0,   # Below mania threshold
+            asrm_score=3.0,  # Below mania threshold
             sleep_hours=4.0,
             activity_steps=15000,
             # Manic symptoms during depression

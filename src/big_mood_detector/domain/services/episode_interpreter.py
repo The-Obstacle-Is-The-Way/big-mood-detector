@@ -21,6 +21,7 @@ from big_mood_detector.domain.services.clinical_thresholds import (
 @dataclass
 class EpisodeInterpretation:
     """Result of episode interpretation."""
+
     risk_level: str  # "low", "moderate", "high", "critical"
     episode_type: str  # "none", "depressive", "manic", "hypomanic", etc.
     dsm5_criteria_met: bool
@@ -107,7 +108,9 @@ class EpisodeInterpreter:
         return EpisodeInterpretation(
             risk_level=risk_level,
             episode_type=episode_type,
-            dsm5_criteria_met=(phq_score >= self.config.depression.phq_cutoffs.moderate.min),
+            dsm5_criteria_met=(
+                phq_score >= self.config.depression.phq_cutoffs.moderate.min
+            ),
             clinical_summary=summary,
         )
 
@@ -162,7 +165,9 @@ class EpisodeInterpreter:
         return EpisodeInterpretation(
             risk_level=risk_level,
             episode_type=episode_type,
-            dsm5_criteria_met=(asrm_score >= self.config.mania.asrm_cutoffs.hypomanic.min),
+            dsm5_criteria_met=(
+                asrm_score >= self.config.mania.asrm_cutoffs.hypomanic.min
+            ),
             clinical_summary=summary,
         )
 
@@ -188,11 +193,14 @@ class EpisodeInterpreter:
         - ≥3 symptoms from opposite pole
         """
         # Count opposite pole symptoms
-        manic_symptoms = sum([
-            racing_thoughts,
-            increased_energy,
-            decreased_sleep or sleep_hours < self.config.depression.sleep_hours.normal_min
-        ])
+        manic_symptoms = sum(
+            [
+                racing_thoughts,
+                increased_energy,
+                decreased_sleep
+                or sleep_hours < self.config.depression.sleep_hours.normal_min,
+            ]
+        )
 
         depressive_symptoms = sum([depressed_mood, anhedonia, guilt])
 

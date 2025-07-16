@@ -27,6 +27,7 @@ class TestDataParsingService:
         from big_mood_detector.application.services.data_parsing_service import (
             DataParsingService,
         )
+
         return DataParsingService()
 
     @pytest.fixture
@@ -75,22 +76,22 @@ class TestDataParsingService:
         Path("health_export")  # JSON path
 
         # Should determine parser type from path
-        assert hasattr(parsing_service, 'parse_health_data')
+        assert hasattr(parsing_service, "parse_health_data")
 
     def test_parse_xml_export(self, parsing_service):
         """Test parsing XML export file."""
         xml_path = Path("test_export.xml")
 
         # Mock the XML parser
-        with patch.object(parsing_service, '_xml_parser') as mock_parser:
+        with patch.object(parsing_service, "_xml_parser") as mock_parser:
             mock_parser.parse_file.return_value = []
 
             result = parsing_service.parse_xml_export(xml_path)
 
             # Result should be ParsedHealthData object
-            assert hasattr(result, 'sleep_records')
-            assert hasattr(result, 'activity_records')
-            assert hasattr(result, 'heart_rate_records')
+            assert hasattr(result, "sleep_records")
+            assert hasattr(result, "activity_records")
+            assert hasattr(result, "heart_rate_records")
             assert isinstance(result.sleep_records, list)
             assert isinstance(result.activity_records, list)
             assert isinstance(result.heart_rate_records, list)
@@ -100,13 +101,15 @@ class TestDataParsingService:
         json_dir = Path("health_export")
 
         # Mock the JSON parsers and glob
-        with patch.object(parsing_service, '_sleep_parser') as mock_sleep_parser:
-            with patch.object(parsing_service, '_activity_parser') as mock_activity_parser:
-                with patch.object(Path, 'glob') as mock_glob:
+        with patch.object(parsing_service, "_sleep_parser") as mock_sleep_parser:
+            with patch.object(
+                parsing_service, "_activity_parser"
+            ) as mock_activity_parser:
+                with patch.object(Path, "glob") as mock_glob:
                     # Mock finding JSON files
                     mock_glob.side_effect = [
                         [Path("Sleep.json")],  # Sleep files
-                        [Path("Step_Count.json")]  # Activity files
+                        [Path("Step_Count.json")],  # Activity files
                     ]
                     mock_sleep_parser.parse_file.return_value = []
                     mock_activity_parser.parse_file.return_value = []
@@ -114,9 +117,9 @@ class TestDataParsingService:
                     result = parsing_service.parse_json_export(json_dir)
 
                     # Result should be ParsedHealthData object
-                    assert hasattr(result, 'sleep_records')
-                    assert hasattr(result, 'activity_records')
-                    assert hasattr(result, 'heart_rate_records')
+                    assert hasattr(result, "sleep_records")
+                    assert hasattr(result, "activity_records")
+                    assert hasattr(result, "heart_rate_records")
                     assert isinstance(result.sleep_records, list)
                     assert isinstance(result.activity_records, list)
 
@@ -129,7 +132,7 @@ class TestDataParsingService:
             records=sample_sleep_records,
             start_date=start_date,
             end_date=end_date,
-            date_extractor=lambda r: r.start_date.date()
+            date_extractor=lambda r: r.start_date.date(),
         )
 
         assert len(filtered) == 3  # Days 3, 4, 5
@@ -138,53 +141,57 @@ class TestDataParsingService:
     def test_validate_parsed_data(self, parsing_service, sample_sleep_records):
         """Test validation of parsed health data."""
         data = {
-            'sleep_records': sample_sleep_records,
-            'activity_records': [],
-            'heart_rate_records': []
+            "sleep_records": sample_sleep_records,
+            "activity_records": [],
+            "heart_rate_records": [],
         }
 
         validation_result = parsing_service.validate_parsed_data(data)
 
-        assert hasattr(validation_result, 'is_valid')
-        assert hasattr(validation_result, 'sleep_record_count')
-        assert hasattr(validation_result, 'activity_record_count')
-        assert hasattr(validation_result, 'heart_record_count')
-        assert hasattr(validation_result, 'date_range')
-        assert hasattr(validation_result, 'warnings')
+        assert hasattr(validation_result, "is_valid")
+        assert hasattr(validation_result, "sleep_record_count")
+        assert hasattr(validation_result, "activity_record_count")
+        assert hasattr(validation_result, "heart_record_count")
+        assert hasattr(validation_result, "date_range")
+        assert hasattr(validation_result, "warnings")
 
-    def test_get_data_summary(self, parsing_service, sample_sleep_records, sample_activity_records):
+    def test_get_data_summary(
+        self, parsing_service, sample_sleep_records, sample_activity_records
+    ):
         """Test getting summary of parsed data."""
         data = {
-            'sleep_records': sample_sleep_records,
-            'activity_records': sample_activity_records,
-            'heart_rate_records': []
+            "sleep_records": sample_sleep_records,
+            "activity_records": sample_activity_records,
+            "heart_rate_records": [],
         }
 
         summary = parsing_service.get_data_summary(data)
 
-        assert 'total_records' in summary
-        assert 'sleep_days' in summary
-        assert 'activity_days' in summary
-        assert 'date_range' in summary
-        assert 'data_density' in summary
+        assert "total_records" in summary
+        assert "sleep_days" in summary
+        assert "activity_days" in summary
+        assert "date_range" in summary
+        assert "data_density" in summary
 
     def test_parser_selection_strategy(self, parsing_service):
         """Test automatic parser selection based on file type."""
         # XML file
-        with patch('pathlib.Path.is_file', return_value=True):
-            with patch('pathlib.Path.suffix', '.xml'):
+        with patch("pathlib.Path.is_file", return_value=True):
+            with patch("pathlib.Path.suffix", ".xml"):
                 xml_parser = parsing_service.get_parser_for_path(Path("export.xml"))
                 assert xml_parser is not None
 
         # JSON directory
-        with patch('pathlib.Path.is_file', return_value=False):
-            with patch('pathlib.Path.is_dir', return_value=True):
-                json_parser = parsing_service.get_parser_for_path(Path("health_export/"))
+        with patch("pathlib.Path.is_file", return_value=False):
+            with patch("pathlib.Path.is_dir", return_value=True):
+                json_parser = parsing_service.get_parser_for_path(
+                    Path("health_export/")
+                )
                 assert json_parser is not None
 
         # Invalid path
-        with patch('pathlib.Path.is_file', return_value=False):
-            with patch('pathlib.Path.is_dir', return_value=False):
+        with patch("pathlib.Path.is_file", return_value=False):
+            with patch("pathlib.Path.is_dir", return_value=False):
                 with pytest.raises(ValueError):
                     parsing_service.get_parser_for_path(Path("invalid.txt"))
 
@@ -197,58 +204,59 @@ class TestDataParsingService:
 
         xml_path = Path("test_export.xml")
 
-        with patch.object(parsing_service, '_xml_parser') as mock_parser:
+        with patch.object(parsing_service, "_xml_parser") as mock_parser:
             mock_parser.parse_file.return_value = []
 
-            with patch('pathlib.Path.is_file', return_value=True):
-                with patch('pathlib.Path.suffix', new_callable=lambda: property(lambda self: '.xml')):
+            with patch("pathlib.Path.is_file", return_value=True):
+                with patch(
+                    "pathlib.Path.suffix",
+                    new_callable=lambda: property(lambda self: ".xml"),
+                ):
                     parsing_service.parse_health_data(
-                        file_path=xml_path,
-                        progress_callback=progress_callback
+                        file_path=xml_path, progress_callback=progress_callback
                     )
 
             assert len(progress_updates) > 0
             # Should have parsing stages
             stages = [update[0] for update in progress_updates]
-            assert any('sleep' in stage.lower() for stage in stages)
+            assert any("sleep" in stage.lower() for stage in stages)
 
     def test_handle_parsing_errors(self, parsing_service):
         """Test error handling during parsing."""
         xml_path = Path("corrupt_export.xml")
 
-        with patch.object(parsing_service, '_xml_parser') as mock_parser:
+        with patch.object(parsing_service, "_xml_parser") as mock_parser:
             mock_parser.parse_file.side_effect = Exception("Parse error")
 
             result = parsing_service.parse_health_data(
-                file_path=xml_path,
-                continue_on_error=True
+                file_path=xml_path, continue_on_error=True
             )
 
             assert result is not None
-            assert 'errors' in result
-            assert len(result['errors']) > 0
+            assert "errors" in result
+            assert len(result["errors"]) > 0
 
     def test_memory_efficient_parsing(self, parsing_service):
         """Test memory-efficient parsing for large files."""
         large_xml = Path("large_export.xml")
 
         # Should use streaming parser for large files
-        assert hasattr(parsing_service, 'parse_large_file')
+        assert hasattr(parsing_service, "parse_large_file")
 
         # Mock file size check
-        with patch('pathlib.Path.stat') as mock_stat:
+        with patch("pathlib.Path.stat") as mock_stat:
             mock_stat.return_value.st_size = 500 * 1024 * 1024  # 500MB
 
             parser_type = parsing_service._select_parser_type(large_xml)
-            assert parser_type == 'streaming'
+            assert parser_type == "streaming"
 
     def test_data_source_abstraction(self, parsing_service):
         """Test abstraction over different data sources."""
         # Should support multiple data sources through common interface
         sources = parsing_service.get_supported_sources()
 
-        assert 'apple_health_xml' in sources
-        assert 'health_auto_export_json' in sources
+        assert "apple_health_xml" in sources
+        assert "health_auto_export_json" in sources
 
         # Each source should have a parser
         for source in sources:
@@ -259,18 +267,24 @@ class TestDataParsingService:
         """Test caching of parsed data for performance."""
         xml_path = Path("test_export.xml")
 
-        with patch.object(parsing_service, '_xml_parser') as mock_parser:
+        with patch.object(parsing_service, "_xml_parser") as mock_parser:
             mock_parser.parse_file.return_value = []
 
-            with patch('pathlib.Path.is_file', return_value=True):
-                with patch('pathlib.Path.suffix', new_callable=lambda: property(lambda self: '.xml')):
+            with patch("pathlib.Path.is_file", return_value=True):
+                with patch(
+                    "pathlib.Path.suffix",
+                    new_callable=lambda: property(lambda self: ".xml"),
+                ):
                     # First parse
-                    result1 = parsing_service.parse_health_data(xml_path, use_cache=True)
+                    result1 = parsing_service.parse_health_data(
+                        xml_path, use_cache=True
+                    )
 
                     # Second parse should use cache
-                    result2 = parsing_service.parse_health_data(xml_path, use_cache=True)
+                    result2 = parsing_service.parse_health_data(
+                        xml_path, use_cache=True
+                    )
 
             # Parser should only be called once (3 times for sleep, activity, heart)
             assert mock_parser.parse_file.call_count == 3
             assert result1 == result2
-

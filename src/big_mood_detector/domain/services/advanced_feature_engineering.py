@@ -282,12 +282,18 @@ class AdvancedFeatureEngineer:
             return self._empty_sleep_features()
 
         # Delegate to specialized calculator
-        sleep_regularity = self.sleep_calculator.calculate_regularity_index(recent_sleep)
+        sleep_regularity = self.sleep_calculator.calculate_regularity_index(
+            recent_sleep
+        )
         is_value = self.sleep_calculator.calculate_interdaily_stability(recent_sleep)
         iv_value = self.sleep_calculator.calculate_intradaily_variability(recent_sleep)
         ra_value = self.sleep_calculator.calculate_relative_amplitude(recent_sleep)
-        short_sleep_pct, long_sleep_pct = self.sleep_calculator.calculate_sleep_window_percentages(recent_sleep)
-        sleep_onset_var, wake_time_var = self.sleep_calculator.calculate_timing_variances(recent_sleep)
+        short_sleep_pct, long_sleep_pct = (
+            self.sleep_calculator.calculate_sleep_window_percentages(recent_sleep)
+        )
+        sleep_onset_var, wake_time_var = (
+            self.sleep_calculator.calculate_timing_variances(recent_sleep)
+        )
 
         return {
             "sleep_regularity_index": sleep_regularity,
@@ -310,7 +316,9 @@ class AdvancedFeatureEngineer:
             return self._empty_circadian_features()
 
         # Delegate to specialized calculator
-        l5_m10_result = self.circadian_calculator.calculate_l5_m10_metrics(recent_activity)
+        l5_m10_result = self.circadian_calculator.calculate_l5_m10_metrics(
+            recent_activity
+        )
         phase_result = self.circadian_calculator.calculate_phase_shifts(recent_sleep)
         dlmo_estimate = self.circadian_calculator.estimate_dlmo(recent_sleep)
         temp_nadir = self.circadian_calculator.estimate_core_temp_nadir(recent_sleep)
@@ -336,9 +344,17 @@ class AdvancedFeatureEngineer:
             return self._empty_activity_features()
 
         # Delegate to specialized calculator
-        fragmentation = self.activity_calculator.calculate_activity_fragmentation(recent_activity)
-        bout_mean, bout_max, _ = self.activity_calculator.calculate_sedentary_bouts(recent_activity)
-        intensity_metrics = self.activity_calculator.calculate_activity_intensity_metrics(recent_activity)
+        fragmentation = self.activity_calculator.calculate_activity_fragmentation(
+            recent_activity
+        )
+        bout_mean, bout_max, _ = self.activity_calculator.calculate_sedentary_bouts(
+            recent_activity
+        )
+        intensity_metrics = (
+            self.activity_calculator.calculate_activity_intensity_metrics(
+                recent_activity
+            )
+        )
 
         return {
             "activity_fragmentation": fragmentation,
@@ -393,23 +409,17 @@ class AdvancedFeatureEngineer:
 
         # Sleep temporal features (7-day window)
         sleep_stats = self.temporal_calculator.calculate_rolling_statistics(
-            recent_sleep,
-            window_days=7,
-            metric_extractor=lambda s: s.total_sleep_hours
+            recent_sleep, window_days=7, metric_extractor=lambda s: s.total_sleep_hours
         )
 
         # Activity temporal features (7-day window)
         activity_stats = self.temporal_calculator.calculate_rolling_statistics(
-            recent_activity,
-            window_days=7,
-            metric_extractor=lambda a: a.total_steps
+            recent_activity, window_days=7, metric_extractor=lambda a: a.total_steps
         )
 
         # Heart rate temporal features (7-day window)
         hr_stats = self.temporal_calculator.calculate_rolling_statistics(
-            recent_heart,
-            window_days=7,
-            metric_extractor=lambda h: h.avg_resting_hr
+            recent_heart, window_days=7, metric_extractor=lambda h: h.avg_resting_hr
         )
 
         return {

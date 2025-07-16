@@ -22,6 +22,7 @@ class TestCircadianFeatureCalculator:
         from big_mood_detector.domain.services.circadian_feature_calculator import (
             CircadianFeatureCalculator,
         )
+
         return CircadianFeatureCalculator()
 
     @pytest.fixture
@@ -58,8 +59,8 @@ class TestCircadianFeatureCalculator:
         for i in range(14):
             # Sleep at 2-3 AM, wake at 10-11 AM
             mid_sleep = datetime.combine(
-                base_date + timedelta(days=i+1),
-                time(6, 30)  # Mid-sleep around 6:30 AM
+                base_date + timedelta(days=i + 1),
+                time(6, 30),  # Mid-sleep around 6:30 AM
             )
 
             summary = DailySleepSummary(
@@ -87,8 +88,8 @@ class TestCircadianFeatureCalculator:
         for i in range(14):
             # Sleep at 8-9 PM, wake at 4-5 AM
             mid_sleep = datetime.combine(
-                base_date + timedelta(days=i+1),
-                time(0, 30)  # Mid-sleep around 12:30 AM
+                base_date + timedelta(days=i + 1),
+                time(0, 30),  # Mid-sleep around 12:30 AM
             )
 
             summary = DailySleepSummary(
@@ -111,10 +112,10 @@ class TestCircadianFeatureCalculator:
         """Test L5 (least active 5 hours) and M10 (most active 10 hours) calculation."""
         result = calculator.calculate_l5_m10_metrics(regular_activity_data)
 
-        assert hasattr(result, 'l5_value')
-        assert hasattr(result, 'm10_value')
-        assert hasattr(result, 'l5_onset')
-        assert hasattr(result, 'm10_onset')
+        assert hasattr(result, "l5_value")
+        assert hasattr(result, "m10_value")
+        assert hasattr(result, "l5_onset")
+        assert hasattr(result, "m10_onset")
 
         # L5 should be lower than M10
         assert result.l5_value < result.m10_value
@@ -125,16 +126,18 @@ class TestCircadianFeatureCalculator:
         """Test detection of delayed sleep phase."""
         result = calculator.calculate_phase_shifts(phase_delayed_sleep_data)
 
-        assert hasattr(result, 'phase_advance_hours')
-        assert hasattr(result, 'phase_delay_hours')
-        assert hasattr(result, 'phase_type')
+        assert hasattr(result, "phase_advance_hours")
+        assert hasattr(result, "phase_delay_hours")
+        assert hasattr(result, "phase_type")
 
         # Should detect phase delay
         assert result.phase_delay_hours > 2.0  # More than 2 hours delayed
         assert result.phase_advance_hours == 0.0
         assert result.phase_type == "delayed"
 
-    def test_calculate_phase_shifts_advanced(self, calculator, phase_advanced_sleep_data):
+    def test_calculate_phase_shifts_advanced(
+        self, calculator, phase_advanced_sleep_data
+    ):
         """Test detection of advanced sleep phase."""
         result = calculator.calculate_phase_shifts(phase_advanced_sleep_data)
 
@@ -151,8 +154,7 @@ class TestCircadianFeatureCalculator:
 
         for i in range(7):
             mid_sleep = datetime.combine(
-                base_date + timedelta(days=i+1),
-                time(3, 0)  # Mid-sleep at 3 AM
+                base_date + timedelta(days=i + 1), time(3, 0)  # Mid-sleep at 3 AM
             )
 
             summary = DailySleepSummary(
@@ -164,7 +166,7 @@ class TestCircadianFeatureCalculator:
                 longest_sleep_hours=7.5,
                 sleep_fragmentation_index=0.1,
                 earliest_bedtime=time(23, 0),  # 11 PM
-                latest_wake_time=time(7, 0),   # 7 AM
+                latest_wake_time=time(7, 0),  # 7 AM
                 mid_sleep_time=mid_sleep,
             )
             summaries.append(summary)
@@ -194,11 +196,12 @@ class TestCircadianFeatureCalculator:
         # For 10:30 AM wake, nadir should be around 8:30 AM
         assert nadir.hour in [8, 9]  # Around 8-9 AM
 
-    def test_calculate_circadian_amplitude(self, calculator, regular_activity_data, phase_delayed_sleep_data):
+    def test_calculate_circadian_amplitude(
+        self, calculator, regular_activity_data, phase_delayed_sleep_data
+    ):
         """Test circadian amplitude calculation from activity data."""
         amplitude = calculator.calculate_circadian_amplitude(
-            regular_activity_data,
-            phase_delayed_sleep_data
+            regular_activity_data, phase_delayed_sleep_data
         )
 
         assert 0 <= amplitude <= 1
@@ -244,8 +247,7 @@ class TestCircadianFeatureCalculator:
                 earliest_bedtime=time(2, 0),  # 2 AM
                 latest_wake_time=time(10, 0),  # 10 AM
                 mid_sleep_time=datetime.combine(
-                    base_date + timedelta(days=i+1),
-                    time(6, 0)
+                    base_date + timedelta(days=i + 1), time(6, 0)
                 ),
             )
 

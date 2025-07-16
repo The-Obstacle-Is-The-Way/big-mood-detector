@@ -46,7 +46,9 @@ class SleepFeatureCalculator:
             self.regularity_scaling = sleep_config.get("regularity_scaling", 10.0)
             self.fragmentation_scale = sleep_config.get("fragmentation_scale", 2.0)
 
-    def calculate_regularity_index(self, sleep_summaries: list[DailySleepSummary]) -> float:
+    def calculate_regularity_index(
+        self, sleep_summaries: list[DailySleepSummary]
+    ) -> float:
         """
         Calculate sleep regularity index (0-100).
 
@@ -75,7 +77,9 @@ class SleepFeatureCalculator:
                 continue
 
             # Convert to hours since midnight
-            sleep_hour = summary.earliest_bedtime.hour + summary.earliest_bedtime.minute / 60
+            sleep_hour = (
+                summary.earliest_bedtime.hour + summary.earliest_bedtime.minute / 60
+            )
 
             # Handle late night times (after midnight)
             # NOTE: This assumes times before noon are late night sleep, not daytime naps
@@ -86,7 +90,9 @@ class SleepFeatureCalculator:
             sleep_times.append(sleep_hour)
 
             # Wake times
-            wake_hour = summary.latest_wake_time.hour + summary.latest_wake_time.minute / 60
+            wake_hour = (
+                summary.latest_wake_time.hour + summary.latest_wake_time.minute / 60
+            )
             wake_times.append(wake_hour)
 
         # Calculate standard deviations safely
@@ -99,7 +105,9 @@ class SleepFeatureCalculator:
         # Clamp to 0-100 range
         return clamp(regularity_raw, 0.0, 100.0)
 
-    def calculate_interdaily_stability(self, sleep_summaries: list[DailySleepSummary]) -> float:
+    def calculate_interdaily_stability(
+        self, sleep_summaries: list[DailySleepSummary]
+    ) -> float:
         """
         Calculate interdaily stability (IS) - consistency across days.
 
@@ -168,7 +176,9 @@ class SleepFeatureCalculator:
 
         return float(min(1.0, max(0.0, is_value)))
 
-    def calculate_intradaily_variability(self, sleep_summaries: list[DailySleepSummary]) -> float:
+    def calculate_intradaily_variability(
+        self, sleep_summaries: list[DailySleepSummary]
+    ) -> float:
         """
         Calculate intradaily variability (IV) - fragmentation within days.
 
@@ -204,7 +214,9 @@ class SleepFeatureCalculator:
 
         return float(avg_fragmentation * self.fragmentation_scale)
 
-    def calculate_relative_amplitude(self, sleep_summaries: list[DailySleepSummary]) -> float:
+    def calculate_relative_amplitude(
+        self, sleep_summaries: list[DailySleepSummary]
+    ) -> float:
         """
         Calculate relative amplitude (RA) - strength of rhythm.
 
@@ -224,7 +236,9 @@ class SleepFeatureCalculator:
         sleep_efficiencies = [s.sleep_efficiency for s in sleep_summaries]
 
         # Strong rhythm = consistent duration and high efficiency
-        duration_consistency = 1.0 - (np.std(sleep_durations) / (np.mean(sleep_durations) + 1e-6))
+        duration_consistency = 1.0 - (
+            np.std(sleep_durations) / (np.mean(sleep_durations) + 1e-6)
+        )
         avg_efficiency = np.mean(sleep_efficiencies)
 
         # Combine metrics
@@ -281,7 +295,9 @@ class SleepFeatureCalculator:
                 continue
 
             # Convert to hours since midnight
-            sleep_hour = summary.earliest_bedtime.hour + summary.earliest_bedtime.minute / 60
+            sleep_hour = (
+                summary.earliest_bedtime.hour + summary.earliest_bedtime.minute / 60
+            )
 
             # Handle late night times
             if sleep_hour < 12:
@@ -289,7 +305,9 @@ class SleepFeatureCalculator:
 
             sleep_times.append(sleep_hour)
 
-            wake_hour = summary.latest_wake_time.hour + summary.latest_wake_time.minute / 60
+            wake_hour = (
+                summary.latest_wake_time.hour + summary.latest_wake_time.minute / 60
+            )
             wake_times.append(wake_hour)
 
         onset_variance = safe_var(sleep_times)

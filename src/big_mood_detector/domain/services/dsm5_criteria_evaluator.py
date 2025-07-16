@@ -20,6 +20,7 @@ from big_mood_detector.domain.services.clinical_thresholds import (
 @dataclass(frozen=True)
 class DurationCriteria:
     """DSM-5 duration criteria evaluation result."""
+
     duration_met: bool
     meets_criteria: bool
     required_days: int
@@ -30,6 +31,7 @@ class DurationCriteria:
 @dataclass(frozen=True)
 class SymptomCriteria:
     """DSM-5 symptom count criteria evaluation result."""
+
     symptom_count_met: bool
     symptom_count: int
     required_count: int
@@ -39,6 +41,7 @@ class SymptomCriteria:
 @dataclass(frozen=True)
 class FunctionalCriteria:
     """DSM-5 functional impairment criteria evaluation result."""
+
     functional_impairment_met: bool
     impairment_domains: list[str]
     clinical_note: str
@@ -47,6 +50,7 @@ class FunctionalCriteria:
 @dataclass(frozen=True)
 class CompleteDSM5Evaluation:
     """Complete DSM-5 criteria evaluation result."""
+
     meets_all_criteria: bool
     duration_criteria: DurationCriteria
     symptom_criteria: SymptomCriteria
@@ -275,9 +279,9 @@ class DSM5CriteriaEvaluator:
 
         # All criteria must be met
         meets_all = (
-            duration.meets_criteria and
-            symptom_count.symptom_count_met and
-            functional.functional_impairment_met
+            duration.meets_criteria
+            and symptom_count.symptom_count_met
+            and functional.functional_impairment_met
         )
 
         # Generate summary
@@ -312,22 +316,32 @@ class DSM5CriteriaEvaluator:
 
         # Duration
         if evaluation.duration_criteria.duration_met:
-            parts.append(f"- Duration: Sufficient ({evaluation.duration_criteria.actual_days} days)")
+            parts.append(
+                f"- Duration: Sufficient ({evaluation.duration_criteria.actual_days} days)"
+            )
         else:
-            parts.append(f"- Duration: Insufficient ({evaluation.duration_criteria.actual_days}/{evaluation.duration_criteria.required_days} days)")
+            parts.append(
+                f"- Duration: Insufficient ({evaluation.duration_criteria.actual_days}/{evaluation.duration_criteria.required_days} days)"
+            )
 
         # Symptoms
-        parts.append(f"- Symptoms: {evaluation.symptom_criteria.symptom_count}/{evaluation.symptom_criteria.required_count}")
+        parts.append(
+            f"- Symptoms: {evaluation.symptom_criteria.symptom_count}/{evaluation.symptom_criteria.required_count}"
+        )
 
         # Functional impairment
         if evaluation.functional_criteria.functional_impairment_met:
-            parts.append(f"- Functional impairment: Present ({', '.join(evaluation.functional_criteria.impairment_domains)})")
+            parts.append(
+                f"- Functional impairment: Present ({', '.join(evaluation.functional_criteria.impairment_domains)})"
+            )
         else:
             parts.append("- Functional impairment: Not documented")
 
         # Overall conclusion
         if evaluation.meets_all_criteria:
-            parts.append(f"\nConclusion: Meets DSM-5 criteria for {evaluation.episode_type} episode")
+            parts.append(
+                f"\nConclusion: Meets DSM-5 criteria for {evaluation.episode_type} episode"
+            )
         else:
             parts.append("\nConclusion: Does not meet full DSM-5 criteria")
 

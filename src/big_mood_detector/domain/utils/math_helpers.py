@@ -43,6 +43,7 @@ def safe_std(values: list[float], default: float = 0.0) -> float:
         return default
 
     import numpy as np
+
     return float(np.std(values))
 
 
@@ -61,4 +62,5 @@ def safe_var(values: list[float], default: float = 0.0) -> float:
         return default
 
     import numpy as np
+
     return float(np.var(values))

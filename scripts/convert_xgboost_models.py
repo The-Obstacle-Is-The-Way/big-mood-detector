@@ -15,6 +15,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 try:
     import xgboost as xgb
+
     print(f"Using XGBoost version: {xgb.__version__}")
 except ImportError:
     print("ERROR: XGBoost not installed. Run: pip install xgboost")
@@ -36,11 +37,13 @@ def convert_model(input_path: Path, output_path: Path) -> bool:
         print(f"\nConverting {input_path.name}...")
 
         # Load the old model
-        with open(input_path, 'rb') as f:
+        with open(input_path, "rb") as f:
             old_model = pickle.load(f)
 
         # Check if it's actually an XGBoost model
-        if not isinstance(old_model, xgb.Booster | xgb.XGBClassifier | xgb.XGBRegressor):
+        if not isinstance(
+            old_model, xgb.Booster | xgb.XGBClassifier | xgb.XGBRegressor
+        ):
             print("  ⚠️  Not an XGBoost model, skipping")
             return False
 
@@ -48,13 +51,13 @@ def convert_model(input_path: Path, output_path: Path) -> bool:
         output_path.parent.mkdir(parents=True, exist_ok=True)
 
         # Option 1: Save in native XGBoost format (recommended)
-        native_path = output_path.with_suffix('.json')
-        if hasattr(old_model, 'save_model'):
+        native_path = output_path.with_suffix(".json")
+        if hasattr(old_model, "save_model"):
             old_model.save_model(native_path)
             print(f"  ✅ Saved native format: {native_path.name}")
 
         # Option 2: Re-pickle with current version
-        with open(output_path, 'wb') as f:
+        with open(output_path, "wb") as f:
             pickle.dump(old_model, f)
         print(f"  ✅ Saved pickle format: {output_path.name}")
 
@@ -73,11 +76,7 @@ def main():
     output_dir = Path("model_weights/xgboost/converted")
 
     # Models to convert
-    models = [
-        "XGBoost_DE.pkl",
-        "XGBoost_HME.pkl",
-        "XGBoost_ME.pkl"
-    ]
+    models = ["XGBoost_DE.pkl", "XGBoost_HME.pkl", "XGBoost_ME.pkl"]
 
     print("XGBoost Model Conversion")
     print("=" * 60)
@@ -118,7 +117,7 @@ def main():
         converted_path = output_dir / model_name
         if converted_path.exists():
             try:
-                with open(converted_path, 'rb') as f:
+                with open(converted_path, "rb") as f:
                     pickle.load(f)
                 print(f"  ✅ {model_name} loads without warnings")
             except Exception as e:

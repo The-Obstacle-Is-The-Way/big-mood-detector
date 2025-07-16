@@ -43,6 +43,7 @@ from big_mood_detector.domain.services.treatment_recommender import (
 # Re-export enums for backward compatibility
 class RiskLevel(Enum):
     """Clinical risk stratification levels."""
+
     LOW = "low"
     MODERATE = "moderate"
     HIGH = "high"
@@ -51,6 +52,7 @@ class RiskLevel(Enum):
 
 class EpisodeType(Enum):
     """DSM-5 mood episode types."""
+
     NONE = "none"
     DEPRESSIVE = "depressive"
     MANIC = "manic"
@@ -62,6 +64,7 @@ class EpisodeType(Enum):
 @dataclass
 class ClinicalRecommendation:
     """Clinical treatment recommendation."""
+
     medication: str
     evidence_level: str
     description: str
@@ -71,6 +74,7 @@ class ClinicalRecommendation:
 @dataclass
 class DSM5Criteria:
     """DSM-5 episode criteria evaluation."""
+
     meets_dsm5_criteria: bool
     clinical_note: str
     duration_met: bool = True
@@ -81,6 +85,7 @@ class DSM5Criteria:
 @dataclass
 class EarlyWarningResult:
     """Early warning detection result."""
+
     depression_warning: bool = False
     mania_warning: bool = False
     trigger_intervention: bool = False
@@ -90,6 +95,7 @@ class EarlyWarningResult:
 @dataclass
 class ConfidenceAdjustment:
     """Confidence adjustment based on data quality."""
+
     adjusted_confidence: float
     reliability: str  # high, medium, low
     limitations: list[str] = field(default_factory=list)
@@ -98,6 +104,7 @@ class ConfidenceAdjustment:
 @dataclass
 class RiskTrend:
     """Risk trend analysis over time."""
+
     direction: str  # worsening, stable, improving
     velocity: float
     clinical_note: str
@@ -106,6 +113,7 @@ class RiskTrend:
 @dataclass
 class PersonalizedThresholds:
     """Individualized clinical thresholds."""
+
     sleep_low: float
     sleep_high: float
     activity_low: float
@@ -115,6 +123,7 @@ class PersonalizedThresholds:
 @dataclass
 class ClinicalDecision:
     """Clinical decision rule result."""
+
     approved: bool
     rationale: str
 
@@ -122,6 +131,7 @@ class ClinicalDecision:
 @dataclass
 class ClinicalInterpretation:
     """Complete clinical interpretation of mood state."""
+
     risk_level: RiskLevel
     episode_type: EpisodeType
     confidence: float
@@ -134,6 +144,7 @@ class ClinicalInterpretation:
 @dataclass
 class BiomarkerInterpretation:
     """Interpretation of digital biomarkers."""
+
     mania_risk_factors: int = 0
     depression_risk_factors: int = 0
     clinical_notes: list[str] = field(default_factory=list)
@@ -229,7 +240,7 @@ class ClinicalInterpreter:
                 "phq_score": phq_score,
                 "sleep_hours": sleep_hours,
                 "activity_steps": activity_steps,
-            }
+            },
         )
 
     def interpret_mania_score(
@@ -281,7 +292,7 @@ class ClinicalInterpreter:
                 "asrm_score": asrm_score,
                 "sleep_hours": sleep_hours,
                 "activity_steps": activity_steps,
-            }
+            },
         )
 
     def interpret_sleep_biomarkers(
@@ -474,7 +485,7 @@ class ClinicalInterpreter:
                 "activity_steps": activity_steps,
                 "racing_thoughts": racing_thoughts,
                 "increased_energy": increased_energy,
-            }
+            },
         )
 
     def evaluate_episode_duration(
@@ -562,7 +573,9 @@ class ClinicalInterpreter:
         missing_critical = [f for f in missing_features if f in critical_features]
         if missing_critical:
             adjusted *= 0.7
-            limitations.append(f"Missing critical features: {', '.join(missing_critical)}")
+            limitations.append(
+                f"Missing critical features: {', '.join(missing_critical)}"
+            )
 
         # Determine reliability level
         if adjusted >= 0.8:
@@ -583,11 +596,13 @@ class ClinicalInterpreter:
         parts = []
 
         # Risk level
-        parts.append(f"Clinical assessment indicates {interpretation.risk_level.value} risk")
+        parts.append(
+            f"Clinical assessment indicates {interpretation.risk_level.value} risk"
+        )
 
         # Episode type
         if interpretation.episode_type != EpisodeType.NONE:
-            episode_text = interpretation.episode_type.value.replace('_', ' ')
+            episode_text = interpretation.episode_type.value.replace("_", " ")
             if episode_text == "depressive":
                 episode_text = "major depressive episode"
             parts.append(f"for {episode_text}")
@@ -615,11 +630,17 @@ class ClinicalInterpreter:
         # Convert to format expected by RiskLevelAssessor
         historical_risks = []
         for i in range(len(risk_scores) - 1):
-            historical_risks.append({
-                "date": dates[i].isoformat() if i < len(dates) else f"T-{len(risk_scores)-i}",
-                "risk_level": self._score_to_risk_level(risk_scores[i]),
-                "score": risk_scores[i]
-            })
+            historical_risks.append(
+                {
+                    "date": (
+                        dates[i].isoformat()
+                        if i < len(dates)
+                        else f"T-{len(risk_scores)-i}"
+                    ),
+                    "risk_level": self._score_to_risk_level(risk_scores[i]),
+                    "score": risk_scores[i],
+                }
+            )
 
         # Get current risk level
         current_risk_level = self._score_to_risk_level(risk_scores[-1])
@@ -683,4 +704,3 @@ class ClinicalInterpreter:
             activity_low=max(0, activity_mean - 2 * activity_std),
             activity_high=activity_mean + 2 * activity_std,
         )
-

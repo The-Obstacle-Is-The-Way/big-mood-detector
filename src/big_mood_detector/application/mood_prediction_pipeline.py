@@ -215,7 +215,7 @@ class MoodPredictionPipeline:
 
         # Data parsing service (extracted)
         self.data_parsing_service = data_parsing_service or DataParsingService()
-        
+
         # Aggregation pipeline (extracted)
         self.aggregation_pipeline = aggregation_pipeline or AggregationPipeline(
             sleep_analyzer=self.sleep_analyzer,
@@ -246,7 +246,7 @@ class MoodPredictionPipeline:
             file_path=file_path,
             start_date=start_date,
             end_date=end_date,
-            continue_on_error=True
+            continue_on_error=True,
         )
 
         # Extract records
@@ -498,14 +498,14 @@ class MoodPredictionPipeline:
             file_path=export_path,
             start_date=start_date,
             end_date=end_date,
-            continue_on_error=True
+            continue_on_error=True,
         )
 
         # Convert to old format for compatibility
         records = {
             "sleep": parsed_data.get("sleep_records", []),
             "activity": parsed_data.get("activity_records", []),
-            "heart_rate": parsed_data.get("heart_rate_records", [])
+            "heart_rate": parsed_data.get("heart_rate_records", []),
         }
 
         # Validate parsed data
@@ -516,7 +516,9 @@ class MoodPredictionPipeline:
                 print(f"  - {warning}")
 
         # Get data summary for analysis
-        self.data_parsing_service.get_data_summary(parsed_data)  # Available for future use
+        self.data_parsing_service.get_data_summary(
+            parsed_data
+        )  # Available for future use
 
         # First, analyze data density and quality
         sleep_dates = [r.start_date.date() for r in records.get("sleep", [])]
@@ -548,7 +550,7 @@ class MoodPredictionPipeline:
                 print(f"  Window {i+1}: {start} to {end} ({days} days)")
 
         # Extract features for each day using aggregation pipeline
-        features = self._extract_daily_features_with_pipeline(records, start_date, end_date)
+        features = self._extract_daily_features(records, start_date, end_date)
 
         # Convert to DataFrame
         if not features:
@@ -571,38 +573,6 @@ class MoodPredictionPipeline:
 
         return df
 
-    def _extract_daily_features_with_pipeline(
-        self,
-        records: dict[str, list],
-        start_date: date | None,
-        end_date: date | None,
-    ) -> list[DailyFeatures]:
-        """
-        Extract 36 features for each day using the aggregation pipeline.
-        
-        This delegates to the AggregationPipeline service for cleaner separation of concerns.
-        """
-        sleep_records = records["sleep"]
-        activity_records = records["activity"]
-        heart_records = records.get("heart_rate", [])
-        
-        # Determine date range
-        if not sleep_records:
-            return []
-        
-        all_dates = [r.start_date.date() for r in sleep_records]
-        min_date = start_date or min(all_dates)
-        max_date = end_date or max(all_dates)
-        
-        # Use aggregation pipeline
-        return self.aggregation_pipeline.aggregate_daily_features(
-            sleep_records=sleep_records,
-            activity_records=activity_records,
-            heart_records=heart_records,
-            start_date=min_date,
-            end_date=max_date,
-        )
-
     def _extract_daily_features(
         self,
         records: dict[str, list],
@@ -610,12 +580,13 @@ class MoodPredictionPipeline:
         end_date: date | None,
     ) -> list[DailyFeatures]:
         """
-        Extract 36 features for each day.
+        Extract 36 features for each day using the aggregation pipeline.
 
-        This is where the magic happens - all services work together!
+        This delegates to the AggregationPipeline service for cleaner separation of concerns.
         """
         sleep_records = records["sleep"]
         activity_records = records["activity"]
+        heart_records = records.get("heart_rate", [])
 
         # Determine date range
         if not sleep_records:
@@ -625,299 +596,13 @@ class MoodPredictionPipeline:
         min_date = start_date or min(all_dates)
         max_date = end_date or max(all_dates)
 
-        # Process each day
-        daily_features = []
-        current_date = min_date
-
-        # Keep rolling windows for statistics
-        window_size = 30  # 30-day windows for mean/std
-        sleep_metrics_window = []
-        circadian_metrics_window = []
-
-        while current_date <= max_date:
-            # 1. Sleep Window Analysis
-            day_sleep = [
-                s
-                for s in sleep_records
-                if s.start_date.date() <= current_date <= s.end_date.date()
-            ]
-
-            if current_date.day == 15:  # Debug first day
-                print(f"\nProcessing {current_date}:")
-                print(f"  Found {len(day_sleep)} sleep records")
-
-            sleep_windows = self.sleep_analyzer.analyze_sleep_episodes(
-                day_sleep, current_date
-            )
-
-            # 2. Activity Sequence Extraction
-            day_activity = [
-                a for a in activity_records if a.start_date.date() == current_date
-            ]
-
-            activity_sequence = self.activity_extractor.extract_daily_sequence(
-                day_activity, current_date
-            )
-
-            # 3. Circadian Rhythm Analysis
-            # Get up to 7 days of sequences for circadian analysis
-            # Look back up to 14 days to find enough data
-            week_sequences = []
-            sequences_with_dates = []
-
-            for days_back in range(14):
-                seq_date = current_date - timedelta(days=days_back)
-                seq_activity = [
-                    a for a in activity_records if a.start_date.date() == seq_date
-                ]
-                if seq_activity:
-                    seq = self.activity_extractor.extract_daily_sequence(
-                        seq_activity, seq_date
-                    )
-                    sequences_with_dates.append((seq_date, seq))
-
-                    # Stop when we have 7 days of data
-                    if len(sequences_with_dates) >= 7:
-                        break
-
-            # Sort by date and take the sequences
-            sequences_with_dates.sort(key=lambda x: x[0])
-            week_sequences = [seq for _, seq in sequences_with_dates]
-
-            circadian_metrics = None
-            if len(week_sequences) >= 3:
-                if current_date.day == 16:  # Debug
-                    print(
-                        f"  Found {len(week_sequences)} days of activity for circadian analysis"
-                    )
-                circadian_metrics = self.circadian_analyzer.calculate_metrics(
-                    week_sequences
-                )
-
-            # 4. DLMO Calculation
-            # Get sleep records from the past 14 days for DLMO
-            dlmo_sleep = [
-                s
-                for s in sleep_records
-                if (current_date - s.start_date.date()).days < 14
-                and s.start_date.date() <= current_date
-            ]
-
-            dlmo_result = None
-            if len(dlmo_sleep) >= 3:  # Need at least 3 days
-                if current_date.day == 16:  # Debug
-                    print(
-                        f"  Found {len(dlmo_sleep)} sleep records for DLMO calculation"
-                    )
-                dlmo_result = self.dlmo_calculator.calculate_dlmo(
-                    sleep_records=dlmo_sleep,
-                    target_date=current_date,
-                    days_to_model=min(7, len(dlmo_sleep)),
-                )
-
-            # 5. Extract daily metrics
-            daily_metrics = self._calculate_daily_metrics(
-                sleep_windows, activity_sequence, circadian_metrics, dlmo_result
-            )
-
-            # 6. Update rolling windows
-            if daily_metrics:
-                sleep_metrics_window.append(daily_metrics["sleep"])
-                if daily_metrics["circadian"]:
-                    circadian_metrics_window.append(daily_metrics["circadian"])
-
-                # Keep only recent window
-                if len(sleep_metrics_window) > window_size:
-                    sleep_metrics_window.pop(0)
-                if len(circadian_metrics_window) > window_size:
-                    circadian_metrics_window.pop(0)
-
-            # 7. Calculate statistics (mean, std, z-score)
-            if len(sleep_metrics_window) >= 3:  # Reduced threshold for testing
-                if daily_metrics is not None:
-                    features = self._calculate_features_with_stats(
-                        current_date,
-                        daily_metrics,
-                        sleep_metrics_window,
-                        circadian_metrics_window,
-                    )
-                else:
-                    features = None
-
-                if features:
-                    daily_features.append(features)
-
-            current_date += timedelta(days=1)
-
-        return daily_features
-
-    def _calculate_daily_metrics(
-        self,
-        sleep_windows: Any,
-        activity_sequence: Any,
-        circadian_metrics: Any,
-        dlmo_result: Any,
-    ) -> dict[str, Any] | None:
-        """Calculate raw metrics for a single day."""
-        if not sleep_windows:
-            return None
-
-        # Sleep metrics
-        total_sleep_minutes = sum(w.total_duration_hours * 60 for w in sleep_windows)
-        sleep_percentage = total_sleep_minutes / 1440.0  # % of day
-
-        # Sleep amplitude (coefficient of variation of wake amounts)
-        # This is a simplified version - full implementation would analyze
-        # wake periods within sleep windows
-        wake_periods = [g for w in sleep_windows for g in w.gap_hours if g > 0]
-        if wake_periods:
-            sleep_amplitude = np.std(wake_periods) / np.mean(wake_periods)
-        else:
-            sleep_amplitude = 0.0
-
-        # Long/short window counts
-        long_windows = [w for w in sleep_windows if w.total_duration_hours >= 3.75]
-        short_windows = [w for w in sleep_windows if w.total_duration_hours < 3.75]
-
-        sleep_metrics = {
-            "sleep_percentage": sleep_percentage,
-            "sleep_amplitude": sleep_amplitude,
-            "long_num": len(long_windows),
-            "long_len": sum(w.total_duration_hours for w in long_windows),
-            "long_st": sum(w.total_duration_hours for w in long_windows),  # Simplified
-            "long_wt": sum(sum(w.gap_hours) for w in long_windows),
-            "short_num": len(short_windows),
-            "short_len": sum(w.total_duration_hours for w in short_windows),
-            "short_st": sum(
-                w.total_duration_hours for w in short_windows
-            ),  # Simplified
-            "short_wt": sum(sum(w.gap_hours) for w in short_windows),
-        }
-
-        # Circadian metrics
-        circadian_dict = None
-        if circadian_metrics and dlmo_result:
-            circadian_dict = {
-                "amplitude": circadian_metrics.relative_amplitude,
-                "phase": dlmo_result.dlmo_hour,
-            }
-
-        return {"sleep": sleep_metrics, "circadian": circadian_dict}
-
-    def _calculate_features_with_stats(
-        self,
-        current_date: date,
-        daily_metrics: dict,
-        sleep_window: list[dict],
-        circadian_window: list[dict],
-    ) -> DailyFeatures | None:
-        """Calculate features with mean, std, and z-scores."""
-        if not daily_metrics or not daily_metrics["sleep"]:
-            return None
-
-        import numpy as np
-
-        # Calculate sleep statistics
-        sleep_features = {}
-        for metric in [
-            "sleep_percentage",
-            "sleep_amplitude",
-            "long_num",
-            "long_len",
-            "long_st",
-            "long_wt",
-            "short_num",
-            "short_len",
-            "short_st",
-            "short_wt",
-        ]:
-            values = [s[metric] for s in sleep_window]
-            mean_val = np.mean(values)
-            std_val = np.std(values)
-            current_val = daily_metrics["sleep"][metric]
-
-            # Z-score
-            if std_val > 0:
-                z_score = (current_val - mean_val) / std_val
-            else:
-                z_score = 0.0
-
-            sleep_features[f"{metric}_mean"] = mean_val
-            sleep_features[f"{metric}_std"] = std_val
-            sleep_features[f"{metric}_zscore"] = z_score
-
-        # Calculate circadian statistics
-        circadian_features = {
-            "circadian_amplitude_mean": 0.0,
-            "circadian_amplitude_std": 0.0,
-            "circadian_amplitude_zscore": 0.0,
-            "circadian_phase_mean": 0.0,
-            "circadian_phase_std": 0.0,
-            "circadian_phase_zscore": 0.0,
-        }
-
-        if circadian_window and daily_metrics["circadian"]:
-            for metric in ["amplitude", "phase"]:
-                values = [c[metric] for c in circadian_window if c]
-                if values:
-                    mean_val = np.mean(values)
-                    std_val = np.std(values)
-                    current_val = daily_metrics["circadian"][metric]
-
-                    # Z-score
-                    if std_val > 0:
-                        z_score = (current_val - mean_val) / std_val
-                    else:
-                        z_score = 0.0
-
-                    circadian_features[f"circadian_{metric}_mean"] = mean_val
-                    circadian_features[f"circadian_{metric}_std"] = std_val
-                    circadian_features[f"circadian_{metric}_zscore"] = z_score
-
-        # Create DailyFeatures object with explicit field mapping
-        return DailyFeatures(
-            date=current_date,
-            # Sleep percentage
-            sleep_percentage_mean=sleep_features["sleep_percentage_mean"],
-            sleep_percentage_std=sleep_features["sleep_percentage_std"],
-            sleep_percentage_zscore=sleep_features["sleep_percentage_zscore"],
-            # Sleep amplitude
-            sleep_amplitude_mean=sleep_features["sleep_amplitude_mean"],
-            sleep_amplitude_std=sleep_features["sleep_amplitude_std"],
-            sleep_amplitude_zscore=sleep_features["sleep_amplitude_zscore"],
-            # Long sleep
-            long_sleep_num_mean=sleep_features["long_num_mean"],
-            long_sleep_num_std=sleep_features["long_num_std"],
-            long_sleep_num_zscore=sleep_features["long_num_zscore"],
-            long_sleep_len_mean=sleep_features["long_len_mean"],
-            long_sleep_len_std=sleep_features["long_len_std"],
-            long_sleep_len_zscore=sleep_features["long_len_zscore"],
-            long_sleep_st_mean=sleep_features["long_st_mean"],
-            long_sleep_st_std=sleep_features["long_st_std"],
-            long_sleep_st_zscore=sleep_features["long_st_zscore"],
-            long_sleep_wt_mean=sleep_features["long_wt_mean"],
-            long_sleep_wt_std=sleep_features["long_wt_std"],
-            long_sleep_wt_zscore=sleep_features["long_wt_zscore"],
-            # Short sleep
-            short_sleep_num_mean=sleep_features["short_num_mean"],
-            short_sleep_num_std=sleep_features["short_num_std"],
-            short_sleep_num_zscore=sleep_features["short_num_zscore"],
-            short_sleep_len_mean=sleep_features["short_len_mean"],
-            short_sleep_len_std=sleep_features["short_len_std"],
-            short_sleep_len_zscore=sleep_features["short_len_zscore"],
-            short_sleep_st_mean=sleep_features["short_st_mean"],
-            short_sleep_st_std=sleep_features["short_st_std"],
-            short_sleep_st_zscore=sleep_features["short_st_zscore"],
-            short_sleep_wt_mean=sleep_features["short_wt_mean"],
-            short_sleep_wt_std=sleep_features["short_wt_std"],
-            short_sleep_wt_zscore=sleep_features["short_wt_zscore"],
-            # Circadian
-            circadian_amplitude_mean=circadian_features["circadian_amplitude_mean"],
-            circadian_amplitude_std=circadian_features["circadian_amplitude_std"],
-            circadian_amplitude_zscore=circadian_features["circadian_amplitude_zscore"],
-            circadian_phase_mean=circadian_features["circadian_phase_mean"],
-            circadian_phase_std=circadian_features["circadian_phase_std"],
-            circadian_phase_zscore=circadian_features["circadian_phase_zscore"],
+        # Use aggregation pipeline
+        return self.aggregation_pipeline.aggregate_daily_features(
+            sleep_records=sleep_records,
+            activity_records=activity_records,
+            heart_records=heart_records,
+            start_date=min_date,
+            end_date=max_date,
         )
 
 

@@ -210,7 +210,9 @@ def validate_activity_extraction():
     if sequence and len(sequence.activity_values) == 1440:
         print("✅ Extracted 1440-point activity sequence")
         print(f"   Total steps: {sum(sequence.activity_values)}")
-        print(f"   Active hours: {sum(1 for v in sequence.activity_values if v > 0) / 60:.1f}")
+        print(
+            f"   Active hours: {sum(1 for v in sequence.activity_values if v > 0) / 60:.1f}"
+        )
     else:
         print("❌ Failed to extract proper sequence")
 

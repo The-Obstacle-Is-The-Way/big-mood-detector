@@ -21,6 +21,7 @@ class TestSleepFeatureCalculator:
         from big_mood_detector.domain.services.sleep_feature_calculator import (
             SleepFeatureCalculator,
         )
+
         return SleepFeatureCalculator()
 
     @pytest.fixture
@@ -31,10 +32,7 @@ class TestSleepFeatureCalculator:
 
         for i in range(14):  # 2 weeks of data
             # Create mid-sleep time around 2:45 AM (consistent)
-            mid_sleep = datetime.combine(
-                base_date + timedelta(days=i+1),
-                time(2, 45)
-            )
+            mid_sleep = datetime.combine(base_date + timedelta(days=i + 1), time(2, 45))
 
             summary = DailySleepSummary(
                 date=base_date + timedelta(days=i),
@@ -75,8 +73,8 @@ class TestSleepFeatureCalculator:
 
             mid_hour = mid_hour % 24
             mid_sleep = datetime.combine(
-                base_date + timedelta(days=i+1 if mid_hour < 12 else i),
-                time(int(mid_hour), int((mid_hour % 1) * 60))
+                base_date + timedelta(days=i + 1 if mid_hour < 12 else i),
+                time(int(mid_hour), int((mid_hour % 1) * 60)),
             )
 
             summary = DailySleepSummary(
@@ -95,7 +93,9 @@ class TestSleepFeatureCalculator:
 
         return summaries
 
-    def test_calculate_regularity_index_regular_pattern(self, calculator, regular_sleep_data):
+    def test_calculate_regularity_index_regular_pattern(
+        self, calculator, regular_sleep_data
+    ):
         """Test regularity index for consistent sleep schedule."""
         regularity_index = calculator.calculate_regularity_index(regular_sleep_data)
 
@@ -104,7 +104,9 @@ class TestSleepFeatureCalculator:
         assert regularity_index <= 100
         assert isinstance(regularity_index, float)
 
-    def test_calculate_regularity_index_irregular_pattern(self, calculator, irregular_sleep_data):
+    def test_calculate_regularity_index_irregular_pattern(
+        self, calculator, irregular_sleep_data
+    ):
         """Test regularity index for inconsistent sleep schedule."""
         regularity_index = calculator.calculate_regularity_index(irregular_sleep_data)
 
@@ -151,8 +153,7 @@ class TestSleepFeatureCalculator:
 
         for i, duration in enumerate(durations):
             mid_sleep = datetime.combine(
-                base_date + timedelta(days=i+1),
-                time(3, 0)  # Roughly 3 AM mid-sleep
+                base_date + timedelta(days=i + 1), time(3, 0)  # Roughly 3 AM mid-sleep
             )
 
             summary = DailySleepSummary(
@@ -172,11 +173,13 @@ class TestSleepFeatureCalculator:
         short_pct, long_pct = calculator.calculate_sleep_window_percentages(summaries)
 
         assert short_pct == 30.0  # 3 out of 10 nights
-        assert long_pct == 20.0   # 2 out of 10 nights
+        assert long_pct == 20.0  # 2 out of 10 nights
 
     def test_calculate_timing_variances(self, calculator, irregular_sleep_data):
         """Test calculation of sleep onset and wake time variances."""
-        onset_var, wake_var = calculator.calculate_timing_variances(irregular_sleep_data)
+        onset_var, wake_var = calculator.calculate_timing_variances(
+            irregular_sleep_data
+        )
 
         # Variances should be positive
         assert onset_var > 0
@@ -243,8 +246,8 @@ class TestSleepFeatureCalculator:
         for i in range(7):
             # Sleep at 1 AM, wake at 9 AM
             mid_sleep = datetime.combine(
-                base_date + timedelta(days=i+1),
-                time(5, 0)  # 5 AM mid-sleep for 1 AM - 9 AM sleep
+                base_date + timedelta(days=i + 1),
+                time(5, 0),  # 5 AM mid-sleep for 1 AM - 9 AM sleep
             )
 
             summary = DailySleepSummary(

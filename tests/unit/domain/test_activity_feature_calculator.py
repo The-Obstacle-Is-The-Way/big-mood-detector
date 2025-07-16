@@ -21,6 +21,7 @@ class TestActivityFeatureCalculator:
         from big_mood_detector.domain.services.activity_feature_calculator import (
             ActivityFeatureCalculator,
         )
+
         return ActivityFeatureCalculator()
 
     @pytest.fixture
@@ -107,7 +108,9 @@ class TestActivityFeatureCalculator:
         # Regular pattern should have low fragmentation
         assert result < 0.3
 
-    def test_calculate_activity_fragmentation_manic(self, calculator, manic_activity_data):
+    def test_calculate_activity_fragmentation_manic(
+        self, calculator, manic_activity_data
+    ):
         """Test fragmentation for manic patterns."""
         result = calculator.calculate_activity_fragmentation(manic_activity_data)
 
@@ -131,7 +134,9 @@ class TestActivityFeatureCalculator:
         assert max_bout >= mean_bout
         assert 0 <= longest_streak <= 14  # May be 0 if no days exceed threshold
 
-    def test_calculate_sedentary_bouts_depressive(self, calculator, depressive_activity_data):
+    def test_calculate_sedentary_bouts_depressive(
+        self, calculator, depressive_activity_data
+    ):
         """Test sedentary bouts for depressive patterns."""
         mean_bout, max_bout, longest_streak = calculator.calculate_sedentary_bouts(
             depressive_activity_data
@@ -142,20 +147,24 @@ class TestActivityFeatureCalculator:
         assert max_bout >= 1320  # >=22 hours
         assert longest_streak >= 5  # Many consecutive sedentary days
 
-    def test_calculate_activity_intensity_metrics(self, calculator, regular_activity_data):
+    def test_calculate_activity_intensity_metrics(
+        self, calculator, regular_activity_data
+    ):
         """Test activity intensity ratio and distribution."""
         result = calculator.calculate_activity_intensity_metrics(regular_activity_data)
 
-        assert hasattr(result, 'intensity_ratio')
-        assert hasattr(result, 'high_intensity_days')
-        assert hasattr(result, 'low_intensity_days')
-        assert hasattr(result, 'moderate_intensity_days')
+        assert hasattr(result, "intensity_ratio")
+        assert hasattr(result, "high_intensity_days")
+        assert hasattr(result, "low_intensity_days")
+        assert hasattr(result, "moderate_intensity_days")
 
         # Regular pattern should be mostly moderate
         assert result.moderate_intensity_days > result.high_intensity_days
         assert result.moderate_intensity_days > result.low_intensity_days
 
-    def test_calculate_activity_rhythm_strength(self, calculator, regular_activity_data):
+    def test_calculate_activity_rhythm_strength(
+        self, calculator, regular_activity_data
+    ):
         """Test circadian rhythm strength from activity."""
         strength = calculator.calculate_activity_rhythm_strength(regular_activity_data)
 
@@ -163,10 +172,12 @@ class TestActivityFeatureCalculator:
         # Regular pattern should have good rhythm strength
         assert strength > 0.6
 
-    def test_calculate_activity_timing_consistency(self, calculator, regular_activity_data):
+    def test_calculate_activity_timing_consistency(
+        self, calculator, regular_activity_data
+    ):
         """Test consistency of activity timing."""
-        onset_consistency, offset_consistency = calculator.calculate_activity_timing_consistency(
-            regular_activity_data
+        onset_consistency, offset_consistency = (
+            calculator.calculate_activity_timing_consistency(regular_activity_data)
         )
 
         assert 0 <= onset_consistency <= 1
@@ -180,10 +191,10 @@ class TestActivityFeatureCalculator:
         """Test detection of anomalous activity patterns."""
         anomalies = calculator.detect_activity_anomalies(manic_activity_data)
 
-        assert hasattr(anomalies, 'has_hyperactivity')
-        assert hasattr(anomalies, 'has_hypoactivity')
-        assert hasattr(anomalies, 'has_irregular_timing')
-        assert hasattr(anomalies, 'anomaly_days')
+        assert hasattr(anomalies, "has_hyperactivity")
+        assert hasattr(anomalies, "has_hypoactivity")
+        assert hasattr(anomalies, "has_irregular_timing")
+        assert hasattr(anomalies, "anomaly_days")
 
         # Manic pattern should show hyperactivity
         assert anomalies.has_hyperactivity is True

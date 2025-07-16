@@ -19,6 +19,7 @@ class TestTreatmentRecommender:
     def config(self):
         """Load test configuration."""
         from pathlib import Path
+
         return load_clinical_thresholds(Path("config/clinical_thresholds.yaml"))
 
     @pytest.fixture
@@ -27,6 +28,7 @@ class TestTreatmentRecommender:
         from big_mood_detector.domain.services.treatment_recommender import (
             TreatmentRecommender,
         )
+
         return TreatmentRecommender(config)
 
     def test_recommend_for_acute_mania(self, recommender):
@@ -91,7 +93,9 @@ class TestTreatmentRecommender:
         assert decision.approved is False
         assert "monotherapy is contraindicated" in decision.rationale
 
-    def test_apply_clinical_rule_antidepressant_with_mood_stabilizer_ok(self, recommender):
+    def test_apply_clinical_rule_antidepressant_with_mood_stabilizer_ok(
+        self, recommender
+    ):
         """Test rule: Antidepressant OK with mood stabilizer."""
         decision = recommender.apply_clinical_rules(
             diagnosis="bipolar_disorder",
@@ -127,8 +131,7 @@ class TestTreatmentRecommender:
         assert any("hospitalization" in r.medication.lower() for r in recommendations)
         # Check for any urgent-related text
         assert any(
-            "urgent" in r.description.lower() or
-            "immediate" in r.description.lower()
+            "urgent" in r.description.lower() or "immediate" in r.description.lower()
             for r in recommendations
         )
 

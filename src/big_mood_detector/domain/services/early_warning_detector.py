@@ -22,6 +22,7 @@ from big_mood_detector.domain.services.clinical_thresholds import (
 @dataclass(frozen=True)
 class EarlyWarningResult:
     """Immutable early warning detection result."""
+
     depression_warning: bool = False
     mania_warning: bool = False
     trigger_intervention: bool = False
@@ -198,8 +199,7 @@ class EarlyWarningDetector:
         # Add personalization note to summary
         if individual_thresholds and result.warning_signs:
             summary = result.clinical_summary.replace(
-                "detected",
-                "detected (using personalized thresholds)"
+                "detected", "detected (using personalized thresholds)"
             )
             return EarlyWarningResult(
                 depression_warning=result.depression_warning,

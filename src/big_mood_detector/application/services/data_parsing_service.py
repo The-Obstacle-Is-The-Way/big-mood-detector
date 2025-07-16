@@ -31,6 +31,7 @@ from big_mood_detector.infrastructure.parsers.xml.streaming_adapter import (
 @dataclass
 class ParsedHealthData:
     """Container for parsed health data."""
+
     sleep_records: list[SleepRecord]
     activity_records: list[ActivityRecord]
     heart_rate_records: list[HeartRateRecord]
@@ -40,6 +41,7 @@ class ParsedHealthData:
 @dataclass
 class DataValidationResult:
     """Result of data validation."""
+
     is_valid: bool
     sleep_record_count: int
     activity_record_count: int
@@ -51,6 +53,7 @@ class DataValidationResult:
 @dataclass
 class DataSummary:
     """Summary of parsed health data."""
+
     total_records: int
     sleep_days: int
     activity_days: int
@@ -70,7 +73,7 @@ class HealthDataParser(Protocol):
 class DataParsingService:
     """
     Service responsible for all data parsing operations.
-    
+
     This service encapsulates:
     - File type detection
     - Parser selection
@@ -90,7 +93,7 @@ class DataParsingService:
     ):
         """
         Initialize with parser dependencies.
-        
+
         Args:
             xml_parser: Parser for XML exports
             sleep_parser: Parser for sleep JSON data
@@ -105,11 +108,11 @@ class DataParsingService:
 
         # Supported data sources
         self._sources = {
-            'apple_health_xml': self._xml_parser,
-            'health_auto_export_json': {
-                'sleep': self._sleep_parser,
-                'activity': self._activity_parser,
-            }
+            "apple_health_xml": self._xml_parser,
+            "health_auto_export_json": {
+                "sleep": self._sleep_parser,
+                "activity": self._activity_parser,
+            },
         }
 
     def parse_health_data(
@@ -123,7 +126,7 @@ class DataParsingService:
     ) -> dict[str, Any]:
         """
         Parse health data from file with optional filtering.
-        
+
         Args:
             file_path: Path to health data file/directory
             start_date: Optional start date filter
@@ -131,7 +134,7 @@ class DataParsingService:
             use_cache: Whether to use cached results
             continue_on_error: Whether to continue on parsing errors
             progress_callback: Optional callback for progress updates
-            
+
         Returns:
             Dictionary with parsed records and metadata
         """
@@ -143,7 +146,7 @@ class DataParsingService:
 
         try:
             # Determine parser type
-            if file_path.is_file() and file_path.suffix == '.xml':
+            if file_path.is_file() and file_path.suffix == ".xml":
                 parsed_data = self.parse_xml_export(file_path, progress_callback)
             elif file_path.is_dir():
                 parsed_data = self.parse_json_export(file_path, progress_callback)
@@ -165,25 +168,25 @@ class DataParsingService:
         except Exception as e:
             if continue_on_error:
                 return {
-                    'sleep_records': [],
-                    'activity_records': [],
-                    'heart_rate_records': [],
-                    'errors': [str(e)]
+                    "sleep_records": [],
+                    "activity_records": [],
+                    "heart_rate_records": [],
+                    "errors": [str(e)],
                 }
             raise
 
     def parse_xml_export(
         self,
         xml_path: Path,
-        progress_callback: Callable[[str, float], None] | None = None
+        progress_callback: Callable[[str, float], None] | None = None,
     ) -> ParsedHealthData:
         """
         Parse Apple Health XML export.
-        
+
         Args:
             xml_path: Path to export.xml
             progress_callback: Optional progress callback
-            
+
         Returns:
             ParsedHealthData with all records
         """
@@ -220,21 +223,21 @@ class DataParsingService:
         return ParsedHealthData(
             sleep_records=sleep_records,
             activity_records=activity_records,
-            heart_rate_records=heart_records
+            heart_rate_records=heart_records,
         )
 
     def parse_json_export(
         self,
         json_dir: Path,
-        progress_callback: Callable[[str, float], None] | None = None
+        progress_callback: Callable[[str, float], None] | None = None,
     ) -> ParsedHealthData:
         """
         Parse Health Auto Export JSON files.
-        
+
         Args:
             json_dir: Directory containing JSON files
             progress_callback: Optional progress callback
-            
+
         Returns:
             ParsedHealthData with all records
         """
@@ -270,7 +273,7 @@ class DataParsingService:
         return ParsedHealthData(
             sleep_records=sleep_records,
             activity_records=activity_records,
-            heart_rate_records=[]  # JSON export doesn't include heart rate
+            heart_rate_records=[],  # JSON export doesn't include heart rate
         )
 
     def filter_records_by_date_range(
@@ -278,17 +281,17 @@ class DataParsingService:
         records: list[Any],
         start_date: date | None,
         end_date: date | None,
-        date_extractor: Callable[[Any], date]
+        date_extractor: Callable[[Any], date],
     ) -> list[Any]:
         """
         Filter records by date range.
-        
+
         Args:
             records: List of records to filter
             start_date: Start date (inclusive)
             end_date: End date (inclusive)
             date_extractor: Function to extract date from record
-            
+
         Returns:
             Filtered list of records
         """
@@ -305,16 +308,16 @@ class DataParsingService:
     def validate_parsed_data(self, data: dict[str, list]) -> DataValidationResult:
         """
         Validate parsed health data.
-        
+
         Args:
             data: Dictionary with parsed records
-            
+
         Returns:
             Validation result with counts and warnings
         """
-        sleep_records = data.get('sleep_records', [])
-        activity_records = data.get('activity_records', [])
-        heart_records = data.get('heart_rate_records', [])
+        sleep_records = data.get("sleep_records", [])
+        activity_records = data.get("activity_records", [])
+        heart_records = data.get("heart_rate_records", [])
 
         warnings = []
 
@@ -351,22 +354,22 @@ class DataParsingService:
             activity_record_count=len(activity_records),
             heart_record_count=len(heart_records),
             date_range=date_range,
-            warnings=warnings
+            warnings=warnings,
         )
 
     def get_data_summary(self, data: dict[str, list]) -> dict[str, Any]:
         """
         Get summary of parsed data.
-        
+
         Args:
             data: Dictionary with parsed records
-            
+
         Returns:
             Summary dictionary
         """
-        sleep_records = data.get('sleep_records', [])
-        activity_records = data.get('activity_records', [])
-        heart_records = data.get('heart_rate_records', [])
+        sleep_records = data.get("sleep_records", [])
+        activity_records = data.get("activity_records", [])
+        heart_records = data.get("heart_rate_records", [])
 
         # Get unique days
         sleep_days = set(r.start_date.date() for r in sleep_records)
@@ -385,28 +388,30 @@ class DataParsingService:
             data_density = days_with_data / days_span
 
         return {
-            'total_records': len(sleep_records) + len(activity_records) + len(heart_records),
-            'sleep_days': len(sleep_days),
-            'activity_days': len(activity_days),
-            'heart_days': len(heart_days),
-            'date_range': date_range,
-            'data_density': data_density
+            "total_records": len(sleep_records)
+            + len(activity_records)
+            + len(heart_records),
+            "sleep_days": len(sleep_days),
+            "activity_days": len(activity_days),
+            "heart_days": len(heart_days),
+            "date_range": date_range,
+            "data_density": data_density,
         }
 
     def get_parser_for_path(self, file_path: Path) -> HealthDataParser:
         """
         Get appropriate parser for file path.
-        
+
         Args:
             file_path: Path to data file
-            
+
         Returns:
             Parser instance
-            
+
         Raises:
             ValueError: If file type not supported
         """
-        if file_path.is_file() and file_path.suffix == '.xml':
+        if file_path.is_file() and file_path.suffix == ".xml":
             return self._xml_parser
         elif file_path.is_dir():
             # Return a composite parser for JSON directory
@@ -425,10 +430,10 @@ class DataParsingService:
     def parse_large_file(self, file_path: Path) -> ParsedHealthData:
         """
         Parse large files using memory-efficient methods.
-        
+
         Args:
             file_path: Path to large file
-            
+
         Returns:
             ParsedHealthData
         """
@@ -443,50 +448,43 @@ class DataParsingService:
     def _select_parser_type(self, file_path: Path) -> str:
         """Select parser type based on file characteristics."""
         if not file_path.exists():
-            return 'standard'
+            return "standard"
 
         file_size = file_path.stat().st_size
         if file_size > self.LARGE_FILE_THRESHOLD:
-            return 'streaming'
-        return 'standard'
+            return "streaming"
+        return "standard"
 
     def _filter_by_date_range(
-        self,
-        data: ParsedHealthData,
-        start_date: date | None,
-        end_date: date | None
+        self, data: ParsedHealthData, start_date: date | None, end_date: date | None
     ) -> ParsedHealthData:
         """Filter parsed data by date range."""
         return ParsedHealthData(
             sleep_records=self.filter_records_by_date_range(
-                data.sleep_records,
-                start_date,
-                end_date,
-                lambda r: r.start_date.date()
+                data.sleep_records, start_date, end_date, lambda r: r.start_date.date()
             ),
             activity_records=self.filter_records_by_date_range(
                 data.activity_records,
                 start_date,
                 end_date,
-                lambda r: r.start_date.date()
+                lambda r: r.start_date.date(),
             ),
             heart_rate_records=self.filter_records_by_date_range(
                 data.heart_rate_records,
                 start_date,
                 end_date,
-                lambda r: r.timestamp.date()
+                lambda r: r.timestamp.date(),
             ),
-            errors=data.errors
+            errors=data.errors,
         )
 
     def _format_result(self, data: ParsedHealthData) -> dict[str, Any]:
         """Format ParsedHealthData as dictionary."""
         result = {
-            'sleep_records': data.sleep_records,
-            'activity_records': data.activity_records,
-            'heart_rate_records': data.heart_rate_records,
+            "sleep_records": data.sleep_records,
+            "activity_records": data.activity_records,
+            "heart_rate_records": data.heart_rate_records,
         }
         if data.errors:
-            result['errors'] = data.errors
+            result["errors"] = data.errors
         return result
-

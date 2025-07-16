@@ -16,17 +16,21 @@ import yaml  # type: ignore[import-untyped]
 @dataclass
 class ThresholdRange:
     """Represents a min-max threshold range."""
+
     min: float
     max: float
 
     def __post_init__(self) -> None:
         if self.min > self.max:
-            raise ValueError(f"Invalid threshold range: min ({self.min}) > max ({self.max})")
+            raise ValueError(
+                f"Invalid threshold range: min ({self.min}) > max ({self.max})"
+            )
 
 
 @dataclass
 class PHQCutoffs:
     """PHQ-8/9 score cutoffs for depression severity."""
+
     none: ThresholdRange
     mild: ThresholdRange
     moderate: ThresholdRange
@@ -37,6 +41,7 @@ class PHQCutoffs:
 @dataclass
 class DepressionSleepThresholds:
     """Sleep-related thresholds for depression."""
+
     hypersomnia_threshold: float
     normal_min: float
     normal_max: float
@@ -45,6 +50,7 @@ class DepressionSleepThresholds:
 @dataclass
 class DepressionActivityThresholds:
     """Activity-related thresholds for depression."""
+
     severe_reduction: int
     moderate_reduction: int
     normal_min: int
@@ -53,6 +59,7 @@ class DepressionActivityThresholds:
 @dataclass
 class DepressionThresholds:
     """All depression-related thresholds."""
+
     phq_cutoffs: PHQCutoffs
     sleep_hours: DepressionSleepThresholds
     activity_steps: DepressionActivityThresholds
@@ -61,6 +68,7 @@ class DepressionThresholds:
 @dataclass
 class ASRMCutoffs:
     """ASRM score cutoffs for mania/hypomania severity."""
+
     none: ThresholdRange
     hypomanic: ThresholdRange
     manic_moderate: ThresholdRange
@@ -70,6 +78,7 @@ class ASRMCutoffs:
 @dataclass
 class ManiaSleepThresholds:
     """Sleep-related thresholds for mania."""
+
     critical_threshold: float
     reduced_threshold: float
 
@@ -77,6 +86,7 @@ class ManiaSleepThresholds:
 @dataclass
 class ManiaActivityThresholds:
     """Activity-related thresholds for mania."""
+
     elevated_threshold: int
     extreme_threshold: int
 
@@ -84,6 +94,7 @@ class ManiaActivityThresholds:
 @dataclass
 class ManiaThresholds:
     """All mania-related thresholds."""
+
     asrm_cutoffs: ASRMCutoffs
     sleep_hours: ManiaSleepThresholds
     activity_steps: ManiaActivityThresholds
@@ -92,6 +103,7 @@ class ManiaThresholds:
 @dataclass
 class CircadianThresholds:
     """Circadian rhythm-related thresholds."""
+
     phase_advance_threshold: float
     interdaily_stability_low: float
     intradaily_variability_high: float
@@ -100,6 +112,7 @@ class CircadianThresholds:
 @dataclass
 class SleepBiomarkerThresholds:
     """Sleep biomarker thresholds."""
+
     efficiency_threshold: float
     timing_variance_threshold: float
 
@@ -107,6 +120,7 @@ class SleepBiomarkerThresholds:
 @dataclass
 class BiomarkerThresholds:
     """All biomarker-related thresholds."""
+
     circadian: CircadianThresholds
     sleep: SleepBiomarkerThresholds
 
@@ -114,18 +128,21 @@ class BiomarkerThresholds:
 @dataclass
 class MixedFeaturesRequirements:
     """Requirements for mixed features diagnosis."""
+
     required_manic_symptoms: list[str]
 
 
 @dataclass
 class MixedDepressiveRequirements:
     """Requirements for mixed depressive features."""
+
     required_depressive_symptoms: list[str]
 
 
 @dataclass
 class MixedFeaturesConfig:
     """Configuration for mixed features detection."""
+
     minimum_opposite_symptoms: int
     depression_with_mixed: MixedFeaturesRequirements
     mania_with_mixed: MixedDepressiveRequirements
@@ -134,6 +151,7 @@ class MixedFeaturesConfig:
 @dataclass
 class DSM5DurationConfig:
     """DSM-5 episode duration requirements."""
+
     manic_days: int
     hypomanic_days: int
     depressive_days: int
@@ -142,6 +160,7 @@ class DSM5DurationConfig:
 @dataclass
 class ClinicalThresholdsConfig:
     """Complete clinical thresholds configuration."""
+
     depression: DepressionThresholds
     mania: ManiaThresholds
     biomarkers: BiomarkerThresholds
@@ -168,7 +187,7 @@ def _parse_phq_cutoffs(data: dict[str, Any]) -> PHQCutoffs:
         mild=_parse_threshold_range(data["mild"]),
         moderate=_parse_threshold_range(data["moderate"]),
         moderately_severe=_parse_threshold_range(data["moderately_severe"]),
-        severe=_parse_threshold_range(data["severe"])
+        severe=_parse_threshold_range(data["severe"]),
     )
 
 
@@ -183,7 +202,7 @@ def _parse_asrm_cutoffs(data: dict[str, Any]) -> ASRMCutoffs:
         none=_parse_threshold_range(data["none"]),
         hypomanic=_parse_threshold_range(data["hypomanic"]),
         manic_moderate=_parse_threshold_range(data["manic_moderate"]),
-        manic_severe=_parse_threshold_range(data["manic_severe"])
+        manic_severe=_parse_threshold_range(data["manic_severe"]),
     )
 
 
@@ -211,7 +230,13 @@ def load_clinical_thresholds(config_path: Path) -> ClinicalThresholdsConfig:
         raise ValueError("Invalid configuration: expected a dictionary")
 
     # Validate top-level structure
-    required_sections = ["depression", "mania", "biomarkers", "mixed_features", "dsm5_duration"]
+    required_sections = [
+        "depression",
+        "mania",
+        "biomarkers",
+        "mixed_features",
+        "dsm5_duration",
+    ]
     for section in required_sections:
         if section not in data:
             raise ValueError(f"Missing required configuration section: {section}")
@@ -222,15 +247,19 @@ def load_clinical_thresholds(config_path: Path) -> ClinicalThresholdsConfig:
         depression = DepressionThresholds(
             phq_cutoffs=_parse_phq_cutoffs(dep_data.get("phq_cutoffs", {})),
             sleep_hours=DepressionSleepThresholds(
-                hypersomnia_threshold=float(dep_data["sleep_hours"]["hypersomnia_threshold"]),
+                hypersomnia_threshold=float(
+                    dep_data["sleep_hours"]["hypersomnia_threshold"]
+                ),
                 normal_min=float(dep_data["sleep_hours"]["normal_min"]),
-                normal_max=float(dep_data["sleep_hours"]["normal_max"])
+                normal_max=float(dep_data["sleep_hours"]["normal_max"]),
             ),
             activity_steps=DepressionActivityThresholds(
                 severe_reduction=int(dep_data["activity_steps"]["severe_reduction"]),
-                moderate_reduction=int(dep_data["activity_steps"]["moderate_reduction"]),
-                normal_min=int(dep_data["activity_steps"]["normal_min"])
-            )
+                moderate_reduction=int(
+                    dep_data["activity_steps"]["moderate_reduction"]
+                ),
+                normal_min=int(dep_data["activity_steps"]["normal_min"]),
+            ),
         )
 
         # Parse mania thresholds
@@ -238,27 +267,41 @@ def load_clinical_thresholds(config_path: Path) -> ClinicalThresholdsConfig:
         mania = ManiaThresholds(
             asrm_cutoffs=_parse_asrm_cutoffs(mania_data.get("asrm_cutoffs", {})),
             sleep_hours=ManiaSleepThresholds(
-                critical_threshold=float(mania_data["sleep_hours"]["critical_threshold"]),
-                reduced_threshold=float(mania_data["sleep_hours"]["reduced_threshold"])
+                critical_threshold=float(
+                    mania_data["sleep_hours"]["critical_threshold"]
+                ),
+                reduced_threshold=float(mania_data["sleep_hours"]["reduced_threshold"]),
             ),
             activity_steps=ManiaActivityThresholds(
-                elevated_threshold=int(mania_data["activity_steps"]["elevated_threshold"]),
-                extreme_threshold=int(mania_data["activity_steps"]["extreme_threshold"])
-            )
+                elevated_threshold=int(
+                    mania_data["activity_steps"]["elevated_threshold"]
+                ),
+                extreme_threshold=int(
+                    mania_data["activity_steps"]["extreme_threshold"]
+                ),
+            ),
         )
 
         # Parse biomarker thresholds
         bio_data = data["biomarkers"]
         biomarkers = BiomarkerThresholds(
             circadian=CircadianThresholds(
-                phase_advance_threshold=float(bio_data["circadian"]["phase_advance_threshold"]),
-                interdaily_stability_low=float(bio_data["circadian"]["interdaily_stability_low"]),
-                intradaily_variability_high=float(bio_data["circadian"]["intradaily_variability_high"])
+                phase_advance_threshold=float(
+                    bio_data["circadian"]["phase_advance_threshold"]
+                ),
+                interdaily_stability_low=float(
+                    bio_data["circadian"]["interdaily_stability_low"]
+                ),
+                intradaily_variability_high=float(
+                    bio_data["circadian"]["intradaily_variability_high"]
+                ),
             ),
             sleep=SleepBiomarkerThresholds(
                 efficiency_threshold=float(bio_data["sleep"]["efficiency_threshold"]),
-                timing_variance_threshold=float(bio_data["sleep"]["timing_variance_threshold"])
-            )
+                timing_variance_threshold=float(
+                    bio_data["sleep"]["timing_variance_threshold"]
+                ),
+            ),
         )
 
         # Parse mixed features config
@@ -266,11 +309,15 @@ def load_clinical_thresholds(config_path: Path) -> ClinicalThresholdsConfig:
         mixed_features = MixedFeaturesConfig(
             minimum_opposite_symptoms=int(mixed_data["minimum_opposite_symptoms"]),
             depression_with_mixed=MixedFeaturesRequirements(
-                required_manic_symptoms=list(mixed_data["depression_with_mixed"]["required_manic_symptoms"])
+                required_manic_symptoms=list(
+                    mixed_data["depression_with_mixed"]["required_manic_symptoms"]
+                )
             ),
             mania_with_mixed=MixedDepressiveRequirements(
-                required_depressive_symptoms=list(mixed_data["mania_with_mixed"]["required_depressive_symptoms"])
-            )
+                required_depressive_symptoms=list(
+                    mixed_data["mania_with_mixed"]["required_depressive_symptoms"]
+                )
+            ),
         )
 
         # Parse DSM-5 duration config
@@ -278,7 +325,7 @@ def load_clinical_thresholds(config_path: Path) -> ClinicalThresholdsConfig:
         dsm5_duration = DSM5DurationConfig(
             manic_days=int(dsm5_data["manic_days"]),
             hypomanic_days=int(dsm5_data["hypomanic_days"]),
-            depressive_days=int(dsm5_data["depressive_days"])
+            depressive_days=int(dsm5_data["depressive_days"]),
         )
 
         return ClinicalThresholdsConfig(
@@ -286,7 +333,7 @@ def load_clinical_thresholds(config_path: Path) -> ClinicalThresholdsConfig:
             mania=mania,
             biomarkers=biomarkers,
             mixed_features=mixed_features,
-            dsm5_duration=dsm5_duration
+            dsm5_duration=dsm5_duration,
         )
 
     except KeyError as e:

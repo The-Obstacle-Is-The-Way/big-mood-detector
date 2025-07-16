@@ -42,6 +42,7 @@ from big_mood_detector.domain.services.treatment_recommender import (
 @dataclass(frozen=True)
 class ClinicalAssessment:
     """Comprehensive clinical assessment result."""
+
     primary_diagnosis: str
     risk_level: str
     meets_dsm5_criteria: bool
@@ -57,6 +58,7 @@ class ClinicalAssessment:
 @dataclass(frozen=True)
 class LongitudinalAssessment:
     """Assessment incorporating historical data."""
+
     trajectory: str  # improving, stable, worsening
     pattern_detected: str
     clinical_note: str
@@ -67,6 +69,7 @@ class LongitudinalAssessment:
 @dataclass(frozen=True)
 class InterventionDecision:
     """Decision about clinical intervention."""
+
     recommend_intervention: bool
     intervention_type: str  # preventive, acute, maintenance
     urgency: str  # low, moderate, high, emergency
@@ -77,6 +80,7 @@ class InterventionDecision:
 @dataclass(frozen=True)
 class TreatmentDecision:
     """Treatment recommendation decision."""
+
     recommendations: list[Any]  # List of treatment recommendations
     considers_previous_response: bool
     rationale: str
@@ -86,6 +90,7 @@ class TreatmentDecision:
 @dataclass(frozen=True)
 class TriageResult:
     """Emergency triage result."""
+
     urgency_level: str
     recommended_action: str
     estimated_response_time: str
@@ -95,6 +100,7 @@ class TriageResult:
 @dataclass(frozen=True)
 class PersonalizedAssessment:
     """Assessment using personalized baselines."""
+
     clinical_state: str
     deviation_from_baseline: float
     uses_personalized_thresholds: bool
@@ -105,6 +111,7 @@ class PersonalizedAssessment:
 @dataclass(frozen=True)
 class IntegratedAssessment:
     """Integration of multiple assessment domains."""
+
     overall_clinical_picture: str
     priority_actions: list[str]
     integrated_recommendations: list[dict[str, Any]]
@@ -114,6 +121,7 @@ class IntegratedAssessment:
 @dataclass(frozen=True)
 class ClinicalPathway:
     """Recommended clinical pathway."""
+
     pathway_name: str
     recommended_interventions: list[str]
     expected_timeline_weeks: int
@@ -170,7 +178,13 @@ class ClinicalDecisionEngine:
 
         # Track data completeness
         data_fields = ["phq", "asrm", "sleep_hours", "activity_steps", "symptom_days"]
-        available_fields = len([f for f in data_fields if f in mood_scores or f in biomarkers or f in clinical_context])
+        available_fields = len(
+            [
+                f
+                for f in data_fields
+                if f in mood_scores or f in biomarkers or f in clinical_context
+            ]
+        )
         data_completeness = available_fields / len(data_fields)
 
         limitations = []
@@ -216,7 +230,9 @@ class ClinicalDecisionEngine:
                     primary_diagnosis = "manic_episode"
                 # For mixed states, take the higher risk level
                 risk_levels = ["low", "moderate", "high", "critical"]
-                if risk_levels.index(mania_risk.risk_level) > risk_levels.index(risk_level):
+                if risk_levels.index(mania_risk.risk_level) > risk_levels.index(
+                    risk_level
+                ):
                     risk_level = mania_risk.risk_level
 
         # Check DSM-5 criteria if we have symptom duration
@@ -231,7 +247,10 @@ class ClinicalDecisionEngine:
 
         # Get treatment recommendations for significant episodes
         treatment_options = []
-        if risk_level in ["moderate", "high", "critical"] and primary_diagnosis != "none":
+        if (
+            risk_level in ["moderate", "high", "critical"]
+            and primary_diagnosis != "none"
+        ):
             # Map diagnosis to episode type for treatment recommender
             episode_type_map = {
                 "depressive_episode": "depressive",
@@ -263,7 +282,9 @@ class ClinicalDecisionEngine:
 
         # Generate clinical summary
         summary_parts = []
-        summary_parts.append(f"Clinical assessment indicates {primary_diagnosis.replace('_', ' ')}")
+        summary_parts.append(
+            f"Clinical assessment indicates {primary_diagnosis.replace('_', ' ')}"
+        )
         summary_parts.append(f"with {risk_level} risk level")
 
         if meets_dsm5:
@@ -307,11 +328,18 @@ class ClinicalDecisionEngine:
         # Extract historical scores
         historical_risks = []
         for assessment in historical_assessments:
-            historical_risks.append({
-                "date": assessment.get("date", "").isoformat() if isinstance(assessment.get("date"), datetime) else "",
-                "risk_level": assessment.get("risk_level", "low"),
-                "score": assessment.get("phq_score", 0) + assessment.get("asrm_score", 0),
-            })
+            historical_risks.append(
+                {
+                    "date": (
+                        assessment.get("date", "").isoformat()
+                        if isinstance(assessment.get("date"), datetime)
+                        else ""
+                    ),
+                    "risk_level": assessment.get("risk_level", "low"),
+                    "score": assessment.get("phq_score", 0)
+                    + assessment.get("asrm_score", 0),
+                }
+            )
 
         # Current combined score
         current_score = current_scores.get("phq", 0) + current_scores.get("asrm", 0)
@@ -342,7 +370,9 @@ class ClinicalDecisionEngine:
             risk_projection = "favorable_prognosis"
 
         # Clinical note
-        clinical_note = f"Longitudinal analysis shows {trajectory_result.trend} trajectory. "
+        clinical_note = (
+            f"Longitudinal analysis shows {trajectory_result.trend} trajectory. "
+        )
         if trajectory_result.velocity > 0:
             clinical_note += "Symptoms showing increasing severity over time. "
         clinical_note += f"Pattern suggests {pattern.replace('_', ' ')}."
@@ -393,20 +423,24 @@ class ClinicalDecisionEngine:
             recommend_intervention = True
             intervention_type = "preventive"
             urgency = "high" if warning_result.urgency_level == "high" else "moderate"
-            specific_actions.extend([
-                "Schedule urgent clinical review",
-                "Consider medication adjustment",
-                "Increase monitoring frequency",
-            ])
+            specific_actions.extend(
+                [
+                    "Schedule urgent clinical review",
+                    "Consider medication adjustment",
+                    "Increase monitoring frequency",
+                ]
+            )
         elif warning_result.depression_warning or warning_result.mania_warning:
             recommend_intervention = True
             intervention_type = "preventive"
             urgency = "moderate"
-            specific_actions.extend([
-                "Schedule clinical review within 1 week",
-                "Review current treatment plan",
-                "Patient education about early signs",
-            ])
+            specific_actions.extend(
+                [
+                    "Schedule clinical review within 1 week",
+                    "Review current treatment plan",
+                    "Patient education about early signs",
+                ]
+            )
 
         # Consider patient history
         if patient_history.get("previous_episodes", 0) >= 2:
@@ -468,8 +502,7 @@ class ClinicalDecisionEngine:
         # Filter out contraindicated medications
         contraindications = patient_factors.get("contraindications", [])
         filtered_recommendations = [
-            rec for rec in recommendations
-            if rec.medication not in contraindications
+            rec for rec in recommendations if rec.medication not in contraindications
         ]
 
         # Consider previous response
@@ -477,6 +510,7 @@ class ClinicalDecisionEngine:
         previous_response = patient_factors.get("previous_response", {})
         if previous_response:
             considers_previous = True
+
             # Sort by previous response
             def response_score(rec: Any) -> int:
                 response = previous_response.get(rec.medication, "unknown")
@@ -488,7 +522,9 @@ class ClinicalDecisionEngine:
         # Generate rationale
         rationale = f"Treatment recommendations for {severity} {diagnosis}. "
         if contraindications:
-            rationale += f"Avoided {', '.join(contraindications)} due to contraindications. "
+            rationale += (
+                f"Avoided {', '.join(contraindications)} due to contraindications. "
+            )
         if considers_previous:
             rationale += "Prioritized based on previous treatment response."
 
@@ -561,7 +597,10 @@ class ClinicalDecisionEngine:
             Personalized assessment
         """
         # Calculate deviations from baseline
-        sleep_deviation = abs(current_state.get("sleep_hours", 7) - individual_baseline.get("typical_sleep", 7))
+        sleep_deviation = abs(
+            current_state.get("sleep_hours", 7)
+            - individual_baseline.get("typical_sleep", 7)
+        )
 
         # Apply personalized thresholds
         uses_personalized = bool(individual_baseline.get("sensitivity_profile"))
@@ -580,10 +619,14 @@ class ClinicalDecisionEngine:
 
         individualized_recommendations = []
         if sleep_deviation > 1.5:
-            individualized_recommendations.append("Focus on sleep hygiene and regulation")
+            individualized_recommendations.append(
+                "Focus on sleep hygiene and regulation"
+            )
 
         if individual_baseline.get("sensitivity_profile", {}).get("sleep_sensitive"):
-            individualized_recommendations.append("Monitor sleep patterns closely - individual is sleep-sensitive")
+            individualized_recommendations.append(
+                "Monitor sleep patterns closely - individual is sleep-sensitive"
+            )
 
         return PersonalizedAssessment(
             clinical_state=clinical_state,
@@ -613,9 +656,11 @@ class ClinicalDecisionEngine:
             Integrated clinical assessment
         """
         # Determine overall clinical picture
-        if (mood_assessment.get("risk_level") == "moderate" and
-            biomarker_assessment.get("instability") == "high" and
-            not treatment_assessment.get("current_effective")):
+        if (
+            mood_assessment.get("risk_level") == "moderate"
+            and biomarker_assessment.get("instability") == "high"
+            and not treatment_assessment.get("current_effective")
+        ):
             overall_picture = "unstable_with_treatment_resistance"
         elif early_warning_assessment.get("warnings_detected"):
             overall_picture = "prodromal_phase"
@@ -633,21 +678,39 @@ class ClinicalDecisionEngine:
 
         # Generate integrated recommendations
         integrated_recommendations = []
-        integrated_recommendations.append({
-            "domain": "pharmacological",
-            "action": "Review and optimize medication regimen",
-            "priority": "high" if not treatment_assessment.get("current_effective") else "medium",
-        })
-        integrated_recommendations.append({
-            "domain": "behavioral",
-            "action": "Implement sleep hygiene protocol",
-            "priority": "high" if biomarker_assessment.get("circadian_disruption") else "low",
-        })
-        integrated_recommendations.append({
-            "domain": "monitoring",
-            "action": "Increase assessment frequency",
-            "priority": "high" if early_warning_assessment.get("warnings_detected") else "low",
-        })
+        integrated_recommendations.append(
+            {
+                "domain": "pharmacological",
+                "action": "Review and optimize medication regimen",
+                "priority": (
+                    "high"
+                    if not treatment_assessment.get("current_effective")
+                    else "medium"
+                ),
+            }
+        )
+        integrated_recommendations.append(
+            {
+                "domain": "behavioral",
+                "action": "Implement sleep hygiene protocol",
+                "priority": (
+                    "high"
+                    if biomarker_assessment.get("circadian_disruption")
+                    else "low"
+                ),
+            }
+        )
+        integrated_recommendations.append(
+            {
+                "domain": "monitoring",
+                "action": "Increase assessment frequency",
+                "priority": (
+                    "high"
+                    if early_warning_assessment.get("warnings_detected")
+                    else "low"
+                ),
+            }
+        )
 
         return IntegratedAssessment(
             overall_clinical_picture=overall_picture,
@@ -682,7 +745,9 @@ class ClinicalDecisionEngine:
                 "comprehensive_assessment",
             ]
             timeline_weeks = 12
-        elif presentation.get("comorbidities") and len(presentation["comorbidities"]) > 1:
+        elif (
+            presentation.get("comorbidities") and len(presentation["comorbidities"]) > 1
+        ):
             pathway_name = "complex_comorbid_presentation"
             interventions = [
                 "integrated_treatment_plan",

@@ -26,6 +26,7 @@ from big_mood_detector.domain.services.sleep_aggregator import DailySleepSummary
 @dataclass(frozen=True)
 class SleepFeatureSet:
     """Immutable container for sleep-related features."""
+
     total_sleep_hours: float
     sleep_efficiency: float
     sleep_regularity_index: float
@@ -41,6 +42,7 @@ class SleepFeatureSet:
 @dataclass(frozen=True)
 class CircadianFeatureSet:
     """Immutable container for circadian rhythm features."""
+
     l5_value: float
     m10_value: float
     circadian_phase_advance: float
@@ -52,6 +54,7 @@ class CircadianFeatureSet:
 @dataclass(frozen=True)
 class ActivityFeatureSet:
     """Immutable container for activity features."""
+
     total_steps: float
     activity_fragmentation: float
     sedentary_bout_mean: float
@@ -63,6 +66,7 @@ class ActivityFeatureSet:
 @dataclass(frozen=True)
 class TemporalFeatureSet:
     """Immutable container for temporal features."""
+
     sleep_7day_mean: float
     sleep_7day_std: float
     activity_7day_mean: float
@@ -78,6 +82,7 @@ class TemporalFeatureSet:
 @dataclass(frozen=True)
 class ClinicalFeatureSet:
     """Immutable container for clinical indicators."""
+
     is_hypersomnia_pattern: bool
     is_insomnia_pattern: bool
     is_phase_advanced: bool
@@ -89,6 +94,7 @@ class ClinicalFeatureSet:
 @dataclass(frozen=True)
 class UnifiedFeatureSet:
     """Complete feature set with all domains."""
+
     date: date
     sleep_features: SleepFeatureSet
     circadian_features: CircadianFeatureSet
@@ -100,6 +106,7 @@ class UnifiedFeatureSet:
 @dataclass(frozen=True)
 class FeatureValidationResult:
     """Result of feature validation."""
+
     is_valid: bool
     missing_domains: list[str]
     quality_score: float  # 0-1, higher is better
@@ -109,6 +116,7 @@ class FeatureValidationResult:
 @dataclass(frozen=True)
 class CompletenessReport:
     """Data completeness report."""
+
     total_days: int
     sleep_coverage: float
     activity_coverage: float
@@ -120,6 +128,7 @@ class CompletenessReport:
 @dataclass(frozen=True)
 class AnomalyResult:
     """Anomaly detection result."""
+
     has_anomalies: bool
     anomaly_domains: list[str]
     severity: float  # 0-1, higher is more severe
@@ -170,7 +179,7 @@ class FeatureEngineeringOrchestrator:
         activity_data: list[DailyActivitySummary],
         heart_data: list[DailyHeartSummary],
         lookback_days: int = 30,
-        use_cache: bool = True
+        use_cache: bool = True,
     ) -> UnifiedFeatureSet:
         """
         Extract all features for a specific date.
@@ -197,7 +206,7 @@ class FeatureEngineeringOrchestrator:
             historical_sleep=sleep_data,
             historical_activity=activity_data,
             historical_heart=heart_data,
-            lookback_days=lookback_days
+            lookback_days=lookback_days,
         )
 
         # Convert to our structured format
@@ -216,7 +225,7 @@ class FeatureEngineeringOrchestrator:
         sleep_data: list[DailySleepSummary],
         activity_data: list[DailyActivitySummary],
         heart_data: list[DailyHeartSummary],
-        lookback_days: int = 30
+        lookback_days: int = 30,
     ) -> list[UnifiedFeatureSet]:
         """
         Extract features for a date range.
@@ -242,7 +251,7 @@ class FeatureEngineeringOrchestrator:
                 activity_data=activity_data,
                 heart_data=heart_data,
                 lookback_days=lookback_days,
-                use_cache=True
+                use_cache=True,
             )
             feature_sets.append(features)
             current_date += timedelta(days=1)
@@ -277,8 +286,10 @@ class FeatureEngineeringOrchestrator:
             warnings.append("Unusually low activity")
 
         # Check temporal features
-        if (features.temporal_features.sleep_7day_mean == 0 and
-            features.temporal_features.activity_7day_mean == 0):
+        if (
+            features.temporal_features.sleep_7day_mean == 0
+            and features.temporal_features.activity_7day_mean == 0
+        ):
             warnings.append("Insufficient historical data for temporal features")
 
         # Calculate quality score
@@ -292,14 +303,14 @@ class FeatureEngineeringOrchestrator:
             is_valid=len(missing_domains) == 0,
             missing_domains=missing_domains,
             quality_score=quality_score,
-            warnings=warnings
+            warnings=warnings,
         )
 
     def generate_completeness_report(
         self,
         sleep_data: list[DailySleepSummary],
         activity_data: list[DailyActivitySummary],
-        heart_data: list[DailyHeartSummary]
+        heart_data: list[DailyHeartSummary],
     ) -> CompletenessReport:
         """
         Generate data completeness report.
@@ -327,7 +338,7 @@ class FeatureEngineeringOrchestrator:
                 activity_coverage=0.0,
                 heart_coverage=0.0,
                 full_coverage_days=0,
-                gaps=[]
+                gaps=[],
             )
 
         total_days = len(all_dates)
@@ -361,7 +372,7 @@ class FeatureEngineeringOrchestrator:
             activity_coverage=activity_coverage,
             heart_coverage=heart_coverage,
             full_coverage_days=full_coverage_days,
-            gaps=gaps
+            gaps=gaps,
         )
 
     def detect_anomalies(self, features: UnifiedFeatureSet) -> AnomalyResult:
@@ -378,8 +389,10 @@ class FeatureEngineeringOrchestrator:
         severity_scores = []
 
         # Check sleep anomalies - both chronic patterns and acute issues
-        if (features.clinical_features.is_hypersomnia_pattern or
-            features.clinical_features.is_insomnia_pattern):
+        if (
+            features.clinical_features.is_hypersomnia_pattern
+            or features.clinical_features.is_insomnia_pattern
+        ):
             anomaly_domains.append("sleep")
             severity_scores.append(0.7)
 
@@ -400,8 +413,10 @@ class FeatureEngineeringOrchestrator:
             severity_scores.append(0.6)
 
         # Check circadian anomalies
-        if (features.clinical_features.is_phase_advanced or
-            features.clinical_features.is_phase_delayed):
+        if (
+            features.clinical_features.is_phase_advanced
+            or features.clinical_features.is_phase_delayed
+        ):
             anomaly_domains.append("circadian")
             severity_scores.append(0.5)
 
@@ -424,7 +439,7 @@ class FeatureEngineeringOrchestrator:
         return AnomalyResult(
             has_anomalies=len(anomaly_domains) > 0,
             anomaly_domains=list(set(anomaly_domains)),  # Remove duplicates
-            severity=severity
+            severity=severity,
         )
 
     def get_feature_importance(self) -> dict[str, float]:
@@ -583,5 +598,5 @@ class FeatureEngineeringOrchestrator:
                 is_phase_delayed=advanced_features.is_phase_delayed,
                 is_irregular_pattern=advanced_features.is_irregular_pattern,
                 mood_risk_score=advanced_features.mood_risk_score,
-            )
+            ),
         )

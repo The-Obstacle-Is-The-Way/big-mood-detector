@@ -19,6 +19,7 @@ from big_mood_detector.domain.services.clinical_thresholds import (
 
 class RiskLevel(Enum):
     """Clinical risk stratification levels."""
+
     LOW = "low"
     MODERATE = "moderate"
     HIGH = "high"
@@ -27,6 +28,7 @@ class RiskLevel(Enum):
 
 class EpisodeType(Enum):
     """DSM-5 mood episode types."""
+
     NONE = "none"
     DEPRESSIVE = "depressive"
     MANIC = "manic"
@@ -38,6 +40,7 @@ class EpisodeType(Enum):
 @dataclass
 class ClinicalRecommendation:
     """Clinical treatment recommendation."""
+
     medication: str
     evidence_level: str  # first-line, second-line
     description: str
@@ -47,6 +50,7 @@ class ClinicalRecommendation:
 @dataclass
 class DSM5Criteria:
     """DSM-5 episode criteria evaluation."""
+
     meets_dsm5_criteria: bool
     clinical_note: str
     duration_met: bool = True
@@ -57,6 +61,7 @@ class DSM5Criteria:
 @dataclass
 class ClinicalInterpretation:
     """Complete clinical interpretation of mood state."""
+
     risk_level: RiskLevel
     episode_type: EpisodeType
     confidence: float
@@ -69,6 +74,7 @@ class ClinicalInterpretation:
 @dataclass
 class BiomarkerInterpretation:
     """Interpretation of digital biomarkers."""
+
     mania_risk_factors: int = 0
     depression_risk_factors: int = 0
     clinical_notes: list[str] = field(default_factory=list)
@@ -80,6 +86,7 @@ class BiomarkerInterpretation:
 @dataclass
 class EarlyWarningResult:
     """Early warning detection result."""
+
     depression_warning: bool = False
     mania_warning: bool = False
     trigger_intervention: bool = False
@@ -89,6 +96,7 @@ class EarlyWarningResult:
 @dataclass
 class ConfidenceAdjustment:
     """Confidence adjustment based on data quality."""
+
     adjusted_confidence: float
     reliability: str  # high, medium, low
     limitations: list[str] = field(default_factory=list)
@@ -97,6 +105,7 @@ class ConfidenceAdjustment:
 @dataclass
 class RiskTrend:
     """Risk trend analysis over time."""
+
     direction: str  # worsening, stable, improving
     velocity: float
     clinical_note: str
@@ -105,6 +114,7 @@ class RiskTrend:
 @dataclass
 class PersonalizedThresholds:
     """Individualized clinical thresholds."""
+
     sleep_low: float
     sleep_high: float
     activity_low: float
@@ -114,6 +124,7 @@ class PersonalizedThresholds:
 @dataclass
 class ClinicalDecision:
     """Clinical decision rule result."""
+
     approved: bool
     rationale: str
 
@@ -252,7 +263,7 @@ class ClinicalInterpreter:
                 "phq_score": phq_score,
                 "sleep_hours": sleep_hours,
                 "activity_steps": activity_steps,
-            }
+            },
         )
 
     def interpret_mania_score(
@@ -349,7 +360,7 @@ class ClinicalInterpreter:
                 "asrm_score": asrm_score,
                 "sleep_hours": sleep_hours,
                 "activity_steps": activity_steps,
-            }
+            },
         )
 
     def interpret_mixed_state(
@@ -386,7 +397,9 @@ class ClinicalInterpreter:
             reduced_sleep_threshold = 6
 
         # Count opposite pole symptoms
-        manic_symptoms = sum([racing_thoughts, increased_energy, sleep_hours < reduced_sleep_threshold])
+        manic_symptoms = sum(
+            [racing_thoughts, increased_energy, sleep_hours < reduced_sleep_threshold]
+        )
         depressive_symptoms = sum([depressed_mood, anhedonia, guilt])
 
         # Determine primary episode and check for mixed features
@@ -401,9 +414,13 @@ class ClinicalInterpreter:
         else:
             # Fallback to pure episode interpretation
             if phq_score >= asrm_score:
-                return self.interpret_depression_score(phq_score, sleep_hours, activity_steps)
+                return self.interpret_depression_score(
+                    phq_score, sleep_hours, activity_steps
+                )
             else:
-                return self.interpret_mania_score(asrm_score, sleep_hours, activity_steps)
+                return self.interpret_mania_score(
+                    asrm_score, sleep_hours, activity_steps
+                )
 
         # Get specialized mixed state recommendations
         recommendations = self._get_mixed_state_recommendations(episode_type)
@@ -453,7 +470,10 @@ class ClinicalInterpreter:
         required_days = duration_requirements.get(episode_type, 0)
 
         # Special case: hospitalization for mania
-        if episode_type in [EpisodeType.MANIC, EpisodeType.MANIC_MIXED] and hospitalization:
+        if (
+            episode_type in [EpisodeType.MANIC, EpisodeType.MANIC_MIXED]
+            and hospitalization
+        ):
             return DSM5Criteria(
                 meets_dsm5_criteria=True,
                 clinical_note="Manic episode criteria met due to hospitalization.",
@@ -486,7 +506,9 @@ class ClinicalInterpreter:
         if self.config:
             critical_sleep = self.config.mania.sleep_hours.critical_threshold
             efficiency_threshold = self.config.biomarkers.sleep.efficiency_threshold
-            timing_variance_threshold = self.config.biomarkers.sleep.timing_variance_threshold
+            timing_variance_threshold = (
+                self.config.biomarkers.sleep.timing_variance_threshold
+            )
         else:
             # Fallback defaults
             critical_sleep = 3
@@ -496,7 +518,9 @@ class ClinicalInterpreter:
         # Critical short sleep
         if sleep_duration < critical_sleep:
             result.mania_risk_factors += 1
-            result.clinical_notes.append("Critical short sleep duration indicates mania risk")
+            result.clinical_notes.append(
+                "Critical short sleep duration indicates mania risk"
+            )
             result.recommendation_priority = "urgent"
 
         # Poor sleep efficiency
@@ -557,9 +581,13 @@ class ClinicalInterpreter:
 
         # Use configuration values if available
         if self.config:
-            phase_advance_threshold = self.config.biomarkers.circadian.phase_advance_threshold
+            phase_advance_threshold = (
+                self.config.biomarkers.circadian.phase_advance_threshold
+            )
             stability_low = self.config.biomarkers.circadian.interdaily_stability_low
-            variability_high = self.config.biomarkers.circadian.intradaily_variability_high
+            variability_high = (
+                self.config.biomarkers.circadian.intradaily_variability_high
+            )
         else:
             # Fallback defaults
             phase_advance_threshold = 2
@@ -646,33 +674,41 @@ class ClinicalInterpreter:
         if episode_type == EpisodeType.MANIC:
             # First-line for acute mania
             if "lithium" not in [m.lower() for m in current_medications]:
-                recommendations.append(ClinicalRecommendation(
-                    medication="lithium",
-                    evidence_level="first-line",
-                    description="First-line mood stabilizer for acute mania",
-                ))
+                recommendations.append(
+                    ClinicalRecommendation(
+                        medication="lithium",
+                        evidence_level="first-line",
+                        description="First-line mood stabilizer for acute mania",
+                    )
+                )
 
-            recommendations.append(ClinicalRecommendation(
-                medication="quetiapine",
-                evidence_level="first-line",
-                description="Atypical antipsychotic for acute mania",
-            ))
+            recommendations.append(
+                ClinicalRecommendation(
+                    medication="quetiapine",
+                    evidence_level="first-line",
+                    description="Atypical antipsychotic for acute mania",
+                )
+            )
 
         elif episode_type == EpisodeType.DEPRESSIVE:
             # For bipolar depression - quetiapine is first-line
-            recommendations.append(ClinicalRecommendation(
-                medication="quetiapine",
-                evidence_level="first-line",
-                description="First-line for bipolar depression",
-            ))
+            recommendations.append(
+                ClinicalRecommendation(
+                    medication="quetiapine",
+                    evidence_level="first-line",
+                    description="First-line for bipolar depression",
+                )
+            )
 
             # Lamotrigine is contraindicated in rapid cycling
             if not rapid_cycling:
-                recommendations.append(ClinicalRecommendation(
-                    medication="lamotrigine",
-                    evidence_level="first-line",
-                    description="Mood stabilizer for bipolar depression (not for rapid cycling)",
-                ))
+                recommendations.append(
+                    ClinicalRecommendation(
+                        medication="lamotrigine",
+                        evidence_level="first-line",
+                        description="Mood stabilizer for bipolar depression (not for rapid cycling)",
+                    )
+                )
 
         return recommendations
 
@@ -721,11 +757,13 @@ class ClinicalInterpreter:
         parts = []
 
         # Risk level
-        parts.append(f"Clinical assessment indicates {interpretation.risk_level.value} risk")
+        parts.append(
+            f"Clinical assessment indicates {interpretation.risk_level.value} risk"
+        )
 
         # Episode type
         if interpretation.episode_type != EpisodeType.NONE:
-            episode_text = interpretation.episode_type.value.replace('_', ' ')
+            episode_text = interpretation.episode_type.value.replace("_", " ")
             if episode_text == "depressive":
                 episode_text = "major depressive episode"
             parts.append(f"for {episode_text}")
@@ -807,21 +845,31 @@ class ClinicalInterpreter:
     ) -> ClinicalDecision:
         """Apply evidence-based clinical decision rules."""
         # Rule: No antidepressant monotherapy in bipolar
-        if (diagnosis == "bipolar_disorder" and
-            "depressed" in mood_state and
-            proposed_treatment.lower() in ["sertraline", "fluoxetine", "escitalopram", "venlafaxine"] and
-            not any(med.lower() in ["lithium", "valproate", "lamotrigine", "quetiapine"]
-                   for med in current_medications)):
+        if (
+            diagnosis == "bipolar_disorder"
+            and "depressed" in mood_state
+            and proposed_treatment.lower()
+            in ["sertraline", "fluoxetine", "escitalopram", "venlafaxine"]
+            and not any(
+                med.lower() in ["lithium", "valproate", "lamotrigine", "quetiapine"]
+                for med in current_medications
+            )
+        ):
             return ClinicalDecision(
                 approved=False,
                 rationale="Antidepressant monotherapy is contraindicated in bipolar disorder",
             )
 
         # Rule: Antidepressant with mood stabilizer is acceptable
-        if (diagnosis == "bipolar_disorder" and
-            proposed_treatment.lower() in ["sertraline", "fluoxetine", "escitalopram"] and
-            any(med.lower() in ["lithium", "valproate", "lamotrigine"]
-                for med in current_medications)):
+        if (
+            diagnosis == "bipolar_disorder"
+            and proposed_treatment.lower()
+            in ["sertraline", "fluoxetine", "escitalopram"]
+            and any(
+                med.lower() in ["lithium", "valproate", "lamotrigine"]
+                for med in current_medications
+            )
+        ):
             return ClinicalDecision(
                 approved=True,
                 rationale="Antidepressant acceptable with mood stabilizer coverage",
@@ -835,26 +883,28 @@ class ClinicalInterpreter:
 
     # Private helper methods
     def _get_depression_recommendations(
-        self,
-        risk_level: RiskLevel,
-        phq_score: float
+        self, risk_level: RiskLevel, phq_score: float
     ) -> list[ClinicalRecommendation]:
         """Get depression-specific treatment recommendations."""
         recommendations = []
 
         if risk_level in [RiskLevel.MODERATE, RiskLevel.HIGH]:
-            recommendations.append(ClinicalRecommendation(
-                medication="quetiapine",
-                evidence_level="first-line",
-                description="First-line treatment for bipolar depression",
-            ))
+            recommendations.append(
+                ClinicalRecommendation(
+                    medication="quetiapine",
+                    evidence_level="first-line",
+                    description="First-line treatment for bipolar depression",
+                )
+            )
 
         if risk_level == RiskLevel.CRITICAL:
-            recommendations.append(ClinicalRecommendation(
-                medication="urgent psychiatric evaluation",
-                evidence_level="first-line",
-                description="Urgent assessment required for severe depression",
-            ))
+            recommendations.append(
+                ClinicalRecommendation(
+                    medication="urgent psychiatric evaluation",
+                    evidence_level="first-line",
+                    description="Urgent assessment required for severe depression",
+                )
+            )
 
         return recommendations
 
@@ -867,25 +917,29 @@ class ClinicalInterpreter:
         recommendations = []
 
         if risk_level in [RiskLevel.MODERATE, RiskLevel.HIGH]:
-            recommendations.extend([
-                ClinicalRecommendation(
-                    medication="lithium",
-                    evidence_level="first-line",
-                    description="First-line mood stabilizer",
-                ),
-                ClinicalRecommendation(
-                    medication="quetiapine",
-                    evidence_level="first-line",
-                    description="Atypical antipsychotic for acute mania",
-                ),
-            ])
+            recommendations.extend(
+                [
+                    ClinicalRecommendation(
+                        medication="lithium",
+                        evidence_level="first-line",
+                        description="First-line mood stabilizer",
+                    ),
+                    ClinicalRecommendation(
+                        medication="quetiapine",
+                        evidence_level="first-line",
+                        description="Atypical antipsychotic for acute mania",
+                    ),
+                ]
+            )
 
         if risk_level == RiskLevel.CRITICAL:
-            recommendations.append(ClinicalRecommendation(
-                medication="urgent hospitalization evaluation",
-                evidence_level="first-line",
-                description="Immediate safety assessment required",
-            ))
+            recommendations.append(
+                ClinicalRecommendation(
+                    medication="urgent hospitalization evaluation",
+                    evidence_level="first-line",
+                    description="Immediate safety assessment required",
+                )
+            )
 
         return recommendations
 
@@ -898,31 +952,35 @@ class ClinicalInterpreter:
 
         if episode_type == EpisodeType.DEPRESSIVE_MIXED:
             # Second-line for depression with mixed features
-            recommendations.extend([
-                ClinicalRecommendation(
-                    medication="cariprazine",
-                    evidence_level="second-line",
-                    description="Cariprazine is effective for depression with mixed features",
-                ),
-                ClinicalRecommendation(
-                    medication="lurasidone",
-                    evidence_level="second-line",
-                    description="Lurasidone is an alternative for mixed depression",
-                ),
-            ])
+            recommendations.extend(
+                [
+                    ClinicalRecommendation(
+                        medication="cariprazine",
+                        evidence_level="second-line",
+                        description="Cariprazine is effective for depression with mixed features",
+                    ),
+                    ClinicalRecommendation(
+                        medication="lurasidone",
+                        evidence_level="second-line",
+                        description="Lurasidone is an alternative for mixed depression",
+                    ),
+                ]
+            )
         elif episode_type == EpisodeType.MANIC_MIXED:
             # Second-line for mania with mixed features
-            recommendations.extend([
-                ClinicalRecommendation(
-                    medication="asenapine",
-                    evidence_level="second-line",
-                    description="Effective for mania with mixed features",
-                ),
-                ClinicalRecommendation(
-                    medication="cariprazine",
-                    evidence_level="second-line",
-                    description="Covers both manic and depressive symptoms",
-                ),
-            ])
+            recommendations.extend(
+                [
+                    ClinicalRecommendation(
+                        medication="asenapine",
+                        evidence_level="second-line",
+                        description="Effective for mania with mixed features",
+                    ),
+                    ClinicalRecommendation(
+                        medication="cariprazine",
+                        evidence_level="second-line",
+                        description="Covers both manic and depressive symptoms",
+                    ),
+                ]
+            )
 
         return recommendations

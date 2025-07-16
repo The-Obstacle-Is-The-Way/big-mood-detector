@@ -19,6 +19,7 @@ class TestBiomarkerInterpreter:
     def config(self):
         """Load test configuration."""
         from pathlib import Path
+
         return load_clinical_thresholds(Path("config/clinical_thresholds.yaml"))
 
     @pytest.fixture
@@ -27,6 +28,7 @@ class TestBiomarkerInterpreter:
         from big_mood_detector.domain.services.biomarker_interpreter import (
             BiomarkerInterpreter,
         )
+
         return BiomarkerInterpreter(config)
 
     def test_interpret_sleep_critical_short(self, interpreter):

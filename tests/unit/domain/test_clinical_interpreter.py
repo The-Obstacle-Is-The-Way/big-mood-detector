@@ -68,8 +68,7 @@ class TestClinicalInterpreter:
         assert result.episode_type == EpisodeType.DEPRESSIVE
         assert "immediate intervention" in result.clinical_summary.lower()
         assert any(
-            "urgent" in rec.description.lower()
-            for rec in result.recommendations
+            "urgent" in rec.description.lower() for rec in result.recommendations
         )
 
     def test_mania_risk_stratification(self, interpreter):
@@ -126,8 +125,8 @@ class TestClinicalInterpreter:
         assert result.episode_type == EpisodeType.DEPRESSIVE_MIXED
         assert "mixed features" in result.clinical_summary.lower()
         assert any(
-            "cariprazine" in rec.description.lower() or
-            "lurasidone" in rec.description.lower()
+            "cariprazine" in rec.description.lower()
+            or "lurasidone" in rec.description.lower()
             for rec in result.recommendations
         )
 
@@ -153,7 +152,10 @@ class TestClinicalInterpreter:
             hospitalization=False,
         )
         assert not result.meets_dsm5_criteria
-        assert result.clinical_note == "Duration insufficient for manic episode (5 days < 7 days required)"
+        assert (
+            result.clinical_note
+            == "Duration insufficient for manic episode (5 days < 7 days required)"
+        )
 
         # Valid manic episode
         result = interpreter.evaluate_episode_duration(
@@ -261,8 +263,12 @@ class TestClinicalInterpreter:
             current_medications=[],
             rapid_cycling=True,
         )
-        assert not any("antidepressant monotherapy" in r.medication.lower() for r in recs)
-        assert any("lamotrigine" not in r.medication.lower() for r in recs)  # contraindicated in rapid cycling
+        assert not any(
+            "antidepressant monotherapy" in r.medication.lower() for r in recs
+        )
+        assert any(
+            "lamotrigine" not in r.medication.lower() for r in recs
+        )  # contraindicated in rapid cycling
 
     def test_confidence_adjustment(self, interpreter):
         """Test confidence adjustment based on data quality."""
