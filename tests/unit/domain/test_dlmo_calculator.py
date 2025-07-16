@@ -142,19 +142,23 @@ class TestDLMOCalculator:
         for day in range(14):  # 2 weeks for stable calculation
             sleep_start = datetime.combine(
                 base_date + timedelta(days=day), datetime.min.time()
-            ).replace(hour=23)  # 11 PM
+            ).replace(
+                hour=23
+            )  # 11 PM
             sleep_records.append(self._create_sleep_record(sleep_start, 8.0))
 
         # Act
         result = calculator.calculate_dlmo(
             sleep_records=sleep_records,
             target_date=base_date + timedelta(days=13),
-            use_activity=False
+            use_activity=False,
         )
 
         # Assert - DLMO should be in evening hours (20-22h) for normal sleepers
         assert result is not None
-        assert 20.0 <= result.dlmo_hour <= 22.0, f"DLMO {result.dlmo_hour}h outside expected 20-22h range"
+        assert (
+            20.0 <= result.dlmo_hour <= 22.0
+        ), f"DLMO {result.dlmo_hour}h outside expected 20-22h range"
         assert result.cbt_amplitude > 0
 
     def test_phase_delay_pattern(self, calculator):
@@ -287,8 +291,6 @@ class TestDLMOCalculator:
                 if n > 0:
                     assert dn < 0
 
-
-
     def test_real_world_scenario(self, calculator):
         """Test with realistic sleep pattern including weekends."""
         # Arrange - weekday vs weekend pattern
@@ -373,7 +375,6 @@ class TestDLMOCalculator:
         # This is a relative test - we care about the relationship
         # not the absolute values
 
-
     def test_offset_relationship_maintained(self, calculator):
         """Test that DLMO = CBT_min - configured offset."""
         # Create test sleep data
@@ -383,20 +384,23 @@ class TestDLMOCalculator:
         for day in range(14):  # 2 weeks for stable calculation
             sleep_start = datetime.combine(
                 base_date + timedelta(days=day), datetime.min.time()
-            ).replace(hour=23)  # 11 PM
+            ).replace(
+                hour=23
+            )  # 11 PM
             sleep_records.append(self._create_sleep_record(sleep_start, 8.0))
 
         # Calculate DLMO using sleep data
         result = calculator.calculate_dlmo(
-            sleep_records=sleep_records,
-            target_date=base_date + timedelta(days=13)
+            sleep_records=sleep_records, target_date=base_date + timedelta(days=13)
         )
 
         assert result is not None
 
         # Verify the offset relationship holds
         expected_dlmo = (result.cbt_min_hour - calculator.CBT_TO_DLMO_OFFSET) % 24
-        assert abs(result.dlmo_hour - expected_dlmo) < 0.01  # Allow tiny floating point errors
+        assert (
+            abs(result.dlmo_hour - expected_dlmo) < 0.01
+        )  # Allow tiny floating point errors
 
     def test_offset_configuration_warning(self):
         """Test that non-standard offset triggers warning."""

@@ -106,7 +106,7 @@ class DLMOCalculator:
                 f"⚠️ WARNING: Using non-standard CBT→DLMO offset ({self.CBT_TO_DLMO_OFFSET}h). "
                 f"Physiological standard is 7.0h. Validate against assay data before production use.",
                 UserWarning,
-                stacklevel=2
+                stacklevel=2,
             )
 
     # Circadian model parameters (from St. Hilaire/Kronauer)
@@ -270,7 +270,9 @@ class DLMOCalculator:
                         # Make hour_start timezone-aware if sleep dates are timezone-aware
                         if sleep.start_date.tzinfo is not None:
                             # Use the timezone from the sleep record
-                            hour_start = hour_start.replace(tzinfo=sleep.start_date.tzinfo)
+                            hour_start = hour_start.replace(
+                                tzinfo=sleep.start_date.tzinfo
+                            )
                             hour_end = hour_end.replace(tzinfo=sleep.end_date.tzinfo)
 
                         # If this hour overlaps with sleep, set to 0 lux
@@ -450,7 +452,7 @@ class DLMOCalculator:
 
         # Find when phase angle is closest to target
         best_hour = 0
-        min_phase_diff = float('inf')
+        min_phase_diff = float("inf")
 
         for hour, state_x, state_xc, _ in circadian_states:
             # Calculate current phase angle: arctan(x_c/x)
@@ -484,7 +486,9 @@ class DLMOCalculator:
         phase_angle = (23.0 - dlmo_hour) % 24
 
         # Confidence based on phase angle precision and reasonable DLMO timing
-        confidence = 1.0 - (min_phase_diff / math.pi)  # Better angle match = higher confidence
+        confidence = 1.0 - (
+            min_phase_diff / math.pi
+        )  # Better angle match = higher confidence
         if not (1.5 <= phase_angle <= 3.5):  # DLMO should be 1.5-3.5h before sleep
             confidence *= 0.8
 

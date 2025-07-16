@@ -11,19 +11,25 @@ Tests all components:
 6. Mood predictions
 """
 
-import sys
-from pathlib import Path
-from datetime import datetime, date, timedelta
 import json
+import sys
+from datetime import date, datetime, timedelta
+from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from big_mood_detector.infrastructure.parsers.xml import StreamingXMLParser
-from big_mood_detector.infrastructure.parsers.json.health_auto_export_parser import HealthAutoExportParser
-from big_mood_detector.domain.services.sleep_window_analyzer import SleepWindowAnalyzer
-from big_mood_detector.domain.services.activity_sequence_extractor import ActivitySequenceExtractor
+from big_mood_detector.application.mood_prediction_pipeline import (
+    MoodPredictionPipeline,
+)
+from big_mood_detector.domain.services.activity_sequence_extractor import (
+    ActivitySequenceExtractor,
+)
 from big_mood_detector.domain.services.dlmo_calculator import DLMOCalculator
-from big_mood_detector.application.mood_prediction_pipeline import MoodPredictionPipeline
+from big_mood_detector.domain.services.sleep_window_analyzer import SleepWindowAnalyzer
+from big_mood_detector.infrastructure.parsers.json.health_auto_export_parser import (
+    HealthAutoExportParser,
+)
+from big_mood_detector.infrastructure.parsers.xml import StreamingXMLParser
 
 
 def print_section(title):
@@ -36,77 +42,85 @@ def print_section(title):
 def validate_xml_parsing():
     """Test XML parsing and find data date range."""
     print_section("1. XML PARSING VALIDATION")
-    
+
     xml_file = Path("apple_export/export.xml")
     if not xml_file.exists():
         print(f"❌ XML file not found: {xml_file}")
         return None
-        
-    print(f"✅ Found XML file: {xml_file.name} ({xml_file.stat().st_size / (1024**2):.1f} MB)")
-    
+
+    print(
+        f"✅ Found XML file: {xml_file.name} ({xml_file.stat().st_size / (1024**2):.1f} MB)"
+    )
+
     parser = StreamingXMLParser()
     sleep_dates = set()
     activity_dates = set()
-    
+
     print("\nSampling first 1000 records to find date range...")
-    
+
     for i, entity in enumerate(parser.parse_file(str(xml_file))):
         if i >= 1000:
             break
-            
+
         # Check for sleep records
         if hasattr(entity, "state") and "SLEEP" in str(entity.state):
             if hasattr(entity, "start_date"):
                 sleep_dates.add(entity.start_date.date())
-                
+
         # Check for activity records
         elif hasattr(entity, "step_count"):
             if hasattr(entity, "start_date"):
                 activity_dates.add(entity.start_date.date())
-    
+
     if sleep_dates:
         print(f"\n✅ Sleep data range: {min(sleep_dates)} to {max(sleep_dates)}")
     else:
         print("\n❌ No sleep data found in sample")
-        
+
     if activity_dates:
         print(f"✅ Activity data range: {min(activity_dates)} to {max(activity_dates)}")
     else:
         print("❌ No activity data found in sample")
-        
-    return min(sleep_dates | activity_dates) if (sleep_dates or activity_dates) else None
+
+    return (
+        min(sleep_dates | activity_dates) if (sleep_dates or activity_dates) else None
+    )
 
 
 def validate_json_parsing():
     """Test JSON parsing."""
     print_section("2. JSON PARSING VALIDATION")
-    
+
     json_dir = Path("health_auto_export")
     if not json_dir.exists():
         print(f"❌ JSON directory not found: {json_dir}")
         return
-        
+
     parser = JSONParser()
-    
+
     # Check for key files
     sleep_file = json_dir / "Sleep Analysis.json"
     activity_file = json_dir / "Step Count.json"
-    
+
     if sleep_file.exists():
         sleep_data = parser.parse_file(str(sleep_file))
         print(f"✅ Parsed {len(sleep_data)} sleep records from JSON")
         if sleep_data:
-            dates = [r.start_date.date() for r in sleep_data if hasattr(r, 'start_date')]
+            dates = [
+                r.start_date.date() for r in sleep_data if hasattr(r, "start_date")
+            ]
             if dates:
                 print(f"   Date range: {min(dates)} to {max(dates)}")
     else:
         print("❌ Sleep Analysis.json not found")
-        
+
     if activity_file.exists():
         activity_data = parser.parse_file(str(activity_file))
         print(f"✅ Parsed {len(activity_data)} activity records from JSON")
         if activity_data:
-            dates = [r.start_date.date() for r in activity_data if hasattr(r, 'start_date')]
+            dates = [
+                r.start_date.date() for r in activity_data if hasattr(r, "start_date")
+            ]
             if dates:
                 print(f"   Date range: {min(dates)} to {max(dates)}")
     else:
@@ -116,36 +130,40 @@ def validate_json_parsing():
 def validate_sleep_aggregation():
     """Test sleep window aggregation."""
     print_section("3. SLEEP WINDOW AGGREGATION")
-    
+
     analyzer = SleepWindowAnalyzer()
-    
+
     # Create test sleep records
     from big_mood_detector.domain.entities.sleep_record import SleepRecord, SleepState
-    
+
     test_records = []
     base_date = datetime(2024, 1, 1, 23, 0)  # 11 PM
-    
+
     # Create fragmented sleep that should merge
-    test_records.append(SleepRecord(
-        source_name="Test",
-        start_date=base_date,
-        end_date=base_date + timedelta(hours=3),
-        state=SleepState.ASLEEP_CORE
-    ))
-    
+    test_records.append(
+        SleepRecord(
+            source_name="Test",
+            start_date=base_date,
+            end_date=base_date + timedelta(hours=3),
+            state=SleepState.ASLEEP_CORE,
+        )
+    )
+
     # Gap of 2 hours (should merge with 3.75h threshold)
-    test_records.append(SleepRecord(
-        source_name="Test", 
-        start_date=base_date + timedelta(hours=5),
-        end_date=base_date + timedelta(hours=8),
-        state=SleepState.ASLEEP_CORE
-    ))
-    
+    test_records.append(
+        SleepRecord(
+            source_name="Test",
+            start_date=base_date + timedelta(hours=5),
+            end_date=base_date + timedelta(hours=8),
+            state=SleepState.ASLEEP_CORE,
+        )
+    )
+
     print(f"Created {len(test_records)} test sleep records with 2-hour gap")
-    
+
     # Aggregate
     windows = analyzer.aggregate_sleep_windows(test_records)
-    
+
     if len(windows) == 1:
         print(f"✅ Successfully merged into 1 window (3.75h threshold working)")
         print(f"   Total duration: {windows[0].total_minutes / 60:.1f} hours")
@@ -156,32 +174,36 @@ def validate_sleep_aggregation():
 def validate_activity_extraction():
     """Test activity sequence extraction."""
     print_section("4. ACTIVITY SEQUENCE EXTRACTION")
-    
+
     extractor = ActivitySequenceExtractor()
-    
+
     # Create test activity data
     from big_mood_detector.domain.entities.activity_record import ActivityRecord
-    
+
     test_records = []
     base_date = date(2024, 1, 1)
-    
+
     # Create activity records for one day
     for hour in range(24):
-        timestamp = datetime.combine(base_date, datetime.min.time()) + timedelta(hours=hour)
+        timestamp = datetime.combine(base_date, datetime.min.time()) + timedelta(
+            hours=hour
+        )
         steps = 100 if 8 <= hour <= 20 else 0  # Active during day
-        
-        test_records.append(ActivityRecord(
-            source_name="Test",
-            start_date=timestamp,
-            end_date=timestamp + timedelta(hours=1),
-            step_count=steps
-        ))
-    
+
+        test_records.append(
+            ActivityRecord(
+                source_name="Test",
+                start_date=timestamp,
+                end_date=timestamp + timedelta(hours=1),
+                step_count=steps,
+            )
+        )
+
     print(f"Created {len(test_records)} hourly activity records")
-    
+
     # Extract sequence
     sequence = extractor.extract_sequence(test_records, base_date)
-    
+
     if sequence and len(sequence.values) == 1440:
         print(f"✅ Extracted 1440-point activity sequence")
         print(f"   Total steps: {sum(sequence.values)}")
@@ -193,42 +215,43 @@ def validate_activity_extraction():
 def validate_dlmo_calculation():
     """Test DLMO calculation with real sleep patterns."""
     print_section("5. DLMO CALCULATION")
-    
+
     calculator = DLMOCalculator()
-    
+
     # Create normal sleep schedule
     from big_mood_detector.domain.entities.sleep_record import SleepRecord, SleepState
-    
+
     sleep_records = []
     base_date = date(2024, 1, 15)
-    
+
     for day in range(14):
         sleep_start = datetime.combine(
-            base_date - timedelta(days=day),
-            datetime.min.time()
-        ).replace(hour=23)  # 11 PM
-        
-        sleep_records.append(SleepRecord(
-            source_name="Test",
-            start_date=sleep_start,
-            end_date=sleep_start + timedelta(hours=8),
-            state=SleepState.ASLEEP_CORE
-        ))
-    
+            base_date - timedelta(days=day), datetime.min.time()
+        ).replace(
+            hour=23
+        )  # 11 PM
+
+        sleep_records.append(
+            SleepRecord(
+                source_name="Test",
+                start_date=sleep_start,
+                end_date=sleep_start + timedelta(hours=8),
+                state=SleepState.ASLEEP_CORE,
+            )
+        )
+
     print(f"Created {len(sleep_records)} days of normal sleep (11 PM - 7 AM)")
-    
+
     # Calculate DLMO
     result = calculator.calculate_dlmo(
-        sleep_records=sleep_records,
-        target_date=base_date,
-        use_activity=False
+        sleep_records=sleep_records, target_date=base_date, use_activity=False
     )
-    
+
     if result:
         print(f"✅ DLMO calculated: {result.dlmo_hour:.1f}h")
         print(f"   CBT minimum: {result.cbt_min_hour:.1f}h")
         print(f"   Phase offset: {(result.cbt_min_hour - result.dlmo_hour) % 24:.1f}h")
-        
+
         # Check if DLMO is in expected range
         if 20.0 <= result.dlmo_hour <= 22.0:
             print(f"   ✅ DLMO timing is physiologically plausible (20-22h expected)")
@@ -241,46 +264,49 @@ def validate_dlmo_calculation():
 def validate_full_pipeline():
     """Test the complete pipeline."""
     print_section("6. FULL PIPELINE VALIDATION")
-    
+
     pipeline = MoodPredictionPipeline()
-    
+
     # Try with JSON data first (smaller, faster)
     json_dir = Path("health_auto_export")
     output_file = Path("output/validation_features.csv")
-    
+
     print(f"\nProcessing JSON data from: {json_dir}")
-    
+
     try:
         # Use recent dates that might have data
         df = pipeline.process_health_export(
             json_dir,
             output_file,
             start_date=date(2025, 5, 1),
-            end_date=date(2025, 5, 31)
+            end_date=date(2025, 5, 31),
         )
-        
+
         if len(df) > 0:
             print(f"✅ Generated {len(df)} days of features")
             print(f"\nFeature columns ({len(df.columns)}):")
             for i, col in enumerate(df.columns, 1):
                 print(f"   {i:2d}. {col}")
-                
+
             # Check for key features
             if "circadian_phase_Z" in df.columns:
                 print(f"\n✅ Circadian phase Z-score present (most important feature)")
-                
+
             # Check for non-zero values
             non_zero_cols = [col for col in df.columns if df[col].abs().sum() > 0]
-            print(f"\n✅ {len(non_zero_cols)}/{len(df.columns)} features have non-zero values")
-            
+            print(
+                f"\n✅ {len(non_zero_cols)}/{len(df.columns)} features have non-zero values"
+            )
+
             # Save sample
             print(f"\n✅ Saved features to: {output_file}")
         else:
             print("❌ No features generated - check date range and data availability")
-            
+
     except Exception as e:
         print(f"❌ Pipeline error: {e}")
         import traceback
+
         traceback.print_exc()
 
 
@@ -289,7 +315,7 @@ def main():
     print("=" * 60)
     print(" BIG MOOD DETECTOR - PIPELINE VALIDATION")
     print("=" * 60)
-    
+
     # Run validations
     earliest_date = validate_xml_parsing()
     validate_json_parsing()
@@ -297,7 +323,7 @@ def main():
     validate_activity_extraction()
     validate_dlmo_calculation()
     validate_full_pipeline()
-    
+
     # Summary
     print_section("VALIDATION SUMMARY")
     print("\n✅ All pipeline components tested")

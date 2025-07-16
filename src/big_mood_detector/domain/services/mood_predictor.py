@@ -127,7 +127,9 @@ class MoodPredictor:
             ValueError: If features are invalid or models not loaded
         """
         # Ensure features is a numpy array
-        features = np.array(features) if not isinstance(features, np.ndarray) else features
+        features = (
+            np.array(features) if not isinstance(features, np.ndarray) else features
+        )
 
         if features.shape != (36,):
             raise ValueError(f"Expected 36 features, got {features.shape}")

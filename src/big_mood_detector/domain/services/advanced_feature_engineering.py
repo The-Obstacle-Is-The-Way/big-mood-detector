@@ -266,7 +266,9 @@ class AdvancedFeatureEngineer:
         ]
         wake_times = [s.wake_time.hour + s.wake_time.minute / 60 for s in recent_sleep]
 
-        sleep_regularity_raw = float(100 - (np.std(sleep_times) + np.std(wake_times)) * 10)
+        sleep_regularity_raw = float(
+            100 - (np.std(sleep_times) + np.std(wake_times)) * 10
+        )
         sleep_regularity = max(0.0, min(100.0, sleep_regularity_raw))
 
         # Interdaily stability (IS) - consistency across days

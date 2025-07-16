@@ -74,7 +74,10 @@ class StreamingXMLParser:
                     for metadata in elem.findall("MetadataEntry"):
                         key = metadata.get("key")
                         value = metadata.get("value")
-                        if key == "HKMetadataKeyHeartRateMotionContext" and value is not None:
+                        if (
+                            key == "HKMetadataKeyHeartRateMotionContext"
+                            and value is not None
+                        ):
                             record_data["motionContext"] = value
 
                     yield record_data

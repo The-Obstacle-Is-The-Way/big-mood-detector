@@ -364,7 +364,9 @@ class MoodPredictionPipeline:
                 "avg_manic_risk": np.mean([p["manic_risk"] for p in all_predictions]),
                 "days_analyzed": len(daily_predictions),
             }
-            confidence_score = float(np.mean([p["confidence"] for p in all_predictions]))
+            confidence_score = float(
+                np.mean([p["confidence"] for p in all_predictions])
+            )
             if np.isnan(confidence_score):
                 confidence_score = 0.0
         else:
@@ -373,7 +375,9 @@ class MoodPredictionPipeline:
 
         # Adjust confidence based on data quality
         if warnings:
-            confidence_score = float(confidence_score * 0.7)  # Reduce confidence for data issues
+            confidence_score = float(
+                confidence_score * 0.7
+            )  # Reduce confidence for data issues
 
         return PipelineResult(
             daily_predictions=daily_predictions,
@@ -560,23 +564,23 @@ class MoodPredictionPipeline:
 
         # Use the streaming XML parser to get domain entities directly
         print("Processing XML export...")
-        
+
         # Parse sleep records
         for entity in self.xml_parser.parse_file(xml_path, entity_type="sleep"):
             records["sleep"].append(entity)
-            
+
         print(f"Found {len(records['sleep'])} sleep records")
-        
+
         # Parse activity records
         for entity in self.xml_parser.parse_file(xml_path, entity_type="activity"):
             records["activity"].append(entity)
-            
+
         print(f"Found {len(records['activity'])} activity records")
-        
+
         # Parse heart rate records if needed
         for entity in self.xml_parser.parse_file(xml_path, entity_type="heart"):
             records["heart_rate"].append(entity)
-            
+
         print(f"Found {len(records['heart_rate'])} heart rate records")
 
         return records
@@ -713,7 +717,7 @@ class MoodPredictionPipeline:
                 dlmo_result = self.dlmo_calculator.calculate_dlmo(
                     sleep_records=dlmo_sleep,
                     target_date=current_date,
-                    days_to_model=min(7, len(dlmo_sleep))
+                    days_to_model=min(7, len(dlmo_sleep)),
                 )
 
             # 5. Extract daily metrics

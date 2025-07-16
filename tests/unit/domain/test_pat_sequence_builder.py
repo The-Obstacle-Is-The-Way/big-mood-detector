@@ -5,17 +5,21 @@ Tests the building of 7-day activity sequences for the Pretrained Actigraphy Tra
 Following TDD principles - tests written before implementation improvements.
 """
 
-import pytest
 from datetime import date, datetime, timedelta, timezone
-import numpy as np
 
-from big_mood_detector.domain.entities.activity_record import ActivityRecord, ActivityType
-from big_mood_detector.domain.services.pat_sequence_builder import (
-    PATSequenceBuilder,
-    PATSequence,
+import numpy as np
+import pytest
+
+from big_mood_detector.domain.entities.activity_record import (
+    ActivityRecord,
+    ActivityType,
 )
 from big_mood_detector.domain.services.activity_sequence_extractor import (
     ActivitySequenceExtractor,
+)
+from big_mood_detector.domain.services.pat_sequence_builder import (
+    PATSequence,
+    PATSequenceBuilder,
 )
 
 
@@ -207,7 +211,9 @@ class TestPATSequenceBuilder:
         dates_with_data = set()
         for record in sample_activity_records:
             dates_with_data.add(record.start_date.date())
-        print(f"Data available for dates: {min(dates_with_data)} to {max(dates_with_data)}")
+        print(
+            f"Data available for dates: {min(dates_with_data)} to {max(dates_with_data)}"
+        )
 
         sequences = builder.build_multiple_sequences(
             activity_records=sample_activity_records,
@@ -225,17 +231,19 @@ class TestPATSequenceBuilder:
         if sequences:
             print(f"Created {len(sequences)} sequences")
             for seq in sequences:
-                print(f"  Sequence end date: {seq.end_date}, complete: {seq.is_complete}")
-        
+                print(
+                    f"  Sequence end date: {seq.end_date}, complete: {seq.is_complete}"
+                )
+
         # For now, let's create a proper test with the right date range
         # Test with dates that should work given the data
         sequences2 = builder.build_multiple_sequences(
             activity_records=sample_activity_records,
             start_date=date(2025, 5, 9),  # Start from beginning of data
-            end_date=date(2025, 5, 15),   # End at end of data
+            end_date=date(2025, 5, 15),  # End at end of data
             stride_days=1,
         )
-        
+
         # We should get sequences for May 15 (since we need 7 days before)
         assert len(sequences2) == 1
         assert sequences2[0].end_date == date(2025, 5, 15)
@@ -284,7 +292,7 @@ class TestPATSequenceBuilder:
         """Test that sequences respect exact date boundaries."""
         # Create activity only on specific days
         records = []
-        
+
         # Add activity on May 8 (before sequence)
         before_record = ActivityRecord(
             source_name="iPhone",
@@ -327,7 +335,7 @@ class TestPATSequenceBuilder:
         # The sequence should only include May 9-15
         # So it should have the May 12 activity but not May 8 or 16
         features = builder.calculate_pat_features(sequence)
-        
+
         # Total activity should be much less than 2000 (excludes the high boundary values)
         assert features["total_activity"] < 100
         assert features["active_minutes"] > 0  # Should have some activity from May 12
@@ -405,7 +413,7 @@ class TestPATIntegrationWithPipeline:
 
         # Test patches for different PAT model variants
         patches_s = sequence.to_patches(patch_size=18)  # PAT-S/M
-        patches_l = sequence.to_patches(patch_size=9)   # PAT-L
+        patches_l = sequence.to_patches(patch_size=9)  # PAT-L
 
         # PAT expects shape (batch_size, num_patches, patch_size)
         # We have single sequence, so add batch dimension
@@ -428,7 +436,7 @@ class TestPATIntegrationWithPipeline:
         # Check distribution properties important for neural networks
         assert np.mean(normalized) == pytest.approx(0, abs=0.1)
         assert np.std(normalized) == pytest.approx(1, abs=0.1)
-        
+
         # Most values should be within 3 standard deviations
         within_3std = np.sum(np.abs(normalized) <= 3) / len(normalized)
         assert within_3std > 0.95  # Relaxed from 0.99 to 0.95 for real-world data
