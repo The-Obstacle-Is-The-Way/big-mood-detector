@@ -72,7 +72,7 @@ class DLMOCalculator:
     AWAKE_LUX = 250.0  # Light level when awake
     ASLEEP_LUX = 0.0   # Light level when asleep
     DELTA_T = 1/60.0   # Time step (1 minute in hours)
-    CBT_TO_DLMO_OFFSET = 7.0  # Hours from CBT min to DLMO
+    CBT_TO_DLMO_OFFSET = 7.1  # Hours from CBT min to DLMO (from MATLAB reference)
     
     # Circadian model parameters (from MATLAB implementation)
     TAU = 24.2  # Intrinsic period
@@ -240,7 +240,8 @@ class DLMOCalculator:
         
         Converts light intensity to circadian drive.
         """
-        return self.A0 * (light**self.P / self.I0**self.P)
+        # Hill equation: alpha = a0 * (I^p / (I^p + I0^p))
+        return self.A0 * (light**self.P / (light**self.P + self.I0**self.P))
     
     def _extract_dlmo(
         self, 
@@ -265,7 +266,7 @@ class DLMOCalculator:
         max_cbt = max(cbt for _, cbt in cbt_rhythm)
         amplitude = max_cbt - min_cbt
         
-        # DLMO is 7 hours before CBT minimum (Seoul paper)
+        # DLMO is 7.1 hours before CBT minimum (validated offset)
         dlmo_hour = (min_hour - self.CBT_TO_DLMO_OFFSET) % 24
         
         # Calculate phase angle (DLMO to sleep onset)
