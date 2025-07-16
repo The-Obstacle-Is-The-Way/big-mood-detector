@@ -8,11 +8,16 @@ core functionality is proven stable.
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 
+from big_mood_detector.interfaces.api.clinical_routes import router as clinical_router
+
 app = FastAPI(
     title="Big Mood Detector",
     description="Clinical-grade mood episode detection from wearable data",
     version="0.1.0",
 )
+
+# Include routers
+app.include_router(clinical_router)
 
 
 @app.get("/health")
@@ -35,7 +40,8 @@ async def root():
         "message": "Big Mood Detector API",
         "endpoints": {
             "/health": "Health check",
-            "/docs": "API documentation (this page)",
+            "/docs": "API documentation",
+            "/api/v1/clinical": "Clinical interpretation endpoints",
         },
     }
 

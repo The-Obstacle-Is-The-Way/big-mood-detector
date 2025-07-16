@@ -295,6 +295,7 @@ class TestClinicalInterpreter:
             risk_level=RiskLevel.HIGH,
             episode_type=EpisodeType.DEPRESSIVE,
             confidence=0.82,
+            clinical_summary="High risk for major depressive episode",
             dsm5_criteria_met=True,
             clinical_features={
                 "phq_score": 18,
