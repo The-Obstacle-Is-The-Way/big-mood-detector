@@ -43,6 +43,25 @@ class DailySleepSummary:
             or self.sleep_fragmentation_index > 0.3  # Highly fragmented
         )
 
+    @property
+    def sleep_onset(self) -> datetime:
+        """Estimated sleep onset time from earliest bedtime."""
+        if self.earliest_bedtime and self.date:
+            return datetime.combine(self.date, self.earliest_bedtime)
+        # Default to 11 PM if no bedtime data
+        return datetime.combine(self.date, time(23, 0))
+    
+    @property
+    def wake_time(self) -> datetime:
+        """Estimated wake time from latest wake time."""
+        if self.latest_wake_time and self.date:
+            # If wake time is early morning, it's next day
+            if self.latest_wake_time.hour < 12:
+                return datetime.combine(self.date + timedelta(days=1), self.latest_wake_time)
+            return datetime.combine(self.date, self.latest_wake_time)
+        # Default to 7 AM next day if no wake time data
+        return datetime.combine(self.date + timedelta(days=1), time(7, 0))
+
 
 class SleepAggregator:
     """

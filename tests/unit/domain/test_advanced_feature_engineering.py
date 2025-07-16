@@ -32,13 +32,12 @@ class TestAdvancedFeatureEngineer:
                 total_sleep_hours=7.5,
                 sleep_efficiency=0.85,
                 sleep_fragmentation_index=0.1,
-                num_sleep_periods=1,
-                sleep_onset=datetime.combine(current_date - timedelta(days=i), time(23, 0)),
-                wake_time=datetime.combine(current_date - timedelta(days=i), time(6, 30)),
+                sleep_sessions=1,
+                longest_sleep_hours=7.5,
+                mid_sleep_time=datetime.combine(current_date - timedelta(days=i), time(2, 45)),
                 earliest_bedtime=time(23, 0),
                 latest_wake_time=time(6, 30),
                 total_time_in_bed_hours=7.5,
-                is_clinically_significant=False,
             )
             for i in range(10)
         ]
@@ -48,15 +47,11 @@ class TestAdvancedFeatureEngineer:
             DailyActivitySummary(
                 date=current_date - timedelta(days=i),
                 total_steps=8000,
-                active_minutes=60,
-                sedentary_minutes=600,
+                active_hours=1.0,
+                total_active_energy=600.0,
                 sedentary_hours=10.0,
                 activity_variance=1000.0,
                 peak_activity_hour=14,
-                is_clinically_significant=False,
-                is_high_activity=False,
-                is_low_activity=False,
-                is_erratic_pattern=False,
             )
             for i in range(10)
         ]
@@ -74,12 +69,7 @@ class TestAdvancedFeatureEngineer:
                 avg_hrv_sdnn=50.0,
                 min_resting_hr=55.0,
                 max_resting_hr=65.0,
-                circadian_hr_range=15.0,
-                is_clinically_significant=False,
-                has_high_resting_hr=False,
-                has_low_hrv=False,
-                has_abnormal_circadian_rhythm=False,
-            )
+                circadian_hr_range=15.0,            )
             for i in range(10)
         ]
         
@@ -125,20 +115,16 @@ class TestAdvancedFeatureEngineer:
                     total_sleep_hours=8.0,
                     sleep_efficiency=0.85,
                     sleep_fragmentation_index=0.1,
-                    num_sleep_periods=1,
-                    sleep_onset=datetime.combine(
+                    sleep_sessions=1,
+                    mid_sleep_time=datetime.combine(
                         current_date - timedelta(days=i), 
-                        time(23, 0)  # Consistent 11 PM bedtime
-                    ),
-                    wake_time=datetime.combine(
-                        current_date - timedelta(days=i), 
-                        time(7, 0)  # Consistent 7 AM wake
+                        time(3, 0)  # Consistent mid-sleep time
                     ),
                     earliest_bedtime=time(23, 0),
                     latest_wake_time=time(7, 0),
                     total_time_in_bed_hours=8.0,
-                    is_clinically_significant=False,
-                )
+                longest_sleep_hours=8.0,
+                    )
             )
         
         # Create irregular sleep pattern
@@ -152,20 +138,16 @@ class TestAdvancedFeatureEngineer:
                     total_sleep_hours=6 + (i % 4),  # 6-9 hours
                     sleep_efficiency=0.85,
                     sleep_fragmentation_index=0.1,
-                    num_sleep_periods=1,
-                    sleep_onset=datetime.combine(
+                    sleep_sessions=1,
+                    mid_sleep_time=datetime.combine(
                         current_date - timedelta(days=i),
-                        time((21 + hour_offset) % 24, 0)
-                    ),
-                    wake_time=datetime.combine(
-                        current_date - timedelta(days=i),
-                        time((5 + hour_offset) % 24, 0)
+                        time((1 + hour_offset) % 24, 0)
                     ),
                     earliest_bedtime=time((21 + hour_offset) % 24, 0),
                     latest_wake_time=time((5 + hour_offset) % 24, 0),
                     total_time_in_bed_hours=8.0,
-                    is_clinically_significant=False,
-                )
+                longest_sleep_hours=8.0,
+                    )
             )
         
         # Empty activity and heart data for simplicity
@@ -209,20 +191,16 @@ class TestAdvancedFeatureEngineer:
                     total_sleep_hours=8.0,
                     sleep_efficiency=0.85,
                     sleep_fragmentation_index=0.1,
-                    num_sleep_periods=1,
-                    sleep_onset=datetime.combine(
+                    sleep_sessions=1,
+                    mid_sleep_time=datetime.combine(
                         current_date - timedelta(days=i),
-                        time(2, 0)  # 2 AM bedtime (delayed)
-                    ),
-                    wake_time=datetime.combine(
-                        current_date - timedelta(days=i),
-                        time(10, 0)  # 10 AM wake (delayed)
+                        time(6, 0)  # 6 AM mid-sleep (delayed)
                     ),
                     earliest_bedtime=time(2, 0),
                     latest_wake_time=time(10, 0),
                     total_time_in_bed_hours=8.0,
-                    is_clinically_significant=False,
-                )
+                longest_sleep_hours=8.0,
+                    )
             )
         
         # Create phase advanced pattern (early sleeper)
@@ -234,20 +212,16 @@ class TestAdvancedFeatureEngineer:
                     total_sleep_hours=8.0,
                     sleep_efficiency=0.85,
                     sleep_fragmentation_index=0.1,
-                    num_sleep_periods=1,
-                    sleep_onset=datetime.combine(
+                    sleep_sessions=1,
+                    mid_sleep_time=datetime.combine(
                         current_date - timedelta(days=i),
-                        time(20, 0)  # 8 PM bedtime (advanced)
-                    ),
-                    wake_time=datetime.combine(
-                        current_date - timedelta(days=i),
-                        time(4, 0)  # 4 AM wake (advanced)
+                        time(0, 0)  # Midnight mid-sleep (advanced)
                     ),
                     earliest_bedtime=time(20, 0),
                     latest_wake_time=time(4, 0),
                     total_time_in_bed_hours=8.0,
-                    is_clinically_significant=False,
-                )
+                longest_sleep_hours=8.0,
+                    )
             )
         
         empty_activity = []
@@ -293,13 +267,13 @@ class TestAdvancedFeatureEngineer:
                     total_sleep_hours=11.5,  # Excessive sleep
                     sleep_efficiency=0.85,
                     sleep_fragmentation_index=0.1,
-                    num_sleep_periods=1,
+                    sleep_sessions=1,
+                    longest_sleep_hours=11.5,
                     sleep_onset=datetime.combine(current_date - timedelta(days=i), time(22, 0)),
                     wake_time=datetime.combine(current_date - timedelta(days=i), time(9, 30)),
                     earliest_bedtime=time(22, 0),
                     latest_wake_time=time(9, 30),
                     total_time_in_bed_hours=11.5,
-                    is_clinically_significant=True,
                 )
             )
         
@@ -312,13 +286,13 @@ class TestAdvancedFeatureEngineer:
                     total_sleep_hours=4.5,  # Insufficient sleep
                     sleep_efficiency=0.65,
                     sleep_fragmentation_index=0.3,
-                    num_sleep_periods=3,
+                    sleep_sessions=3,
+                    longest_sleep_hours=2.0,
                     sleep_onset=datetime.combine(current_date - timedelta(days=i), time(1, 0)),
                     wake_time=datetime.combine(current_date - timedelta(days=i), time(5, 30)),
                     earliest_bedtime=time(1, 0),
                     latest_wake_time=time(5, 30),
                     total_time_in_bed_hours=6.0,
-                    is_clinically_significant=True,
                 )
             )
         
@@ -372,14 +346,14 @@ class TestAdvancedFeatureEngineer:
                     total_sleep_hours=hours,
                     sleep_efficiency=0.85,
                     sleep_fragmentation_index=0.1,
-                    num_sleep_periods=1,
+                    sleep_sessions=1,
                     sleep_onset=datetime.combine(current_date - timedelta(days=i), time(23, 0)),
                     wake_time=datetime.combine(current_date - timedelta(days=i), time(5 + hours % 12, 0)),
                     earliest_bedtime=time(23, 0),
                     latest_wake_time=time(5 + hours % 12, 0),
                     total_time_in_bed_hours=hours,
-                    is_clinically_significant=False,
-                )
+                longest_sleep_hours=hours,
+                    )
             )
         
         # Create variable activity pattern
@@ -391,14 +365,11 @@ class TestAdvancedFeatureEngineer:
                 DailyActivitySummary(
                     date=current_date - timedelta(days=i),
                     total_steps=steps,
-                    active_minutes=30 if i % 2 == 0 else 90,
-                    sedentary_minutes=800 if i % 2 == 0 else 400,
+                    active_hours=0.5 if i % 2 == 0 else 90,
+                    total_active_energy=100.0 if i % 2 == 0 else 400,
                     sedentary_hours=13.3 if i % 2 == 0 else 6.7,
                     activity_variance=100.0 if i % 2 == 0 else 2000.0,
-                    peak_activity_hour=14,
-                    is_clinically_significant=False,
-                    is_high_activity=i % 2 == 1,
-                    is_low_activity=i % 2 == 0,
+                    peak_activity_hour=14,                    is_low_activity=i % 2 == 0,
                     is_erratic_pattern=True,
                 )
             )
@@ -436,28 +407,25 @@ class TestAdvancedFeatureEngineer:
                     total_sleep_hours=8.0,
                     sleep_efficiency=0.85,
                     sleep_fragmentation_index=0.1,
-                    num_sleep_periods=1,
+                    sleep_sessions=1,
                     sleep_onset=datetime.combine(d, time(23, 0)),
                     wake_time=datetime.combine(d, time(7, 0)),
                     earliest_bedtime=time(23, 0),
                     latest_wake_time=time(7, 0),
                     total_time_in_bed_hours=8.0,
-                    is_clinically_significant=False,
-                )
+                longest_sleep_hours=8.0,
+                    )
             )
             
             baseline_activity.append(
                 DailyActivitySummary(
                     date=d,
                     total_steps=8000,
-                    active_minutes=60,
-                    sedentary_minutes=600,
+                    active_hours=60,
+                    total_active_energy=600,
                     sedentary_hours=10.0,
                     activity_variance=1000.0,
-                    peak_activity_hour=14,
-                    is_clinically_significant=False,
-                    is_high_activity=False,
-                    is_low_activity=False,
+                    peak_activity_hour=14,                    is_low_activity=False,
                     is_erratic_pattern=False,
                 )
             )
@@ -474,12 +442,7 @@ class TestAdvancedFeatureEngineer:
                     avg_hrv_sdnn=50.0,
                     min_resting_hr=55.0,
                     max_resting_hr=65.0,
-                    circadian_hr_range=15.0,
-                    is_clinically_significant=False,
-                    has_high_resting_hr=False,
-                    has_low_hrv=False,
-                    has_abnormal_circadian_rhythm=False,
-                )
+                    circadian_hr_range=15.0,                )
             )
         
         # Extract features to establish baseline
@@ -500,13 +463,13 @@ class TestAdvancedFeatureEngineer:
                 total_sleep_hours=3.0,  # Very low
                 sleep_efficiency=0.85,
                 sleep_fragmentation_index=0.1,
-                num_sleep_periods=1,
+                sleep_sessions=1,
                 sleep_onset=datetime.combine(outlier_date, time(3, 0)),
                 wake_time=datetime.combine(outlier_date, time(6, 0)),
                 earliest_bedtime=time(3, 0),
                 latest_wake_time=time(6, 0),
                 total_time_in_bed_hours=3.0,
-                is_clinically_significant=True,
+                longest_sleep_hours=3.0,
             )
         ]
         
@@ -514,14 +477,11 @@ class TestAdvancedFeatureEngineer:
             DailyActivitySummary(
                 date=outlier_date,
                 total_steps=20000,  # Very high
-                active_minutes=180,
-                sedentary_minutes=300,
+                active_hours=3.0,
+                total_active_energy=300.0,
                 sedentary_hours=5.0,
                 activity_variance=5000.0,
-                peak_activity_hour=14,
-                is_clinically_significant=True,
-                is_high_activity=True,
-                is_low_activity=False,
+                peak_activity_hour=14,                is_low_activity=False,
                 is_erratic_pattern=False,
             )
         ]
@@ -538,12 +498,7 @@ class TestAdvancedFeatureEngineer:
                 avg_hrv_sdnn=20.0,  # Low
                 min_resting_hr=75.0,
                 max_resting_hr=85.0,
-                circadian_hr_range=30.0,
-                is_clinically_significant=True,
-                has_high_resting_hr=True,
-                has_low_hrv=True,
-                has_abnormal_circadian_rhythm=False,
-            )
+                circadian_hr_range=30.0,            )
         ]
         
         outlier_features = engineer.extract_advanced_features(
