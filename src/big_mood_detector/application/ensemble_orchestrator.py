@@ -121,9 +121,9 @@ class EnsembleOrchestrator:
         start_time = time.time()
 
         # Track timing
-        timing = {}
-        models_used = []
-        predictions = {}
+        timing: dict[str, float] = {}
+        models_used: list[str] = []
+        predictions: dict[str, MoodPrediction | None] = {}
 
         # Submit parallel tasks
         futures = {}
@@ -274,10 +274,10 @@ class EnsembleOrchestrator:
 
         # Overall ensemble confidence
         valid_scores = [s for s in scores.values() if s > 0]
-        scores["ensemble"] = np.mean(valid_scores) if valid_scores else 0.0
+        scores["ensemble"] = float(np.mean(valid_scores)) if valid_scores else 0.0
 
         return scores
 
-    def shutdown(self):
+    def shutdown(self) -> None:
         """Cleanup resources."""
         self.executor.shutdown(wait=True)

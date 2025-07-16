@@ -11,6 +11,7 @@ learned representations from activity sequences for downstream tasks.
 
 import logging
 from pathlib import Path
+from typing import Any
 
 import numpy as np
 
@@ -93,7 +94,7 @@ class PATModel:
 
         # Model state
         self.model: keras.Model | None = None
-        self._direct_model = None
+        self._direct_model: Any = None  # DirectPATModel instance when loaded
         self.is_loaded = False
 
         logger.info(f"Initialized PAT-{model_size.upper()} model wrapper")

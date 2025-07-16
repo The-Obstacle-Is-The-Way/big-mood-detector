@@ -43,15 +43,15 @@ def fix_api_routes():
         # Add imports if needed
         if 'JSONResponse' in content and 'from fastapi.responses import JSONResponse' not in content:
             lines = content.split('\n')
-            for i, line in enumerate(lines):
+            for _i, line in enumerate(lines):
                 if line.startswith('from fastapi'):
-                    lines.insert(i + 1, 'from fastapi.responses import JSONResponse')
+                    lines.insert(_i + 1, 'from fastapi.responses import JSONResponse')
                     break
             content = '\n'.join(lines)
 
         if 'dict[str, Any]' in content and 'from typing import Any' not in content:
             lines = content.split('\n')
-            for i, line in enumerate(lines):
+            for _i, line in enumerate(lines):
                 if line.startswith('from typing') or line.startswith('import'):
                     if 'from typing' in line:
                         # Add Any to existing typing import
