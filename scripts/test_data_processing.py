@@ -114,8 +114,7 @@ def test_sleep_analysis(sleep_records):
             recent_windows = sorted(windows, key=lambda w: w.start_time)[-5:]
             print(f"\n   Recent sleep windows:")
             for window in recent_windows:
-                duration = (window.end_time - window.start_time).total_seconds() / 3600
-                print(f"   - {window.start_time.date()}: {duration:.1f}h")
+                print(f"   - {window.start_time.date()}: {window.total_duration_hours:.1f}h ({window.episode_count} episodes)")
         
         return windows
         
