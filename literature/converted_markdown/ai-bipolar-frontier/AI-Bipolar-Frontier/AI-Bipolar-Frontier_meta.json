@@ -1,0 +1,1488 @@
+{
+  "table_of_contents": [
+    {
+      "title": "The Role of Artificial Intelligence in Managing Bipolar Disorder:\nA New Frontier in Patient Care",
+      "heading_level": null,
+      "page_id": 0,
+      "polygon": [
+        [
+          35.016937255859375,
+          109.875244140625
+        ],
+        [
+          565.15234375,
+          109.875244140625
+        ],
+        [
+          565.15234375,
+          153.5064697265625
+        ],
+        [
+          35.016937255859375,
+          153.5064697265625
+        ]
+      ]
+    },
+    {
+      "title": "1. Introduction",
+      "heading_level": null,
+      "page_id": 0,
+      "polygon": [
+        [
+          166.169921875,
+          729.349609375
+        ],
+        [
+          249.109375,
+          729.349609375
+        ],
+        [
+          249.109375,
+          742.4829711914062
+        ],
+        [
+          166.169921875,
+          742.4829711914062
+        ]
+      ]
+    },
+    {
+      "title": "1.1. What Is Bipolar Disorder?",
+      "heading_level": null,
+      "page_id": 1,
+      "polygon": [
+        [
+          165.4423828125,
+          153.55810546875
+        ],
+        [
+          290.95635986328125,
+          153.55810546875
+        ],
+        [
+          290.95635986328125,
+          163.85357666015625
+        ],
+        [
+          165.4423828125,
+          163.85357666015625
+        ]
+      ]
+    },
+    {
+      "title": "1.2. The Rise of AI in Mental Health: A Game-Changer for Bipolar Disorder Management",
+      "heading_level": null,
+      "page_id": 1,
+      "polygon": [
+        [
+          166.3939971923828,
+          499.9375
+        ],
+        [
+          529.6484375,
+          499.9375
+        ],
+        [
+          529.6484375,
+          510.74053955078125
+        ],
+        [
+          166.3939971923828,
+          510.74053955078125
+        ]
+      ]
+    },
+    {
+      "title": "",
+      "heading_level": null,
+      "page_id": 2,
+      "polygon": [
+        [
+          149.4365234375,
+          291.904296875
+        ],
+        [
+          446.41796875,
+          291.904296875
+        ],
+        [
+          446.41796875,
+          305.8828125
+        ],
+        [
+          149.4365234375,
+          305.8828125
+        ]
+      ]
+    },
+    {
+      "title": "",
+      "heading_level": null,
+      "page_id": 2,
+      "polygon": [
+        [
+          93.8525390625,
+          327.26171875
+        ],
+        [
+          177.228515625,
+          327.26171875
+        ],
+        [
+          177.228515625,
+          338.3623046875
+        ],
+        [
+          93.8525390625,
+          338.3623046875
+        ]
+      ]
+    },
+    {
+      "title": "",
+      "heading_level": null,
+      "page_id": 2,
+      "polygon": [
+        [
+          315.4609375,
+          326.439453125
+        ],
+        [
+          465.04296875,
+          326.439453125
+        ],
+        [
+          465.04296875,
+          337.5400390625
+        ],
+        [
+          315.4609375,
+          337.5400390625
+        ]
+      ]
+    },
+    {
+      "title": "",
+      "heading_level": null,
+      "page_id": 2,
+      "polygon": [
+        [
+          94.4345703125,
+          459.646484375
+        ],
+        [
+          186.25,
+          459.646484375
+        ],
+        [
+          186.25,
+          471.158203125
+        ],
+        [
+          94.4345703125,
+          471.158203125
+        ]
+      ]
+    },
+    {
+      "title": "",
+      "heading_level": null,
+      "page_id": 2,
+      "polygon": [
+        [
+          313.1328125,
+          460.0576171875
+        ],
+        [
+          443.5078125,
+          460.0576171875
+        ],
+        [
+          443.5078125,
+          470.7470703125
+        ],
+        [
+          313.1328125,
+          470.7470703125
+        ]
+      ]
+    },
+    {
+      "title": "1.3. AI-Powered Mood Tracking: Enhancing Real-Time Monitoring of Mood Fluctuation",
+      "heading_level": null,
+      "page_id": 2,
+      "polygon": [
+        [
+          166.3154296875,
+          691.1142578125
+        ],
+        [
+          523.828125,
+          691.1142578125
+        ],
+        [
+          523.828125,
+          701.6235198974609
+        ],
+        [
+          166.3154296875,
+          701.6235198974609
+        ]
+      ]
+    },
+    {
+      "title": "1.4. Personalized Treatment Plans: AI's Role in Tailoring Therapy to Individual Needs",
+      "heading_level": null,
+      "page_id": 3,
+      "polygon": [
+        [
+          164.1328125,
+          250.791015625
+        ],
+        [
+          513.3515625,
+          250.791015625
+        ],
+        [
+          513.3515625,
+          261.3475341796875
+        ],
+        [
+          164.1328125,
+          261.3475341796875
+        ]
+      ]
+    },
+    {
+      "title": "1.5. Chatbots for Emotional Support: Filling the Gap Between Therapy Sessions",
+      "heading_level": null,
+      "page_id": 3,
+      "polygon": [
+        [
+          166.169921875,
+          500.3486328125
+        ],
+        [
+          487.4089050292969,
+          500.3486328125
+        ],
+        [
+          487.4089050292969,
+          511.0380859375
+        ],
+        [
+          166.169921875,
+          511.0380859375
+        ]
+      ]
+    },
+    {
+      "title": "1.6. AI in Cognitive Behavioral Therapy (CBT): Enhancing Traditional Approaches",
+      "heading_level": null,
+      "page_id": 4,
+      "polygon": [
+        [
+          165.587890625,
+          111.108642578125
+        ],
+        [
+          500.9081726074219,
+          111.108642578125
+        ],
+        [
+          500.9081726074219,
+          122.07049560546875
+        ],
+        [
+          165.587890625,
+          122.07049560546875
+        ]
+      ]
+    },
+    {
+      "title": "1.7. Predictive Models for Relapse Prevention: AI as a Proactive Tool for Care",
+      "heading_level": null,
+      "page_id": 4,
+      "polygon": [
+        [
+          165.005859375,
+          360.974609375
+        ],
+        [
+          478.138671875,
+          360.974609375
+        ],
+        [
+          478.138671875,
+          371.6640625
+        ],
+        [
+          165.005859375,
+          371.6640625
+        ]
+      ]
+    },
+    {
+      "title": "1.8. Social Media Monitoring: Gaining Behavioral Insights Through AI Analysis",
+      "heading_level": null,
+      "page_id": 4,
+      "polygon": [
+        [
+          165.587890625,
+          541.2559509277344
+        ],
+        [
+          495.017578125,
+          541.2559509277344
+        ],
+        [
+          495.017578125,
+          552.1513671875
+        ],
+        [
+          165.587890625,
+          552.1513671875
+        ]
+      ]
+    },
+    {
+      "title": "1.9. Overcoming Challenges: Ethical and Practical Considerations in AI-Driven Mental Health",
+      "heading_level": null,
+      "page_id": 4,
+      "polygon": [
+        [
+          166.3939971923828,
+          707.0829162597656
+        ],
+        [
+          550.3228149414062,
+          707.0829162597656
+        ],
+        [
+          550.3228149414062,
+          717.0455093383789
+        ],
+        [
+          166.3939971923828,
+          717.0455093383789
+        ]
+      ]
+    },
+    {
+      "title": "1.10. Research Gaps and Future Directions: The Need for Further Exploration",
+      "heading_level": null,
+      "page_id": 5,
+      "polygon": [
+        [
+          166.0244140625,
+          181.720703125
+        ],
+        [
+          480.4251403808594,
+          181.720703125
+        ],
+        [
+          480.4251403808594,
+          191.70843505859375
+        ],
+        [
+          166.0244140625,
+          191.70843505859375
+        ]
+      ]
+    },
+    {
+      "title": "1.11. Perspective: AI's Transformative Potential in Bipolar Disorder Care",
+      "heading_level": null,
+      "page_id": 5,
+      "polygon": [
+        [
+          165.296875,
+          374.953125
+        ],
+        [
+          462.1328125,
+          374.953125
+        ],
+        [
+          462.1328125,
+          385.39154052734375
+        ],
+        [
+          165.296875,
+          385.39154052734375
+        ]
+      ]
+    },
+    {
+      "title": "1.12. Objectives",
+      "heading_level": null,
+      "page_id": 5,
+      "polygon": [
+        [
+          166.39401245117188,
+          541.2559509277344
+        ],
+        [
+          231.29039001464844,
+          541.2559509277344
+        ],
+        [
+          231.29039001464844,
+          551.3291015625
+        ],
+        [
+          166.39401245117188,
+          551.3291015625
+        ]
+      ]
+    },
+    {
+      "title": "Table 1. Overview of the Introduction section.",
+      "heading_level": null,
+      "page_id": 6,
+      "polygon": [
+        [
+          163.1142578125,
+          72.15380859375
+        ],
+        [
+          348.8591613769531,
+          72.15380859375
+        ],
+        [
+          348.8591613769531,
+          83.484619140625
+        ],
+        [
+          163.1142578125,
+          83.484619140625
+        ]
+      ]
+    },
+    {
+      "title": "2. Discussion",
+      "heading_level": null,
+      "page_id": 6,
+      "polygon": [
+        [
+          164.8603515625,
+          716.193359375
+        ],
+        [
+          241.3974609375,
+          716.193359375
+        ],
+        [
+          241.3974609375,
+          728.5799713134766
+        ],
+        [
+          164.8603515625,
+          728.5799713134766
+        ]
+      ]
+    },
+    {
+      "title": "2.1. Revealing the Complexities of Bipolar Disorder: Understanding the Challenges",
+      "heading_level": null,
+      "page_id": 7,
+      "polygon": [
+        [
+          165.4423828125,
+          418.5169372558594
+        ],
+        [
+          501.12890625,
+          418.5169372558594
+        ],
+        [
+          501.12890625,
+          428.4795227050781
+        ],
+        [
+          165.4423828125,
+          428.4795227050781
+        ]
+      ]
+    },
+    {
+      "title": "2.2. Identifying the Rise of AI in Mental Health: A Game-Changer for BD Management",
+      "heading_level": null,
+      "page_id": 8,
+      "polygon": [
+        [
+          165.7333984375,
+          74.1580810546875
+        ],
+        [
+          520.3359375,
+          74.1580810546875
+        ],
+        [
+          520.3359375,
+          84.58154296875
+        ],
+        [
+          165.7333984375,
+          84.58154296875
+        ]
+      ]
+    },
+    {
+      "title": "2.3. Defining the Role of AI-Powered Mood Tracking: Enhancing Real-Time Monitoring",
+      "heading_level": null,
+      "page_id": 8,
+      "polygon": [
+        [
+          166.3939971923828,
+          532.4169921875
+        ],
+        [
+          520.8932495117188,
+          532.4169921875
+        ],
+        [
+          520.8932495117188,
+          542.8895263671875
+        ],
+        [
+          166.3939971923828,
+          542.8895263671875
+        ]
+      ]
+    },
+    {
+      "title": "2.4. Exploring Personalized Treatment Plans: AI's Role in Tailoring Therapy to Individual Needs",
+      "heading_level": null,
+      "page_id": 9,
+      "polygon": [
+        [
+          164.423828125,
+          111.62255859375
+        ],
+        [
+          556.25048828125,
+          111.62255859375
+        ],
+        [
+          556.25048828125,
+          122.07049560546875
+        ],
+        [
+          164.423828125,
+          122.07049560546875
+        ]
+      ]
+    },
+    {
+      "title": "2.5. Resolving the Dilemma of Emotional Support Gaps: AI Chatbots Filling the Void",
+      "heading_level": null,
+      "page_id": 9,
+      "polygon": [
+        [
+          166.0244140625,
+          388.931640625
+        ],
+        [
+          510.44140625,
+          388.931640625
+        ],
+        [
+          510.44140625,
+          399.3195495605469
+        ],
+        [
+          166.0244140625,
+          399.3195495605469
+        ]
+      ]
+    },
+    {
+      "title": "2.6. Discussing AI in Cognitive Behavioral Therapy (CBT): Enhancing Traditional Approaches",
+      "heading_level": null,
+      "page_id": 9,
+      "polygon": [
+        [
+          165.7333984375,
+          652.056640625
+        ],
+        [
+          548.4298095703125,
+          652.056640625
+        ],
+        [
+          548.4298095703125,
+          662.6405181884766
+        ],
+        [
+          165.7333984375,
+          662.6405181884766
+        ]
+      ]
+    },
+    {
+      "title": "2.7. Exploring the Ethical Implications of AI in BD Treatment: Striking the Balance",
+      "heading_level": null,
+      "page_id": 10,
+      "polygon": [
+        [
+          164.1328125,
+          209.06103515625
+        ],
+        [
+          503.0801086425781,
+          209.06103515625
+        ],
+        [
+          503.0801086425781,
+          219.5645751953125
+        ],
+        [
+          164.1328125,
+          219.5645751953125
+        ]
+      ]
+    },
+    {
+      "title": "2.8. Identifying the Limitations of AI in Mental Health: Acknowledging the Gaps",
+      "heading_level": null,
+      "page_id": 10,
+      "polygon": [
+        [
+          166.169921875,
+          681.8379211425781
+        ],
+        [
+          496.181640625,
+          681.8379211425781
+        ],
+        [
+          496.181640625,
+          691.9365234375
+        ],
+        [
+          166.169921875,
+          691.9365234375
+        ]
+      ]
+    },
+    {
+      "title": "2.9. Defining the Role of Clinicians in an AI-Driven Mental Health Landscape",
+      "heading_level": null,
+      "page_id": 11,
+      "polygon": [
+        [
+          166.3939971923828,
+          431.689453125
+        ],
+        [
+          483.0859375,
+          431.689453125
+        ],
+        [
+          483.0859375,
+          442.4075012207031
+        ],
+        [
+          166.3939971923828,
+          442.4075012207031
+        ]
+      ]
+    },
+    {
+      "title": "2.10. Discussing the Future of AI in BD Treatment: Opportunities and Challenges Ahead",
+      "heading_level": null,
+      "page_id": 11,
+      "polygon": [
+        [
+          166.3939971923828,
+          709.615234375
+        ],
+        [
+          526.73828125,
+          709.615234375
+        ],
+        [
+          526.73828125,
+          719.6555099487305
+        ],
+        [
+          166.3939971923828,
+          719.6555099487305
+        ]
+      ]
+    },
+    {
+      "title": "2.11. Resolving the Dilemma of Accessibility: Making AI Tools Available for All",
+      "heading_level": null,
+      "page_id": 12,
+      "polygon": [
+        [
+          165.296875,
+          375.98095703125
+        ],
+        [
+          488.41510009765625,
+          375.98095703125
+        ],
+        [
+          488.41510009765625,
+          386.696533203125
+        ],
+        [
+          165.296875,
+          386.696533203125
+        ]
+      ]
+    },
+    {
+      "title": "3. Conclusions",
+      "heading_level": null,
+      "page_id": 14,
+      "polygon": [
+        [
+          166.0244140625,
+          72.97607421875
+        ],
+        [
+          246.792724609375,
+          72.97607421875
+        ],
+        [
+          246.792724609375,
+          85.2039794921875
+        ],
+        [
+          166.0244140625,
+          85.2039794921875
+        ]
+      ]
+    },
+    {
+      "title": "Abbreviations",
+      "heading_level": null,
+      "page_id": 14,
+      "polygon": [
+        [
+          165.927001953125,
+          684.7637786865234
+        ],
+        [
+          245.6171875,
+          684.7637786865234
+        ],
+        [
+          245.6171875,
+          696.7189788818359
+        ],
+        [
+          165.927001953125,
+          696.7189788818359
+        ]
+      ]
+    },
+    {
+      "title": "References",
+      "heading_level": null,
+      "page_id": 15,
+      "polygon": [
+        [
+          34.8673095703125,
+          71.2801513671875
+        ],
+        [
+          96.83544921875,
+          71.2801513671875
+        ],
+        [
+          96.83544921875,
+          85.2039794921875
+        ],
+        [
+          34.8673095703125,
+          85.2039794921875
+        ]
+      ]
+    }
+  ],
+  "page_stats": [
+    {
+      "page_id": 0,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          200
+        ],
+        [
+          "Line",
+          70
+        ],
+        [
+          "ListItem",
+          7
+        ],
+        [
+          "Text",
+          7
+        ],
+        [
+          "Picture",
+          4
+        ],
+        [
+          "SectionHeader",
+          2
+        ],
+        [
+          "PageFooter",
+          2
+        ],
+        [
+          "TextInlineMath",
+          1
+        ],
+        [
+          "ListGroup",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 1,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          111
+        ],
+        [
+          "Line",
+          49
+        ],
+        [
+          "Text",
+          3
+        ],
+        [
+          "PageHeader",
+          2
+        ],
+        [
+          "SectionHeader",
+          2
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 2,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          125
+        ],
+        [
+          "Line",
+          46
+        ],
+        [
+          "Text",
+          9
+        ],
+        [
+          "SectionHeader",
+          6
+        ],
+        [
+          "PageHeader",
+          2
+        ],
+        [
+          "Reference",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 3,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          101
+        ],
+        [
+          "Line",
+          48
+        ],
+        [
+          "Text",
+          3
+        ],
+        [
+          "PageHeader",
+          2
+        ],
+        [
+          "SectionHeader",
+          2
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 4,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          108
+        ],
+        [
+          "Line",
+          48
+        ],
+        [
+          "Text",
+          5
+        ],
+        [
+          "SectionHeader",
+          4
+        ],
+        [
+          "PageHeader",
+          2
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 5,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          104
+        ],
+        [
+          "Line",
+          47
+        ],
+        [
+          "Text",
+          4
+        ],
+        [
+          "SectionHeader",
+          3
+        ],
+        [
+          "PageHeader",
+          2
+        ],
+        [
+          "TextInlineMath",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 6,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          138
+        ],
+        [
+          "Line",
+          65
+        ],
+        [
+          "PageHeader",
+          2
+        ],
+        [
+          "Text",
+          2
+        ],
+        [
+          "SectionHeader",
+          2
+        ],
+        [
+          "Reference",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 7,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          112
+        ],
+        [
+          "Line",
+          47
+        ],
+        [
+          "Text",
+          8
+        ],
+        [
+          "PageHeader",
+          2
+        ],
+        [
+          "SectionHeader",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 8,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          105
+        ],
+        [
+          "Line",
+          50
+        ],
+        [
+          "Text",
+          5
+        ],
+        [
+          "PageHeader",
+          2
+        ],
+        [
+          "SectionHeader",
+          2
+        ],
+        [
+          "TextInlineMath",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 9,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          115
+        ],
+        [
+          "Line",
+          49
+        ],
+        [
+          "Text",
+          9
+        ],
+        [
+          "SectionHeader",
+          3
+        ],
+        [
+          "PageHeader",
+          2
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 10,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          114
+        ],
+        [
+          "Line",
+          49
+        ],
+        [
+          "Text",
+          7
+        ],
+        [
+          "PageHeader",
+          2
+        ],
+        [
+          "SectionHeader",
+          2
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 11,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          115
+        ],
+        [
+          "Line",
+          48
+        ],
+        [
+          "Text",
+          8
+        ],
+        [
+          "PageHeader",
+          2
+        ],
+        [
+          "SectionHeader",
+          2
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 12,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          114
+        ],
+        [
+          "Line",
+          47
+        ],
+        [
+          "Text",
+          7
+        ],
+        [
+          "PageHeader",
+          2
+        ],
+        [
+          "TextInlineMath",
+          1
+        ],
+        [
+          "SectionHeader",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 13,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          249
+        ],
+        [
+          "Line",
+          116
+        ],
+        [
+          "Text",
+          5
+        ],
+        [
+          "PageHeader",
+          2
+        ],
+        [
+          "Reference",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 14,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          113
+        ],
+        [
+          "Line",
+          47
+        ],
+        [
+          "Text",
+          11
+        ],
+        [
+          "ListItem",
+          3
+        ],
+        [
+          "PageHeader",
+          2
+        ],
+        [
+          "SectionHeader",
+          2
+        ],
+        [
+          "ListGroup",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 15,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          324
+        ],
+        [
+          "Line",
+          51
+        ],
+        [
+          "ListItem",
+          21
+        ],
+        [
+          "Reference",
+          21
+        ],
+        [
+          "PageHeader",
+          2
+        ],
+        [
+          "SectionHeader",
+          1
+        ],
+        [
+          "ListGroup",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 16,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          385
+        ],
+        [
+          "Line",
+          55
+        ],
+        [
+          "ListItem",
+          24
+        ],
+        [
+          "Reference",
+          23
+        ],
+        [
+          "PageHeader",
+          2
+        ],
+        [
+          "ListGroup",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 17,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          60
+        ],
+        [
+          "Line",
+          9
+        ],
+        [
+          "ListItem",
+          3
+        ],
+        [
+          "Reference",
+          3
+        ],
+        [
+          "PageHeader",
+          2
+        ],
+        [
+          "Text",
+          1
+        ],
+        [
+          "ListGroup",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    }
+  ],
+  "debug_data_path": "debug_data/AI-Bipolar-Frontier"
+}

@@ -225,10 +225,11 @@ def test_model_predictions(sequences):
             )
             
             print(f"\n📊 Prediction results:")
-            print(f"   Depression risk: {result.prediction.depression_risk:.1%}")
-            print(f"   Hypomanic risk: {result.prediction.hypomanic_risk:.1%}")
-            print(f"   Manic risk: {result.prediction.manic_risk:.1%}")
-            print(f"   Confidence: {result.prediction.confidence:.1%}")
+            print(f"   Depression risk: {result.ensemble_prediction.depression_risk:.1%}")
+            print(f"   Hypomanic risk: {result.ensemble_prediction.hypomanic_risk:.1%}")
+            print(f"   Manic risk: {result.ensemble_prediction.manic_risk:.1%}")
+            print(f"   Confidence: {result.ensemble_prediction.confidence:.1%}")
+            print(f"   Models used: {', '.join(result.models_used)}")
             
             return result
         

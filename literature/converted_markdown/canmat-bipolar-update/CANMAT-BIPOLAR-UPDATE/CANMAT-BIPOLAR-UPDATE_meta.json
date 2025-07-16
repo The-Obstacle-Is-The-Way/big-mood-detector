@@ -1,0 +1,1853 @@
+{
+  "table_of_contents": [
+    {
+      "title": "The CANMAT and ISBD Guidelines for the Treatment of \nBipolar Disorder: Summary and a 2023 Update \nof Evidence",
+      "heading_level": null,
+      "page_id": 0,
+      "polygon": [
+        [
+          41.98974609375,
+          112.4033203125
+        ],
+        [
+          534.7086181640625,
+          112.4033203125
+        ],
+        [
+          534.7086181640625,
+          177.603271484375
+        ],
+        [
+          41.98974609375,
+          177.603271484375
+        ]
+      ]
+    },
+    {
+      "title": "EPIDEMIOLOGY",
+      "heading_level": null,
+      "page_id": 0,
+      "polygon": [
+        [
+          299.9267578125,
+          608.27783203125
+        ],
+        [
+          373.623046875,
+          608.27783203125
+        ],
+        [
+          373.623046875,
+          619.0284729003906
+        ],
+        [
+          299.9267578125,
+          619.0284729003906
+        ]
+      ]
+    },
+    {
+      "title": "DIAGNOSTIC ASSESSMENT",
+      "heading_level": null,
+      "page_id": 1,
+      "polygon": [
+        [
+          42.275390625,
+          428.58544921875
+        ],
+        [
+          167.44094848632812,
+          428.58544921875
+        ],
+        [
+          167.44094848632812,
+          439.7184143066406
+        ],
+        [
+          42.275390625,
+          439.7184143066406
+        ]
+      ]
+    },
+    {
+      "title": "BOX 1. Pharmacological treatment of acute maniaa",
+      "heading_level": null,
+      "page_id": 2,
+      "polygon": [
+        [
+          42.916500091552734,
+          63.68341064453125
+        ],
+        [
+          238.5098876953125,
+          63.68341064453125
+        ],
+        [
+          238.5098876953125,
+          74.34661865234375
+        ],
+        [
+          42.916500091552734,
+          74.34661865234375
+        ]
+      ]
+    },
+    {
+      "title": "First-Line (Hierarchical Ranking)",
+      "heading_level": null,
+      "page_id": 2,
+      "polygon": [
+        [
+          57.557373046875,
+          94.29071044921875
+        ],
+        [
+          179.813232421875,
+          94.29071044921875
+        ],
+        [
+          179.813232421875,
+          102.35357666015625
+        ],
+        [
+          57.557373046875,
+          102.35357666015625
+        ]
+      ]
+    },
+    {
+      "title": "Second-Line (Hierarchical Ranking)",
+      "heading_level": null,
+      "page_id": 2,
+      "polygon": [
+        [
+          57.87872314453125,
+          265.141845703125
+        ],
+        [
+          191.810302734375,
+          265.141845703125
+        ],
+        [
+          191.810302734375,
+          273.73553466796875
+        ],
+        [
+          57.87872314453125,
+          273.73553466796875
+        ]
+      ]
+    },
+    {
+      "title": "Third-Line",
+      "heading_level": null,
+      "page_id": 2,
+      "polygon": [
+        [
+          57.4859619140625,
+          357.0908203125
+        ],
+        [
+          98.4759521484375,
+          357.0908203125
+        ],
+        [
+          98.4759521484375,
+          365.501953125
+        ],
+        [
+          57.4859619140625,
+          365.501953125
+        ]
+      ]
+    },
+    {
+      "title": "Not Recommended",
+      "heading_level": null,
+      "page_id": 2,
+      "polygon": [
+        [
+          56.84326171875,
+          449.05316162109375
+        ],
+        [
+          131.5452880859375,
+          449.05316162109375
+        ],
+        [
+          131.5452880859375,
+          457.64208984375
+        ],
+        [
+          56.84326171875,
+          457.64208984375
+        ]
+      ]
+    },
+    {
+      "title": "SUICIDE RISK",
+      "heading_level": null,
+      "page_id": 2,
+      "polygon": [
+        [
+          42.7752685546875,
+          693.15380859375
+        ],
+        [
+          106.6168212890625,
+          693.15380859375
+        ],
+        [
+          106.6168212890625,
+          702.7079238891602
+        ],
+        [
+          42.7752685546875,
+          702.7079238891602
+        ]
+      ]
+    },
+    {
+      "title": "PSYCHOSOCIAL INTERVENTIONS",
+      "heading_level": null,
+      "page_id": 2,
+      "polygon": [
+        [
+          299.9267578125,
+          298.212890625
+        ],
+        [
+          454.78594970703125,
+          298.212890625
+        ],
+        [
+          454.78594970703125,
+          308.6351013183594
+        ],
+        [
+          299.9267578125,
+          308.6351013183594
+        ]
+      ]
+    },
+    {
+      "title": "PHARMACOLOGICAL TREATMENT OF MANIC \nEPISODES",
+      "heading_level": null,
+      "page_id": 2,
+      "polygon": [
+        [
+          299.35546875,
+          454.112060546875
+        ],
+        [
+          511.4736328125,
+          454.112060546875
+        ],
+        [
+          511.4736328125,
+          475.5391540527344
+        ],
+        [
+          299.35546875,
+          475.5391540527344
+        ]
+      ]
+    },
+    {
+      "title": "Step 1: Review General Principles and Assess \nMedication Status",
+      "heading_level": null,
+      "page_id": 2,
+      "polygon": [
+        [
+          299.35546875,
+          519.8750305175781
+        ],
+        [
+          499.1261901855469,
+          519.8750305175781
+        ],
+        [
+          499.1261901855469,
+          541.3031158447266
+        ],
+        [
+          299.35546875,
+          541.3031158447266
+        ]
+      ]
+    },
+    {
+      "title": "Step 2: Initiate or Optimize Therapy and \nCheck Adherence",
+      "heading_level": null,
+      "page_id": 2,
+      "polygon": [
+        [
+          299.35546875,
+          687.2332611083984
+        ],
+        [
+          480.80401611328125,
+          687.2332611083984
+        ],
+        [
+          480.80401611328125,
+          708.8291015625
+        ],
+        [
+          299.35546875,
+          708.8291015625
+        ]
+      ]
+    },
+    {
+      "title": "Step 3: Add on or Switch Therapy \n(Alternate First-Line Agents)",
+      "heading_level": null,
+      "page_id": 3,
+      "polygon": [
+        [
+          42.3468017578125,
+          340.077392578125
+        ],
+        [
+          194.4917755126953,
+          340.077392578125
+        ],
+        [
+          194.4917755126953,
+          361.9271240234375
+        ],
+        [
+          42.3468017578125,
+          361.9271240234375
+        ]
+      ]
+    },
+    {
+      "title": "Step 4: Add on or Switch Therapy \n(Second-Line Agents)",
+      "heading_level": null,
+      "page_id": 3,
+      "polygon": [
+        [
+          42.3468017578125,
+          410.6162109375
+        ],
+        [
+          195.0587615966797,
+          410.6162109375
+        ],
+        [
+          195.0587615966797,
+          433.7001037597656
+        ],
+        [
+          42.3468017578125,
+          433.7001037597656
+        ]
+      ]
+    },
+    {
+      "title": "Step 5: Add on or Switch Therapy (Third-Line Agents)",
+      "heading_level": null,
+      "page_id": 3,
+      "polygon": [
+        [
+          42.7752685546875,
+          506.57958984375
+        ],
+        [
+          280.78857421875,
+          506.57958984375
+        ],
+        [
+          280.78857421875,
+          517.379150390625
+        ],
+        [
+          42.7752685546875,
+          517.379150390625
+        ]
+      ]
+    },
+    {
+      "title": "Update on Studies Showing Efficacy of Drugs in \nAcute Mania",
+      "heading_level": null,
+      "page_id": 3,
+      "polygon": [
+        [
+          42.3468017578125,
+          578.8388671875
+        ],
+        [
+          255.31529235839844,
+          578.8388671875
+        ],
+        [
+          255.31529235839844,
+          601.0571136474609
+        ],
+        [
+          42.3468017578125,
+          601.0571136474609
+        ]
+      ]
+    },
+    {
+      "title": "PHARMACOLOGICAL TREATMENT OF ACUTE \nBIPOLAR DEPRESSION",
+      "heading_level": null,
+      "page_id": 3,
+      "polygon": [
+        [
+          42.4896240234375,
+          680.537109375
+        ],
+        [
+          253.7945556640625,
+          680.537109375
+        ],
+        [
+          253.7945556640625,
+          702.7119140625
+        ],
+        [
+          42.4896240234375,
+          702.7119140625
+        ]
+      ]
+    },
+    {
+      "title": "BOX 2. Pharmacological treatment of acute bipolar I \ndepressiona",
+      "heading_level": null,
+      "page_id": 3,
+      "polygon": [
+        [
+          299.9620056152344,
+          65.568603515625
+        ],
+        [
+          503.2405090332031,
+          65.568603515625
+        ],
+        [
+          503.2405090332031,
+          85.5155029296875
+        ],
+        [
+          299.9620056152344,
+          85.5155029296875
+        ]
+      ]
+    },
+    {
+      "title": "First-Line (Hierarchical Ranking)",
+      "heading_level": null,
+      "page_id": 3,
+      "polygon": [
+        [
+          314.9289855957031,
+          104.7568359375
+        ],
+        [
+          437.607421875,
+          104.7568359375
+        ],
+        [
+          437.607421875,
+          114.31494140625
+        ],
+        [
+          314.9289855957031,
+          114.31494140625
+        ]
+      ]
+    },
+    {
+      "title": "Second-Line (Hierarchical Ranking)",
+      "heading_level": null,
+      "page_id": 3,
+      "polygon": [
+        [
+          312.78076171875,
+          186.765380859375
+        ],
+        [
+          449.89013671875,
+          186.765380859375
+        ],
+        [
+          449.89013671875,
+          196.13232421875
+        ],
+        [
+          312.78076171875,
+          196.13232421875
+        ]
+      ]
+    },
+    {
+      "title": "Third-Line",
+      "heading_level": null,
+      "page_id": 3,
+      "polygon": [
+        [
+          313.6376953125,
+          257.113037109375
+        ],
+        [
+          354.1184997558594,
+          257.113037109375
+        ],
+        [
+          354.1184997558594,
+          266.98883056640625
+        ],
+        [
+          313.6376953125,
+          266.98883056640625
+        ]
+      ]
+    },
+    {
+      "title": "Not Recommended",
+      "heading_level": null,
+      "page_id": 3,
+      "polygon": [
+        [
+          313.92333984375,
+          419.02734375
+        ],
+        [
+          389.33349609375,
+          419.02734375
+        ],
+        [
+          389.33349609375,
+          428.9677734375
+        ],
+        [
+          313.92333984375,
+          428.9677734375
+        ]
+      ]
+    },
+    {
+      "title": "Step 1: Review General Principles and Assess \nMedication Status",
+      "heading_level": null,
+      "page_id": 3,
+      "polygon": [
+        [
+          299.96142578125,
+          591.0732421875
+        ],
+        [
+          499.1261901855469,
+          591.0732421875
+        ],
+        [
+          499.1261901855469,
+          613.248046875
+        ],
+        [
+          299.96142578125,
+          613.248046875
+        ]
+      ]
+    },
+    {
+      "title": "Step 2: Initiate or Optimize Therapy and \nCheck Adherence",
+      "heading_level": null,
+      "page_id": 4,
+      "polygon": [
+        [
+          42.275390625,
+          65.04290771484375
+        ],
+        [
+          223.75904846191406,
+          65.04290771484375
+        ],
+        [
+          223.75904846191406,
+          86.96612548828125
+        ],
+        [
+          42.275390625,
+          86.96612548828125
+        ]
+      ]
+    },
+    {
+      "title": "Step 3: Add on or Switch Therapy \n(Alternate First-Line Agents)",
+      "heading_level": null,
+      "page_id": 4,
+      "polygon": [
+        [
+          42.275390625,
+          244.496337890625
+        ],
+        [
+          194.4917755126953,
+          244.496337890625
+        ],
+        [
+          194.4917755126953,
+          266.671142578125
+        ],
+        [
+          42.275390625,
+          266.671142578125
+        ]
+      ]
+    },
+    {
+      "title": "Step 4: Add on or Switch Therapy (Second-Line Agents)",
+      "heading_level": null,
+      "page_id": 4,
+      "polygon": [
+        [
+          42.132568359375,
+          340.2685546875
+        ],
+        [
+          279.0520935058594,
+          340.2685546875
+        ],
+        [
+          279.0520935058594,
+          350.208984375
+        ],
+        [
+          42.132568359375,
+          350.208984375
+        ]
+      ]
+    },
+    {
+      "title": "Step 5: Add on or Switch Therapy (Third-Line Agents)",
+      "heading_level": null,
+      "page_id": 4,
+      "polygon": [
+        [
+          42.56103515625,
+          590.69091796875
+        ],
+        [
+          279.64599609375,
+          590.69091796875
+        ],
+        [
+          279.64599609375,
+          601.0571136474609
+        ],
+        [
+          42.56103515625,
+          601.0571136474609
+        ]
+      ]
+    },
+    {
+      "title": "Update on Studies Showing Efficacy of Drugs in \nBipolar I Depression",
+      "heading_level": null,
+      "page_id": 4,
+      "polygon": [
+        [
+          42.4896240234375,
+          662.9501953125
+        ],
+        [
+          255.31529235839844,
+          662.9501953125
+        ],
+        [
+          255.31529235839844,
+          684.7361297607422
+        ],
+        [
+          42.4896240234375,
+          684.7361297607422
+        ]
+      ]
+    },
+    {
+      "title": "PHARMACOLOGICAL TREATMENT FOR \nMAINTENANCE THERAPY",
+      "heading_level": null,
+      "page_id": 4,
+      "polygon": [
+        [
+          299.9620056152344,
+          416.7333984375
+        ],
+        [
+          483.02490234375,
+          416.7333984375
+        ],
+        [
+          483.02490234375,
+          439.7091369628906
+        ],
+        [
+          299.9620056152344,
+          439.7091369628906
+        ]
+      ]
+    },
+    {
+      "title": "Step 1: Review General Principles and Assess \nMedication Status",
+      "heading_level": null,
+      "page_id": 4,
+      "polygon": [
+        [
+          299.35546875,
+          531.4306640625
+        ],
+        [
+          499.306640625,
+          531.4306640625
+        ],
+        [
+          499.306640625,
+          553.60546875
+        ],
+        [
+          299.35546875,
+          553.60546875
+        ]
+      ]
+    },
+    {
+      "title": "Step 2: Initiate or Optimize Therapy and Check \nAdherence",
+      "heading_level": null,
+      "page_id": 4,
+      "polygon": [
+        [
+          299.9267578125,
+          686.654296875
+        ],
+        [
+          510.8032531738281,
+          686.654296875
+        ],
+        [
+          510.8032531738281,
+          708.8291015625
+        ],
+        [
+          299.9267578125,
+          708.8291015625
+        ]
+      ]
+    },
+    {
+      "title": "Step 3: Add on or Switch Therapy \n(Alternate First-Line Agents)",
+      "heading_level": null,
+      "page_id": 5,
+      "polygon": [
+        [
+          42.2039794921875,
+          411.380859375
+        ],
+        [
+          194.4917755126953,
+          411.380859375
+        ],
+        [
+          194.4917755126953,
+          433.7001037597656
+        ],
+        [
+          42.2039794921875,
+          433.7001037597656
+        ]
+      ]
+    },
+    {
+      "title": "Step 4: Add on or Switch Therapy (Second-Line Agents)",
+      "heading_level": null,
+      "page_id": 5,
+      "polygon": [
+        [
+          42.275390625,
+          483.2578125
+        ],
+        [
+          280.21728515625,
+          483.2578125
+        ],
+        [
+          280.21728515625,
+          493.962890625
+        ],
+        [
+          42.275390625,
+          493.962890625
+        ]
+      ]
+    },
+    {
+      "title": "Step 5: Add on or Switch Therapy (Third-Line Agents)",
+      "heading_level": null,
+      "page_id": 5,
+      "polygon": [
+        [
+          42.4896240234375,
+          566.6044921875
+        ],
+        [
+          279.3603515625,
+          566.6044921875
+        ],
+        [
+          279.3603515625,
+          577.1331176757812
+        ],
+        [
+          42.4896240234375,
+          577.1331176757812
+        ]
+      ]
+    },
+    {
+      "title": "Update on Studies Showing Efficacy of Drugs in \nMaintenance of Bipolar I Disorder",
+      "heading_level": null,
+      "page_id": 5,
+      "polygon": [
+        [
+          42.2039794921875,
+          615.5160369873047
+        ],
+        [
+          255.31529235839844,
+          615.5160369873047
+        ],
+        [
+          255.31529235839844,
+          636.9521484375
+        ],
+        [
+          42.2039794921875,
+          636.9521484375
+        ]
+      ]
+    },
+    {
+      "title": "BOX 3. Pharmacological treatment for maintenance therapy in \nbipolar I disordera",
+      "heading_level": null,
+      "page_id": 5,
+      "polygon": [
+        [
+          299.9267578125,
+          66.0465087890625
+        ],
+        [
+          538.0083618164062,
+          66.0465087890625
+        ],
+        [
+          538.0083618164062,
+          85.640625
+        ],
+        [
+          299.9267578125,
+          85.640625
+        ]
+      ]
+    },
+    {
+      "title": "First-Line (Hierarchical Ranking)",
+      "heading_level": null,
+      "page_id": 5,
+      "polygon": [
+        [
+          314.9289855957031,
+          103.801025390625
+        ],
+        [
+          438.46435546875,
+          103.801025390625
+        ],
+        [
+          438.46435546875,
+          113.2945556640625
+        ],
+        [
+          314.9289855957031,
+          113.2945556640625
+        ]
+      ]
+    },
+    {
+      "title": "Second-Line (Hierarchical Ranking)",
+      "heading_level": null,
+      "page_id": 5,
+      "polygon": [
+        [
+          314.7802734375,
+          215.822021484375
+        ],
+        [
+          449.033203125,
+          215.822021484375
+        ],
+        [
+          449.033203125,
+          224.997802734375
+        ],
+        [
+          314.7802734375,
+          224.997802734375
+        ]
+      ]
+    },
+    {
+      "title": "Third-Line",
+      "heading_level": null,
+      "page_id": 5,
+      "polygon": [
+        [
+          314.208984375,
+          306.6240234375
+        ],
+        [
+          354.1196594238281,
+          306.6240234375
+        ],
+        [
+          354.1196594238281,
+          316.537841796875
+        ],
+        [
+          314.208984375,
+          316.537841796875
+        ]
+      ]
+    },
+    {
+      "title": "Not Recommended",
+      "heading_level": null,
+      "page_id": 5,
+      "polygon": [
+        [
+          314.49462890625,
+          369.3251953125
+        ],
+        [
+          388.76220703125,
+          369.3251953125
+        ],
+        [
+          388.76220703125,
+          378.5009765625
+        ],
+        [
+          314.49462890625,
+          378.5009765625
+        ]
+      ]
+    },
+    {
+      "title": "PHARMACOLOGICAL TREATMENT OF BIPOLAR II \nDISORDER",
+      "heading_level": null,
+      "page_id": 5,
+      "polygon": [
+        [
+          299.9267578125,
+          548.2529296875
+        ],
+        [
+          530.2350463867188,
+          548.2529296875
+        ],
+        [
+          530.2350463867188,
+          571.1801147460938
+        ],
+        [
+          299.9267578125,
+          571.1801147460938
+        ]
+      ]
+    },
+    {
+      "title": "Acute Management of Hypomania",
+      "heading_level": null,
+      "page_id": 5,
+      "polygon": [
+        [
+          299.64111328125,
+          686.654296875
+        ],
+        [
+          450.46142578125,
+          686.654296875
+        ],
+        [
+          450.46142578125,
+          696.6984252929688
+        ],
+        [
+          299.64111328125,
+          696.6984252929688
+        ]
+      ]
+    },
+    {
+      "title": "BOX 4. Pharmacological treatment of bipolar II depression and \nmaintenance",
+      "heading_level": null,
+      "page_id": 6,
+      "polygon": [
+        [
+          42.8466796875,
+          66.6199951171875
+        ],
+        [
+          280.9871826171875,
+          66.6199951171875
+        ],
+        [
+          280.9871826171875,
+          85.640625
+        ],
+        [
+          42.8466796875,
+          85.640625
+        ]
+      ]
+    },
+    {
+      "title": "First-Line",
+      "heading_level": null,
+      "page_id": 6,
+      "polygon": [
+        [
+          57.6287841796875,
+          103.5142822265625
+        ],
+        [
+          94.6197509765625,
+          103.5142822265625
+        ],
+        [
+          94.6197509765625,
+          113.2943115234375
+        ],
+        [
+          57.6287841796875,
+          113.2943115234375
+        ]
+      ]
+    },
+    {
+      "title": "Second-Line",
+      "heading_level": null,
+      "page_id": 6,
+      "polygon": [
+        [
+          56.414794921875,
+          196.13232421875
+        ],
+        [
+          106.688232421875,
+          196.13232421875
+        ],
+        [
+          106.688232421875,
+          205.30810546875
+        ],
+        [
+          56.414794921875,
+          205.30810546875
+        ]
+      ]
+    },
+    {
+      "title": "Third-Line",
+      "heading_level": null,
+      "page_id": 6,
+      "polygon": [
+        [
+          56.7718505859375,
+          327.26953125
+        ],
+        [
+          97.1905517578125,
+          327.26953125
+        ],
+        [
+          97.1905517578125,
+          336.82763671875
+        ],
+        [
+          56.7718505859375,
+          336.82763671875
+        ]
+      ]
+    },
+    {
+      "title": "Acute Management of Bipolar II Depression",
+      "heading_level": null,
+      "page_id": 6,
+      "polygon": [
+        [
+          297.6416015625,
+          65.2818603515625
+        ],
+        [
+          493.94708251953125,
+          65.2818603515625
+        ],
+        [
+          493.94708251953125,
+          75.509033203125
+        ],
+        [
+          297.6416015625,
+          75.509033203125
+        ]
+      ]
+    },
+    {
+      "title": "Update on Studies Showing Efficacy of Drugs in \nBipolar II Depression",
+      "heading_level": null,
+      "page_id": 6,
+      "polygon": [
+        [
+          299.64111328125,
+          207.793212890625
+        ],
+        [
+          512.3602905273438,
+          207.793212890625
+        ],
+        [
+          512.3602905273438,
+          230.732666015625
+        ],
+        [
+          299.64111328125,
+          230.732666015625
+        ]
+      ]
+    },
+    {
+      "title": "Maintenance Treatment of Bipolar II Disorder",
+      "heading_level": null,
+      "page_id": 6,
+      "polygon": [
+        [
+          299.64111328125,
+          328.0341796875
+        ],
+        [
+          504.5711669921875,
+          328.0341796875
+        ],
+        [
+          504.5711669921875,
+          338.35693359375
+        ],
+        [
+          299.64111328125,
+          338.35693359375
+        ]
+      ]
+    },
+    {
+      "title": "MANAGEMENT OF BIPOLAR DISORDER IN \nCHILDREN AND ADOLESCENTS",
+      "heading_level": null,
+      "page_id": 6,
+      "polygon": [
+        [
+          299.35546875,
+          452.671875
+        ],
+        [
+          497.1612854003906,
+          452.671875
+        ],
+        [
+          497.1612854003906,
+          475.5391540527344
+        ],
+        [
+          299.35546875,
+          475.5391540527344
+        ]
+      ]
+    },
+    {
+      "title": "Presentation and Diagnosis",
+      "heading_level": null,
+      "page_id": 6,
+      "polygon": [
+        [
+          299.9267578125,
+          483.2578125
+        ],
+        [
+          418.8969421386719,
+          483.2578125
+        ],
+        [
+          418.8969421386719,
+          493.4541015625
+        ],
+        [
+          299.9267578125,
+          493.4541015625
+        ]
+      ]
+    },
+    {
+      "title": "Pharmacological Management",
+      "heading_level": null,
+      "page_id": 6,
+      "polygon": [
+        [
+          299.96417236328125,
+          686.654296875
+        ],
+        [
+          431.3232421875,
+          686.654296875
+        ],
+        [
+          431.3232421875,
+          696.6984252929688
+        ],
+        [
+          299.96417236328125,
+          696.6984252929688
+        ]
+      ]
+    },
+    {
+      "title": "MANAGEMENT OF BIPOLAR DISORDER IN \nOLDER AGE",
+      "heading_level": null,
+      "page_id": 7,
+      "polygon": [
+        [
+          42.418212890625,
+          428.203125
+        ],
+        [
+          240.11529541015625,
+          428.203125
+        ],
+        [
+          240.11529541015625,
+          451.6151123046875
+        ],
+        [
+          42.418212890625,
+          451.6151123046875
+        ]
+      ]
+    },
+    {
+      "title": "Presentation and Course",
+      "heading_level": null,
+      "page_id": 7,
+      "polygon": [
+        [
+          42.0611572265625,
+          458.40673828125
+        ],
+        [
+          151.962890625,
+          458.40673828125
+        ],
+        [
+          151.962890625,
+          469.58709716796875
+        ],
+        [
+          42.0611572265625,
+          469.58709716796875
+        ]
+      ]
+    },
+    {
+      "title": "Pharmacological Treatment",
+      "heading_level": null,
+      "page_id": 7,
+      "polygon": [
+        [
+          299.9635314941406,
+          160.2894287109375
+        ],
+        [
+          422.46826171875,
+          160.2894287109375
+        ],
+        [
+          422.46826171875,
+          170.6451416015625
+        ],
+        [
+          299.9635314941406,
+          170.6451416015625
+        ]
+      ]
+    },
+    {
+      "title": "SAFETY AND MONITORING",
+      "heading_level": null,
+      "page_id": 7,
+      "polygon": [
+        [
+          299.64111328125,
+          488.99267578125
+        ],
+        [
+          426.46728515625,
+          488.99267578125
+        ],
+        [
+          426.46728515625,
+          499.69775390625
+        ],
+        [
+          299.64111328125,
+          499.69775390625
+        ]
+      ]
+    },
+    {
+      "title": "Medical Evaluation and Laboratory Investigations",
+      "heading_level": null,
+      "page_id": 7,
+      "polygon": [
+        [
+          299.9267578125,
+          506.9619140625
+        ],
+        [
+          521.5869140625,
+          506.9619140625
+        ],
+        [
+          521.5869140625,
+          517.379150390625
+        ],
+        [
+          299.9267578125,
+          517.379150390625
+        ]
+      ]
+    },
+    {
+      "title": "Monitoring Medication Serum Levels",
+      "heading_level": null,
+      "page_id": 8,
+      "polygon": [
+        [
+          42.56103515625,
+          340.459716796875
+        ],
+        [
+          206.587158203125,
+          340.459716796875
+        ],
+        [
+          206.587158203125,
+          350.0211181640625
+        ],
+        [
+          42.56103515625,
+          350.0211181640625
+        ]
+      ]
+    },
+    {
+      "title": "CONCLUSIONS",
+      "heading_level": null,
+      "page_id": 8,
+      "polygon": [
+        [
+          42.6324462890625,
+          550.546875
+        ],
+        [
+          114.0435791015625,
+          550.546875
+        ],
+        [
+          114.0435791015625,
+          560.2379760742188
+        ],
+        [
+          42.6324462890625,
+          560.2379760742188
+        ]
+      ]
+    },
+    {
+      "title": "AUTHOR AND ARTICLE INFORMATION",
+      "heading_level": null,
+      "page_id": 8,
+      "polygon": [
+        [
+          42.132568359375,
+          691.2421875
+        ],
+        [
+          193.93128967285156,
+          691.2421875
+        ],
+        [
+          193.93128967285156,
+          699.6533203125
+        ],
+        [
+          42.132568359375,
+          699.6533203125
+        ]
+      ]
+    },
+    {
+      "title": "REFERENCES",
+      "heading_level": null,
+      "page_id": 8,
+      "polygon": [
+        [
+          299.9620056152344,
+          154.84130859375
+        ],
+        [
+          350.516357421875,
+          154.84130859375
+        ],
+        [
+          350.516357421875,
+          164.31854248046875
+        ],
+        [
+          299.9620056152344,
+          164.31854248046875
+        ]
+      ]
+    }
+  ],
+  "page_stats": [
+    {
+      "page_id": 0,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          167
+        ],
+        [
+          "Line",
+          83
+        ],
+        [
+          "Text",
+          8
+        ],
+        [
+          "SectionHeader",
+          2
+        ],
+        [
+          "PageFooter",
+          2
+        ],
+        [
+          "PageHeader",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 1,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          224
+        ],
+        [
+          "Line",
+          90
+        ],
+        [
+          "TableCell",
+          37
+        ],
+        [
+          "Text",
+          6
+        ],
+        [
+          "Table",
+          3
+        ],
+        [
+          "PageFooter",
+          2
+        ],
+        [
+          "PageHeader",
+          1
+        ],
+        [
+          "SectionHeader",
+          1
+        ],
+        [
+          "Reference",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 2,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          256
+        ],
+        [
+          "Line",
+          105
+        ],
+        [
+          "Text",
+          13
+        ],
+        [
+          "SectionHeader",
+          10
+        ],
+        [
+          "PageFooter",
+          2
+        ],
+        [
+          "PageHeader",
+          1
+        ],
+        [
+          "Reference",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 3,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          241
+        ],
+        [
+          "Line",
+          107
+        ],
+        [
+          "Text",
+          14
+        ],
+        [
+          "SectionHeader",
+          11
+        ],
+        [
+          "PageFooter",
+          2
+        ],
+        [
+          "PageHeader",
+          1
+        ],
+        [
+          "Reference",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 4,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          224
+        ],
+        [
+          "Line",
+          106
+        ],
+        [
+          "Text",
+          13
+        ],
+        [
+          "SectionHeader",
+          8
+        ],
+        [
+          "PageFooter",
+          2
+        ],
+        [
+          "PageHeader",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 5,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          229
+        ],
+        [
+          "Line",
+          104
+        ],
+        [
+          "Text",
+          16
+        ],
+        [
+          "SectionHeader",
+          11
+        ],
+        [
+          "PageFooter",
+          2
+        ],
+        [
+          "PageHeader",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 6,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          219
+        ],
+        [
+          "Line",
+          104
+        ],
+        [
+          "Text",
+          16
+        ],
+        [
+          "SectionHeader",
+          10
+        ],
+        [
+          "PageFooter",
+          2
+        ],
+        [
+          "PageHeader",
+          1
+        ],
+        [
+          "ListItem",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 7,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          235
+        ],
+        [
+          "Line",
+          104
+        ],
+        [
+          "Text",
+          12
+        ],
+        [
+          "SectionHeader",
+          5
+        ],
+        [
+          "PageFooter",
+          2
+        ],
+        [
+          "PageHeader",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 8,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          237
+        ],
+        [
+          "Line",
+          120
+        ],
+        [
+          "ListItem",
+          16
+        ],
+        [
+          "Text",
+          5
+        ],
+        [
+          "SectionHeader",
+          4
+        ],
+        [
+          "PageFooter",
+          2
+        ],
+        [
+          "PageHeader",
+          1
+        ],
+        [
+          "ListGroup",
+          1
+        ],
+        [
+          "Reference",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 9,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          198
+        ],
+        [
+          "Line",
+          102
+        ],
+        [
+          "ListItem",
+          29
+        ],
+        [
+          "PageFooter",
+          2
+        ],
+        [
+          "ListGroup",
+          2
+        ],
+        [
+          "PageHeader",
+          1
+        ],
+        [
+          "Reference",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    }
+  ],
+  "debug_data_path": "debug_data/CANMAT-BIPOLAR-UPDATE"
+}
