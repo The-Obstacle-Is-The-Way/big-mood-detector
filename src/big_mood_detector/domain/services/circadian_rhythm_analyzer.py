@@ -223,7 +223,7 @@ class CircadianRhythmAnalyzer:
 
         for start_hour in range(24):
             # Calculate 5-hour window average (with wraparound)
-            window_sum = 0
+            window_sum = 0.0
             for i in range(self.L5_HOURS):
                 hour = (start_hour + i) % 24
                 window_sum += hourly_averages[hour]
@@ -234,12 +234,12 @@ class CircadianRhythmAnalyzer:
                 l5_start = start_hour
 
         # Find M10 (most active 10 consecutive hours)
-        m10_value = 0
+        m10_value = 0.0
         m10_start = 0
 
         for start_hour in range(24):
             # Calculate 10-hour window average (with wraparound)
-            window_sum = 0
+            window_sum = 0.0
             for i in range(self.M10_HOURS):
                 hour = (start_hour + i) % 24
                 window_sum += hourly_averages[hour]
