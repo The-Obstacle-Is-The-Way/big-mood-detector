@@ -197,7 +197,7 @@ class EnsembleOrchestrator:
         """Run prediction with PAT-enhanced features."""
         if self.pat_builder is None or self.pat_model is None:
             raise RuntimeError("PAT model or builder not available")
-            
+
         # Build PAT sequence
         if prediction_date:
             # Convert numpy datetime64 to date

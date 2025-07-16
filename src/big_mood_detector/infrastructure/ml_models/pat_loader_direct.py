@@ -8,7 +8,7 @@ loads the weights without complex layer reconstruction.
 import logging
 from pathlib import Path
 
-import h5py
+import h5py  # type: ignore[import-untyped]
 import numpy as np
 import tensorflow as tf
 
@@ -164,21 +164,21 @@ class DirectPATModel:
         prefix = f"encoder_layer_{layer_idx}"
 
         # Reshape weights from (embed_dim, num_heads, embed_dim) to (embed_dim, num_heads * embed_dim)
-        q_kernel = self.weights[f"{prefix}_q_kernel"]  # Shape: (96, 12, 96)
-        assert q_kernel.shape == (
+        q_kernel_np = self.weights[f"{prefix}_q_kernel"]  # Shape: (96, 12, 96)
+        assert q_kernel_np.shape == (
             self.config["embed_dim"],
             self.config["num_heads"],
             self.config["embed_dim"],
-        ), f"Q kernel shape mismatch: {q_kernel.shape}"
-        q_kernel = tf.reshape(q_kernel, (q_kernel.shape[0], -1))  # Shape: (96, 1152)
+        ), f"Q kernel shape mismatch: {q_kernel_np.shape}"
+        q_kernel = tf.reshape(tf.constant(q_kernel_np), (q_kernel_np.shape[0], -1))  # Shape: (96, 1152)
         q_bias = tf.reshape(self.weights[f"{prefix}_q_bias"], (-1,))  # Shape: (1152,)
 
-        k_kernel = self.weights[f"{prefix}_k_kernel"]
-        k_kernel = tf.reshape(k_kernel, (k_kernel.shape[0], -1))
+        k_kernel_np = self.weights[f"{prefix}_k_kernel"]
+        k_kernel = tf.reshape(tf.constant(k_kernel_np), (k_kernel_np.shape[0], -1))
         k_bias = tf.reshape(self.weights[f"{prefix}_k_bias"], (-1,))
 
-        v_kernel = self.weights[f"{prefix}_v_kernel"]
-        v_kernel = tf.reshape(v_kernel, (v_kernel.shape[0], -1))
+        v_kernel_np = self.weights[f"{prefix}_v_kernel"]
+        v_kernel = tf.reshape(tf.constant(v_kernel_np), (v_kernel_np.shape[0], -1))
         v_bias = tf.reshape(self.weights[f"{prefix}_v_bias"], (-1,))
 
         # Project to Q, K, V
@@ -213,15 +213,15 @@ class DirectPATModel:
 
         # Output projection
         # Reshape output kernel from (num_heads, embed_dim, embed_dim) to (num_heads * embed_dim, embed_dim)
-        out_kernel = self.weights[f"{prefix}_out_kernel"]  # Shape: (12, 96, 96)
+        out_kernel_np = self.weights[f"{prefix}_out_kernel"]  # Shape: (12, 96, 96)
         out_kernel = tf.reshape(
-            out_kernel, (-1, out_kernel.shape[-1])
+            tf.constant(out_kernel_np), (-1, out_kernel_np.shape[-1])
         )  # Shape: (1152, 96)
         out_bias = self.weights[f"{prefix}_out_bias"]
 
         output = tf.matmul(attention_output, out_kernel) + out_bias
 
-        return output
+        return output  # type: ignore[no-any-return]
 
     def _get_sinusoidal_embeddings(self, num_patches: int, embed_dim: int) -> tf.Tensor:
         """Generate sinusoidal positional embeddings (from original PAT implementation)."""
@@ -239,7 +239,7 @@ class DirectPATModel:
         pos_embeddings = tf.concat([sin_embeddings, cos_embeddings], axis=-1)
 
         # Add batch dimension
-        return pos_embeddings[tf.newaxis, :, :]
+        return pos_embeddings[tf.newaxis, :, :]  # type: ignore[no-any-return]
 
     def _layer_norm(self, x: tf.Tensor, gamma: tf.Tensor, beta: tf.Tensor, epsilon: float | None = None) -> tf.Tensor:
         """Apply layer normalization."""
@@ -258,8 +258,8 @@ class DirectPATModel:
         attn_output = self._multi_head_attention(x, layer_idx)
         x = self._layer_norm(
             x + attn_output,
-            self.weights[f"{prefix}_norm1_gamma"],
-            self.weights[f"{prefix}_norm1_beta"],
+            tf.constant(self.weights[f"{prefix}_norm1_gamma"]),
+            tf.constant(self.weights[f"{prefix}_norm1_beta"]),
         )
 
         # Feed-forward
@@ -276,13 +276,13 @@ class DirectPATModel:
         # Add & norm
         x = self._layer_norm(
             x + ff_output,
-            self.weights[f"{prefix}_norm2_gamma"],
-            self.weights[f"{prefix}_norm2_beta"],
+            tf.constant(self.weights[f"{prefix}_norm2_gamma"]),
+            tf.constant(self.weights[f"{prefix}_norm2_beta"]),
         )
 
         return x
 
-    @tf.function
+    @tf.function  # type: ignore[misc]
     def extract_features(self, inputs: np.ndarray) -> tf.Tensor:
         """Extract features from input sequence."""
         if not self.is_loaded:
