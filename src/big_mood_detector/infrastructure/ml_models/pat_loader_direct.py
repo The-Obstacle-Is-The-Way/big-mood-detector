@@ -192,6 +192,24 @@ class DirectPATModel:
         
         return output
     
+    def _get_sinusoidal_embeddings(self, num_patches, embed_dim):
+        """Generate sinusoidal positional embeddings (from original PAT implementation)."""
+        position = tf.range(num_patches, dtype=tf.float32)[:, tf.newaxis]
+        div_term = tf.exp(
+            tf.range(0, embed_dim, 2, dtype=tf.float32) * 
+            (-tf.math.log(10000.0) / embed_dim)
+        )
+        
+        # Create sin and cos embeddings
+        sin_embeddings = tf.sin(position * div_term)
+        cos_embeddings = tf.cos(position * div_term)
+        
+        # Concatenate to get full positional embeddings
+        pos_embeddings = tf.concat([sin_embeddings, cos_embeddings], axis=-1)
+        
+        # Add batch dimension
+        return pos_embeddings[tf.newaxis, :, :]
+    
     def _layer_norm(self, x, gamma, beta, epsilon=1e-6):
         """Apply layer normalization."""
         mean = tf.reduce_mean(x, axis=-1, keepdims=True)
