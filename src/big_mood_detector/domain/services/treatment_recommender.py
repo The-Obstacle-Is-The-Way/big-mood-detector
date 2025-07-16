@@ -9,7 +9,7 @@ Design Patterns:
 - Repository Pattern: Could easily swap recommendation source
 """
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from big_mood_detector.domain.services.clinical_thresholds import (
     ClinicalThresholdsConfig,
@@ -22,11 +22,7 @@ class TreatmentRecommendation:
     medication: str
     evidence_level: str  # first-line, second-line
     description: str
-    contraindications: list[str] | None = None
-
-    def __post_init__(self) -> None:
-        if self.contraindications is None:
-            self.contraindications = []
+    contraindications: list[str] = field(default_factory=list)
 
 
 @dataclass
