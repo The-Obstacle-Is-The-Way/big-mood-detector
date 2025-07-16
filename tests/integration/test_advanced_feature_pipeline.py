@@ -4,9 +4,10 @@ Integration test for advanced feature engineering pipeline
 Demonstrates end-to-end feature extraction for mood prediction.
 """
 
-import pytest
-from pathlib import Path
 import tempfile
+from pathlib import Path
+
+import pytest
 
 from big_mood_detector.domain.services.feature_extraction_service import (
     FeatureExtractionService,
@@ -67,14 +68,14 @@ class TestAdvancedFeaturePipeline:
   <Record type="HKQuantityTypeIdentifierHeartRate" sourceName="Apple Watch" value="65" startDate="2024-01-09 06:00:00 -0800" endDate="2024-01-09 06:01:00 -0800" unit="count/min"/>
   <Record type="HKQuantityTypeIdentifierHeartRate" sourceName="Apple Watch" value="66" startDate="2024-01-10 06:00:00 -0800" endDate="2024-01-10 06:01:00 -0800" unit="count/min"/>
 </HealthData>"""
-        
+
         # Create a temporary file
         with tempfile.NamedTemporaryFile(mode='w', suffix='.xml', delete=False) as f:
             f.write(xml_content)
             temp_path = f.name
-        
+
         yield Path(temp_path)
-        
+
         # Cleanup
         Path(temp_path).unlink(missing_ok=True)
 

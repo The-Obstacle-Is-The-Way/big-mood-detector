@@ -199,7 +199,7 @@ class HeartRateAggregator:
             return 0.0
 
         return sum(r.value for r in hrv_records) / len(hrv_records)
-    
+
     def _calculate_min_hrv(self, hrv_records: list[HeartRateRecord]) -> float:
         """Calculate minimum HRV SDNN."""
         if not hrv_records:

@@ -109,12 +109,12 @@ class TestHealthDataIntegration:
 
         # Verify feature extraction
         assert len(features) >= 1
-        
+
         # The night sleep starting at 11 PM on Jan 1 is assigned to Jan 1
         jan1_features = features.get(date(2024, 1, 1))
         assert jan1_features is not None
         assert jan1_features.sleep_duration_hours == 8.0  # Night sleep
-        
+
         # Jan 2 only has the afternoon nap
         jan2_features = features.get(date(2024, 1, 2))
         assert jan2_features is not None

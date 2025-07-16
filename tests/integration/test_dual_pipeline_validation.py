@@ -56,7 +56,7 @@ class TestDualPipelineValidation:
         # Get file size for context
         file_size_mb = os.path.getsize(export_file) / (1024 * 1024)
         print(f"\nFound export.xml ({file_size_mb:.1f} MB)")
-        
+
         # Skip if file is too large for testing
         if file_size_mb > 100:  # 100MB limit for tests
             pytest.skip(f"export.xml too large for testing ({file_size_mb:.1f} MB > 100 MB)")

@@ -7,7 +7,7 @@ Following Clean Architecture infrastructure patterns.
 
 import xml.etree.ElementTree as ET
 from datetime import datetime
-from typing import Any, Union
+from typing import Any
 from xml.etree.ElementTree import ParseError
 
 from big_mood_detector.domain.entities.heart_rate_record import (
@@ -31,7 +31,7 @@ class HeartRateParser:
         "HKQuantityTypeIdentifierHeartRateRecoveryOneMinute",
     ]
 
-    def parse(self, xml_data: Union[str, ET.Element]) -> list[dict[str, Any]]:
+    def parse(self, xml_data: str | ET.Element) -> list[dict[str, Any]]:
         """
         Parse XML data and extract heart rate records.
 
@@ -65,7 +65,7 @@ class HeartRateParser:
 
         return heart_records
 
-    def parse_to_entities(self, xml_data: Union[str, ET.Element]) -> list[HeartRateRecord]:
+    def parse_to_entities(self, xml_data: str | ET.Element) -> list[HeartRateRecord]:
         """
         Parse XML data to domain entities.
 

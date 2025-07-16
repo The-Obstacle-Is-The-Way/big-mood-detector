@@ -13,7 +13,7 @@ Following SOLID principles:
 """
 
 from datetime import datetime
-from typing import Any, Union
+from typing import Any
 from xml.etree import ElementTree as ET
 from xml.etree.ElementTree import ParseError
 
@@ -34,7 +34,7 @@ class SleepParser:
         """Initialize sleep parser."""
         pass
 
-    def parse(self, xml_data: Union[str, ET.Element]) -> list[dict[str, Any]]:
+    def parse(self, xml_data: str | ET.Element) -> list[dict[str, Any]]:
         """
         Parse Apple HealthKit XML and extract sleep records.
 
@@ -72,7 +72,7 @@ class SleepParser:
 
         return sleep_records
 
-    def parse_to_entities(self, xml_data: Union[str, ET.Element]) -> list[SleepRecord]:
+    def parse_to_entities(self, xml_data: str | ET.Element) -> list[SleepRecord]:
         """
         Parse XML and return domain entities.
 
