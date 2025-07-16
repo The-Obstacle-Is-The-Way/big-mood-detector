@@ -104,13 +104,18 @@ class TestStreamingLargeFiles:
 
         # Stream and collect records
         for entity in streaming_parser.parse_file(export_file):
-            entity_type = type(entity).__name__
+            # Check actual entity type
+            from big_mood_detector.domain.entities.activity_record import ActivityRecord
+            from big_mood_detector.domain.entities.heart_rate_record import (
+                HeartRateRecord,
+            )
+            from big_mood_detector.domain.entities.sleep_record import SleepRecord
 
-            if "Sleep" in entity_type:
+            if isinstance(entity, SleepRecord):
                 sleep_records.append(entity)
-            elif "Activity" in entity_type:
+            elif isinstance(entity, ActivityRecord):
                 activity_records.append(entity)
-            elif "Heart" in entity_type:
+            elif isinstance(entity, HeartRateRecord):
                 heart_records.append(entity)
 
             # For large files, limit to recent data for feature extraction

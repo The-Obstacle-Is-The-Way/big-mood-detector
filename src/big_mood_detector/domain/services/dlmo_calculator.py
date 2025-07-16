@@ -23,7 +23,7 @@ Design Principles:
 Literature Standard: DLMO = CBT minimum - 7 hours (physiologically validated)
 Our Implementation: DLMO = CBT minimum - 13 hours (TEMPORARY WORKAROUND)
 
-WARNING: No published data support a 13-hour offset. This is a calibration shim because 
+WARNING: No published data support a 13-hour offset. This is a calibration shim because
 our circadian model produces CBT minimum ~6 hours late. This needs immediate validation.
 
 Required Actions:
@@ -101,10 +101,20 @@ class DLMOCalculator:
     ASLEEP_LUX = 0.0  # Light level when asleep
     DELTA_T = 1 / 60.0  # Time step (1 minute in hours)
 
-    # Calibrated offset: While physiological CBT min occurs ~7h before DLMO,
-    # our circadian model implementation produces CBT min ~6h later than expected.
-    # This empirically calibrated offset maintains correct DLMO timing (20-22h).
-    CBT_TO_DLMO_OFFSET = 13.0  # Calibrated for this implementation
+    # WARNING: Using non-standard offset as temporary workaround
+    # Physiological standard: 7.0 hours (validated across multiple studies)
+    # Current implementation: 13.0 hours (TEMPORARY HACK - needs validation)
+    CBT_TO_DLMO_OFFSET = float(os.getenv("CBT_TO_DLMO_OFFSET_H", "13.0"))
+
+    def __init__(self) -> None:
+        """Initialize with warning about non-standard offset."""
+        if self.CBT_TO_DLMO_OFFSET != 7.0:
+            warnings.warn(
+                f"⚠️ WARNING: Using non-standard CBT→DLMO offset ({self.CBT_TO_DLMO_OFFSET}h). "
+                f"Physiological standard is 7.0h. Validate against assay data before production use.",
+                UserWarning,
+                stacklevel=2
+            )
 
     # Circadian model parameters (from St. Hilaire/Kronauer)
     TAU = 24.2  # Intrinsic period

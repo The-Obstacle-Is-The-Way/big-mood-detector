@@ -415,3 +415,36 @@ class TestDLMOCalculator:
         # Late sleeper should have later CBT minimum
         # This is a relative test - we care about the relationship
         # not the absolute values
+
+
+class TestDLMOOffsetValidation:
+    """Test validation of CBT→DLMO offset relationship."""
+
+    def test_offset_relationship_maintained(self, dlmo_calculator, sample_sleep_records):
+        """Test that DLMO = CBT_min - configured offset."""
+        # Calculate DLMO using sleep data
+        result = dlmo_calculator.calculate_dlmo(
+            sleep_records=sample_sleep_records,
+            target_date=date(2024, 1, 15)
+        )
+
+        assert result is not None
+
+        # Verify the offset relationship holds
+        expected_dlmo = (result.cbt_min_hour - dlmo_calculator.CBT_TO_DLMO_OFFSET) % 24
+        assert abs(result.dlmo_hour - expected_dlmo) < 0.01  # Allow tiny floating point errors
+
+    def test_offset_configuration_warning(self, sample_sleep_records):
+        """Test that non-standard offset triggers warning."""
+        import warnings
+
+        # Test with non-standard offset (should trigger warning)
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            calculator = DLMOCalculator()
+
+            # Should trigger warning if using non-standard offset
+            if calculator.CBT_TO_DLMO_OFFSET != 7.0:
+                assert len(w) == 1
+                assert "non-standard CBT→DLMO offset" in str(w[0].message)
+                assert "Validate against assay data" in str(w[0].message)
