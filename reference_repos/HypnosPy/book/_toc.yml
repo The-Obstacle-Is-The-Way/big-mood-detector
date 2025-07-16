@@ -1,0 +1,38 @@
+# Table of content
+# Learn more at https://jupyterbook.org/customize/toc.html
+#
+- file: intro
+- part: Get Started
+  chapters:
+    - file: getting_started
+      title: Overview
+    - file: installing
+      title: Installing HypnosPy
+    - file: referencing
+      title: Citing us
+    - file: development
+      title: Collaborating with us
+      
+- part: Modules
+  chapters:
+    - file: modules
+      title: Modules
+      sections: 
+        - file: preprocessing
+          title: Pre-processing
+        - file: analysis
+          title: Analysis
+
+- part: Use Cases
+  chapters:
+    - file: use-cases
+      title: Use Pattern
+      sections:
+        - file: basic_use
+          title: Basic Use
+        - file: population_analysis
+          title: Population Analysis
+        - file: shiftworker
+          title: Shiftworker analysis
+
+          
