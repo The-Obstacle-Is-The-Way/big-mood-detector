@@ -174,16 +174,22 @@ class TestDataParsingService:
     def test_parser_selection_strategy(self, parsing_service):
         """Test automatic parser selection based on file type."""
         # XML file
-        xml_parser = parsing_service.get_parser_for_path(Path("export.xml"))
-        assert xml_parser is not None
+        with patch('pathlib.Path.is_file', return_value=True):
+            with patch('pathlib.Path.suffix', '.xml'):
+                xml_parser = parsing_service.get_parser_for_path(Path("export.xml"))
+                assert xml_parser is not None
         
         # JSON directory
-        json_parser = parsing_service.get_parser_for_path(Path("health_export/"))
-        assert json_parser is not None
+        with patch('pathlib.Path.is_file', return_value=False):
+            with patch('pathlib.Path.is_dir', return_value=True):
+                json_parser = parsing_service.get_parser_for_path(Path("health_export/"))
+                assert json_parser is not None
         
         # Invalid path
-        with pytest.raises(ValueError):
-            parsing_service.get_parser_for_path(Path("invalid.txt"))
+        with patch('pathlib.Path.is_file', return_value=False):
+            with patch('pathlib.Path.is_dir', return_value=False):
+                with pytest.raises(ValueError):
+                    parsing_service.get_parser_for_path(Path("invalid.txt"))
 
     def test_parse_with_progress_callback(self, parsing_service):
         """Test parsing with progress reporting."""
