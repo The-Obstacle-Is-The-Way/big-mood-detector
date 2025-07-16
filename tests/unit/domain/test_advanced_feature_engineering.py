@@ -60,16 +60,15 @@ class TestAdvancedFeatureEngineer:
         heart_data = [
             DailyHeartSummary(
                 date=current_date - timedelta(days=i),
-                num_records=100,
-                avg_hr=70.0,
+                hr_measurements=100,
+                morning_hr=70.0,
                 min_hr=50.0,
                 max_hr=120.0,
-                std_hr=10.0,
+                evening_hr=10.0,
                 avg_resting_hr=60.0,
                 avg_hrv_sdnn=50.0,
-                min_resting_hr=55.0,
-                max_resting_hr=65.0,
-                circadian_hr_range=15.0,            )
+                circadian_hr_range=15.0,
+            )
             for i in range(10)
         ]
         
@@ -369,8 +368,6 @@ class TestAdvancedFeatureEngineer:
                     total_active_energy=100.0 if i % 2 == 0 else 400,
                     sedentary_hours=13.3 if i % 2 == 0 else 6.7,
                     activity_variance=100.0 if i % 2 == 0 else 2000.0,
-                    peak_activity_hour=14,                    is_low_activity=i % 2 == 0,
-                    is_erratic_pattern=True,
                 )
             )
         
@@ -421,28 +418,24 @@ class TestAdvancedFeatureEngineer:
                 DailyActivitySummary(
                     date=d,
                     total_steps=8000,
-                    active_hours=60,
-                    total_active_energy=600,
+                    active_hours=1.0,
+                    total_active_energy=600.0,
                     sedentary_hours=10.0,
                     activity_variance=1000.0,
-                    peak_activity_hour=14,                    is_low_activity=False,
-                    is_erratic_pattern=False,
                 )
             )
             
             baseline_heart.append(
                 DailyHeartSummary(
                     date=d,
-                    num_records=100,
-                    avg_hr=70.0,
+                    hr_measurements=100,
+                    morning_hr=70.0,
                     min_hr=50.0,
                     max_hr=120.0,
-                    std_hr=10.0,
+                    evening_hr=10.0,
                     avg_resting_hr=60.0,
-                    avg_hrv_sdnn=50.0,
-                    min_resting_hr=55.0,
-                    max_resting_hr=65.0,
-                    circadian_hr_range=15.0,                )
+                    avg_hrv_sdnn=50.0,                    circadian_hr_range=15.0,
+                )
             )
         
         # Extract features to establish baseline
@@ -481,24 +474,21 @@ class TestAdvancedFeatureEngineer:
                 total_active_energy=300.0,
                 sedentary_hours=5.0,
                 activity_variance=5000.0,
-                peak_activity_hour=14,                is_low_activity=False,
-                is_erratic_pattern=False,
             )
         ]
         
         outlier_heart = baseline_heart + [
             DailyHeartSummary(
                 date=outlier_date,
-                num_records=100,
-                avg_hr=90.0,
+                hr_measurements=100,
+                morning_hr=90.0,
                 min_hr=70.0,
                 max_hr=160.0,
-                std_hr=20.0,
+                evening_hr=20.0,
                 avg_resting_hr=80.0,  # Elevated
                 avg_hrv_sdnn=20.0,  # Low
-                min_resting_hr=75.0,
-                max_resting_hr=85.0,
-                circadian_hr_range=30.0,            )
+                circadian_hr_range=30.0,
+            )
         ]
         
         outlier_features = engineer.extract_advanced_features(
