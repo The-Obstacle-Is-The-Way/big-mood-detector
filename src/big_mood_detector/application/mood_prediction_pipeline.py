@@ -22,6 +22,10 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
+from big_mood_detector.application.services.aggregation_pipeline import (
+    AggregationPipeline,
+    DailyFeatures,
+)
 from big_mood_detector.application.services.data_parsing_service import (
     DataParsingService,
 )
@@ -193,6 +197,7 @@ class MoodPredictionPipeline:
         dlmo_calculator: DLMOCalculator | None = None,
         sparse_handler: SparseDataHandler | None = None,
         data_parsing_service: DataParsingService | None = None,
+        aggregation_pipeline: AggregationPipeline | None = None,
     ):
         """
         Initialize with domain services.
@@ -210,6 +215,14 @@ class MoodPredictionPipeline:
 
         # Data parsing service (extracted)
         self.data_parsing_service = data_parsing_service or DataParsingService()
+        
+        # Aggregation pipeline (extracted)
+        self.aggregation_pipeline = aggregation_pipeline or AggregationPipeline(
+            sleep_analyzer=self.sleep_analyzer,
+            activity_extractor=self.activity_extractor,
+            circadian_analyzer=self.circadian_analyzer,
+            dlmo_calculator=self.dlmo_calculator,
+        )
 
     def process_apple_health_file(
         self,
@@ -534,8 +547,8 @@ class MoodPredictionPipeline:
                 days = (end - start).days + 1
                 print(f"  Window {i+1}: {start} to {end} ({days} days)")
 
-        # Extract features for each day
-        features = self._extract_daily_features(records, start_date, end_date)
+        # Extract features for each day using aggregation pipeline
+        features = self._extract_daily_features_with_pipeline(records, start_date, end_date)
 
         # Convert to DataFrame
         if not features:
@@ -558,6 +571,37 @@ class MoodPredictionPipeline:
 
         return df
 
+    def _extract_daily_features_with_pipeline(
+        self,
+        records: dict[str, list],
+        start_date: date | None,
+        end_date: date | None,
+    ) -> list[DailyFeatures]:
+        """
+        Extract 36 features for each day using the aggregation pipeline.
+        
+        This delegates to the AggregationPipeline service for cleaner separation of concerns.
+        """
+        sleep_records = records["sleep"]
+        activity_records = records["activity"]
+        heart_records = records.get("heart_rate", [])
+        
+        # Determine date range
+        if not sleep_records:
+            return []
+        
+        all_dates = [r.start_date.date() for r in sleep_records]
+        min_date = start_date or min(all_dates)
+        max_date = end_date or max(all_dates)
+        
+        # Use aggregation pipeline
+        return self.aggregation_pipeline.aggregate_daily_features(
+            sleep_records=sleep_records,
+            activity_records=activity_records,
+            heart_records=heart_records,
+            start_date=min_date,
+            end_date=max_date,
+        )
 
     def _extract_daily_features(
         self,

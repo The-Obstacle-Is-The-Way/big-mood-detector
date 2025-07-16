@@ -94,7 +94,8 @@ class TestAggregationPipeline:
             end_date=end_date
         )
         
-        assert len(features) == 6  # 6 days inclusive
+        # We get 4 features because the first 2 days don't have enough history (min_window_size=3)
+        assert len(features) == 4  # Days 17-20 have enough history
         assert all(hasattr(f, 'date') for f in features)
         assert all(hasattr(f, 'to_dict') for f in features)
 
@@ -173,7 +174,7 @@ class TestAggregationPipeline:
         # Add metrics for 10 days
         for i in range(10):
             metrics = {'day': i, 'value': i * 10}
-            aggregation_pipeline.update_rolling_window(window, metrics)
+            aggregation_pipeline.update_rolling_window(window, metrics, size=7)
         
         # Window should only contain last 7 entries
         assert len(window) == 7
@@ -184,9 +185,24 @@ class TestAggregationPipeline:
         """Test handling of sparse/missing data."""
         # Only 3 days of sleep data
         sparse_sleep = [
-            Mock(start_date=datetime(2024, 1, 1), end_date=datetime(2024, 1, 1, 8)),
-            Mock(start_date=datetime(2024, 1, 5), end_date=datetime(2024, 1, 5, 8)),
-            Mock(start_date=datetime(2024, 1, 10), end_date=datetime(2024, 1, 10, 8)),
+            SleepRecord(
+                source_name="test",
+                start_date=datetime(2024, 1, 1),
+                end_date=datetime(2024, 1, 1, 8),
+                state=SleepState.ASLEEP,
+            ),
+            SleepRecord(
+                source_name="test",
+                start_date=datetime(2024, 1, 5),
+                end_date=datetime(2024, 1, 5, 8),
+                state=SleepState.ASLEEP,
+            ),
+            SleepRecord(
+                source_name="test",
+                start_date=datetime(2024, 1, 10),
+                end_date=datetime(2024, 1, 10, 8),
+                state=SleepState.ASLEEP,
+            ),
         ]
         
         features = aggregation_pipeline.aggregate_daily_features(
