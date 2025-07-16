@@ -97,7 +97,7 @@ def test_sleep_analysis(sleep_records):
     start_time = time.time()
     
     try:
-        windows = analyzer.merge_sleep_episodes(sleep_records)
+        windows = analyzer.analyze_sleep_episodes(sleep_records)
         analysis_time = time.time() - start_time
         
         print(f"✅ Created {len(windows)} sleep windows in {analysis_time:.2f}s")
@@ -138,7 +138,7 @@ def test_activity_sequences(activity_records):
     extractor = ActivitySequenceExtractor()
     
     # Get date range from records
-    dates = sorted(set(r.timestamp.date() for r in activity_records))
+    dates = sorted(set(r.start_date.date() for r in activity_records))
     if not dates:
         print("❌ No dates found in activity records")
         return None
@@ -154,7 +154,7 @@ def test_activity_sequences(activity_records):
     
     try:
         for date in recent_dates:
-            day_records = [r for r in activity_records if r.timestamp.date() == date]
+            day_records = [r for r in activity_records if r.start_date.date() == date]
             if day_records:
                 sequence = extractor.extract_daily_sequence(day_records, date)
                 sequences.append(sequence)
