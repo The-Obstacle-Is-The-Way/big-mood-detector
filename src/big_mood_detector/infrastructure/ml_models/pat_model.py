@@ -93,6 +93,7 @@ class PATModel:
 
         # Model state
         self.model: keras.Model | None = None
+        self._direct_model = None
         self.is_loaded = False
 
         logger.info(f"Initialized PAT-{model_size.upper()} model wrapper")
@@ -112,36 +113,37 @@ class PATModel:
             return False
 
         try:
-            # The PAT models are saved as complete Keras models
-            # We load them with safe mode to handle custom objects
-            import warnings
-            warnings.filterwarnings("ignore", category=UserWarning)
+            # First try to load as a complete model (for fixed models)
+            try:
+                self.model = tf.keras.models.load_model(
+                    str(weights_path),
+                    compile=False
+                )
+                self.is_loaded = True
+                logger.info(f"Successfully loaded complete PAT-{self.model_size.upper()} model from {weights_path}")
+                return True
+            except Exception:
+                # If that fails, reconstruct architecture and load weights
+                logger.info(f"Loading as complete model failed, reconstructing architecture for PAT-{self.model_size.upper()}")
+                
+            # Try direct weight loading approach
+            from big_mood_detector.infrastructure.ml_models.pat_loader_direct import DirectPATModel
             
-            # Load with safe mode - this ignores custom objects but loads weights
-            self.model = tf.keras.models.load_model(
-                str(weights_path),
-                compile=False,
-                safe_mode=False  # Allow loading despite custom objects
-            )
+            logger.info("Using direct weight loading approach for PAT model")
+            self._direct_model = DirectPATModel(self.model_size)
             
-            # Verify the model has the expected input/output shape
-            expected_input = (None, 10080)
-            expected_output_patches = 10080 // self.patch_size
-            
-            if self.model.input_shape != expected_input:
-                raise ValueError(f"Model input shape {self.model.input_shape} != expected {expected_input}")
-            
-            self.is_loaded = True
-            logger.info(f"Successfully loaded pretrained PAT-{self.model_size.upper()} from {weights_path}")
-            logger.info(f"Model expects input shape: {self.model.input_shape}")
-            logger.info(f"Model output shape: {self.model.output_shape}")
-            
-            return True
+            if self._direct_model.load_weights(weights_path):
+                self.is_loaded = True
+                logger.info(f"Successfully loaded PAT-{self.model_size.upper()} using direct weight loading")
+                logger.info("Model ready for inference")
+                return True
+            else:
+                raise ValueError("Failed to load weights using direct approach")
 
         except Exception as e:
             logger.error(f"Failed to load pretrained weights: {e}")
-            logger.info("PAT models require TensorFlow custom objects that were used during training.")
-            logger.info("For production use, consider re-saving the models in a simpler format.")
+            logger.info("PAT models are saved as encoder-only weights after masked autoencoder pretraining.")
+            logger.info("The system will gracefully fall back to XGBoost-only predictions.")
             self.model = None
             self.is_loaded = False
             return False
@@ -163,15 +165,18 @@ class PATModel:
         model_input = self._prepare_input(sequence)
 
         # Get encoder output
-        if self.model is not None:
+        if hasattr(self, '_direct_model') and self._direct_model is not None:
+            # Use direct model for inference
+            features = self._direct_model.extract_features(model_input)
+            features = features.numpy()
+        elif self.model is not None:
+            # Use standard Keras model
             # Predict returns shape (batch_size, num_patches, embed_dim)
             features = self.model.predict(model_input, verbose=0)
+            # Average pool over sequence dimension
+            features = np.mean(features, axis=1)
         else:
-            raise RuntimeError("Model is None despite being marked as loaded")
-
-        # Average pool over sequence dimension to get fixed-size features
-        # Shape: (1, num_patches, embed_dim) -> (1, embed_dim)
-        features = np.mean(features, axis=1)
+            raise RuntimeError("No model available for inference")
 
         # Return 1D feature vector
         return features.squeeze()  # type: ignore[no-any-return]
