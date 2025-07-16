@@ -11,7 +11,7 @@ Design Patterns:
 """
 
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from typing import List, Optional
 
 from big_mood_detector.domain.entities.sleep_record import SleepRecord
@@ -90,16 +90,44 @@ class SleepWindowAnalyzer:
         """
         self.merge_threshold_hours = merge_threshold_hours
     
-    def analyze_sleep_episodes(self, episodes: List[SleepRecord]) -> List[SleepWindow]:
+    def analyze_sleep_episodes(self, episodes: List[SleepRecord], target_date: Optional[date] = None) -> List[SleepWindow]:
         """
         Analyze sleep episodes and merge into windows.
         
         Args:
             episodes: List of sleep records to analyze
+            target_date: Optional date to filter episodes
             
         Returns:
             List of merged sleep windows, sorted by start time
+            
+        Raises:
+            ValueError: If episodes contains None or invalid types
         """
+        # Validate input
+        if episodes is None:
+            return []
+        
+        # Filter out None episodes and validate types
+        valid_episodes = []
+        for e in episodes:
+            if e is None:
+                continue
+            if not isinstance(e, SleepRecord):
+                raise ValueError(f"Expected SleepRecord, got {type(e).__name__}")
+            valid_episodes.append(e)
+        
+        episodes = valid_episodes
+        
+        # Filter episodes for target date if specified
+        if target_date:
+            if not isinstance(target_date, date):
+                raise ValueError(f"Expected date, got {type(target_date).__name__}")
+            episodes = [
+                e for e in episodes 
+                if e.start_date.date() == target_date
+            ]
+        
         if not episodes:
             return []
         
@@ -147,8 +175,29 @@ class SleepWindowAnalyzer:
             
         Returns:
             Analysis result with key metrics
+            
+        Raises:
+            ValueError: If days is not positive
         """
-        windows = self.analyze_sleep_episodes(episodes)
+        # Validate days
+        if days is None or days <= 0:
+            raise ValueError(f"Days must be positive, got {days}")
+        
+        try:
+            windows = self.analyze_sleep_episodes(episodes)
+        except Exception as e:
+            # Log error and return empty result
+            print(f"Warning: Sleep analysis failed: {e}")
+            return WindowAnalysisResult(
+                total_windows=0,
+                short_windows=0,
+                long_windows=0,
+                fragmented_windows=0,
+                average_window_duration_hours=0.0,
+                short_window_percentage=0.0,
+                long_window_percentage=0.0,
+                fragmentation_percentage=0.0
+            )
         
         if not windows:
             return WindowAnalysisResult(
@@ -204,8 +253,14 @@ class SleepWindowAnalyzer:
         
         Returns negative value if episodes overlap.
         """
-        gap = episode2.start_date - episode1.end_date
-        return gap.total_seconds() / 3600
+        if not episode1 or not episode2:
+            return 0.0
+        
+        try:
+            gap = episode2.start_date - episode1.end_date
+            return gap.total_seconds() / 3600
+        except Exception:
+            return 0.0
     
     def _create_window(
         self, 

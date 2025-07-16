@@ -122,22 +122,49 @@ class ActivitySequenceExtractor:
             
         Returns:
             Minute-level sequence with 1440 values
+            
+        Raises:
+            ValueError: If target_date is None or invalid type
         """
+        # Validate inputs
+        if target_date is None:
+            raise ValueError("Target date cannot be None")
+        if not isinstance(target_date, date):
+            raise ValueError(f"Expected date, got {type(target_date).__name__}")
+        
         # Initialize empty sequence
         activity_values = [0.0] * self.MINUTES_PER_DAY
         
+        # Handle None or empty records
+        if not records:
+            return MinuteLevelSequence(
+                date=target_date,
+                activity_values=activity_values
+            )
+        
         # Filter records for target date and step count type
-        date_records = [
-            r for r in records 
-            if r.start_date.date() == target_date
-            and r.activity_type == ActivityType.STEP_COUNT
-        ]
+        date_records = []
+        for r in records:
+            if r is None:
+                continue
+            if not isinstance(r, ActivityRecord):
+                raise ValueError(f"Expected ActivityRecord, got {type(r).__name__}")
+            try:
+                if r.start_date.date() == target_date and r.activity_type == ActivityType.STEP_COUNT:
+                    date_records.append(r)
+            except Exception:
+                # Skip records with invalid dates
+                continue
         
         # Aggregate by minute
         for record in date_records:
-            minute_index = self._get_minute_index(record.start_date)
-            if 0 <= minute_index < self.MINUTES_PER_DAY:
-                activity_values[minute_index] += record.value
+            try:
+                minute_index = self._get_minute_index(record.start_date)
+                if 0 <= minute_index < self.MINUTES_PER_DAY:
+                    activity_values[minute_index] += max(0, record.value)  # Ensure non-negative
+            except Exception:
+                # Skip records that can't be processed
+                continue
         
         return MinuteLevelSequence(
             date=target_date,
@@ -161,8 +188,28 @@ class ActivitySequenceExtractor:
             
         Returns:
             PAT analysis results
+            
+        Raises:
+            ValueError: If target_date is None or invalid type
         """
-        sequence = self.extract_daily_sequence(records, target_date)
+        try:
+            sequence = self.extract_daily_sequence(records, target_date)
+        except ValueError:
+            raise
+        except Exception as e:
+            # Log and return default result
+            print(f"Warning: PAT calculation failed for {target_date}: {e}")
+            return PATAnalysisResult(
+                pat_hour=0.0,
+                pat_minute=0,
+                morning_activity=0.0,
+                afternoon_activity=0.0,
+                evening_activity=0.0,
+                night_activity=0.0,
+                activity_concentration=0.0,
+                peak_activity_minutes=0,
+                is_evening_type=False
+            )
         
         # Calculate time-weighted center of activity
         total_weighted = 0.0
@@ -257,6 +304,8 @@ class ActivitySequenceExtractor:
     
     def _get_minute_index(self, timestamp: datetime) -> int:
         """Convert timestamp to minute index (0-1439)."""
+        if not isinstance(timestamp, datetime):
+            raise ValueError(f"Expected datetime, got {type(timestamp).__name__}")
         return timestamp.hour * 60 + timestamp.minute
     
     def _calculate_period_activity(
