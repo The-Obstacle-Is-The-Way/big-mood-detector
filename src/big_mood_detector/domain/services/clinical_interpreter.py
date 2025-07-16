@@ -362,6 +362,10 @@ class ClinicalInterpreter:
         activity_steps: int,
         racing_thoughts: bool = False,
         increased_energy: bool = False,
+        decreased_sleep: bool = False,
+        depressed_mood: bool = False,
+        anhedonia: bool = False,
+        guilt: bool = False,
     ) -> ClinicalInterpretation:
         """
         Interpret mixed mood state - delegates to EpisodeInterpreter.
@@ -375,6 +379,10 @@ class ClinicalInterpreter:
             activity_steps=activity_steps,
             racing_thoughts=racing_thoughts,
             increased_energy=increased_energy,
+            decreased_sleep=decreased_sleep,
+            depressed_mood=depressed_mood,
+            anhedonia=anhedonia,
+            guilt=guilt,
         )
         
         # Convert to legacy format for backward compatibility
