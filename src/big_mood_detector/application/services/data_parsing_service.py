@@ -10,10 +10,11 @@ Design Patterns:
 - Facade Pattern: Unified interface for all parsing operations
 """
 
+from collections.abc import Callable
 from dataclasses import dataclass
-from datetime import date, datetime
+from datetime import date
 from pathlib import Path
-from typing import Any, Callable, Protocol
+from typing import Any, Protocol
 
 from big_mood_detector.domain.entities.activity_record import ActivityRecord
 from big_mood_detector.domain.entities.heart_rate_record import HeartRateRecord
@@ -60,7 +61,7 @@ class DataSummary:
 
 class HealthDataParser(Protocol):
     """Protocol for health data parsers."""
-    
+
     def parse(self, file_path: Path) -> dict[str, list]:
         """Parse health data from file."""
         ...
@@ -77,10 +78,10 @@ class DataParsingService:
     - Error handling
     - Progress reporting
     """
-    
+
     # File size threshold for streaming (100MB)
     LARGE_FILE_THRESHOLD = 100 * 1024 * 1024
-    
+
     def __init__(
         self,
         xml_parser: StreamingXMLParser | None = None,
@@ -98,10 +99,10 @@ class DataParsingService:
         self._xml_parser = xml_parser or StreamingXMLParser()
         self._sleep_parser = sleep_parser or SleepJSONParser()
         self._activity_parser = activity_parser or ActivityJSONParser()
-        
+
         # Cache for parsed data
         self._cache: dict[str, ParsedHealthData] = {}
-        
+
         # Supported data sources
         self._sources = {
             'apple_health_xml': self._xml_parser,
@@ -110,7 +111,7 @@ class DataParsingService:
                 'activity': self._activity_parser,
             }
         }
-    
+
     def parse_health_data(
         self,
         file_path: Path,
@@ -139,7 +140,7 @@ class DataParsingService:
         if use_cache and cache_key in self._cache:
             cached_data = self._cache[cache_key]
             return self._format_result(cached_data)
-        
+
         try:
             # Determine parser type
             if file_path.is_file() and file_path.suffix == '.xml':
@@ -148,19 +149,19 @@ class DataParsingService:
                 parsed_data = self.parse_json_export(file_path, progress_callback)
             else:
                 raise ValueError(f"Unsupported file type: {file_path}")
-            
+
             # Filter by date range if specified
             if start_date or end_date:
                 parsed_data = self._filter_by_date_range(
                     parsed_data, start_date, end_date
                 )
-            
+
             # Cache result
             if use_cache:
                 self._cache[cache_key] = parsed_data
-            
+
             return self._format_result(parsed_data)
-            
+
         except Exception as e:
             if continue_on_error:
                 return {
@@ -170,7 +171,7 @@ class DataParsingService:
                     'errors': [str(e)]
                 }
             raise
-    
+
     def parse_xml_export(
         self,
         xml_path: Path,
@@ -189,39 +190,39 @@ class DataParsingService:
         sleep_records = []
         activity_records = []
         heart_records = []
-        
+
         # Parse sleep records
         if progress_callback:
             progress_callback("Parsing sleep records", 0.0)
-        
+
         for entity in self._xml_parser.parse_file(xml_path, entity_type="sleep"):
             sleep_records.append(entity)
-        
+
         if progress_callback:
             progress_callback("Parsing sleep records", 1.0)
             progress_callback("Parsing activity records", 0.0)
-        
+
         # Parse activity records
         for entity in self._xml_parser.parse_file(xml_path, entity_type="activity"):
             activity_records.append(entity)
-        
+
         if progress_callback:
             progress_callback("Parsing activity records", 1.0)
             progress_callback("Parsing heart rate records", 0.0)
-        
+
         # Parse heart rate records
         for entity in self._xml_parser.parse_file(xml_path, entity_type="heart"):
             heart_records.append(entity)
-        
+
         if progress_callback:
             progress_callback("Parsing heart rate records", 1.0)
-        
+
         return ParsedHealthData(
             sleep_records=sleep_records,
             activity_records=activity_records,
             heart_rate_records=heart_records
         )
-    
+
     def parse_json_export(
         self,
         json_dir: Path,
@@ -239,39 +240,39 @@ class DataParsingService:
         """
         sleep_records = []
         activity_records = []
-        
+
         # Find and parse sleep files
         if progress_callback:
             progress_callback("Parsing sleep files", 0.0)
-        
+
         sleep_files = list(json_dir.glob("*[Ss]leep*.json"))
         for i, file in enumerate(sleep_files):
             sleep_data = self._sleep_parser.parse_file(str(file))
             sleep_records.extend(sleep_data)
-            
+
             if progress_callback:
                 progress = (i + 1) / len(sleep_files) if sleep_files else 1.0
                 progress_callback("Parsing sleep files", progress)
-        
+
         # Find and parse activity files
         if progress_callback:
             progress_callback("Parsing activity files", 0.0)
-        
+
         activity_files = list(json_dir.glob("*[Ss]tep*.json"))
         for i, file in enumerate(activity_files):
             activity_data = self._activity_parser.parse_file(str(file))
             activity_records.extend(activity_data)
-            
+
             if progress_callback:
                 progress = (i + 1) / len(activity_files) if activity_files else 1.0
                 progress_callback("Parsing activity files", progress)
-        
+
         return ParsedHealthData(
             sleep_records=sleep_records,
             activity_records=activity_records,
             heart_rate_records=[]  # JSON export doesn't include heart rate
         )
-    
+
     def filter_records_by_date_range(
         self,
         records: list[Any],
@@ -292,15 +293,15 @@ class DataParsingService:
             Filtered list of records
         """
         filtered = records
-        
+
         if start_date:
             filtered = [r for r in filtered if date_extractor(r) >= start_date]
-        
+
         if end_date:
             filtered = [r for r in filtered if date_extractor(r) <= end_date]
-        
+
         return filtered
-    
+
     def validate_parsed_data(self, data: dict[str, list]) -> DataValidationResult:
         """
         Validate parsed health data.
@@ -314,9 +315,9 @@ class DataParsingService:
         sleep_records = data.get('sleep_records', [])
         activity_records = data.get('activity_records', [])
         heart_records = data.get('heart_rate_records', [])
-        
+
         warnings = []
-        
+
         # Calculate date range
         all_dates = []
         if sleep_records:
@@ -325,17 +326,17 @@ class DataParsingService:
             all_dates.extend([r.start_date.date() for r in activity_records])
         if heart_records:
             all_dates.extend([r.timestamp.date() for r in heart_records])
-        
+
         date_range = None
         if all_dates:
             date_range = (min(all_dates), max(all_dates))
-        
+
         # Check for data issues
         if not sleep_records:
             warnings.append("No sleep records found")
         if not activity_records:
             warnings.append("No activity records found")
-        
+
         # Check data density
         if date_range and sleep_records:
             days_span = (date_range[1] - date_range[0]).days + 1
@@ -343,7 +344,7 @@ class DataParsingService:
             density = sleep_days / days_span
             if density < 0.5:
                 warnings.append(f"Sparse sleep data: {density:.1%} coverage")
-        
+
         return DataValidationResult(
             is_valid=len(sleep_records) > 0 or len(activity_records) > 0,
             sleep_record_count=len(sleep_records),
@@ -352,7 +353,7 @@ class DataParsingService:
             date_range=date_range,
             warnings=warnings
         )
-    
+
     def get_data_summary(self, data: dict[str, list]) -> dict[str, Any]:
         """
         Get summary of parsed data.
@@ -366,23 +367,23 @@ class DataParsingService:
         sleep_records = data.get('sleep_records', [])
         activity_records = data.get('activity_records', [])
         heart_records = data.get('heart_rate_records', [])
-        
+
         # Get unique days
         sleep_days = set(r.start_date.date() for r in sleep_records)
         activity_days = set(r.start_date.date() for r in activity_records)
         heart_days = set(r.timestamp.date() for r in heart_records)
-        
+
         # Calculate date range
         all_dates = list(sleep_days | activity_days | heart_days)
         date_range = None
         data_density = 0.0
-        
+
         if all_dates:
             date_range = (min(all_dates), max(all_dates))
             days_span = (date_range[1] - date_range[0]).days + 1
             days_with_data = len(all_dates)
             data_density = days_with_data / days_span
-        
+
         return {
             'total_records': len(sleep_records) + len(activity_records) + len(heart_records),
             'sleep_days': len(sleep_days),
@@ -391,7 +392,7 @@ class DataParsingService:
             'date_range': date_range,
             'data_density': data_density
         }
-    
+
     def get_parser_for_path(self, file_path: Path) -> HealthDataParser:
         """
         Get appropriate parser for file path.
@@ -412,15 +413,15 @@ class DataParsingService:
             return self  # Self can act as parser
         else:
             raise ValueError(f"Unsupported file type: {file_path}")
-    
+
     def get_supported_sources(self) -> list[str]:
         """Get list of supported data sources."""
         return list(self._sources.keys())
-    
+
     def get_parser_for_source(self, source: str) -> Any:
         """Get parser for specific data source."""
         return self._sources.get(source)
-    
+
     def parse_large_file(self, file_path: Path) -> ParsedHealthData:
         """
         Parse large files using memory-efficient methods.
@@ -434,21 +435,21 @@ class DataParsingService:
         # For XML files, StreamingXMLParser already handles this
         # For JSON, would need to implement streaming JSON parser
         return self.parse_xml_export(file_path)
-    
+
     def clear_cache(self) -> None:
         """Clear the parsing cache."""
         self._cache.clear()
-    
+
     def _select_parser_type(self, file_path: Path) -> str:
         """Select parser type based on file characteristics."""
         if not file_path.exists():
             return 'standard'
-        
+
         file_size = file_path.stat().st_size
         if file_size > self.LARGE_FILE_THRESHOLD:
             return 'streaming'
         return 'standard'
-    
+
     def _filter_by_date_range(
         self,
         data: ParsedHealthData,
@@ -477,7 +478,7 @@ class DataParsingService:
             ),
             errors=data.errors
         )
-    
+
     def _format_result(self, data: ParsedHealthData) -> dict[str, Any]:
         """Format ParsedHealthData as dictionary."""
         result = {
@@ -488,3 +489,4 @@ class DataParsingService:
         if data.errors:
             result['errors'] = data.errors
         return result
+

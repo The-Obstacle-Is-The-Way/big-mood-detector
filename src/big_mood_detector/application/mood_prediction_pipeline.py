@@ -22,6 +22,9 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
+from big_mood_detector.application.services.data_parsing_service import (
+    DataParsingService,
+)
 from big_mood_detector.domain.services.activity_sequence_extractor import (
     ActivitySequenceExtractor,
 )
@@ -37,14 +40,6 @@ from big_mood_detector.domain.services.mood_predictor import (
     MoodPredictor,
 )
 from big_mood_detector.domain.services.sleep_window_analyzer import SleepWindowAnalyzer
-from big_mood_detector.infrastructure.parsers.json.json_parsers import (
-    ActivityJSONParser,
-    SleepJSONParser,
-)
-from big_mood_detector.infrastructure.parsers.parser_factory import ParserFactory
-from big_mood_detector.infrastructure.parsers.xml.streaming_adapter import (
-    StreamingXMLParser,
-)
 from big_mood_detector.infrastructure.sparse_data_handler import (
     SparseDataHandler,
 )
@@ -197,6 +192,7 @@ class MoodPredictionPipeline:
         circadian_analyzer: CircadianRhythmAnalyzer | None = None,
         dlmo_calculator: DLMOCalculator | None = None,
         sparse_handler: SparseDataHandler | None = None,
+        data_parsing_service: DataParsingService | None = None,
     ):
         """
         Initialize with domain services.
@@ -212,10 +208,8 @@ class MoodPredictionPipeline:
         self.clinical_extractor = ClinicalFeatureExtractor()
         self.mood_predictor = MoodPredictor(model_dir=self.config.model_dir)
 
-        # Parsers for different data sources
-        self.sleep_parser = SleepJSONParser()
-        self.activity_parser = ActivityJSONParser()
-        self.xml_parser = StreamingXMLParser()
+        # Data parsing service (extracted)
+        self.data_parsing_service = data_parsing_service or DataParsingService()
 
     def process_apple_health_file(
         self,
@@ -234,45 +228,34 @@ class MoodPredictionPipeline:
         Returns:
             PipelineResult with predictions and metadata
         """
-        time.time()
-
-        # Parse health data
-        parser = ParserFactory.create_parser(str(file_path))
-        parsed_data = parser.parse(file_path)
+        # Delegate parsing to DataParsingService
+        parsed_data = self.data_parsing_service.parse_health_data(
+            file_path=file_path,
+            start_date=start_date,
+            end_date=end_date,
+            continue_on_error=True
+        )
 
         # Extract records
         sleep_records = parsed_data.get("sleep_records", [])
         activity_records = parsed_data.get("activity_records", [])
         heart_records = parsed_data.get("heart_rate_records", [])
-
-        # Filter by date range if specified
-        if start_date:
-            sleep_records = [
-                r for r in sleep_records if r.start_date.date() >= start_date
-            ]
-            activity_records = [
-                r for r in activity_records if r.start_date.date() >= start_date
-            ]
-            heart_records = [
-                r for r in heart_records if r.timestamp.date() >= start_date
-            ]
-
-        if end_date:
-            sleep_records = [
-                r for r in sleep_records if r.start_date.date() <= end_date
-            ]
-            activity_records = [
-                r for r in activity_records if r.start_date.date() <= end_date
-            ]
-            heart_records = [r for r in heart_records if r.timestamp.date() <= end_date]
+        errors = parsed_data.get("errors", [])
 
         # Process health data
-        return self.process_health_data(
+        result = self.process_health_data(
             sleep_records=sleep_records,
             activity_records=activity_records,
             heart_records=heart_records,
             target_date=end_date or date.today(),
         )
+
+        # Add any parsing errors to result
+        if errors:
+            result.errors.extend(errors)
+            result.has_errors = True
+
+        return result
 
     def process_health_data(
         self,
@@ -497,13 +480,30 @@ class MoodPredictionPipeline:
         Returns:
             DataFrame with 36 features per day
         """
-        # Determine data source type
-        if export_path.is_file() and export_path.suffix == ".xml":
-            # Process XML export
-            records = self._process_xml_export(export_path)
-        else:
-            # Process JSON export
-            records = self._process_json_export(export_path)
+        # Use DataParsingService for all parsing operations
+        parsed_data = self.data_parsing_service.parse_health_data(
+            file_path=export_path,
+            start_date=start_date,
+            end_date=end_date,
+            continue_on_error=True
+        )
+
+        # Convert to old format for compatibility
+        records = {
+            "sleep": parsed_data.get("sleep_records", []),
+            "activity": parsed_data.get("activity_records", []),
+            "heart_rate": parsed_data.get("heart_rate_records", [])
+        }
+
+        # Validate parsed data
+        validation_result = self.data_parsing_service.validate_parsed_data(parsed_data)
+        if not validation_result.is_valid:
+            print("Warning: Parsed data validation failed")
+            for warning in validation_result.warnings:
+                print(f"  - {warning}")
+
+        # Get data summary for analysis
+        self.data_parsing_service.get_data_summary(parsed_data)  # Available for future use
 
         # First, analyze data density and quality
         sleep_dates = [r.start_date.date() for r in records.get("sleep", [])]
@@ -558,55 +558,6 @@ class MoodPredictionPipeline:
 
         return df
 
-    def _process_xml_export(self, xml_path: Path) -> dict[str, list]:
-        """Process Apple Health XML export."""
-        records: dict[str, list] = {"sleep": [], "activity": [], "heart_rate": []}
-
-        # Use the streaming XML parser to get domain entities directly
-        print("Processing XML export...")
-
-        # Parse sleep records
-        for entity in self.xml_parser.parse_file(xml_path, entity_type="sleep"):
-            records["sleep"].append(entity)
-
-        print(f"Found {len(records['sleep'])} sleep records")
-
-        # Parse activity records
-        for entity in self.xml_parser.parse_file(xml_path, entity_type="activity"):
-            records["activity"].append(entity)
-
-        print(f"Found {len(records['activity'])} activity records")
-
-        # Parse heart rate records if needed
-        for entity in self.xml_parser.parse_file(xml_path, entity_type="heart"):
-            records["heart_rate"].append(entity)
-
-        print(f"Found {len(records['heart_rate'])} heart rate records")
-
-        return records
-
-    def _process_json_export(self, json_dir: Path) -> dict[str, list]:
-        """Process Health Auto Export JSON files."""
-        records: dict[str, list] = {"sleep": [], "activity": [], "heart_rate": []}
-
-        # Process sleep data
-        sleep_files = list(json_dir.glob("*[Ss]leep*.json"))
-        for file in sleep_files:
-            print(f"Processing sleep file: {file.name}")
-            sleep_data = self.sleep_parser.parse_file(str(file))
-            records["sleep"].extend(sleep_data)
-
-        # Process activity data (Step Count.json)
-        activity_files = list(json_dir.glob("*[Ss]tep*.json"))
-        for file in activity_files:
-            print(f"Processing activity file: {file.name}")
-            activity_data = self.activity_parser.parse_file(str(file))
-            records["activity"].extend(activity_data)
-
-        print(f"Loaded {len(records['sleep'])} sleep records")
-        print(f"Loaded {len(records['activity'])} activity records")
-
-        return records
 
     def _extract_daily_features(
         self,
