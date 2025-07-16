@@ -145,10 +145,6 @@ class ActivitySequenceExtractor:
         # Filter records for target date and step count type
         date_records = []
         for r in records:
-            if r is None:
-                continue
-            if not isinstance(r, ActivityRecord):
-                raise ValueError(f"Expected ActivityRecord, got {type(r).__name__}")
             try:
                 if (
                     r.start_date.date() == target_date

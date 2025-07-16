@@ -24,7 +24,7 @@ class DataDensity(Enum):
     SPARSE = auto()  # 20-50% coverage, <14 day gaps
     VERY_SPARSE = auto()  # <20% coverage or >14 day gaps
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         return self.value == other.value if isinstance(other, DataDensity) else False
 
 
@@ -541,7 +541,7 @@ class SparseDataHandler:
             coverage_score * 0.5 + (1 - gap_penalty) * 0.3 + consecutive_bonus * 0.2
         )
 
-        return np.clip(confidence, 0.0, 1.0)
+        return float(np.clip(confidence, 0.0, 1.0))
 
     def select_processing_strategy(self, dates: list[date]) -> ProcessingStrategy:
         """

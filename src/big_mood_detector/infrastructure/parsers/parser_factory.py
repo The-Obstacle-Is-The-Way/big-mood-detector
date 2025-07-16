@@ -85,7 +85,7 @@ class ParserFactory:
         elif file_path.is_dir():
             # For JSON directories, return a composite parser
             class CompositeJSONParser:
-                def __init__(self):
+                def __init__(self) -> None:
                     self.sleep_parser = SleepJSONParser()
                     self.activity_parser = ActivityJSONParser()
                     self.heart_parser = HeartRateJSONParser()

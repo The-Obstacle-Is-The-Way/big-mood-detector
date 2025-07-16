@@ -28,7 +28,7 @@ class StreamingXMLParser:
     the entire document into memory.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize with existing parsers for entity conversion."""
         self.sleep_parser = SleepParser()
         self.activity_parser = ActivityParser()
