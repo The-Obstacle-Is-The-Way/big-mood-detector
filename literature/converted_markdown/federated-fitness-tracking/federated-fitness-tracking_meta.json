@@ -1,0 +1,674 @@
+{
+  "table_of_contents": [
+    {
+      "title": "FedFitTech: A Baseline in Federated Learning for Fitness Tracking",
+      "heading_level": null,
+      "page_id": 0,
+      "polygon": [
+        [
+          53.79800033569336,
+          82.76910400390625
+        ],
+        [
+          558.3862915039062,
+          82.76910400390625
+        ],
+        [
+          558.3862915039062,
+          99.9844970703125
+        ],
+        [
+          53.79800033569336,
+          99.9844970703125
+        ]
+      ]
+    },
+    {
+      "title": "Abstract",
+      "heading_level": null,
+      "page_id": 0,
+      "polygon": [
+        [
+          53.79798889160156,
+          225.43560791015625
+        ],
+        [
+          96.74560546875,
+          225.43560791015625
+        ],
+        [
+          96.74560546875,
+          236.671875
+        ],
+        [
+          53.79798889160156,
+          236.671875
+        ]
+      ]
+    },
+    {
+      "title": "Keywords",
+      "heading_level": null,
+      "page_id": 0,
+      "polygon": [
+        [
+          53.7890625,
+          581.8605651855469
+        ],
+        [
+          102.87803649902344,
+          581.8605651855469
+        ],
+        [
+          102.87803649902344,
+          593.61328125
+        ],
+        [
+          53.7890625,
+          593.61328125
+        ]
+      ]
+    },
+    {
+      "title": "1 Introduction",
+      "heading_level": null,
+      "page_id": 0,
+      "polygon": [
+        [
+          53.527587890625,
+          630.611572265625
+        ],
+        [
+          133.3798828125,
+          630.611572265625
+        ],
+        [
+          133.3798828125,
+          641.5206756591797
+        ],
+        [
+          53.527587890625,
+          641.5206756591797
+        ]
+      ]
+    },
+    {
+      "title": "2 Related Work",
+      "heading_level": null,
+      "page_id": 1,
+      "polygon": [
+        [
+          317.9549865722656,
+          477.18756103515625
+        ],
+        [
+          402.5550842285156,
+          477.18756103515625
+        ],
+        [
+          402.5550842285156,
+          488.0966491699219
+        ],
+        [
+          317.9549865722656,
+          488.0966491699219
+        ]
+      ]
+    },
+    {
+      "title": "3 Experimental Setting",
+      "heading_level": null,
+      "page_id": 2,
+      "polygon": [
+        [
+          317.056640625,
+          326.87554931640625
+        ],
+        [
+          439.576171875,
+          326.87554931640625
+        ],
+        [
+          439.576171875,
+          337.7846374511719
+        ],
+        [
+          317.056640625,
+          337.7846374511719
+        ]
+      ]
+    },
+    {
+      "title": "3.1 Model",
+      "heading_level": null,
+      "page_id": 2,
+      "polygon": [
+        [
+          316.7578125,
+          342.5665588378906
+        ],
+        [
+          373.6350402832031,
+          342.5665588378906
+        ],
+        [
+          373.6350402832031,
+          353.47564697265625
+        ],
+        [
+          316.7578125,
+          353.47564697265625
+        ]
+      ]
+    },
+    {
+      "title": "3.2 Dataset",
+      "heading_level": null,
+      "page_id": 2,
+      "polygon": [
+        [
+          317.654296875,
+          553.8995666503906
+        ],
+        [
+          379.810546875,
+          553.8995666503906
+        ],
+        [
+          379.810546875,
+          564.99609375
+        ],
+        [
+          317.654296875,
+          564.99609375
+        ]
+      ]
+    },
+    {
+      "title": "3.3 Hyperparameters and Framework",
+      "heading_level": null,
+      "page_id": 3,
+      "polygon": [
+        [
+          53.26611328125,
+          236.091552734375
+        ],
+        [
+          246.65997314453125,
+          236.091552734375
+        ],
+        [
+          246.65997314453125,
+          247.00067138671875
+        ],
+        [
+          53.26611328125,
+          247.00067138671875
+        ]
+      ]
+    },
+    {
+      "title": "4 Evaluation Results",
+      "heading_level": null,
+      "page_id": 3,
+      "polygon": [
+        [
+          316.7578125,
+          337.61553955078125
+        ],
+        [
+          427.3077697753906,
+          337.61553955078125
+        ],
+        [
+          427.3077697753906,
+          348.5246276855469
+        ],
+        [
+          316.7578125,
+          348.5246276855469
+        ]
+      ]
+    },
+    {
+      "title": "4.1 Communication Cost",
+      "heading_level": null,
+      "page_id": 3,
+      "polygon": [
+        [
+          317.654296875,
+          395.3045654296875
+        ],
+        [
+          448.60235595703125,
+          395.3045654296875
+        ],
+        [
+          448.60235595703125,
+          406.2136535644531
+        ],
+        [
+          317.654296875,
+          406.2136535644531
+        ]
+      ]
+    },
+    {
+      "title": "4.2 Model Performance",
+      "heading_level": null,
+      "page_id": 4,
+      "polygon": [
+        [
+          53.3408203125,
+          389.51556396484375
+        ],
+        [
+          176.2744598388672,
+          389.51556396484375
+        ],
+        [
+          176.2744598388672,
+          400.4246520996094
+        ],
+        [
+          53.3408203125,
+          400.4246520996094
+        ]
+      ]
+    },
+    {
+      "title": "4.3 Discussion",
+      "heading_level": null,
+      "page_id": 4,
+      "polygon": [
+        [
+          317.95501708984375,
+          564.8585815429688
+        ],
+        [
+          395.9768981933594,
+          564.8585815429688
+        ],
+        [
+          395.9768981933594,
+          575.7676849365234
+        ],
+        [
+          317.95501708984375,
+          575.7676849365234
+        ]
+      ]
+    },
+    {
+      "title": "5 Conclusions and Future Work",
+      "heading_level": null,
+      "page_id": 5,
+      "polygon": [
+        [
+          53.7890625,
+          356.6395568847656
+        ],
+        [
+          218.4163055419922,
+          356.6395568847656
+        ],
+        [
+          218.4163055419922,
+          367.54864501953125
+        ],
+        [
+          53.7890625,
+          367.54864501953125
+        ]
+      ]
+    },
+    {
+      "title": "References",
+      "heading_level": null,
+      "page_id": 5,
+      "polygon": [
+        [
+          315.861328125,
+          178.30755615234375
+        ],
+        [
+          372.3041076660156,
+          178.30755615234375
+        ],
+        [
+          372.3041076660156,
+          189.2166748046875
+        ],
+        [
+          315.861328125,
+          189.2166748046875
+        ]
+      ]
+    }
+  ],
+  "page_stats": [
+    {
+      "page_id": 0,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          195
+        ],
+        [
+          "Line",
+          102
+        ],
+        [
+          "Text",
+          12
+        ],
+        [
+          "SectionHeader",
+          4
+        ],
+        [
+          "PageHeader",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 1,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          210
+        ],
+        [
+          "Line",
+          95
+        ],
+        [
+          "Text",
+          8
+        ],
+        [
+          "ListItem",
+          3
+        ],
+        [
+          "Figure",
+          1
+        ],
+        [
+          "Caption",
+          1
+        ],
+        [
+          "PageHeader",
+          1
+        ],
+        [
+          "SectionHeader",
+          1
+        ],
+        [
+          "FigureGroup",
+          1
+        ],
+        [
+          "ListGroup",
+          1
+        ],
+        [
+          "Reference",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 2,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          250
+        ],
+        [
+          "Line",
+          112
+        ],
+        [
+          "Text",
+          8
+        ],
+        [
+          "SectionHeader",
+          3
+        ],
+        [
+          "PageHeader",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 3,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          274
+        ],
+        [
+          "Line",
+          105
+        ],
+        [
+          "Text",
+          15
+        ],
+        [
+          "SectionHeader",
+          3
+        ],
+        [
+          "TextInlineMath",
+          1
+        ],
+        [
+          "Figure",
+          1
+        ],
+        [
+          "PageHeader",
+          1
+        ],
+        [
+          "Reference",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 4,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          711
+        ],
+        [
+          "Line",
+          267
+        ],
+        [
+          "Text",
+          5
+        ],
+        [
+          "Figure",
+          3
+        ],
+        [
+          "Caption",
+          3
+        ],
+        [
+          "FigureGroup",
+          3
+        ],
+        [
+          "Reference",
+          3
+        ],
+        [
+          "SectionHeader",
+          2
+        ],
+        [
+          "PageHeader",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 5,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          844
+        ],
+        [
+          "Line",
+          269
+        ],
+        [
+          "Reference",
+          20
+        ],
+        [
+          "ListItem",
+          19
+        ],
+        [
+          "Text",
+          7
+        ],
+        [
+          "SectionHeader",
+          2
+        ],
+        [
+          "Figure",
+          1
+        ],
+        [
+          "Caption",
+          1
+        ],
+        [
+          "PageHeader",
+          1
+        ],
+        [
+          "FigureGroup",
+          1
+        ],
+        [
+          "ListGroup",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 6,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          114
+        ],
+        [
+          "Line",
+          34
+        ],
+        [
+          "ListItem",
+          10
+        ],
+        [
+          "Reference",
+          10
+        ],
+        [
+          "Text",
+          2
+        ],
+        [
+          "ListGroup",
+          2
+        ],
+        [
+          "PageHeader",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    }
+  ],
+  "debug_data_path": "debug_data/federated-fitness-tracking"
+}

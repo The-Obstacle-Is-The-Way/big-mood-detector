@@ -1,0 +1,992 @@
+{
+  "table_of_contents": [
+    {
+      "title": "Proceeding Paper\nFederated Learning for Healthcare: A Comprehensive Review \u2020",
+      "heading_level": null,
+      "page_id": 0,
+      "polygon": [
+        [
+          35.40793991088867,
+          97.746826171875
+        ],
+        [
+          551.8442993164062,
+          97.746826171875
+        ],
+        [
+          551.8442993164062,
+          137.0784912109375
+        ],
+        [
+          35.40793991088867,
+          137.0784912109375
+        ]
+      ]
+    },
+    {
+      "title": "1. Introduction",
+      "heading_level": null,
+      "page_id": 0,
+      "polygon": [
+        [
+          166.39393615722656,
+          569.830078125
+        ],
+        [
+          234.849609375,
+          569.830078125
+        ],
+        [
+          234.849609375,
+          582.2257995605469
+        ],
+        [
+          166.39393615722656,
+          582.2257995605469
+        ]
+      ]
+    },
+    {
+      "title": "1.1. Deep Learning Models Used in Healthcare Are as Follows",
+      "heading_level": null,
+      "page_id": 1,
+      "polygon": [
+        [
+          165.7333984375,
+          375.3642578125
+        ],
+        [
+          416.734375,
+          375.3642578125
+        ],
+        [
+          416.734375,
+          385.63250732421875
+        ],
+        [
+          165.7333984375,
+          385.63250732421875
+        ]
+      ]
+    },
+    {
+      "title": "1.1.1. Deep Belief Networks",
+      "heading_level": null,
+      "page_id": 1,
+      "polygon": [
+        [
+          162.8232421875,
+          388.72607421875
+        ],
+        [
+          289.4150390625,
+          388.72607421875
+        ],
+        [
+          289.4150390625,
+          399.2550964355469
+        ],
+        [
+          162.8232421875,
+          399.2550964355469
+        ]
+      ]
+    },
+    {
+      "title": "1.1.2. Convolutional Neural Networks",
+      "heading_level": null,
+      "page_id": 1,
+      "polygon": [
+        [
+          165.296875,
+          452.24609375
+        ],
+        [
+          335.541015625,
+          452.24609375
+        ],
+        [
+          335.541015625,
+          462.3190612792969
+        ],
+        [
+          165.296875,
+          462.3190612792969
+        ]
+      ]
+    },
+    {
+      "title": "1.1.3. Recurrent Neural Networks",
+      "heading_level": null,
+      "page_id": 1,
+      "polygon": [
+        [
+          165.87890625,
+          527.4833984375
+        ],
+        [
+          314.87890625,
+          527.4833984375
+        ],
+        [
+          314.87890625,
+          537.9350891113281
+        ],
+        [
+          165.87890625,
+          537.9350891113281
+        ]
+      ]
+    },
+    {
+      "title": "1.1.4. Adversarial Generative Networks",
+      "heading_level": null,
+      "page_id": 1,
+      "polygon": [
+        [
+          165.005859375,
+          590.7978515625
+        ],
+        [
+          341.1280212402344,
+          590.7978515625
+        ],
+        [
+          341.1280212402344,
+          600.9990539550781
+        ],
+        [
+          165.005859375,
+          600.9990539550781
+        ]
+      ]
+    },
+    {
+      "title": "1.2. The Comparison of Deep Learning Models Is as Follows",
+      "heading_level": null,
+      "page_id": 1,
+      "polygon": [
+        [
+          164.8603515625,
+          678.7802734375
+        ],
+        [
+          408.0368957519531,
+          678.7802734375
+        ],
+        [
+          408.0368957519531,
+          688.9955139160156
+        ],
+        [
+          164.8603515625,
+          688.9955139160156
+        ]
+      ]
+    },
+    {
+      "title": "2. Challenges Associated with Healthcare Data",
+      "heading_level": null,
+      "page_id": 3,
+      "polygon": [
+        [
+          165.005859375,
+          447.6361999511719
+        ],
+        [
+          380.357421875,
+          447.6361999511719
+        ],
+        [
+          380.357421875,
+          457.59881591796875
+        ],
+        [
+          165.005859375,
+          457.59881591796875
+        ]
+      ]
+    },
+    {
+      "title": "cially with healthcare data. \n2.1. Variations in the Quality of Data Due to Noise",
+      "heading_level": null,
+      "page_id": 3,
+      "polygon": [
+        [
+          158.57400512695312,
+          493.86138916015625
+        ],
+        [
+          372.9685363769531,
+          493.86138916015625
+        ],
+        [
+          372.9685363769531,
+          508.03155517578125
+        ],
+        [
+          158.57400512695312,
+          508.03155517578125
+        ]
+      ]
+    },
+    {
+      "title": "introduce instrumental and environmental noise because of distortions in the final image. \n2.2. Incorrect Data Annotation",
+      "heading_level": null,
+      "page_id": 3,
+      "polygon": [
+        [
+          158.57400512695312,
+          597.787109375
+        ],
+        [
+          613.3468627929688,
+          597.787109375
+        ],
+        [
+          613.3468627929688,
+          611.0860443115234
+        ],
+        [
+          158.57400512695312,
+          611.0860443115234
+        ]
+      ]
+    },
+    {
+      "title": "need to be carried out legally, bearing in mind privacy concerns, and according to estab-\n2.3. Data Heterogeneity",
+      "heading_level": null,
+      "page_id": 3,
+      "polygon": [
+        [
+          158.57171630859375,
+          674.2578125
+        ],
+        [
+          610.4528198242188,
+          674.2578125
+        ],
+        [
+          610.4528198242188,
+          687.2599945068359
+        ],
+        [
+          158.57171630859375,
+          687.2599945068359
+        ]
+      ]
+    },
+    {
+      "title": "2.4. Privacy and Security",
+      "heading_level": null,
+      "page_id": 4,
+      "polygon": [
+        [
+          165.005859375,
+          89.0616455078125
+        ],
+        [
+          269.48046875,
+          89.0616455078125
+        ],
+        [
+          269.48046875,
+          99.6044921875
+        ],
+        [
+          165.005859375,
+          99.6044921875
+        ]
+      ]
+    },
+    {
+      "title": "2.5. Standard Medical Datasets",
+      "heading_level": null,
+      "page_id": 4,
+      "polygon": [
+        [
+          166.0244140625,
+          152.119140625
+        ],
+        [
+          293.7802734375,
+          152.119140625
+        ],
+        [
+          293.7802734375,
+          162.66851806640625
+        ],
+        [
+          166.0244140625,
+          162.66851806640625
+        ]
+      ]
+    },
+    {
+      "title": "2.6. Data Partitions",
+      "heading_level": null,
+      "page_id": 4,
+      "polygon": [
+        [
+          166.3939971923828,
+          265.591796875
+        ],
+        [
+          247.23052978515625,
+          265.591796875
+        ],
+        [
+          247.23052978515625,
+          275.94354248046875
+        ],
+        [
+          166.3939971923828,
+          275.94354248046875
+        ]
+      ]
+    },
+    {
+      "title": "3. Literature Review",
+      "heading_level": null,
+      "page_id": 4,
+      "polygon": [
+        [
+          165.587890625,
+          340.8291015625
+        ],
+        [
+          259.00390625,
+          340.8291015625
+        ],
+        [
+          259.00390625,
+          351.6387634277344
+        ],
+        [
+          165.587890625,
+          351.6387634277344
+        ]
+      ]
+    },
+    {
+      "title": "Related Work",
+      "heading_level": null,
+      "page_id": 4,
+      "polygon": [
+        [
+          166.3939971923828,
+          403.52685546875
+        ],
+        [
+          220.70013427734375,
+          403.52685546875
+        ],
+        [
+          220.70013427734375,
+          414.62451171875
+        ],
+        [
+          166.3939971923828,
+          414.62451171875
+        ]
+      ]
+    },
+    {
+      "title": "4. Secure Aggregation Based Privacy Preservation Algorithms for Federated Learning",
+      "heading_level": null,
+      "page_id": 5,
+      "polygon": [
+        [
+          166.0244140625,
+          624.099609375
+        ],
+        [
+          553.51171875,
+          624.099609375
+        ],
+        [
+          553.51171875,
+          634.1827850341797
+        ],
+        [
+          166.0244140625,
+          634.1827850341797
+        ]
+      ]
+    },
+    {
+      "title": "4.1. Federated Averaging (FedAvg)",
+      "heading_level": null,
+      "page_id": 5,
+      "polygon": [
+        [
+          166.3939971923828,
+          686.591796875
+        ],
+        [
+          308.2215270996094,
+          686.591796875
+        ],
+        [
+          308.2215270996094,
+          697.1685180664062
+        ],
+        [
+          166.3939971923828,
+          697.1685180664062
+        ]
+      ]
+    },
+    {
+      "title": "4.2. Federated Personalization (FedPer)",
+      "heading_level": null,
+      "page_id": 6,
+      "polygon": [
+        [
+          166.0244140625,
+          88.290771484375
+        ],
+        [
+          325.55645751953125,
+          88.290771484375
+        ],
+        [
+          325.55645751953125,
+          99.6044921875
+        ],
+        [
+          166.0244140625,
+          99.6044921875
+        ]
+      ]
+    },
+    {
+      "title": "4.3. Federated Match Averaging (FedMA)",
+      "heading_level": null,
+      "page_id": 6,
+      "polygon": [
+        [
+          166.3939971923828,
+          177.506591796875
+        ],
+        [
+          336.7046203613281,
+          177.506591796875
+        ],
+        [
+          336.7046203613281,
+          187.77447509765625
+        ],
+        [
+          166.3939971923828,
+          187.77447509765625
+        ]
+      ]
+    },
+    {
+      "title": "4.4. Secret Sharing",
+      "heading_level": null,
+      "page_id": 6,
+      "polygon": [
+        [
+          165.87890625,
+          278.3369140625
+        ],
+        [
+          243.87109375,
+          278.3369140625
+        ],
+        [
+          243.87109375,
+          288.49652099609375
+        ],
+        [
+          165.87890625,
+          288.49652099609375
+        ]
+      ]
+    },
+    {
+      "title": "4.5. Homomorphic Encryption",
+      "heading_level": null,
+      "page_id": 6,
+      "polygon": [
+        [
+          164.5693359375,
+          379.2569580078125
+        ],
+        [
+          289.67120361328125,
+          379.2569580078125
+        ],
+        [
+          289.67120361328125,
+          389.54833984375
+        ],
+        [
+          164.5693359375,
+          389.54833984375
+        ]
+      ]
+    },
+    {
+      "title": "5. Conclusions",
+      "heading_level": null,
+      "page_id": 7,
+      "polygon": [
+        [
+          163.9873046875,
+          196.1103515625
+        ],
+        [
+          233.39248657226562,
+          196.1103515625
+        ],
+        [
+          233.39248657226562,
+          206.23175048828125
+        ],
+        [
+          163.9873046875,
+          206.23175048828125
+        ]
+      ]
+    },
+    {
+      "title": "References",
+      "heading_level": null,
+      "page_id": 7,
+      "polygon": [
+        [
+          35.14013671875,
+          493.359375
+        ],
+        [
+          86.5771484375,
+          493.359375
+        ],
+        [
+          86.5771484375,
+          504.45379638671875
+        ],
+        [
+          35.14013671875,
+          504.45379638671875
+        ]
+      ]
+    }
+  ],
+  "page_stats": [
+    {
+      "page_id": 0,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          174
+        ],
+        [
+          "Line",
+          64
+        ],
+        [
+          "Text",
+          7
+        ],
+        [
+          "Picture",
+          4
+        ],
+        [
+          "ListItem",
+          4
+        ],
+        [
+          "SectionHeader",
+          2
+        ],
+        [
+          "PageFooter",
+          2
+        ],
+        [
+          "ListGroup",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 1,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          115
+        ],
+        [
+          "Line",
+          50
+        ],
+        [
+          "Text",
+          7
+        ],
+        [
+          "SectionHeader",
+          6
+        ],
+        [
+          "PageHeader",
+          2
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 2,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          144
+        ],
+        [
+          "Line",
+          62
+        ],
+        [
+          "Text",
+          4
+        ],
+        [
+          "PageHeader",
+          2
+        ],
+        [
+          "Figure",
+          1
+        ],
+        [
+          "Caption",
+          1
+        ],
+        [
+          "FigureGroup",
+          1
+        ],
+        [
+          "Reference",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 3,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          165
+        ],
+        [
+          "Line",
+          62
+        ],
+        [
+          "Text",
+          7
+        ],
+        [
+          "SectionHeader",
+          4
+        ],
+        [
+          "ListItem",
+          3
+        ],
+        [
+          "PageHeader",
+          2
+        ],
+        [
+          "Figure",
+          1
+        ],
+        [
+          "ListGroup",
+          1
+        ],
+        [
+          "Reference",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 4,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          130
+        ],
+        [
+          "Line",
+          51
+        ],
+        [
+          "Text",
+          6
+        ],
+        [
+          "SectionHeader",
+          5
+        ],
+        [
+          "PageHeader",
+          2
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 5,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          322
+        ],
+        [
+          "Line",
+          129
+        ],
+        [
+          "TableCell",
+          63
+        ],
+        [
+          "Text",
+          4
+        ],
+        [
+          "PageHeader",
+          2
+        ],
+        [
+          "SectionHeader",
+          2
+        ],
+        [
+          "Caption",
+          1
+        ],
+        [
+          "Table",
+          1
+        ],
+        [
+          "TableGroup",
+          1
+        ],
+        [
+          "Reference",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 6,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          118
+        ],
+        [
+          "Line",
+          44
+        ],
+        [
+          "Text",
+          5
+        ],
+        [
+          "SectionHeader",
+          4
+        ],
+        [
+          "PageHeader",
+          2
+        ],
+        [
+          "Figure",
+          1
+        ],
+        [
+          "Caption",
+          1
+        ],
+        [
+          "FigureGroup",
+          1
+        ],
+        [
+          "Reference",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 7,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          247
+        ],
+        [
+          "Line",
+          53
+        ],
+        [
+          "TableCell",
+          24
+        ],
+        [
+          "Reference",
+          11
+        ],
+        [
+          "ListItem",
+          10
+        ],
+        [
+          "Text",
+          8
+        ],
+        [
+          "PageHeader",
+          2
+        ],
+        [
+          "SectionHeader",
+          2
+        ],
+        [
+          "Table",
+          1
+        ],
+        [
+          "ListGroup",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 8,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          347
+        ],
+        [
+          "Line",
+          57
+        ],
+        [
+          "ListItem",
+          21
+        ],
+        [
+          "Reference",
+          21
+        ],
+        [
+          "PageHeader",
+          2
+        ],
+        [
+          "Text",
+          1
+        ],
+        [
+          "ListGroup",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    }
+  ],
+  "debug_data_path": "debug_data/federated-learning-healthcare"
+}
