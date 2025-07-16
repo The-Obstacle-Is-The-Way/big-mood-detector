@@ -1,0 +1,1025 @@
+{
+  "table_of_contents": [
+    {
+      "title": "A physiologically based mathematical model of melatonin\nincluding ocular light suppression and interactions with the\ncircadian pacemaker",
+      "heading_level": null,
+      "page_id": 0,
+      "polygon": [
+        [
+          63.26930236816406,
+          82.1041259765625
+        ],
+        [
+          492.0605773925781,
+          82.1041259765625
+        ],
+        [
+          492.0605773925781,
+          145.28466796875
+        ],
+        [
+          63.26930236816406,
+          145.28466796875
+        ]
+      ]
+    },
+    {
+      "title": "Melissa A. St Hilaire1\n, Claude\nGronfier2\n, Jamie M. Zeitzer3 and\nElizabeth B. Klerman1",
+      "heading_level": null,
+      "page_id": 0,
+      "polygon": [
+        [
+          386.4748229980469,
+          170.3660888671875
+        ],
+        [
+          524.9921875,
+          170.3660888671875
+        ],
+        [
+          524.9921875,
+          203.4609375
+        ],
+        [
+          386.4748229980469,
+          203.4609375
+        ]
+      ]
+    },
+    {
+      "title": "Introduction",
+      "heading_level": null,
+      "page_id": 0,
+      "polygon": [
+        [
+          62.895751953125,
+          462.22998046875
+        ],
+        [
+          128.1923828125,
+          462.22998046875
+        ],
+        [
+          128.1923828125,
+          474.46435546875
+        ],
+        [
+          62.895751953125,
+          474.46435546875
+        ]
+      ]
+    },
+    {
+      "title": "Methods",
+      "heading_level": null,
+      "page_id": 1,
+      "polygon": [
+        [
+          304.8376770019531,
+          402.58740234375
+        ],
+        [
+          350.091796875,
+          402.58740234375
+        ],
+        [
+          350.091796875,
+          414.6495666503906
+        ],
+        [
+          304.8376770019531,
+          414.6495666503906
+        ]
+      ]
+    },
+    {
+      "title": "Model equations",
+      "heading_level": null,
+      "page_id": 1,
+      "polygon": [
+        [
+          304.40234375,
+          420.93896484375
+        ],
+        [
+          376.57421875,
+          420.93896484375
+        ],
+        [
+          376.57421875,
+          430.62957763671875
+        ],
+        [
+          304.40234375,
+          430.62957763671875
+        ]
+      ]
+    },
+    {
+      "title": "Data analysis",
+      "heading_level": null,
+      "page_id": 2,
+      "polygon": [
+        [
+          62.568359375,
+          256.730712890625
+        ],
+        [
+          120.89662170410156,
+          256.730712890625
+        ],
+        [
+          120.89662170410156,
+          266.78643798828125
+        ],
+        [
+          62.568359375,
+          266.78643798828125
+        ]
+      ]
+    },
+    {
+      "title": "Intermittent bright light dataset",
+      "heading_level": null,
+      "page_id": 2,
+      "polygon": [
+        [
+          62.968505859375,
+          442.7314453125
+        ],
+        [
+          186.25,
+          442.7314453125
+        ],
+        [
+          186.25,
+          452.64794921875
+        ],
+        [
+          62.968505859375,
+          452.64794921875
+        ]
+      ]
+    },
+    {
+      "title": "3-Pulse phase-resetting protocol",
+      "heading_level": null,
+      "page_id": 2,
+      "polygon": [
+        [
+          308.35223388671875,
+          146.0478515625
+        ],
+        [
+          438.26953125,
+          146.0478515625
+        ],
+        [
+          438.26953125,
+          156.65521240234375
+        ],
+        [
+          308.35223388671875,
+          156.65521240234375
+        ]
+      ]
+    },
+    {
+      "title": "1-Pulse intensity response curve protocol",
+      "heading_level": null,
+      "page_id": 2,
+      "polygon": [
+        [
+          308.3516845703125,
+          387.6767578125
+        ],
+        [
+          474.064453125,
+          387.6767578125
+        ],
+        [
+          474.064453125,
+          397.7699890136719
+        ],
+        [
+          308.3516845703125,
+          397.7699890136719
+        ]
+      ]
+    },
+    {
+      "title": "Salivary melatonin concentration dataset",
+      "heading_level": null,
+      "page_id": 2,
+      "polygon": [
+        [
+          308.35260009765625,
+          662.185546875
+        ],
+        [
+          471.736328125,
+          662.185546875
+        ],
+        [
+          471.736328125,
+          671.7639312744141
+        ],
+        [
+          308.35260009765625,
+          671.7639312744141
+        ]
+      ]
+    },
+    {
+      "title": "Incorporation of an effect of light on melatonin",
+      "heading_level": null,
+      "page_id": 3,
+      "polygon": [
+        [
+          59.00341796875,
+          109.0579833984375
+        ],
+        [
+          262.28692626953125,
+          109.0579833984375
+        ],
+        [
+          262.28692626953125,
+          118.30853271484375
+        ],
+        [
+          59.00341796875,
+          118.30853271484375
+        ]
+      ]
+    },
+    {
+      "title": "Previous model",
+      "heading_level": null,
+      "page_id": 3,
+      "polygon": [
+        [
+          59.039794921875,
+          125.804931640625
+        ],
+        [
+          122.80859375,
+          125.804931640625
+        ],
+        [
+          122.80859375,
+          134.771240234375
+        ],
+        [
+          59.039794921875,
+          134.771240234375
+        ]
+      ]
+    },
+    {
+      "title": "Incorporation of light into melatonin model",
+      "heading_level": null,
+      "page_id": 3,
+      "polygon": [
+        [
+          304.40234375,
+          274.317626953125
+        ],
+        [
+          474.35546875,
+          274.317626953125
+        ],
+        [
+          474.35546875,
+          283.64703369140625
+        ],
+        [
+          304.40234375,
+          283.64703369140625
+        ]
+      ]
+    },
+    {
+      "title": "Parameter fitting",
+      "heading_level": null,
+      "page_id": 3,
+      "polygon": [
+        [
+          304.40234375,
+          471.40576171875
+        ],
+        [
+          376.57421875,
+          471.40576171875
+        ],
+        [
+          376.57421875,
+          480.9159851074219
+        ],
+        [
+          304.40234375,
+          480.9159851074219
+        ]
+      ]
+    },
+    {
+      "title": "Saliva compartment",
+      "heading_level": null,
+      "page_id": 4,
+      "polygon": [
+        [
+          62.895751953125,
+          376.9716796875
+        ],
+        [
+          148.8544921875,
+          376.9716796875
+        ],
+        [
+          148.8544921875,
+          386.9753112792969
+        ],
+        [
+          62.895751953125,
+          386.9753112792969
+        ]
+      ]
+    },
+    {
+      "title": "Comparison of model simulations to data",
+      "heading_level": null,
+      "page_id": 4,
+      "polygon": [
+        [
+          63.0048828125,
+          662.56787109375
+        ],
+        [
+          243.7255859375,
+          662.56787109375
+        ],
+        [
+          243.7255859375,
+          671.7444915771484
+        ],
+        [
+          63.0048828125,
+          671.7444915771484
+        ]
+      ]
+    },
+    {
+      "title": "Results",
+      "heading_level": null,
+      "page_id": 5,
+      "polygon": [
+        [
+          59.2216796875,
+          64.9951171875
+        ],
+        [
+          99.22862243652344,
+          64.9951171875
+        ],
+        [
+          99.22862243652344,
+          76.3062744140625
+        ],
+        [
+          59.2216796875,
+          76.3062744140625
+        ]
+      ]
+    },
+    {
+      "title": "Discussion",
+      "heading_level": null,
+      "page_id": 8,
+      "polygon": [
+        [
+          63.07763671875,
+          660.27392578125
+        ],
+        [
+          121.68077850341797,
+          660.27392578125
+        ],
+        [
+          121.68077850341797,
+          671.6384201049805
+        ],
+        [
+          63.07763671875,
+          671.6384201049805
+        ]
+      ]
+    },
+    {
+      "title": "Acknowledgments",
+      "heading_level": null,
+      "page_id": 9,
+      "polygon": [
+        [
+          59.3671875,
+          232.83544921875
+        ],
+        [
+          156.7119140625,
+          232.83544921875
+        ],
+        [
+          156.7119140625,
+          244.7974853515625
+        ],
+        [
+          59.3671875,
+          244.7974853515625
+        ]
+      ]
+    },
+    {
+      "title": "References",
+      "heading_level": null,
+      "page_id": 9,
+      "polygon": [
+        [
+          59.43994140625,
+          397.23486328125
+        ],
+        [
+          118.80712890625,
+          397.23486328125
+        ],
+        [
+          118.80712890625,
+          409.1502380371094
+        ],
+        [
+          59.43994140625,
+          409.1502380371094
+        ]
+      ]
+    }
+  ],
+  "page_stats": [
+    {
+      "page_id": 0,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          238
+        ],
+        [
+          "Line",
+          107
+        ],
+        [
+          "Text",
+          9
+        ],
+        [
+          "SectionHeader",
+          3
+        ],
+        [
+          "PageHeader",
+          2
+        ],
+        [
+          "TextInlineMath",
+          2
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 1,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          292
+        ],
+        [
+          "Line",
+          121
+        ],
+        [
+          "Text",
+          8
+        ],
+        [
+          "SectionHeader",
+          2
+        ],
+        [
+          "Equation",
+          2
+        ],
+        [
+          "PageHeader",
+          1
+        ],
+        [
+          "PageFooter",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 2,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          327
+        ],
+        [
+          "Line",
+          124
+        ],
+        [
+          "TextInlineMath",
+          5
+        ],
+        [
+          "SectionHeader",
+          5
+        ],
+        [
+          "PageFooter",
+          2
+        ],
+        [
+          "Text",
+          2
+        ],
+        [
+          "PageHeader",
+          1
+        ],
+        [
+          "Equation",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 3,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          672
+        ],
+        [
+          "Line",
+          146
+        ],
+        [
+          "Text",
+          16
+        ],
+        [
+          "Equation",
+          13
+        ],
+        [
+          "SectionHeader",
+          4
+        ],
+        [
+          "TextInlineMath",
+          3
+        ],
+        [
+          "PageHeader",
+          1
+        ],
+        [
+          "PageFooter",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 4,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          431
+        ],
+        [
+          "Line",
+          99
+        ],
+        [
+          "TextInlineMath",
+          4
+        ],
+        [
+          "Text",
+          3
+        ],
+        [
+          "Equation",
+          3
+        ],
+        [
+          "SectionHeader",
+          2
+        ],
+        [
+          "PageHeader",
+          1
+        ],
+        [
+          "Figure",
+          1
+        ],
+        [
+          "Caption",
+          1
+        ],
+        [
+          "PageFooter",
+          1
+        ],
+        [
+          "FigureGroup",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 5,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          291
+        ],
+        [
+          "TableCell",
+          268
+        ],
+        [
+          "Line",
+          92
+        ],
+        [
+          "Equation",
+          4
+        ],
+        [
+          "Text",
+          4
+        ],
+        [
+          "TextInlineMath",
+          3
+        ],
+        [
+          "Caption",
+          2
+        ],
+        [
+          "PageHeader",
+          1
+        ],
+        [
+          "SectionHeader",
+          1
+        ],
+        [
+          "Figure",
+          1
+        ],
+        [
+          "Table",
+          1
+        ],
+        [
+          "PageFooter",
+          1
+        ],
+        [
+          "FigureGroup",
+          1
+        ],
+        [
+          "TableGroup",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 6,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          309
+        ],
+        [
+          "Line",
+          99
+        ],
+        [
+          "Text",
+          6
+        ],
+        [
+          "Figure",
+          2
+        ],
+        [
+          "Caption",
+          2
+        ],
+        [
+          "FigureGroup",
+          2
+        ],
+        [
+          "PageHeader",
+          1
+        ],
+        [
+          "TextInlineMath",
+          1
+        ],
+        [
+          "PageFooter",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 7,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "TableCell",
+          294
+        ],
+        [
+          "Span",
+          226
+        ],
+        [
+          "Line",
+          96
+        ],
+        [
+          "Text",
+          4
+        ],
+        [
+          "Caption",
+          3
+        ],
+        [
+          "Table",
+          2
+        ],
+        [
+          "TableGroup",
+          2
+        ],
+        [
+          "PageHeader",
+          1
+        ],
+        [
+          "Figure",
+          1
+        ],
+        [
+          "PageFooter",
+          1
+        ],
+        [
+          "FigureGroup",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 8,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          222
+        ],
+        [
+          "Line",
+          111
+        ],
+        [
+          "TableCell",
+          102
+        ],
+        [
+          "Text",
+          7
+        ],
+        [
+          "Caption",
+          2
+        ],
+        [
+          "PageHeader",
+          1
+        ],
+        [
+          "Table",
+          1
+        ],
+        [
+          "Figure",
+          1
+        ],
+        [
+          "SectionHeader",
+          1
+        ],
+        [
+          "PageFooter",
+          1
+        ],
+        [
+          "TableGroup",
+          1
+        ],
+        [
+          "FigureGroup",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 9,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          656
+        ],
+        [
+          "Line",
+          123
+        ],
+        [
+          "ListItem",
+          31
+        ],
+        [
+          "Text",
+          3
+        ],
+        [
+          "SectionHeader",
+          2
+        ],
+        [
+          "ListGroup",
+          2
+        ],
+        [
+          "PageHeader",
+          1
+        ],
+        [
+          "PageFooter",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 10,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          211
+        ],
+        [
+          "Line",
+          39
+        ],
+        [
+          "ListItem",
+          9
+        ],
+        [
+          "ListGroup",
+          2
+        ],
+        [
+          "PageHeader",
+          1
+        ],
+        [
+          "Text",
+          1
+        ],
+        [
+          "PageFooter",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    }
+  ],
+  "debug_data_path": "debug_data/melatonin-math"
+}

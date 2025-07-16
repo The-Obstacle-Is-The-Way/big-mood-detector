@@ -301,14 +301,8 @@ class DLMOCalculatorV2:
         
         Returns hourly CBT values for the last day.
         """
-        # Initial conditions for normal circadian phase
-        # CBT minimum should occur around 4-5 AM (hour 4-5)
-        # CBT = -xc * cos(x), so minimum when cos(x) = -1, i.e., x = π
-        # We want this to happen at hour 4-5 on the last day
-        # Starting phase adjusted for typical sleep schedule
-        x = math.pi * 0.5   # Start at π/2 (rising phase)
-        xc = 1.0            # Normal circadian amplitude
-        n = 0.3             # Moderate photoreceptor state
+        # Initialize with limit cycle for standard schedule
+        x, xc, n = self._get_initial_conditions_from_limit_cycle()
         
         # Store states for the last day
         last_day_states = []
@@ -381,6 +375,39 @@ class DLMOCalculatorV2:
         """
         # Hill equation: alpha = a0 * (I^p / (I^p + I0^p))
         return self.A0 * (light**self.P / (light**self.P + self.I0**self.P))
+    
+    def _get_initial_conditions_from_limit_cycle(self) -> Tuple[float, float, float]:
+        """
+        Get initial conditions from limit cycle with standard sleep schedule.
+        
+        Simulates a regular sleep pattern (11pm-7am) to find steady state.
+        """
+        # Standard schedule: wake at 7:30, bed at 23:30
+        wake_hour = 7.5
+        bed_hour = 23.5
+        
+        # Create standard light pattern
+        hourly_lux = []
+        for hour in range(24):
+            if wake_hour <= hour < bed_hour:
+                hourly_lux.append(self.AWAKE_LUX)  # Awake = 250 lux
+            else:
+                hourly_lux.append(self.ASLEEP_LUX)  # Asleep = 0 lux
+        
+        # Run model for 10 days to reach steady state
+        x, xc, n = 0.0, 1.0, 0.5  # Start with neutral conditions
+        
+        for day in range(10):
+            for hour in range(24):
+                light = hourly_lux[hour]
+                # Run for one hour
+                for _ in range(60):
+                    dx, dxc, dn = self._circadian_derivatives(x, xc, n, light)
+                    x += dx * self.DELTA_T
+                    xc += dxc * self.DELTA_T
+                    n += dn * self.DELTA_T
+        
+        return x, xc, n
     
     def _extract_dlmo_enhanced(
         self, 
