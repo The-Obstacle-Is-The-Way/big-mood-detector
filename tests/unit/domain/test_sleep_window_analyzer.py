@@ -8,7 +8,7 @@ critical for accurate bipolar disorder detection.
 from datetime import datetime, timedelta
 import pytest
 
-from big_mood_detector.domain.entities.sleep_record import SleepRecord
+from big_mood_detector.domain.entities.sleep_record import SleepRecord, SleepState
 from big_mood_detector.domain.services.sleep_window_analyzer import (
     SleepWindowAnalyzer,
     SleepWindow,
@@ -28,9 +28,10 @@ class TestSleepWindowAnalyzer:
         """Single sleep episode should create one window."""
         # Arrange
         sleep_record = SleepRecord(
-            start_time=datetime(2024, 1, 1, 23, 0),
-            end_time=datetime(2024, 1, 2, 7, 0),
-            source="test"
+            source_name="test",
+            start_date=datetime(2024, 1, 1, 23, 0),
+            end_date=datetime(2024, 1, 2, 7, 0),
+            state=SleepState.ASLEEP
         )
         
         # Act
@@ -38,8 +39,8 @@ class TestSleepWindowAnalyzer:
         
         # Assert
         assert len(windows) == 1
-        assert windows[0].start_time == sleep_record.start_time
-        assert windows[0].end_time == sleep_record.end_time
+        assert windows[0].start_time == sleep_record.start_date
+        assert windows[0].end_time == sleep_record.end_date
         assert windows[0].total_duration_hours == 8.0
         assert windows[0].episode_count == 1
     
@@ -47,14 +48,16 @@ class TestSleepWindowAnalyzer:
         """Episodes within 3.75 hours should merge."""
         # Arrange - two naps 2 hours apart
         episode1 = SleepRecord(
-            start_time=datetime(2024, 1, 1, 14, 0),
-            end_time=datetime(2024, 1, 1, 15, 30),  # 1.5h nap
-            source="test"
+            start_date=datetime(2024, 1, 1, 14, 0),
+            end_date=datetime(2024, 1, 1, 15, 30),  # 1.5h nap
+            source_name="test",
+            state=SleepState.ASLEEP
         )
         episode2 = SleepRecord(
-            start_time=datetime(2024, 1, 1, 17, 30),  # 2h gap
-            end_time=datetime(2024, 1, 1, 18, 30),  # 1h nap
-            source="test"
+            start_date=datetime(2024, 1, 1, 17, 30),  # 2h gap
+            end_date=datetime(2024, 1, 1, 18, 30),  # 1h nap
+            source_name="test",
+            state=SleepState.ASLEEP
         )
         
         # Act
@@ -63,8 +66,8 @@ class TestSleepWindowAnalyzer:
         # Assert
         assert len(windows) == 1
         window = windows[0]
-        assert window.start_time == episode1.start_time
-        assert window.end_time == episode2.end_time
+        assert window.start_time == episode1.start_date
+        assert window.end_time == episode2.end_date
         assert window.total_duration_hours == 2.5  # 1.5 + 1 hours
         assert window.episode_count == 2
         assert window.gap_hours == [2.0]  # One gap of 2 hours
@@ -73,14 +76,16 @@ class TestSleepWindowAnalyzer:
         """Episodes > 3.75 hours apart should not merge."""
         # Arrange - night sleep and afternoon nap
         night_sleep = SleepRecord(
-            start_time=datetime(2024, 1, 1, 23, 0),
-            end_time=datetime(2024, 1, 2, 7, 0),
-            source="test"
+            start_date=datetime(2024, 1, 1, 23, 0),
+            end_date=datetime(2024, 1, 2, 7, 0),
+            source_name="test",
+            state=SleepState.ASLEEP
         )
         afternoon_nap = SleepRecord(
-            start_time=datetime(2024, 1, 2, 14, 0),  # 7h gap
-            end_time=datetime(2024, 1, 2, 15, 0),
-            source="test"
+            start_date=datetime(2024, 1, 2, 14, 0),  # 7h gap
+            end_date=datetime(2024, 1, 2, 15, 0),
+            source_name="test",
+            state=SleepState.ASLEEP
         )
         
         # Act
@@ -95,14 +100,16 @@ class TestSleepWindowAnalyzer:
         """Episodes exactly 3.75 hours apart should merge."""
         # Arrange
         episode1 = SleepRecord(
-            start_time=datetime(2024, 1, 1, 10, 0),
-            end_time=datetime(2024, 1, 1, 11, 0),
-            source="test"
+            start_date=datetime(2024, 1, 1, 10, 0),
+            end_date=datetime(2024, 1, 1, 11, 0),
+            source_name="test",
+            state=SleepState.ASLEEP
         )
         episode2 = SleepRecord(
-            start_time=datetime(2024, 1, 1, 14, 45),  # Exactly 3.75h gap
-            end_time=datetime(2024, 1, 1, 15, 45),
-            source="test"
+            start_date=datetime(2024, 1, 1, 14, 45),  # Exactly 3.75h gap
+            end_date=datetime(2024, 1, 1, 15, 45),
+            source_name="test",
+            state=SleepState.ASLEEP
         )
         
         # Act
@@ -118,25 +125,29 @@ class TestSleepWindowAnalyzer:
         episodes = [
             # First window: fragmented night sleep
             SleepRecord(
-                start_time=datetime(2024, 1, 1, 22, 0),
-                end_time=datetime(2024, 1, 1, 23, 30),  # 1.5h
-                source="test"
+                start_date=datetime(2024, 1, 1, 22, 0),
+                end_date=datetime(2024, 1, 1, 23, 30),  # 1.5h
+                source_name="test",
+            state=SleepState.ASLEEP
             ),
             SleepRecord(
-                start_time=datetime(2024, 1, 2, 0, 30),   # 1h gap
-                end_time=datetime(2024, 1, 2, 3, 0),      # 2.5h
-                source="test"
+                start_date=datetime(2024, 1, 2, 0, 30),   # 1h gap
+                end_date=datetime(2024, 1, 2, 3, 0),      # 2.5h
+                source_name="test",
+            state=SleepState.ASLEEP
             ),
             SleepRecord(
-                start_time=datetime(2024, 1, 2, 4, 0),    # 1h gap
-                end_time=datetime(2024, 1, 2, 6, 30),     # 2.5h
-                source="test"
+                start_date=datetime(2024, 1, 2, 4, 0),    # 1h gap
+                end_date=datetime(2024, 1, 2, 6, 30),     # 2.5h
+                source_name="test",
+            state=SleepState.ASLEEP
             ),
             # Second window: afternoon nap (> 3.75h from morning)
             SleepRecord(
-                start_time=datetime(2024, 1, 2, 14, 0),   # 7.5h gap
-                end_time=datetime(2024, 1, 2, 15, 30),    # 1.5h
-                source="test"
+                start_date=datetime(2024, 1, 2, 14, 0),   # 7.5h gap
+                end_date=datetime(2024, 1, 2, 15, 30),    # 1.5h
+                source_name="test",
+            state=SleepState.ASLEEP
             ),
         ]
         
@@ -164,20 +175,23 @@ class TestSleepWindowAnalyzer:
         episodes = [
             # Short fragmented night (< 6h total)
             SleepRecord(
-                start_time=datetime(2024, 1, 1, 23, 0),
-                end_time=datetime(2024, 1, 2, 1, 0),  # 2h
-                source="test"
+                start_date=datetime(2024, 1, 1, 23, 0),
+                end_date=datetime(2024, 1, 2, 1, 0),  # 2h
+                source_name="test",
+            state=SleepState.ASLEEP
             ),
             SleepRecord(
-                start_time=datetime(2024, 1, 2, 2, 0),   # 1h gap
-                end_time=datetime(2024, 1, 2, 4, 30),    # 2.5h
-                source="test"
+                start_date=datetime(2024, 1, 2, 2, 0),   # 1h gap
+                end_date=datetime(2024, 1, 2, 4, 30),    # 2.5h
+                source_name="test",
+            state=SleepState.ASLEEP
             ),
             # Long night (> 10h window)
             SleepRecord(
-                start_time=datetime(2024, 1, 2, 22, 0),
-                end_time=datetime(2024, 1, 3, 8, 30),    # 10.5h
-                source="test"
+                start_date=datetime(2024, 1, 2, 22, 0),
+                end_date=datetime(2024, 1, 3, 8, 30),    # 10.5h
+                source_name="test",
+            state=SleepState.ASLEEP
             ),
         ]
         
@@ -212,14 +226,16 @@ class TestSleepWindowAnalyzer:
         
         episodes = [
             SleepRecord(
-                start_time=datetime(2024, 1, 1, 10, 0),
-                end_time=datetime(2024, 1, 1, 11, 0),
-                source="test"
+                start_date=datetime(2024, 1, 1, 10, 0),
+                end_date=datetime(2024, 1, 1, 11, 0),
+                source_name="test",
+            state=SleepState.ASLEEP
             ),
             SleepRecord(
-                start_time=datetime(2024, 1, 1, 13, 30),  # 2.5h gap
-                end_time=datetime(2024, 1, 1, 14, 30),
-                source="test"
+                start_date=datetime(2024, 1, 1, 13, 30),  # 2.5h gap
+                end_date=datetime(2024, 1, 1, 14, 30),
+                source_name="test",
+            state=SleepState.ASLEEP
             ),
         ]
         
@@ -234,14 +250,16 @@ class TestSleepWindowAnalyzer:
         # Arrange - overlapping episodes
         episodes = [
             SleepRecord(
-                start_time=datetime(2024, 1, 1, 22, 0),
-                end_time=datetime(2024, 1, 2, 2, 0),
-                source="test"
+                start_date=datetime(2024, 1, 1, 22, 0),
+                end_date=datetime(2024, 1, 2, 2, 0),
+                source_name="test",
+            state=SleepState.ASLEEP
             ),
             SleepRecord(
-                start_time=datetime(2024, 1, 2, 1, 0),  # Overlaps!
-                end_time=datetime(2024, 1, 2, 3, 0),
-                source="test"
+                start_date=datetime(2024, 1, 2, 1, 0),  # Overlaps!
+                end_date=datetime(2024, 1, 2, 3, 0),
+                source_name="test",
+            state=SleepState.ASLEEP
             ),
         ]
         
