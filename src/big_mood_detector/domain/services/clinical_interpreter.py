@@ -545,3 +545,45 @@ class ClinicalInterpreter:
             result.trigger_intervention = True
         
         return result
+    
+    def adjust_confidence(
+        self,
+        base_confidence: float,
+        data_completeness: float,
+        days_of_data: int,
+        missing_features: list[str],
+    ) -> ConfidenceAdjustment:
+        """Adjust prediction confidence based on data quality."""
+        adjusted = base_confidence
+        limitations = []
+        
+        # Data completeness threshold (75%)
+        if data_completeness < 0.75:
+            adjusted *= 0.8
+            limitations.append("Insufficient data completeness")
+        
+        # Minimum days requirement (30)
+        if days_of_data < 30:
+            adjusted *= 0.8
+            limitations.append(f"Limited historical data ({days_of_data} days)")
+        
+        # Critical missing features
+        critical_features = ["sleep_duration", "activity_level", "mood_scores"]
+        missing_critical = [f for f in missing_features if f in critical_features]
+        if missing_critical:
+            adjusted *= 0.7
+            limitations.append(f"Missing critical features: {', '.join(missing_critical)}")
+        
+        # Determine reliability level
+        if adjusted >= 0.8:
+            reliability = "high"
+        elif adjusted >= 0.6:
+            reliability = "medium"
+        else:
+            reliability = "low"
+        
+        return ConfidenceAdjustment(
+            adjusted_confidence=adjusted,
+            reliability=reliability,
+            limitations=limitations,
+        )
