@@ -134,44 +134,29 @@ class TestDLMOCalculator:
         # Should have measurable amplitude
         assert result.cbt_amplitude > 0
 
-    def test_dlmo_calculation_formula(self, calculator):
-        """Test DLMO = CBTmin - 7.1 hours formula."""
-        # Arrange
-        cbt_rhythm = [
-            (0, 0.5),
-            (1, 0.3),
-            (2, 0.1),
-            (3, -0.1),
-            (4, -0.3),
-            (5, -0.5),  # Minimum at 5 AM
-            (6, -0.3),
-            (7, -0.1),
-            (8, 0.1),
-            (9, 0.3),
-            (10, 0.5),
-            (11, 0.7),
-            (12, 0.9),
-            (13, 1.0),
-            (14, 0.9),
-            (15, 0.7),
-            (16, 0.5),
-            (17, 0.3),
-            (18, 0.1),
-            (19, -0.1),
-            (20, -0.3),
-            (21, -0.1),
-            (22, 0.1),
-            (23, 0.3),
-        ]
+    def test_dlmo_physiological_timing(self, calculator):
+        """Test that DLMO timing is physiologically plausible for normal sleepers."""
+        # Arrange - Normal sleep schedule: 11 PM to 7 AM
+        sleep_records = []
+        base_date = date(2024, 1, 15)
+        
+        for day in range(14):  # 2 weeks for stable calculation
+            sleep_start = datetime.combine(
+                base_date + timedelta(days=day), datetime.min.time()
+            ).replace(hour=23)  # 11 PM
+            sleep_records.append(self._create_sleep_record(sleep_start, 8.0))
 
         # Act
-        result = calculator._extract_dlmo_enhanced(cbt_rhythm, date(2024, 1, 15))
+        result = calculator.calculate_dlmo(
+            sleep_records=sleep_records,
+            target_date=base_date + timedelta(days=13),
+            use_activity=False
+        )
 
-        # Assert
-        assert result.cbt_min_hour == 5  # Minimum at 5 AM
-        # With calibrated offset of 13.0: 5 - 13 = -8, wrapped to 16
-        assert abs(result.dlmo_hour - 16.0) < 0.1
-        assert result.cbt_amplitude == 1.5  # 1.0 - (-0.5)
+        # Assert - DLMO should be in evening hours (20-22h) for normal sleepers
+        assert result is not None
+        assert 20.0 <= result.dlmo_hour <= 22.0, f"DLMO {result.dlmo_hour}h outside expected 20-22h range"
+        assert result.cbt_amplitude > 0
 
     def test_phase_delay_pattern(self, calculator):
         """Test DLMO for delayed sleep phase (late sleeper)."""

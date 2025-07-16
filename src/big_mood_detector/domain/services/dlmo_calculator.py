@@ -176,10 +176,10 @@ class DLMOCalculator:
             profiles = self._apply_seasonal_adjustment(profiles)
 
         # Run circadian model with proper initial conditions
-        cbt_rhythm = self._run_circadian_model(profiles)
+        circadian_states = self._run_circadian_model(profiles)
 
         # Extract DLMO using enhanced minimum detection
-        return self._extract_dlmo_enhanced(cbt_rhythm, target_date)
+        return self._extract_dlmo_enhanced(circadian_states, target_date)
 
     def _create_activity_profiles(
         self, activity_records: list[ActivityRecord], target_date: date, days: int
