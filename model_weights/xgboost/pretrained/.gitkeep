@@ -1,0 +1,2 @@
+# This directory should contain XGBoost pretrained models
+# Train using: python scripts/train_xgboost_models.py
