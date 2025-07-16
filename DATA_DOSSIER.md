@@ -319,10 +319,49 @@ def estimate_circadian_rhythm(self, sleep_wake_pattern: List[bool]) -> Circadian
     # 4. Calculate DLMO (CBTmin - 7 hours)
 ```
 
+## Test Status (2025-07-16)
+
+### Current Test Results
+- **Total Tests**: 170
+- **Passing**: 165
+- **Failing**: 1 (requires real data files)
+- **Skipped**: 4 (large files / missing JSON)
+- **Warnings**: 5 (division by zero in IV calculation)
+
+### Fixed Issues
+- ✅ HRV clinical note detection (added min_hrv tracking)
+- ✅ Heart rate parser test (corrected motion context format)
+- ✅ Linting issues (Union → |, whitespace cleanup)
+- ⚠️ Type checking still has errors in advanced_feature_engineering.py
+
+## Next Implementation Steps
+
+### Priority 1: Sleep Window Analysis
+The Seoul study requires sleep window analysis with specific rules:
+1. Merge sleep episodes <10 minutes apart
+2. Group windows <1 hour apart  
+3. Classify as long (>3.75h) or short (<3.75h)
+4. Track window count, length, sleep time, wake time
+
+### Priority 2: Minute-Level Activity for PAT
+PAT needs 10,080 minute-level activity values:
+1. Create ActivitySequenceExtractor service
+2. Distribute time-bounded records across minutes
+3. Handle overlaps and gaps
+4. Standardize output
+
+### Priority 3: Complete Circadian Features
+Implement proper calculations for:
+- Interdaily Stability (IS)
+- Intradaily Variability (IV) 
+- Relative Amplitude (RA)
+- L5/M10 activity levels
+
 ## Version History
 
 - **v0.1** (2025-07-16): Initial dossier creation
 - **v0.2** (2025-07-16): Added raw data formats and processor details
+- **v0.3** (2025-07-16): Updated test status and implementation priorities
 
 ---
 *This is a living document - update as implementation progresses*
