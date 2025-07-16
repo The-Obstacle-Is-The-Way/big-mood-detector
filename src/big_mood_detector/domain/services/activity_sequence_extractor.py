@@ -15,7 +15,7 @@ from datetime import datetime, date, time, timedelta
 from typing import List, Optional, Tuple
 import numpy as np
 
-from big_mood_detector.domain.entities.activity_record import ActivityRecord
+from big_mood_detector.domain.entities.activity_record import ActivityRecord, ActivityType
 
 
 @dataclass(frozen=True)
@@ -126,17 +126,18 @@ class ActivitySequenceExtractor:
         # Initialize empty sequence
         activity_values = [0.0] * self.MINUTES_PER_DAY
         
-        # Filter records for target date
+        # Filter records for target date and step count type
         date_records = [
             r for r in records 
-            if r.timestamp.date() == target_date
+            if r.start_date.date() == target_date
+            and r.activity_type == ActivityType.STEP_COUNT
         ]
         
         # Aggregate by minute
         for record in date_records:
-            minute_index = self._get_minute_index(record.timestamp)
+            minute_index = self._get_minute_index(record.start_date)
             if 0 <= minute_index < self.MINUTES_PER_DAY:
-                activity_values[minute_index] += record.step_count
+                activity_values[minute_index] += record.value
         
         return MinuteLevelSequence(
             date=target_date,
