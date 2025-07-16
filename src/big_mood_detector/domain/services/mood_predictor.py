@@ -79,13 +79,13 @@ class MoodPredictor:
 
         Args:
             model_dir: Directory containing XGBoost .pkl files
-                      Defaults to reference_repos/mood_ml
+                      Defaults to model_weights/xgboost/converted
         """
         if model_dir is None:
-            # Default to reference models
-
+            # Default to converted models (XGBoost 3.0.2 format)
+            # This eliminates version mismatch warnings
             base_path = Path(os.path.dirname(__file__)).parent.parent.parent.parent
-            model_dir = base_path / "reference_repos" / "mood_ml"
+            model_dir = base_path / "model_weights" / "xgboost" / "converted"
 
         self.model_dir = Path(model_dir)
         self.models: dict[str, Any] = {}
