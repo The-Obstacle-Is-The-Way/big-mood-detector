@@ -411,7 +411,7 @@ class MoodPredictionPipeline:
         Returns:
             Dictionary mapping dates to ClinicalFeatureSet
         """
-        features = {}
+        features: dict[date, ClinicalFeatureSet | None] = {}
 
         current_date = start_date
         while current_date <= end_date:
