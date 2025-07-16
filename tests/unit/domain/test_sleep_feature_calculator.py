@@ -5,7 +5,7 @@ TDD approach for extracting sleep feature calculation from AdvancedFeatureEngine
 Following clean code principles and focusing on single responsibility.
 """
 
-from datetime import datetime, date, timedelta
+from datetime import datetime, date, timedelta, time
 
 import pytest
 import numpy as np
@@ -31,23 +31,23 @@ class TestSleepFeatureCalculator:
         base_date = date(2024, 1, 1)
         
         for i in range(14):  # 2 weeks of data
+            # Create mid-sleep time around 2:45 AM (consistent)
+            mid_sleep = datetime.combine(
+                base_date + timedelta(days=i+1),
+                time(2, 45)
+            )
+            
             summary = DailySleepSummary(
                 date=base_date + timedelta(days=i),
+                total_time_in_bed_hours=8.0,
                 total_sleep_hours=7.5 + (i % 2) * 0.2,  # Small variation
                 sleep_efficiency=0.90,
-                sleep_onset=datetime.combine(
-                    base_date + timedelta(days=i),
-                    datetime.min.time()
-                ).replace(hour=23, minute=0),  # Consistent 11 PM
-                wake_time=datetime.combine(
-                    base_date + timedelta(days=i+1),
-                    datetime.min.time()
-                ).replace(hour=6, minute=30),  # Consistent 6:30 AM
-                awakenings=2,
-                time_awake_minutes=15,
-                rem_sleep_hours=1.8,
-                deep_sleep_hours=1.5,
-                light_sleep_hours=4.2,
+                sleep_sessions=1,
+                longest_sleep_hours=7.5 + (i % 2) * 0.2,
+                sleep_fragmentation_index=0.1,  # Low fragmentation
+                earliest_bedtime=time(23, 0),  # Consistent 11 PM
+                latest_wake_time=time(6, 30),  # Consistent 6:30 AM
+                mid_sleep_time=mid_sleep,
             )
             summaries.append(summary)
         
