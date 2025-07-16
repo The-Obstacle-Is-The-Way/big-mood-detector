@@ -175,7 +175,7 @@ class TestClinicalThresholdsConfig:
         with open(invalid_config, 'w') as f:
             yaml.dump({"invalid": "structure"}, f)
         
-        with pytest.raises(ValueError, match="Invalid configuration"):
+        with pytest.raises(ValueError, match="Missing required configuration section"):
             load_clinical_thresholds(invalid_config)
 
     def test_missing_required_fields(self, tmp_path):
@@ -187,20 +187,19 @@ class TestClinicalThresholdsConfig:
         with pytest.raises(ValueError, match="Missing required"):
             load_clinical_thresholds(incomplete_config)
 
-    def test_invalid_threshold_values(self, tmp_path):
+    def test_invalid_threshold_values(self, tmp_path, sample_config_path):
         """Test validation of threshold values."""
         invalid_config = tmp_path / "invalid_values.yaml"
-        config_data = {
-            "depression": {
-                "phq_cutoffs": {
-                    "moderate": {"min": 15, "max": 10}  # Invalid: min > max
-                }
-            }
-        }
+        # First create a complete valid config
+        with open(sample_config_path, 'r') as f:
+            config_data = yaml.safe_load(f)
+        # Then make one threshold invalid
+        config_data["depression"]["phq_cutoffs"]["moderate"] = {"min": 15, "max": 10}  # Invalid: min > max
+        
         with open(invalid_config, 'w') as f:
             yaml.dump(config_data, f)
         
-        with pytest.raises(ValueError, match="Invalid threshold"):
+        with pytest.raises(ValueError, match="Invalid threshold range"):
             load_clinical_thresholds(invalid_config)
 
     def test_default_config_exists(self):
