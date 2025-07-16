@@ -272,8 +272,8 @@ class ClinicalFeatureExtractor:
         )
 
         # Calculate data completeness
-        days_with_sleep = len(set(s.start_date.date() for s in sleep_records))
-        days_with_activity = len(set(a.start_date.date() for a in activity_records))
+        days_with_sleep = len({s.start_date.date() for s in sleep_records})
+        days_with_activity = len({a.start_date.date() for a in activity_records})
         data_completeness = min(days_with_sleep, days_with_activity) / max(
             14, min_days_required
         )

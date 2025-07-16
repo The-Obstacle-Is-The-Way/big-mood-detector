@@ -355,7 +355,7 @@ class DLMOCalculator:
         n = 0.1  # Low photoreceptor state
 
         # Run for standard duration to establish rhythm
-        for day in range(14):
+        for _ in range(14):
             for hour in range(24):
                 light = hourly_lux[hour]
                 # Run for one hour
