@@ -28,6 +28,7 @@ class DirectPATModel:
         self.weights = {}
         self.config = self._get_config(model_size)
         self.is_loaded = False
+        self.layer_norm_epsilon = 1e-12  # Default value
 
     def _get_config(self, model_size: str) -> dict:
         """Get model configuration."""
@@ -63,6 +64,24 @@ class DirectPATModel:
         """Load weights from H5 file."""
         try:
             with h5py.File(weights_path, "r") as f:
+                # Try to read LayerNorm epsilon from attributes
+                try:
+                    # Check if epsilon is stored in file attributes
+                    if "layer_norm_epsilon" in f.attrs:
+                        self.layer_norm_epsilon = float(f.attrs["layer_norm_epsilon"])
+                        logger.info(f"Read LayerNorm epsilon from H5: {self.layer_norm_epsilon}")
+                    else:
+                        # Try to find it in layer attributes
+                        for layer_name in f.keys():
+                            if "norm" in layer_name.lower():
+                                layer = f[layer_name]
+                                if hasattr(layer, "attrs") and "epsilon" in layer.attrs:
+                                    self.layer_norm_epsilon = float(layer.attrs["epsilon"])
+                                    logger.info(f"Read LayerNorm epsilon from layer {layer_name}: {self.layer_norm_epsilon}")
+                                    break
+                except Exception as e:
+                    logger.debug(f"Could not read LayerNorm epsilon from H5: {e}. Using default: {self.layer_norm_epsilon}")
+                
                 # Load dense layer
                 self.weights["dense_kernel"] = np.array(f["dense"]["dense"]["kernel:0"])
                 self.weights["dense_bias"] = np.array(f["dense"]["dense"]["bias:0"])
@@ -222,8 +241,10 @@ class DirectPATModel:
         # Add batch dimension
         return pos_embeddings[tf.newaxis, :, :]
 
-    def _layer_norm(self, x, gamma, beta, epsilon=1e-6):
+    def _layer_norm(self, x, gamma, beta, epsilon=None):
         """Apply layer normalization."""
+        if epsilon is None:
+            epsilon = self.layer_norm_epsilon
         mean = tf.reduce_mean(x, axis=-1, keepdims=True)
         variance = tf.reduce_mean(tf.square(x - mean), axis=-1, keepdims=True)
         x = (x - mean) / tf.sqrt(variance + epsilon)

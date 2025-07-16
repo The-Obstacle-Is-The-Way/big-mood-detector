@@ -86,6 +86,7 @@ dev = [
     "black>=23.11.0", 
     "mypy>=1.7.0",
     "pre-commit>=3.6.0",
+    "types-h5py>=3.10.0",  # Type stubs for h5py
     
     # 🔥 Hot Reload & Development Experience (2025)
     "arel>=0.3.0",         # Browser hot reload for HTML templates
