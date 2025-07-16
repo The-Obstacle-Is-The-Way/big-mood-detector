@@ -38,7 +38,7 @@ class TestEarlyWarningDetector:
             circadian_shift_hours=0.5,
             consecutive_days=3,
         )
-        
+
         assert result.depression_warning is True
         assert "sleep increase" in result.clinical_summary.lower()
         assert len(result.warning_signs) >= 1
@@ -51,7 +51,7 @@ class TestEarlyWarningDetector:
             circadian_shift_hours=0,
             consecutive_days=3,
         )
-        
+
         assert result.depression_warning is True
         assert "activity reduction" in result.clinical_summary.lower()
         assert not result.mania_warning
@@ -64,7 +64,7 @@ class TestEarlyWarningDetector:
             circadian_shift_hours=0,
             consecutive_days=2,
         )
-        
+
         assert result.mania_warning is True
         assert "sleep reduction" in result.clinical_summary.lower()
         assert not result.depression_warning
@@ -77,7 +77,7 @@ class TestEarlyWarningDetector:
             circadian_shift_hours=0,
             consecutive_days=2,
         )
-        
+
         assert result.mania_warning is True
         assert "activity increase" in result.clinical_summary.lower()
 
@@ -89,7 +89,7 @@ class TestEarlyWarningDetector:
             circadian_shift_hours=1.5,  # Depression sign
             consecutive_days=3,
         )
-        
+
         assert result.depression_warning is True
         assert result.mania_warning is True
         assert "mixed" in result.clinical_summary.lower()
@@ -105,7 +105,7 @@ class TestEarlyWarningDetector:
             consecutive_days=3,
             speech_pattern_change=True,
         )
-        
+
         assert result.trigger_intervention is True
         assert result.urgency_level == "high"
         assert "immediate" in result.clinical_summary.lower()
@@ -118,7 +118,7 @@ class TestEarlyWarningDetector:
             circadian_shift_hours=0.25,  # Normal variation
             consecutive_days=1,
         )
-        
+
         assert result.depression_warning is False
         assert result.mania_warning is False
         assert result.trigger_intervention is False
@@ -132,7 +132,7 @@ class TestEarlyWarningDetector:
             circadian_shift_hours=2,  # Significant but...
             consecutive_days=1,  # Not enough days
         )
-        
+
         # Should detect signs but not trigger intervention
         assert len(result.warning_signs) > 0
         assert result.trigger_intervention is False
@@ -147,7 +147,7 @@ class TestEarlyWarningDetector:
             consecutive_days=2,
             speech_pattern_change=True,  # Key mania indicator
         )
-        
+
         assert result.mania_warning is True
         assert "speech" in result.clinical_summary.lower()
         assert any("speech" in sign.lower() for sign in result.warning_signs)
@@ -160,7 +160,7 @@ class TestEarlyWarningDetector:
             circadian_shift_hours=3,  # Severe
             consecutive_days=5,  # Extended period
         )
-        
+
         assert result.severity_score > 0.7  # High severity
         assert result.confidence > 0.8  # High confidence with multiple indicators
 
@@ -177,6 +177,6 @@ class TestEarlyWarningDetector:
                 "activity_sensitivity": 1.5,  # More sensitive to activity changes
             }
         )
-        
+
         assert personalized_result.depression_warning is True
         assert "personalized threshold" in personalized_result.clinical_summary.lower()

@@ -26,6 +26,9 @@ from big_mood_detector.domain.services.clinical_thresholds import (
 from big_mood_detector.domain.services.dsm5_criteria_evaluator import (
     DSM5CriteriaEvaluator,
 )
+from big_mood_detector.domain.services.early_warning_detector import (
+    EarlyWarningDetector,
+)
 from big_mood_detector.domain.services.episode_interpreter import (
     EpisodeInterpreter,
 )
@@ -174,6 +177,7 @@ class ClinicalInterpreter:
         self.treatment_recommender = TreatmentRecommender(config)
         self.dsm5_evaluator = DSM5CriteriaEvaluator(config)
         self.risk_assessor = RiskLevelAssessor(config)
+        self.early_warning_detector = EarlyWarningDetector(config)
 
     def interpret_depression_score(
         self,
@@ -510,40 +514,27 @@ class ClinicalInterpreter:
         speech_rate_increase: bool = False,
         consecutive_days: int = 1,
     ) -> EarlyWarningResult:
-        """Detect early warning signs of mood episodes."""
-        result = EarlyWarningResult()
+        """Detect early warning signs of mood episodes - delegates to EarlyWarningDetector."""
+        # Convert to net changes for the detector
+        sleep_change_hours = sleep_increase_hours - sleep_decrease_hours
+        activity_change_percent = activity_increase_percent - activity_decrease_percent
 
-        # Depression warnings
-        if sleep_increase_hours > 2:
-            result.warning_signs.append("Significant sleep increase")
-            result.depression_warning = True
+        # Delegate to specialized detector
+        detector_result = self.early_warning_detector.detect_warnings(
+            sleep_change_hours=sleep_change_hours,
+            activity_change_percent=activity_change_percent,
+            circadian_shift_hours=circadian_delay_hours,
+            consecutive_days=consecutive_days,
+            speech_pattern_change=speech_rate_increase,
+        )
 
-        if activity_decrease_percent > 30:
-            result.warning_signs.append("Major activity reduction")
-            result.depression_warning = True
-
-        if circadian_delay_hours > 1:
-            result.warning_signs.append("Circadian phase delay")
-            result.depression_warning = True
-
-        # Mania warnings
-        if sleep_decrease_hours > 2:
-            result.warning_signs.append("Significant sleep reduction")
-            result.mania_warning = True
-
-        if activity_increase_percent > 50:
-            result.warning_signs.append("Major activity increase")
-            result.mania_warning = True
-
-        if speech_rate_increase:
-            result.warning_signs.append("Increased speech rate")
-            result.mania_warning = True
-
-        # Trigger intervention if multiple signs for consecutive days
-        if len(result.warning_signs) >= 3 and consecutive_days >= 3:
-            result.trigger_intervention = True
-
-        return result
+        # Convert back to legacy EarlyWarningResult format
+        return EarlyWarningResult(
+            depression_warning=detector_result.depression_warning,
+            mania_warning=detector_result.mania_warning,
+            trigger_intervention=detector_result.trigger_intervention,
+            warning_signs=detector_result.warning_signs,
+        )
 
     def adjust_confidence(
         self,
