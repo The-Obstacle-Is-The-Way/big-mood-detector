@@ -443,7 +443,7 @@ class TemporalFeatureCalculator:
                 if effect_size > 0.8:
                     change_points.append(ChangePoint(
                         index=i,
-                        date=data[i].date,
+                        date=data[i].date,  # type: ignore[attr-defined]
                         magnitude=float(after_mean - before_mean),
                         direction="increase" if after_mean > before_mean else "decrease"
                     ))
@@ -480,8 +480,8 @@ class TemporalFeatureCalculator:
             )
 
         # Align data by dates
-        dates1 = {d.date: metric1_extractor(d) for d in data1}
-        dates2 = {d.date: metric2_extractor(d) for d in data2}
+        dates1 = {d.date: metric1_extractor(d) for d in data1}  # type: ignore[attr-defined]
+        dates2 = {d.date: metric2_extractor(d) for d in data2}  # type: ignore[attr-defined]
 
         # Find common dates
         common_dates = sorted(set(dates1.keys()) & set(dates2.keys()))

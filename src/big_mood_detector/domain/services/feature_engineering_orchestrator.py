@@ -313,7 +313,7 @@ class FeatureEngineeringOrchestrator:
             Completeness report with coverage metrics
         """
         # Get date ranges
-        all_dates = set()
+        all_dates: set[date] = set()
         sleep_dates = {s.date for s in sleep_data}
         activity_dates = {a.date for a in activity_data}
         heart_dates = {h.date for h in heart_data}
