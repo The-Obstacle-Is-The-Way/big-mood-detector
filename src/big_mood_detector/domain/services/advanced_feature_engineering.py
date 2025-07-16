@@ -560,7 +560,12 @@ class AdvancedFeatureEngineer:
 
         # First derivative squared
         diffs = np.diff(durations)
-        iv = np.mean(diffs**2) / np.var(durations)
+        var_durations = np.var(durations)
+        if var_durations == 0:
+            # If all durations are identical, IV = 0 (perfectly stable)
+            iv = 0.0
+        else:
+            iv = np.mean(diffs**2) / var_durations
 
         return float(min(2.0, iv))  # Cap at 2.0
 
