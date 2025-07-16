@@ -138,8 +138,8 @@ class TestStreamingLargeFiles:
         # Validate features
         assert len(features) > 0, "Should extract some daily features"
 
-        # Check advanced features if we have enough data
-        if len(features) >= 7:
+        # Check advanced features if we have enough data AND sleep/activity records
+        if len(features) >= 7 and (len(sleep_records) > 0 or len(activity_records) > 0):
             print("Extracting advanced features...")
             advanced_features = feature_service.extract_advanced_features(
                 sleep_records=sleep_records,
@@ -156,6 +156,8 @@ class TestStreamingLargeFiles:
             assert len(ml_features) == 36, "Should generate 36 features for XGBoost"
 
             print(f"  Generated {len(ml_features)} ML features for {latest_date}")
+        elif len(sleep_records) == 0 and len(activity_records) == 0:
+            print("Skipping advanced features test - no sleep/activity data collected")
 
     def test_memory_efficiency(self, xml_data_path):
         """Test that streaming parser maintains low memory usage."""

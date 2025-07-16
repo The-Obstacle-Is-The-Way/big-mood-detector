@@ -169,7 +169,7 @@ class TestInterpolationStrategies:
     def test_circadian_aware_interpolation(self):
         """Should use circadian patterns for activity interpolation."""
         # Given: Activity data with small gaps
-        times = pd.date_range("2025-01-01", periods=48, freq="H")
+        times = pd.date_range("2025-01-01", periods=48, freq="h")
         # Create circadian pattern with gaps
         values = 100 + 50 * np.sin(2 * np.pi * np.arange(48) / 24)
         values[[12, 13, 36, 37]] = np.nan  # Add gaps
@@ -193,7 +193,7 @@ class TestInterpolationStrategies:
     def test_forward_fill_for_sleep_states(self):
         """Should forward-fill categorical sleep states."""
         # Given: Sleep state data with gaps
-        times = pd.date_range("2025-01-01 22:00", periods=10, freq="H")
+        times = pd.date_range("2025-01-01 22:00", periods=10, freq="h")
         states = [
             "AWAKE",
             "LIGHT",

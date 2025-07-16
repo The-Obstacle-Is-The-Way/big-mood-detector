@@ -37,9 +37,6 @@ import warnings
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta
 
-import numpy as np
-from scipy.signal import find_peaks
-
 from big_mood_detector.domain.entities.activity_record import ActivityRecord
 from big_mood_detector.domain.entities.sleep_record import SleepRecord
 
@@ -444,35 +441,35 @@ class DLMOCalculator:
         """
         # Target phase angle for CBT minimum (St. Hilaire equation 11)
         target_phase_angle = math.radians(-170.7)  # Convert to radians
-        
+
         # Find when phase angle is closest to target
         best_hour = 0
         min_phase_diff = float('inf')
-        
+
         for hour, state_x, state_xc, _ in circadian_states:
             # Calculate current phase angle: arctan(x_c/x)
             if abs(state_x) > 1e-10:  # Avoid division by zero
                 current_phase_angle = math.atan2(state_xc, state_x)
-                
+
                 # Calculate difference from target (handling wraparound)
                 phase_diff = abs(current_phase_angle - target_phase_angle)
                 phase_diff = min(phase_diff, 2 * math.pi - phase_diff)
-                
+
                 if phase_diff < min_phase_diff:
                     min_phase_diff = phase_diff
                     best_hour = hour
-        
+
         cbt_min_hour = best_hour
-        
+
         # Calculate CBT amplitude using proxy method for confidence
         cbt_values = []
         for _, state_x, state_xc, _ in circadian_states:
             # Simple CBT proxy for amplitude calculation
             cbt_proxy = -state_xc * math.cos(state_x)
             cbt_values.append(cbt_proxy)
-        
+
         cbt_amplitude = max(cbt_values) - min(cbt_values)
-        
+
         # DLMO = CBT min - offset (now should work with standard 7h offset!)
         dlmo_hour = (cbt_min_hour - self.CBT_TO_DLMO_OFFSET) % 24
 
@@ -484,7 +481,7 @@ class DLMOCalculator:
         confidence = 1.0 - (min_phase_diff / math.pi)  # Better angle match = higher confidence
         if not (1.5 <= phase_angle <= 3.5):  # DLMO should be 1.5-3.5h before sleep
             confidence *= 0.8
-        
+
         # Additional confidence boost if CBT minimum is in expected range (4-6 AM)
         if 4 <= cbt_min_hour <= 6:
             confidence = min(1.0, confidence * 1.2)
