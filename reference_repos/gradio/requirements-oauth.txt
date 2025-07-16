@@ -1,2 +1,0 @@
-authlib
-itsdangerous # required for starlette SessionMiddleware

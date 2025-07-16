@@ -1,5 +1,0 @@
-holidays==0.24
-prophet==1.1.2
-pandas
-pypistats
-plotly

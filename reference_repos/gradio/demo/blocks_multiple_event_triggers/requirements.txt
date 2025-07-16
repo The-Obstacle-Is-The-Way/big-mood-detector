@@ -1,3 +1,0 @@
-plotly
-pypistats
-python-dateutil

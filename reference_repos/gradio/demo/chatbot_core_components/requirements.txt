@@ -1,4 +1,0 @@
-plotly
-numpy
-pandas
-matplotlib

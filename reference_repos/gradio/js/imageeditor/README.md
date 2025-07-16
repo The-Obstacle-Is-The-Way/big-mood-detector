@@ -1,3 +1,0 @@
-# `@gradio/imageeditor`
-
-hello
