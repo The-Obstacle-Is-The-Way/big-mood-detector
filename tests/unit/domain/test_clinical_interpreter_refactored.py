@@ -6,7 +6,7 @@ Ensures the refactored facade works correctly with extracted services.
 
 import pytest
 
-from big_mood_detector.domain.services.clinical_interpreter_refactored import (
+from big_mood_detector.domain.services.clinical_interpreter import (
     ClinicalInterpreter,
     RiskLevel,
     EpisodeType,
