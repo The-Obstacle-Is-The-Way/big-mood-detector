@@ -73,7 +73,7 @@ class SleepFeatureCalculator:
         regularity_raw = 100 - (sleep_std + wake_std) * 10
 
         # Clamp to 0-100 range
-        return float(max(0.0, min(100.0, regularity_raw)))
+        return float(max(0.0, min(100.0, float(regularity_raw))))
 
     def calculate_interdaily_stability(self, sleep_summaries: list[DailySleepSummary]) -> float:
         """
@@ -204,7 +204,7 @@ class SleepFeatureCalculator:
         # Combine metrics
         ra_value = (duration_consistency + avg_efficiency) / 2
 
-        return float(max(0.0, min(1.0, ra_value)))
+        return float(max(0.0, min(1.0, float(ra_value))))
 
     def calculate_sleep_window_percentages(
         self, sleep_summaries: list[DailySleepSummary]
