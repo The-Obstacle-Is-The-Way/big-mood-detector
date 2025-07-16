@@ -241,10 +241,9 @@ class DirectPATModel:
         # Linear projection
         x = tf.matmul(x, self.weights['dense_kernel']) + self.weights['dense_bias']
         
-        # Add positional embeddings (simplified - zeros for now)
-        # The original model likely has learned positional embeddings saved separately
-        # For now, we'll just use zeros to not interfere with the features
-        x = x  # Skip positional embeddings for now
+        # Add sinusoidal positional embeddings (matching original PAT implementation)
+        pos_embeddings = self._get_sinusoidal_embeddings(num_patches, self.config['embed_dim'])
+        x = x + pos_embeddings
         
         # Process through transformer blocks
         for i in range(1, self.config['num_layers'] + 1):
