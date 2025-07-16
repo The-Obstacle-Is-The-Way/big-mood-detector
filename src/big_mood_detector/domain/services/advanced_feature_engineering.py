@@ -266,8 +266,8 @@ class AdvancedFeatureEngineer:
         ]
         wake_times = [s.wake_time.hour + s.wake_time.minute / 60 for s in recent_sleep]
 
-        sleep_regularity_raw = 100 - (np.std(sleep_times) + np.std(wake_times)) * 10
-        sleep_regularity = float(max(0.0, min(100.0, sleep_regularity_raw)))
+        sleep_regularity_raw = float(100 - (np.std(sleep_times) + np.std(wake_times)) * 10)
+        sleep_regularity = max(0.0, min(100.0, sleep_regularity_raw))
 
         # Interdaily stability (IS) - consistency across days
         # Uses non-parametric circadian rhythm analysis
@@ -329,15 +329,15 @@ class AdvancedFeatureEngineer:
         population_avg = 23.0  # 11 PM typical
 
         # Calculate phase shift considering 24-hour wrap
-        phase_shift = avg_sleep_time - population_avg
+        phase_shift = float(avg_sleep_time - population_avg)
         # Normalize to -12 to +12 range
         if phase_shift > 12:
             phase_shift -= 24
         elif phase_shift < -12:
             phase_shift += 24
 
-        phase_advance = float(max(0.0, -phase_shift))  # Earlier than normal
-        phase_delay = float(max(0.0, phase_shift))  # Later than normal
+        phase_advance = max(0.0, -phase_shift)  # Earlier than normal
+        phase_delay = max(0.0, phase_shift)  # Later than normal
 
         # DLMO estimation (2 hours before habitual sleep onset)
         dlmo_hour = (avg_sleep_time - 2) % 24

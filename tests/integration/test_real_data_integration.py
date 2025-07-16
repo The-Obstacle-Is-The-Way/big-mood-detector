@@ -23,7 +23,7 @@ class TestRealDataIntegration:
     @pytest.fixture
     def data_path(self):
         """Path to real data directory."""
-        return Path("/Users/ray/Desktop/CLARITY-DIGITAL-TWIN/big-mood-detector/data")
+        return Path("health_auto_export")
 
     @pytest.fixture
     def parsers(self):

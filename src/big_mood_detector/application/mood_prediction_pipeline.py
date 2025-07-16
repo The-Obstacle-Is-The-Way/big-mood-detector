@@ -727,12 +727,15 @@ class MoodPredictionPipeline:
 
             # 7. Calculate statistics (mean, std, z-score)
             if len(sleep_metrics_window) >= 3:  # Reduced threshold for testing
-                features = self._calculate_features_with_stats(
-                    current_date,
-                    daily_metrics,
-                    sleep_metrics_window,
-                    circadian_metrics_window,
-                )
+                if daily_metrics is not None:
+                    features = self._calculate_features_with_stats(
+                        current_date,
+                        daily_metrics,
+                        sleep_metrics_window,
+                        circadian_metrics_window,
+                    )
+                else:
+                    features = None
 
                 if features:
                     daily_features.append(features)
