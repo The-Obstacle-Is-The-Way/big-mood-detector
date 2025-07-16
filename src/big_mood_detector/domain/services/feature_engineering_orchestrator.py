@@ -136,7 +136,7 @@ class FeatureEngineeringOrchestrator:
     def __init__(self, config: dict[str, Any] | None = None):
         """
         Initialize orchestrator with configuration.
-        
+
         Args:
             config: Configuration for all feature calculators
         """
