@@ -143,6 +143,8 @@ class DirectPATModel:
         
         # Reshape weights from (embed_dim, num_heads, embed_dim) to (embed_dim, num_heads * embed_dim)
         q_kernel = self.weights[f'{prefix}_q_kernel']  # Shape: (96, 12, 96)
+        assert q_kernel.shape == (self.config['embed_dim'], self.config['num_heads'], self.config['embed_dim']), \
+            f"Q kernel shape mismatch: {q_kernel.shape}"
         q_kernel = tf.reshape(q_kernel, (q_kernel.shape[0], -1))  # Shape: (96, 1152)
         q_bias = tf.reshape(self.weights[f'{prefix}_q_bias'], (-1,))  # Shape: (1152,)
         
