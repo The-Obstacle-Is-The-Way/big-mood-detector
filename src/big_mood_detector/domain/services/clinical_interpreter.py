@@ -29,6 +29,9 @@ from big_mood_detector.domain.services.dsm5_criteria_evaluator import (
 from big_mood_detector.domain.services.episode_interpreter import (
     EpisodeInterpreter,
 )
+from big_mood_detector.domain.services.risk_level_assessor import (
+    RiskLevelAssessor,
+)
 from big_mood_detector.domain.services.treatment_recommender import (
     TreatmentRecommender,
 )
