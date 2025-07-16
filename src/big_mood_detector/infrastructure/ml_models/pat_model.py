@@ -116,25 +116,32 @@ class PATModel:
             # First try to load as a complete model (for fixed models)
             try:
                 self.model = tf.keras.models.load_model(
-                    str(weights_path),
-                    compile=False
+                    str(weights_path), compile=False
                 )
                 self.is_loaded = True
-                logger.info(f"Successfully loaded complete PAT-{self.model_size.upper()} model from {weights_path}")
+                logger.info(
+                    f"Successfully loaded complete PAT-{self.model_size.upper()} model from {weights_path}"
+                )
                 return True
             except Exception:
                 # If that fails, reconstruct architecture and load weights
-                logger.info(f"Loading as complete model failed, reconstructing architecture for PAT-{self.model_size.upper()}")
-                
+                logger.info(
+                    f"Loading as complete model failed, reconstructing architecture for PAT-{self.model_size.upper()}"
+                )
+
             # Try direct weight loading approach
-            from big_mood_detector.infrastructure.ml_models.pat_loader_direct import DirectPATModel
-            
+            from big_mood_detector.infrastructure.ml_models.pat_loader_direct import (
+                DirectPATModel,
+            )
+
             logger.info("Using direct weight loading approach for PAT model")
             self._direct_model = DirectPATModel(self.model_size)
-            
+
             if self._direct_model.load_weights(weights_path):
                 self.is_loaded = True
-                logger.info(f"Successfully loaded PAT-{self.model_size.upper()} using direct weight loading")
+                logger.info(
+                    f"Successfully loaded PAT-{self.model_size.upper()} using direct weight loading"
+                )
                 logger.info("Model ready for inference")
                 return True
             else:
@@ -142,8 +149,12 @@ class PATModel:
 
         except Exception as e:
             logger.error(f"Failed to load pretrained weights: {e}")
-            logger.info("PAT models are saved as encoder-only weights after masked autoencoder pretraining.")
-            logger.info("The system will gracefully fall back to XGBoost-only predictions.")
+            logger.info(
+                "PAT models are saved as encoder-only weights after masked autoencoder pretraining."
+            )
+            logger.info(
+                "The system will gracefully fall back to XGBoost-only predictions."
+            )
             self.model = None
             self.is_loaded = False
             return False
@@ -165,7 +176,7 @@ class PATModel:
         model_input = self._prepare_input(sequence)
 
         # Get encoder output
-        if hasattr(self, '_direct_model') and self._direct_model is not None:
+        if hasattr(self, "_direct_model") and self._direct_model is not None:
             # Use direct model for inference (already pooled inside)
             features = self._direct_model.extract_features(model_input)
             features = features.numpy()
@@ -198,13 +209,16 @@ class PATModel:
         batch_input = np.vstack([self._prepare_input(seq) for seq in sequences])
 
         # Get features
-        if self.model is not None:
+        if hasattr(self, "_direct_model") and self._direct_model is not None:
+            # Use direct model for batch inference (already pooled)
+            features = self._direct_model.extract_features(batch_input)
+            features = features.numpy()
+        elif self.model is not None:
             features = self.model.predict(batch_input, verbose=0)
+            # Average pool over sequence dimension
+            features = np.mean(features, axis=1)
         else:
-            raise RuntimeError("Model is None despite being marked as loaded")
-
-        # Average pool
-        features = np.mean(features, axis=1)
+            raise RuntimeError("No model available for inference")
 
         return features  # type: ignore[no-any-return]
 
@@ -241,7 +255,6 @@ class PATModel:
 
         # Add batch dimension
         return normalized.reshape(1, -1)
-
 
     def _get_positional_embeddings(self, num_patches: int, embed_dim: int) -> tf.Tensor:
         """

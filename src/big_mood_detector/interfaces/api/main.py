@@ -1,11 +1,11 @@
 """
 Minimal API for health checks and basic operations.
 
-This is intentionally minimal - full API development comes after 
+This is intentionally minimal - full API development comes after
 core functionality is proven stable.
 """
 
-from fastapi import FastAPI, Response
+from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 
 app = FastAPI(
@@ -23,8 +23,8 @@ async def health_check():
         content={
             "status": "healthy",
             "service": "big-mood-detector",
-            "version": "0.1.0"
-        }
+            "version": "0.1.0",
+        },
     )
 
 
@@ -36,10 +36,10 @@ async def root():
         "endpoints": {
             "/health": "Health check",
             "/docs": "API documentation (this page)",
-        }
+        },
     }
 
 
-# Note: Full API endpoints (predictions, data processing, etc.) 
+# Note: Full API endpoints (predictions, data processing, etc.)
 # will be added after core functionality is thoroughly tested
 # and the vertical slice is proven to work end-to-end.
