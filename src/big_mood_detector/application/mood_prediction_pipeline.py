@@ -703,7 +703,9 @@ class MoodPredictionPipeline:
                         f"  Found {len(dlmo_sleep)} sleep records for DLMO calculation"
                     )
                 dlmo_result = self.dlmo_calculator.calculate_dlmo(
-                    dlmo_sleep, current_date, days_to_model=min(7, len(dlmo_sleep))
+                    sleep_records=dlmo_sleep,
+                    target_date=current_date,
+                    days_to_model=min(7, len(dlmo_sleep))
                 )
 
             # 5. Extract daily metrics
