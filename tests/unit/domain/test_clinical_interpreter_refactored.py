@@ -8,8 +8,8 @@ import pytest
 
 from big_mood_detector.domain.services.clinical_interpreter import (
     ClinicalInterpreter,
-    RiskLevel,
     EpisodeType,
+    RiskLevel,
 )
 from big_mood_detector.domain.services.clinical_thresholds import (
     load_clinical_thresholds,
@@ -37,7 +37,7 @@ class TestClinicalInterpreterRefactored:
             sleep_hours=7.5,
             activity_steps=6000,
         )
-        
+
         assert result.risk_level == RiskLevel.MODERATE
         assert result.episode_type == EpisodeType.DEPRESSIVE
         assert result.dsm5_criteria_met is True
@@ -51,7 +51,7 @@ class TestClinicalInterpreterRefactored:
             sleep_hours=5.0,
             activity_steps=12000,
         )
-        
+
         assert result.risk_level == RiskLevel.MODERATE
         assert result.episode_type == EpisodeType.HYPOMANIC
         assert result.dsm5_criteria_met is True
@@ -65,17 +65,17 @@ class TestClinicalInterpreterRefactored:
             sleep_efficiency=0.70,
             sleep_timing_variance=3.0,
         )
-        
+
         assert sleep_result.mania_risk_factors == 3
         assert sleep_result.recommendation_priority == "urgent"
-        
+
         # Test activity biomarkers
         activity_result = interpreter.interpret_activity_biomarkers(
             daily_steps=18000,
             sedentary_hours=6.0,
             activity_variance=0.5,
         )
-        
+
         assert activity_result.mania_risk_factors > 0
 
     def test_treatment_recommendations_delegate(self, interpreter):
@@ -85,7 +85,7 @@ class TestClinicalInterpreterRefactored:
             severity=RiskLevel.HIGH,
             current_medications=[],
         )
-        
+
         assert len(recs) > 0
         med_names = [r.medication for r in recs]
         assert any(med in med_names for med in ["lithium", "quetiapine"])
@@ -98,9 +98,9 @@ class TestClinicalInterpreterRefactored:
             current_medications=[],
             mood_state="depressed",
         )
-        
-        assert result["approved"] is False
-        assert "contraindicated" in result["rationale"]
+
+        assert result.approved is False
+        assert "contraindicated" in result.rationale
 
     def test_backward_compatibility(self, interpreter):
         """Test that the refactored version maintains backward compatibility."""
@@ -112,3 +112,4 @@ class TestClinicalInterpreterRefactored:
         assert hasattr(interpreter, 'interpret_circadian_biomarkers')
         assert hasattr(interpreter, 'get_treatment_recommendations')
         assert hasattr(interpreter, 'apply_clinical_rules')
+

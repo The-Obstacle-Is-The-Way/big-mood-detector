@@ -87,6 +87,30 @@ class ConfidenceAdjustment:
 
 
 @dataclass
+class RiskTrend:
+    """Risk trend analysis over time."""
+    direction: str  # worsening, stable, improving
+    velocity: float
+    clinical_note: str
+
+
+@dataclass
+class PersonalizedThresholds:
+    """Individualized clinical thresholds."""
+    sleep_low: float
+    sleep_high: float
+    activity_low: float
+    activity_high: float
+
+
+@dataclass
+class ClinicalDecision:
+    """Clinical decision rule result."""
+    approved: bool
+    rationale: str
+
+
+@dataclass
 class ClinicalInterpretation:
     """Complete clinical interpretation of mood state."""
     risk_level: RiskLevel
@@ -112,20 +136,20 @@ class BiomarkerInterpretation:
 class ClinicalInterpreter:
     """
     Refactored Clinical Interpreter - Facade for clinical interpretation services.
-    
+
     This class now acts as a facade, delegating to specialized services:
     - EpisodeInterpreter: Interprets mood episodes
     - BiomarkerInterpreter: Interprets digital biomarkers
     - TreatmentRecommender: Provides treatment recommendations
-    
+
     This follows the Single Responsibility Principle and makes the code
     more maintainable and testable.
     """
-    
+
     def __init__(self, config: ClinicalThresholdsConfig | None = None):
         """
         Initialize the clinical interpreter with injected services.
-        
+
         Args:
             config: Clinical thresholds configuration. If None, loads from default path.
         """
@@ -135,14 +159,14 @@ class ClinicalInterpreter:
                 config = load_clinical_thresholds(default_path)
             else:
                 raise ValueError("No configuration provided and default not found")
-        
+
         self.config = config
-        
+
         # Initialize specialized services
         self.episode_interpreter = EpisodeInterpreter(config)
         self.biomarker_interpreter = BiomarkerInterpreter(config)
         self.treatment_recommender = TreatmentRecommender(config)
-    
+
     def interpret_depression_score(
         self,
         phq_score: float,
@@ -159,11 +183,11 @@ class ClinicalInterpreter:
             activity_steps=activity_steps,
             suicidal_ideation=suicidal_ideation,
         )
-        
+
         # Convert to legacy format for backward compatibility
         risk_level = RiskLevel(result.risk_level)
         episode_type = EpisodeType(result.episode_type)
-        
+
         # Get recommendations if needed
         recommendations = []
         if risk_level in [RiskLevel.MODERATE, RiskLevel.HIGH, RiskLevel.CRITICAL]:
@@ -181,7 +205,7 @@ class ClinicalInterpreter:
                 )
                 for r in recs
             ]
-        
+
         return ClinicalInterpretation(
             risk_level=risk_level,
             episode_type=episode_type,
@@ -195,7 +219,7 @@ class ClinicalInterpreter:
                 "activity_steps": activity_steps,
             }
         )
-    
+
     def interpret_mania_score(
         self,
         asrm_score: float,
@@ -212,11 +236,11 @@ class ClinicalInterpreter:
             activity_steps=activity_steps,
             psychotic_features=psychotic_features,
         )
-        
+
         # Convert and get recommendations
         risk_level = RiskLevel(result.risk_level)
         episode_type = EpisodeType(result.episode_type)
-        
+
         recommendations = []
         if risk_level in [RiskLevel.MODERATE, RiskLevel.HIGH, RiskLevel.CRITICAL]:
             recs = self.treatment_recommender.get_recommendations(
@@ -233,7 +257,7 @@ class ClinicalInterpreter:
                 )
                 for r in recs
             ]
-        
+
         return ClinicalInterpretation(
             risk_level=risk_level,
             episode_type=episode_type,
@@ -247,7 +271,7 @@ class ClinicalInterpreter:
                 "activity_steps": activity_steps,
             }
         )
-    
+
     def interpret_sleep_biomarkers(
         self,
         sleep_duration: float,
@@ -262,7 +286,7 @@ class ClinicalInterpreter:
             sleep_efficiency=sleep_efficiency,
             sleep_timing_variance=sleep_timing_variance,
         )
-        
+
         # Convert to legacy format
         return BiomarkerInterpretation(
             mania_risk_factors=result.mania_risk_factors,
@@ -272,7 +296,7 @@ class ClinicalInterpreter:
             mood_instability_risk=result.mood_instability_risk,
             clinical_summary=result.clinical_summary,
         )
-    
+
     def interpret_activity_biomarkers(
         self,
         daily_steps: int,
@@ -286,7 +310,7 @@ class ClinicalInterpreter:
             daily_steps=daily_steps,
             sedentary_hours=sedentary_hours,
         )
-        
+
         return BiomarkerInterpretation(
             mania_risk_factors=result.mania_risk_factors,
             depression_risk_factors=result.depression_risk_factors,
@@ -295,7 +319,7 @@ class ClinicalInterpreter:
             mood_instability_risk=result.mood_instability_risk,
             clinical_summary=result.clinical_summary,
         )
-    
+
     def interpret_circadian_biomarkers(
         self,
         circadian_phase_advance: float,
@@ -310,7 +334,7 @@ class ClinicalInterpreter:
             interdaily_stability=interdaily_stability,
             intradaily_variability=intradaily_variability,
         )
-        
+
         return BiomarkerInterpretation(
             mania_risk_factors=result.mania_risk_factors,
             depression_risk_factors=result.depression_risk_factors,
@@ -319,7 +343,7 @@ class ClinicalInterpreter:
             mood_instability_risk=result.mood_instability_risk,
             clinical_summary=result.clinical_summary,
         )
-    
+
     def get_treatment_recommendations(
         self,
         episode_type: EpisodeType,
@@ -338,7 +362,7 @@ class ClinicalInterpreter:
             contraindications=contraindications,
             rapid_cycling=rapid_cycling,
         )
-        
+
         return [
             ClinicalRecommendation(
                 medication=r.medication,
@@ -348,14 +372,14 @@ class ClinicalInterpreter:
             )
             for r in recs
         ]
-    
+
     def apply_clinical_rules(
         self,
         diagnosis: str,
         proposed_treatment: str,
         current_medications: list[str],
         mood_state: str,
-    ) -> dict[str, Any]:
+    ) -> ClinicalDecision:
         """
         Apply clinical rules - delegates to TreatmentRecommender.
         """
@@ -365,12 +389,12 @@ class ClinicalInterpreter:
             current_medications=current_medications,
             mood_state=mood_state,
         )
-        
-        return {
-            "approved": decision.approved,
-            "rationale": decision.rationale,
-        }
-    
+
+        return ClinicalDecision(
+            approved=decision.approved,
+            rationale=decision.rationale,
+        )
+
     def interpret_mixed_state(
         self,
         phq_score: float,
@@ -386,7 +410,7 @@ class ClinicalInterpreter:
     ) -> ClinicalInterpretation:
         """
         Interpret mixed mood state - delegates to EpisodeInterpreter.
-        
+
         Mixed episodes have symptoms of both depression and mania/hypomania.
         """
         result = self.episode_interpreter.interpret_mixed_state(
@@ -401,11 +425,11 @@ class ClinicalInterpreter:
             anhedonia=anhedonia,
             guilt=guilt,
         )
-        
+
         # Convert to legacy format for backward compatibility
         risk_level = RiskLevel(result.risk_level)
         episode_type = EpisodeType(result.episode_type)
-        
+
         # Get recommendations
         recommendations = []
         if risk_level in [RiskLevel.MODERATE, RiskLevel.HIGH, RiskLevel.CRITICAL]:
@@ -423,7 +447,7 @@ class ClinicalInterpreter:
                 )
                 for r in recs
             ]
-        
+
         return ClinicalInterpretation(
             risk_level=risk_level,
             episode_type=episode_type,
@@ -440,7 +464,7 @@ class ClinicalInterpreter:
                 "increased_energy": increased_energy,
             }
         )
-    
+
     def evaluate_episode_duration(
         self,
         episode_type: EpisodeType,
@@ -449,7 +473,7 @@ class ClinicalInterpreter:
     ) -> DSM5Criteria:
         """
         Evaluate if episode duration meets DSM-5 criteria.
-        
+
         DSM-5 Duration Requirements:
         - Manic: ≥7 days (or any duration if hospitalization)
         - Hypomanic: ≥4 days
@@ -458,11 +482,11 @@ class ClinicalInterpreter:
         """
         # Get duration requirements from config
         duration_config = self.config.dsm5_duration
-        
+
         # Check requirements based on episode type
         duration_met = False
         required_days = 0
-        
+
         if episode_type == EpisodeType.MANIC:
             required_days = duration_config.manic_days
             duration_met = symptom_days >= required_days or hospitalization
@@ -481,7 +505,7 @@ class ClinicalInterpreter:
             duration_met = symptom_days >= required_days or (
                 "manic" in episode_type.value and hospitalization
             )
-        
+
         # Create criteria result
         if duration_met:
             note = f"Episode duration of {symptom_days} days meets DSM-5 criteria"
@@ -489,10 +513,10 @@ class ClinicalInterpreter:
             # Format message to match test expectations
             episode_name = episode_type.value.replace("_", " ")
             note = f"Duration insufficient for {episode_name} episode ({symptom_days} days < {required_days} days required)"
-        
+
         if hospitalization and episode_type == EpisodeType.MANIC:
             note += " (hospitalization overrides duration requirement)"
-        
+
         return DSM5Criteria(
             meets_dsm5_criteria=duration_met,
             clinical_note=note,
@@ -500,7 +524,7 @@ class ClinicalInterpreter:
             symptom_count_met=True,  # Assume this was evaluated separately
             functional_impairment=True,  # Assume this was evaluated separately
         )
-    
+
     def detect_early_warnings(
         self,
         sleep_increase_hours: float = 0,
@@ -513,39 +537,39 @@ class ClinicalInterpreter:
     ) -> EarlyWarningResult:
         """Detect early warning signs of mood episodes."""
         result = EarlyWarningResult()
-        
+
         # Depression warnings
         if sleep_increase_hours > 2:
             result.warning_signs.append("Significant sleep increase")
             result.depression_warning = True
-        
+
         if activity_decrease_percent > 30:
             result.warning_signs.append("Major activity reduction")
             result.depression_warning = True
-        
+
         if circadian_delay_hours > 1:
             result.warning_signs.append("Circadian phase delay")
             result.depression_warning = True
-        
+
         # Mania warnings
         if sleep_decrease_hours > 2:
             result.warning_signs.append("Significant sleep reduction")
             result.mania_warning = True
-        
+
         if activity_increase_percent > 50:
             result.warning_signs.append("Major activity increase")
             result.mania_warning = True
-        
+
         if speech_rate_increase:
             result.warning_signs.append("Increased speech rate")
             result.mania_warning = True
-        
+
         # Trigger intervention if multiple signs for consecutive days
         if len(result.warning_signs) >= 3 and consecutive_days >= 3:
             result.trigger_intervention = True
-        
+
         return result
-    
+
     def adjust_confidence(
         self,
         base_confidence: float,
@@ -556,24 +580,24 @@ class ClinicalInterpreter:
         """Adjust prediction confidence based on data quality."""
         adjusted = base_confidence
         limitations = []
-        
+
         # Data completeness threshold (75%)
         if data_completeness < 0.75:
             adjusted *= 0.8
             limitations.append("Insufficient data completeness")
-        
+
         # Minimum days requirement (30)
         if days_of_data < 30:
             adjusted *= 0.8
             limitations.append(f"Limited historical data ({days_of_data} days)")
-        
+
         # Critical missing features
         critical_features = ["sleep_duration", "activity_level", "mood_scores"]
         missing_critical = [f for f in missing_features if f in critical_features]
         if missing_critical:
             adjusted *= 0.7
             limitations.append(f"Missing critical features: {', '.join(missing_critical)}")
-        
+
         # Determine reliability level
         if adjusted >= 0.8:
             reliability = "high"
@@ -581,9 +605,110 @@ class ClinicalInterpreter:
             reliability = "medium"
         else:
             reliability = "low"
-        
+
         return ConfidenceAdjustment(
             adjusted_confidence=adjusted,
             reliability=reliability,
             limitations=limitations,
         )
+
+    def generate_clinical_summary(self, interpretation: ClinicalInterpretation) -> str:
+        """Generate human-readable clinical summary."""
+        parts = []
+
+        # Risk level
+        parts.append(f"Clinical assessment indicates {interpretation.risk_level.value} risk")
+
+        # Episode type
+        if interpretation.episode_type != EpisodeType.NONE:
+            episode_text = interpretation.episode_type.value.replace('_', ' ')
+            if episode_text == "depressive":
+                episode_text = "major depressive episode"
+            parts.append(f"for {episode_text}")
+
+        # DSM-5 criteria
+        if interpretation.dsm5_criteria_met:
+            parts.append("meeting DSM-5 criteria")
+
+        # Confidence
+        parts.append(f"(confidence: {interpretation.confidence:.0%})")
+
+        # Clinical features
+        if "phq_score" in interpretation.clinical_features:
+            parts.append(f"PHQ score: {interpretation.clinical_features['phq_score']}")
+
+        return ". ".join(parts) + "."
+
+    def analyze_risk_trend(
+        self,
+        risk_scores: list[float],
+        dates: list[datetime],
+        episode_type: EpisodeType,
+    ) -> RiskTrend:
+        """Analyze trend in risk scores over time."""
+        if len(risk_scores) < 2:
+            return RiskTrend(
+                direction="stable",
+                velocity=0.0,
+                clinical_note="Insufficient data for trend analysis",
+            )
+
+        # Calculate trend using simple linear regression
+        n = len(risk_scores)
+        x = list(range(n))
+
+        # Calculate slope
+        x_mean = sum(x) / n
+        y_mean = sum(risk_scores) / n
+
+        numerator = sum((x[i] - x_mean) * (risk_scores[i] - y_mean) for i in range(n))
+        denominator = sum((x[i] - x_mean) ** 2 for i in range(n))
+
+        if denominator == 0:
+            slope = 0.0
+        else:
+            slope = numerator / denominator
+
+        # Determine direction
+        if slope > 0.1:
+            direction = "worsening"
+        elif slope < -0.1:
+            direction = "improving"
+        else:
+            direction = "stable"
+
+        # Generate clinical note
+        if direction == "worsening":
+            note = f"Risk scores showing increasing trend for {episode_type.value} episode"
+        elif direction == "improving":
+            note = "Risk scores showing decreasing trend, clinical improvement noted"
+        else:
+            note = f"Risk scores remain stable for {episode_type.value} monitoring"
+
+        return RiskTrend(
+            direction=direction,
+            velocity=slope,  # Keep sign to indicate direction
+            clinical_note=note,
+        )
+
+    def calculate_personalized_thresholds(
+        self,
+        individual_baseline: dict[str, float],
+        population_norms: dict[str, float],
+    ) -> PersonalizedThresholds:
+        """Calculate personalized clinical thresholds."""
+        # Sleep thresholds (2 SD from individual mean)
+        sleep_mean = individual_baseline["sleep_mean"]
+        sleep_std = individual_baseline["sleep_std"]
+
+        # Activity thresholds
+        activity_mean = individual_baseline["activity_mean"]
+        activity_std = individual_baseline["activity_std"]
+
+        return PersonalizedThresholds(
+            sleep_low=max(3, sleep_mean - 2 * sleep_std),  # Never below 3 hours
+            sleep_high=min(12, sleep_mean + 2 * sleep_std),  # Never above 12 hours
+            activity_low=max(0, activity_mean - 2 * activity_std),
+            activity_high=activity_mean + 2 * activity_std,
+        )
+
