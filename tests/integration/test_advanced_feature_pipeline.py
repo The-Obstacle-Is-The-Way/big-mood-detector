@@ -70,7 +70,7 @@ class TestAdvancedFeaturePipeline:
 </HealthData>"""
 
         # Create a temporary file
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.xml', delete=False) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".xml", delete=False) as f:
             f.write(xml_content)
             temp_path = f.name
 
@@ -86,9 +86,9 @@ class TestAdvancedFeaturePipeline:
         parser.add_xml_export(sample_xml_file)
 
         all_records = parser.get_all_records()
-        sleep_records = all_records['sleep']
-        activity_records = all_records['activity']
-        heart_records = all_records['heart_rate']
+        sleep_records = all_records["sleep"]
+        activity_records = all_records["activity"]
+        heart_records = all_records["heart_rate"]
 
         # Extract advanced features
         service = FeatureExtractionService()
@@ -119,7 +119,9 @@ class TestAdvancedFeaturePipeline:
             print(f"\n📊 Advanced Features for {latest_date}:")
             print(f"  Sleep Duration: {features.sleep_duration_hours:.1f} hours")
             print(f"  Sleep Regularity Index: {features.sleep_regularity_index:.1f}")
-            print(f"  Circadian Phase Delay: {features.circadian_phase_delay:.1f} hours")
+            print(
+                f"  Circadian Phase Delay: {features.circadian_phase_delay:.1f} hours"
+            )
             print(f"  Activity Level: {features.total_steps} steps")
             print(f"  Mood Risk Score: {features.mood_risk_score:.2f}")
 
@@ -140,9 +142,9 @@ class TestAdvancedFeaturePipeline:
         parser.add_xml_export(sample_xml_file)
 
         all_records = parser.get_all_records()
-        sleep_records = all_records['sleep']
-        activity_records = all_records['activity']
-        heart_records = all_records['heart_rate']
+        sleep_records = all_records["sleep"]
+        activity_records = all_records["activity"]
+        heart_records = all_records["heart_rate"]
 
         # Extract features
         service = FeatureExtractionService()
@@ -184,9 +186,9 @@ class TestAdvancedFeaturePipeline:
         parser.add_xml_export(sample_xml_file)
 
         all_records = parser.get_all_records()
-        sleep_records = all_records['sleep']
-        activity_records = all_records['activity']
-        heart_records = all_records['heart_rate']
+        sleep_records = all_records["sleep"]
+        activity_records = all_records["activity"]
+        heart_records = all_records["heart_rate"]
 
         # Extract features
         service = FeatureExtractionService()
@@ -207,10 +209,14 @@ class TestAdvancedFeaturePipeline:
 
             for d in sorted_dates:
                 f = advanced_features[d]
-                print(f"{d} | {f.sleep_duration_hours:10.1f} | "
-                      f"{f.sleep_regularity_index:10.1f} | "
-                      f"{f.mood_risk_score:10.2f}")
+                print(
+                    f"{d} | {f.sleep_duration_hours:10.1f} | "
+                    f"{f.sleep_regularity_index:10.1f} | "
+                    f"{f.mood_risk_score:10.2f}"
+                )
 
             # Check that temporal features capture variability
             risk_scores = [advanced_features[d].mood_risk_score for d in sorted_dates]
-            assert max(risk_scores) != min(risk_scores), "Risk scores should vary over time"
+            assert max(risk_scores) != min(
+                risk_scores
+            ), "Risk scores should vary over time"

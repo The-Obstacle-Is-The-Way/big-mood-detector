@@ -81,44 +81,46 @@ class AdvancedFeatures:
     def to_ml_features(self) -> np.ndarray:
         """Convert to feature vector for ML models."""
         # 36 features as required by Seoul study
-        return np.array([
-            self.sleep_duration_hours,
-            self.sleep_efficiency,
-            self.sleep_regularity_index,
-            self.interdaily_stability,
-            self.intradaily_variability,
-            self.relative_amplitude,
-            self.l5_value,
-            self.m10_value,
-            self.circadian_phase_advance,
-            self.circadian_phase_delay,
-            self.short_sleep_window_pct,
-            self.long_sleep_window_pct,
-            self.sleep_onset_variance,
-            self.wake_time_variance,
-            self.total_steps,
-            self.activity_fragmentation,
-            self.sedentary_bout_mean,
-            self.activity_intensity_ratio,
-            self.avg_resting_hr,
-            self.hrv_sdnn,
-            self.sleep_duration_zscore,
-            self.activity_zscore,
-            self.hr_zscore,
-            self.hrv_zscore,
-            self.sleep_7day_mean,
-            self.sleep_7day_std,
-            self.activity_7day_mean,
-            self.activity_7day_std,
-            self.hr_7day_mean,
-            self.hr_7day_std,
-            float(self.is_hypersomnia_pattern),
-            float(self.is_insomnia_pattern),
-            float(self.is_phase_advanced),
-            float(self.is_phase_delayed),
-            float(self.is_irregular_pattern),
-            self.mood_risk_score,
-        ])
+        return np.array(
+            [
+                self.sleep_duration_hours,
+                self.sleep_efficiency,
+                self.sleep_regularity_index,
+                self.interdaily_stability,
+                self.intradaily_variability,
+                self.relative_amplitude,
+                self.l5_value,
+                self.m10_value,
+                self.circadian_phase_advance,
+                self.circadian_phase_delay,
+                self.short_sleep_window_pct,
+                self.long_sleep_window_pct,
+                self.sleep_onset_variance,
+                self.wake_time_variance,
+                self.total_steps,
+                self.activity_fragmentation,
+                self.sedentary_bout_mean,
+                self.activity_intensity_ratio,
+                self.avg_resting_hr,
+                self.hrv_sdnn,
+                self.sleep_duration_zscore,
+                self.activity_zscore,
+                self.hr_zscore,
+                self.hrv_zscore,
+                self.sleep_7day_mean,
+                self.sleep_7day_std,
+                self.activity_7day_mean,
+                self.activity_7day_std,
+                self.hr_7day_mean,
+                self.hr_7day_std,
+                float(self.is_hypersomnia_pattern),
+                float(self.is_insomnia_pattern),
+                float(self.is_phase_advanced),
+                float(self.is_phase_delayed),
+                float(self.is_irregular_pattern),
+                self.mood_risk_score,
+            ]
+        )
 
 
 class AdvancedFeatureEngineer:
@@ -154,9 +156,15 @@ class AdvancedFeatureEngineer:
             AdvancedFeatures object with all calculated features
         """
         # Get recent data within lookback window
-        recent_sleep = self._filter_recent(historical_sleep, current_date, lookback_days)
-        recent_activity = self._filter_recent(historical_activity, current_date, lookback_days)
-        recent_heart = self._filter_recent(historical_heart, current_date, lookback_days)
+        recent_sleep = self._filter_recent(
+            historical_sleep, current_date, lookback_days
+        )
+        recent_activity = self._filter_recent(
+            historical_activity, current_date, lookback_days
+        )
+        recent_heart = self._filter_recent(
+            historical_heart, current_date, lookback_days
+        )
 
         # Get current day data
         current_sleep = self._get_current_day(recent_sleep, current_date)
@@ -194,7 +202,9 @@ class AdvancedFeatureEngineer:
         # Combine all features
         return AdvancedFeatures(
             date=current_date,
-            sleep_duration_hours=current_sleep.total_sleep_hours if current_sleep else 0,
+            sleep_duration_hours=(
+                current_sleep.total_sleep_hours if current_sleep else 0
+            ),
             sleep_efficiency=current_sleep.sleep_efficiency if current_sleep else 0,
             total_steps=current_activity.total_steps if current_activity else 0,
             avg_resting_hr=current_heart.avg_resting_hr if current_heart else 0,
@@ -251,8 +261,10 @@ class AdvancedFeatureEngineer:
             return self._empty_sleep_features()
 
         # Sleep regularity index (0-100)
-        sleep_times = [s.sleep_onset.hour + s.sleep_onset.minute/60 for s in recent_sleep]
-        wake_times = [s.wake_time.hour + s.wake_time.minute/60 for s in recent_sleep]
+        sleep_times = [
+            s.sleep_onset.hour + s.sleep_onset.minute / 60 for s in recent_sleep
+        ]
+        wake_times = [s.wake_time.hour + s.wake_time.minute / 60 for s in recent_sleep]
 
         sleep_regularity = 100 - (np.std(sleep_times) + np.std(wake_times)) * 10
         sleep_regularity = float(max(0.0, min(100.0, sleep_regularity)))
@@ -288,7 +300,9 @@ class AdvancedFeatureEngineer:
         }
 
     def _calculate_circadian_features(
-        self, recent_sleep: list[DailySleepSummary], recent_activity: list[DailyActivitySummary]
+        self,
+        recent_sleep: list[DailySleepSummary],
+        recent_activity: list[DailyActivitySummary],
     ) -> dict[str, float]:
         """Calculate circadian rhythm features."""
         if not recent_sleep:
@@ -303,9 +317,11 @@ class AdvancedFeatureEngineer:
         # Compare to population average or individual baseline
         sleep_times = []
         for s in recent_sleep:
-            sleep_hour = s.sleep_onset.hour + s.sleep_onset.minute/60
+            sleep_hour = s.sleep_onset.hour + s.sleep_onset.minute / 60
             # Handle late night times (after midnight)
-            if sleep_hour < 12:  # Assume times before noon are late night, not early evening
+            if (
+                sleep_hour < 12
+            ):  # Assume times before noon are late night, not early evening
                 sleep_hour += 24
             sleep_times.append(sleep_hour)
 
@@ -326,17 +342,16 @@ class AdvancedFeatureEngineer:
         # DLMO estimation (2 hours before habitual sleep onset)
         dlmo_hour = (avg_sleep_time - 2) % 24
         dlmo_estimate = datetime.now().replace(
-            hour=int(dlmo_hour),
-            minute=int((dlmo_hour % 1) * 60)
+            hour=int(dlmo_hour), minute=int((dlmo_hour % 1) * 60)
         )
 
         # Core body temperature nadir (2 hours before wake)
-        avg_wake_time = np.mean([s.wake_time.hour + s.wake_time.minute/60
-                                for s in recent_sleep])
+        avg_wake_time = np.mean(
+            [s.wake_time.hour + s.wake_time.minute / 60 for s in recent_sleep]
+        )
         temp_nadir_hour = (avg_wake_time - 2) % 24
         temp_nadir = datetime.now().replace(
-            hour=int(temp_nadir_hour),
-            minute=int((temp_nadir_hour % 1) * 60)
+            hour=int(temp_nadir_hour), minute=int((temp_nadir_hour % 1) * 60)
         )
 
         return {
@@ -351,7 +366,9 @@ class AdvancedFeatureEngineer:
         }
 
     def _calculate_activity_features(
-        self, recent_activity: list[DailyActivitySummary], current: DailyActivitySummary | None
+        self,
+        recent_activity: list[DailyActivitySummary],
+        current: DailyActivitySummary | None,
     ) -> dict[str, float]:
         """Calculate activity pattern features."""
         if not recent_activity:
@@ -371,7 +388,9 @@ class AdvancedFeatureEngineer:
         # Estimate from step count distribution
         high_activity_days = sum(1 for a in recent_activity if a.total_steps > 10000)
         low_activity_days = sum(1 for a in recent_activity if a.total_steps < 5000)
-        intensity_ratio = high_activity_days / (low_activity_days + 1)  # Avoid division by zero
+        intensity_ratio = high_activity_days / (
+            low_activity_days + 1
+        )  # Avoid division by zero
 
         return {
             "activity_fragmentation": float(fragmentation),
@@ -381,19 +400,30 @@ class AdvancedFeatureEngineer:
         }
 
     def _calculate_normalized_features(
-        self, current_date: date, sleep: DailySleepSummary | None,
-        activity: DailyActivitySummary | None, heart: DailyHeartSummary | None
+        self,
+        current_date: date,
+        sleep: DailySleepSummary | None,
+        activity: DailyActivitySummary | None,
+        heart: DailyHeartSummary | None,
     ) -> dict[str, float]:
         """Calculate individual normalized features (Z-scores)."""
         # Update baselines
-        self._update_individual_baseline("sleep", sleep.total_sleep_hours if sleep else 0)
-        self._update_individual_baseline("activity", activity.total_steps if activity else 0)
+        self._update_individual_baseline(
+            "sleep", sleep.total_sleep_hours if sleep else 0
+        )
+        self._update_individual_baseline(
+            "activity", activity.total_steps if activity else 0
+        )
         self._update_individual_baseline("hr", heart.avg_resting_hr if heart else 0)
         self._update_individual_baseline("hrv", heart.avg_hrv_sdnn if heart else 0)
 
         # Calculate Z-scores
-        sleep_z = self._calculate_zscore("sleep", sleep.total_sleep_hours if sleep else 0)
-        activity_z = self._calculate_zscore("activity", activity.total_steps if activity else 0)
+        sleep_z = self._calculate_zscore(
+            "sleep", sleep.total_sleep_hours if sleep else 0
+        )
+        activity_z = self._calculate_zscore(
+            "activity", activity.total_steps if activity else 0
+        )
         hr_z = self._calculate_zscore("hr", heart.avg_resting_hr if heart else 0)
         hrv_z = self._calculate_zscore("hrv", heart.avg_hrv_sdnn if heart else 0)
 
@@ -405,14 +435,17 @@ class AdvancedFeatureEngineer:
         }
 
     def _calculate_temporal_features(
-        self, recent_sleep: list[DailySleepSummary],
+        self,
+        recent_sleep: list[DailySleepSummary],
         recent_activity: list[DailyActivitySummary],
-        recent_heart: list[DailyHeartSummary]
+        recent_heart: list[DailyHeartSummary],
     ) -> dict[str, float]:
         """Calculate rolling window temporal features."""
         # 7-day windows
         week_sleep = recent_sleep[-7:] if len(recent_sleep) >= 7 else recent_sleep
-        week_activity = recent_activity[-7:] if len(recent_activity) >= 7 else recent_activity
+        week_activity = (
+            recent_activity[-7:] if len(recent_activity) >= 7 else recent_activity
+        )
         week_heart = recent_heart[-7:] if len(recent_heart) >= 7 else recent_heart
 
         # Sleep temporal features
@@ -478,7 +511,9 @@ class AdvancedFeatureEngineer:
         }
 
     # Helper methods
-    def _filter_recent(self, summaries: list[Any], current_date: date, days: int) -> list[Any]:
+    def _filter_recent(
+        self, summaries: list[Any], current_date: date, days: int
+    ) -> list[Any]:
         """Filter summaries to recent window."""
         cutoff = current_date - timedelta(days=days)
         return [s for s in summaries if s.date >= cutoff and s.date <= current_date]
@@ -490,10 +525,14 @@ class AdvancedFeatureEngineer:
                 return s
         return None
 
-    def _calculate_interdaily_stability(self, sleep_summaries: list[DailySleepSummary]) -> float:
+    def _calculate_interdaily_stability(
+        self, sleep_summaries: list[DailySleepSummary]
+    ) -> float:
         """Calculate IS using non-parametric circadian rhythm analysis."""
         # Simplified version - full implementation would use hourly data
-        sleep_times = [s.sleep_onset.hour + s.sleep_onset.minute/60 for s in sleep_summaries]
+        sleep_times = [
+            s.sleep_onset.hour + s.sleep_onset.minute / 60 for s in sleep_summaries
+        ]
         if len(sleep_times) < 3:
             return 0.0
 
@@ -503,12 +542,16 @@ class AdvancedFeatureEngineer:
             hour = i % 24
             hourly_means[hour].append(time)
 
-        between_var = np.var([np.mean(times) for times in hourly_means.values() if times])
+        between_var = np.var(
+            [np.mean(times) for times in hourly_means.values() if times]
+        )
         total_var = np.var(sleep_times)
 
         return float(between_var / (total_var + 0.001))  # Avoid division by zero
 
-    def _calculate_intradaily_variability(self, sleep_summaries: list[DailySleepSummary]) -> float:
+    def _calculate_intradaily_variability(
+        self, sleep_summaries: list[DailySleepSummary]
+    ) -> float:
         """Calculate IV - fragmentation of rhythm."""
         # Simplified - measures variability in sleep duration
         durations = [s.total_sleep_hours for s in sleep_summaries]
@@ -517,11 +560,13 @@ class AdvancedFeatureEngineer:
 
         # First derivative squared
         diffs = np.diff(durations)
-        iv = np.mean(diffs ** 2) / np.var(durations)
+        iv = np.mean(diffs**2) / np.var(durations)
 
         return float(min(2.0, iv))  # Cap at 2.0
 
-    def _calculate_relative_amplitude(self, sleep_summaries: list[DailySleepSummary]) -> float:
+    def _calculate_relative_amplitude(
+        self, sleep_summaries: list[DailySleepSummary]
+    ) -> float:
         """Calculate RA - strength of circadian rhythm."""
         if not sleep_summaries:
             return 0.0
@@ -531,7 +576,9 @@ class AdvancedFeatureEngineer:
 
         # Most restful vs least restful periods
         sorted_eff = sorted(efficiencies)
-        m10 = np.mean(sorted_eff[-10:]) if len(sorted_eff) >= 10 else np.mean(sorted_eff)
+        m10 = (
+            np.mean(sorted_eff[-10:]) if len(sorted_eff) >= 10 else np.mean(sorted_eff)
+        )
         l5 = np.mean(sorted_eff[:5]) if len(sorted_eff) >= 5 else np.mean(sorted_eff)
 
         return float((m10 - l5) / (m10 + l5 + 0.001))  # Normalized difference

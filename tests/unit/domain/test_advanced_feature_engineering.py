@@ -33,7 +33,9 @@ class TestAdvancedFeatureEngineer:
                 sleep_fragmentation_index=0.1,
                 sleep_sessions=1,
                 longest_sleep_hours=7.5,
-                mid_sleep_time=datetime.combine(current_date - timedelta(days=i), time(2, 45)),
+                mid_sleep_time=datetime.combine(
+                    current_date - timedelta(days=i), time(2, 45)
+                ),
                 earliest_bedtime=time(23, 0),
                 latest_wake_time=time(6, 30),
                 total_time_in_bed_hours=7.5,
@@ -116,13 +118,13 @@ class TestAdvancedFeatureEngineer:
                     sleep_sessions=1,
                     mid_sleep_time=datetime.combine(
                         current_date - timedelta(days=i),
-                        time(3, 0)  # Consistent mid-sleep time
+                        time(3, 0),  # Consistent mid-sleep time
                     ),
                     earliest_bedtime=time(23, 0),
                     latest_wake_time=time(7, 0),
                     total_time_in_bed_hours=8.0,
-                longest_sleep_hours=8.0,
-                    )
+                    longest_sleep_hours=8.0,
+                )
             )
 
         # Create irregular sleep pattern
@@ -139,13 +141,13 @@ class TestAdvancedFeatureEngineer:
                     sleep_sessions=1,
                     mid_sleep_time=datetime.combine(
                         current_date - timedelta(days=i),
-                        time((1 + hour_offset) % 24, 0)
+                        time((1 + hour_offset) % 24, 0),
                     ),
                     earliest_bedtime=time((21 + hour_offset) % 24, 0),
                     latest_wake_time=time((5 + hour_offset) % 24, 0),
                     total_time_in_bed_hours=8.0,
-                longest_sleep_hours=8.0,
-                    )
+                    longest_sleep_hours=8.0,
+                )
             )
 
         # Empty activity and heart data for simplicity
@@ -173,7 +175,10 @@ class TestAdvancedFeatureEngineer:
         # Regular pattern should have higher regularity index
         assert regular_features.sleep_regularity_index > 80  # Very regular
         assert irregular_features.sleep_regularity_index < 50  # Very irregular
-        assert regular_features.sleep_regularity_index > irregular_features.sleep_regularity_index
+        assert (
+            regular_features.sleep_regularity_index
+            > irregular_features.sleep_regularity_index
+        )
 
     def test_circadian_phase_detection(self):
         """Test circadian phase advance/delay detection."""
@@ -192,13 +197,13 @@ class TestAdvancedFeatureEngineer:
                     sleep_sessions=1,
                     mid_sleep_time=datetime.combine(
                         current_date - timedelta(days=i),
-                        time(6, 0)  # 6 AM mid-sleep (delayed)
+                        time(6, 0),  # 6 AM mid-sleep (delayed)
                     ),
                     earliest_bedtime=time(2, 0),
                     latest_wake_time=time(10, 0),
                     total_time_in_bed_hours=8.0,
-                longest_sleep_hours=8.0,
-                    )
+                    longest_sleep_hours=8.0,
+                )
             )
 
         # Create phase advanced pattern (early sleeper)
@@ -213,13 +218,13 @@ class TestAdvancedFeatureEngineer:
                     sleep_sessions=1,
                     mid_sleep_time=datetime.combine(
                         current_date - timedelta(days=i),
-                        time(0, 0)  # Midnight mid-sleep (advanced)
+                        time(0, 0),  # Midnight mid-sleep (advanced)
                     ),
                     earliest_bedtime=time(20, 0),
                     latest_wake_time=time(4, 0),
                     total_time_in_bed_hours=8.0,
-                longest_sleep_hours=8.0,
-                    )
+                    longest_sleep_hours=8.0,
+                )
             )
 
         empty_activity = []
@@ -344,8 +349,8 @@ class TestAdvancedFeatureEngineer:
                     earliest_bedtime=time(23, 0),
                     latest_wake_time=time(5 + hours % 12, 0),
                     total_time_in_bed_hours=hours,
-                longest_sleep_hours=hours,
-                    )
+                    longest_sleep_hours=hours,
+                )
             )
 
         # Create variable activity pattern
@@ -401,8 +406,8 @@ class TestAdvancedFeatureEngineer:
                     earliest_bedtime=time(23, 0),
                     latest_wake_time=time(7, 0),
                     total_time_in_bed_hours=8.0,
-                longest_sleep_hours=8.0,
-                    )
+                    longest_sleep_hours=8.0,
+                )
             )
 
             baseline_activity.append(
@@ -425,7 +430,8 @@ class TestAdvancedFeatureEngineer:
                     max_hr=120.0,
                     evening_hr=10.0,
                     avg_resting_hr=60.0,
-                    avg_hrv_sdnn=50.0,                    circadian_hr_range=15.0,
+                    avg_hrv_sdnn=50.0,
+                    circadian_hr_range=15.0,
                 )
             )
 
@@ -519,6 +525,8 @@ class TestAdvancedFeatureEngineer:
         assert len(ml_features) == 36
         # Features should be mostly zero, but some clinical indicators might be True (1.0)
         # when data is missing (e.g., is_irregular_pattern = True when no regular sleep data)
-        non_zero_count = sum(1 for f in ml_features if f != 0 and f != 0.0 and not np.isnan(f))
+        non_zero_count = sum(
+            1 for f in ml_features if f != 0 and f != 0.0 and not np.isnan(f)
+        )
         # We expect most features to be zero, but a few clinical indicators might be 1.0
         assert non_zero_count <= 5, f"Too many non-zero features: {non_zero_count}"

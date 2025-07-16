@@ -57,7 +57,9 @@ class DailySleepSummary:
         if self.latest_wake_time and self.date:
             # If wake time is early morning, it's next day
             if self.latest_wake_time.hour < 12:
-                return datetime.combine(self.date + timedelta(days=1), self.latest_wake_time)
+                return datetime.combine(
+                    self.date + timedelta(days=1), self.latest_wake_time
+                )
             return datetime.combine(self.date, self.latest_wake_time)
         # Default to 7 AM next day if no wake time data
         return datetime.combine(self.date + timedelta(days=1), time(7, 0))

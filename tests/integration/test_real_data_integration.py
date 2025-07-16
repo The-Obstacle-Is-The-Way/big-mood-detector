@@ -214,4 +214,3 @@ class TestRealDataIntegration:
                 if key not in first_entry:
                     print(f"Warning: Expected key '{key}' not found in {filename}")
                     print(f"Available keys: {list(first_entry.keys())}")
-

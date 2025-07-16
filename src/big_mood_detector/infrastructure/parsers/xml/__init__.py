@@ -11,4 +11,3 @@ __all__ = [
     "HeartRateParser",
     "StreamingXMLParser",
 ]
-

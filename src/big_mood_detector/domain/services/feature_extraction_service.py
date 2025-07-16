@@ -354,12 +354,14 @@ class FeatureExtractionService:
             if (feature_date - min_date).days < 7:  # Need at least 7 days history
                 continue
 
-            advanced_features[feature_date] = self.advanced_engineer.extract_advanced_features(
-                current_date=feature_date,
-                historical_sleep=all_sleep,
-                historical_activity=all_activity,
-                historical_heart=all_heart,
-                lookback_days=lookback_days,
+            advanced_features[feature_date] = (
+                self.advanced_engineer.extract_advanced_features(
+                    current_date=feature_date,
+                    historical_sleep=all_sleep,
+                    historical_activity=all_activity,
+                    historical_heart=all_heart,
+                    lookback_days=lookback_days,
+                )
             )
 
         return advanced_features

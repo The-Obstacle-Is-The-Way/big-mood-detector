@@ -60,36 +60,37 @@ class TestDualPipelineValidation:
 
         # Use streaming parser for large files
         streaming_parser = StreamingXMLParser()
-        
+
         # Count records by type using streaming
         sleep_count = 0
         activity_count = 0
         heart_count = 0
-        
+
         print("Streaming through XML file...")
-        
+
         # Stream through all entities
-        for entity in streaming_parser.parse_file(export_file, entity_type='all'):
+        for entity in streaming_parser.parse_file(export_file, entity_type="all"):
             entity_type = type(entity).__name__
-            if 'Sleep' in entity_type:
+            if "Sleep" in entity_type:
                 sleep_count += 1
-            elif 'Activity' in entity_type:
+            elif "Activity" in entity_type:
                 activity_count += 1
-            elif 'Heart' in entity_type:
+            elif "Heart" in entity_type:
                 heart_count += 1
-            
+
             # Progress indicator for large files
             total = sleep_count + activity_count + heart_count
             if total % 10000 == 0:
                 print(f"  Processed {total:,} records...")
-        
+
         print(f"XML Sleep records: {sleep_count:,}")
         print(f"XML Activity records: {activity_count:,}")
         print(f"XML Heart rate records: {heart_count:,}")
 
         # Basic validation
-        assert sleep_count > 0 or activity_count > 0 or heart_count > 0, \
-            "Should find at least some records"
+        assert (
+            sleep_count > 0 or activity_count > 0 or heart_count > 0
+        ), "Should find at least some records"
 
     def test_compare_data_coverage(self, json_data_path, xml_data_path):
         """Compare data coverage between JSON and XML formats."""
@@ -210,16 +211,17 @@ class TestDualPipelineValidation:
         # Run feature extraction
         feature_service = FeatureExtractionService()
         features = feature_service.extract_features(
-            sleep_records=all_records['sleep'],
-            activity_records=all_records['activity'],
-            heart_records=all_records['heart_rate'],
+            sleep_records=all_records["sleep"],
+            activity_records=all_records["activity"],
+            heart_records=all_records["heart_rate"],
         )
 
         print(f"\nExtracted features for {len(features)} days")
 
         # Find days with complete data
         complete_days = [
-            date for date, f in features.items()
+            date
+            for date, f in features.items()
             if f.sleep_duration_hours > 0 and f.total_steps > 0 and f.avg_resting_hr > 0
         ]
         print(f"Days with complete data: {len(complete_days)}")
@@ -257,15 +259,14 @@ class TestDualPipelineValidation:
 
         json_data = json_parser.get_all_records()
         json_features = feature_service.extract_features(
-            sleep_records=json_data['sleep'],
-            activity_records=json_data['activity'],
-            heart_records=json_data['heart_rate'],
+            sleep_records=json_data["sleep"],
+            activity_records=json_data["activity"],
+            heart_records=json_data["heart_rate"],
         )
 
         # Count clinical insights
         json_clinical_days = sum(
-            1 for f in json_features.values()
-            if f.is_clinically_significant
+            1 for f in json_features.values() if f.is_clinically_significant
         )
 
         print("\nClinical Insights from JSON:")
@@ -277,21 +278,22 @@ class TestDualPipelineValidation:
         if export_file.exists():
             file_size_mb = os.path.getsize(export_file) / (1024 * 1024)
             if file_size_mb > 100:
-                print(f"Skipping XML comparison - file too large ({file_size_mb:.1f} MB)")
+                print(
+                    f"Skipping XML comparison - file too large ({file_size_mb:.1f} MB)"
+                )
             else:
                 xml_parser = UnifiedHealthDataParser()
                 xml_parser.add_xml_export(export_file)
                 xml_data = xml_parser.get_all_records()
 
                 xml_features = feature_service.extract_features(
-                    sleep_records=xml_data['sleep'],
-                    activity_records=xml_data['activity'],
-                    heart_records=xml_data['heart_rate'],
+                    sleep_records=xml_data["sleep"],
+                    activity_records=xml_data["activity"],
+                    heart_records=xml_data["heart_rate"],
                 )
 
                 xml_clinical_days = sum(
-                    1 for f in xml_features.values()
-                    if f.is_clinically_significant
+                    1 for f in xml_features.values() if f.is_clinically_significant
                 )
 
                 print("\nClinical Insights from XML:")
@@ -310,9 +312,13 @@ class TestDualPipelineValidation:
 
                         if json_sig == xml_sig:
                             agreement += 1
-                            print(f"  {date}: Agreement (both {'significant' if json_sig else 'normal'})")
+                            print(
+                                f"  {date}: Agreement (both {'significant' if json_sig else 'normal'})"
+                            )
                         else:
-                            print(f"  {date}: Disagreement (JSON: {json_sig}, XML: {xml_sig})")
+                            print(
+                                f"  {date}: Disagreement (JSON: {json_sig}, XML: {xml_sig})"
+                            )
 
     @pytest.mark.slow
     def test_performance_comparison(self, json_data_path, xml_data_path):
@@ -346,7 +352,9 @@ class TestDualPipelineValidation:
         if export_file.exists():
             file_size_mb = os.path.getsize(export_file) / (1024 * 1024)
             if file_size_mb > 100:
-                print(f"Skipping XML performance test - file too large ({file_size_mb:.1f} MB)")
+                print(
+                    f"Skipping XML performance test - file too large ({file_size_mb:.1f} MB)"
+                )
             else:
                 xml_start = time.time()
                 xml_parser = UnifiedHealthDataParser()

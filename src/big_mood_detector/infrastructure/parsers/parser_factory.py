@@ -192,4 +192,3 @@ class UnifiedHealthDataParser:
             "activity": self.activity_records,
             "heart_rate": self.heart_records,
         }
-

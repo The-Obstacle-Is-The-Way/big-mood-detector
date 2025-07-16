@@ -23,7 +23,7 @@ from big_mood_detector.infrastructure.parsers.xml import (
 class StreamingXMLParser:
     """
     Memory-efficient XML parser using iterparse.
-    
+
     Streams through large Apple Health export files without loading
     the entire document into memory.
     """
@@ -58,10 +58,10 @@ class StreamingXMLParser:
 
         try:
             # Use iterparse for memory efficiency
-            for event, elem in ET.iterparse(str(file_path), events=('end',)):
-                if event == 'end' and elem.tag == 'Record':
-                    record_type = elem.get('type')
-                    
+            for event, elem in ET.iterparse(str(file_path), events=("end",)):
+                if event == "end" and elem.tag == "Record":
+                    record_type = elem.get("type")
+
                     # Filter by record types if specified
                     if record_types and record_type not in record_types:
                         elem.clear()
@@ -69,13 +69,13 @@ class StreamingXMLParser:
 
                     # Extract all attributes
                     record_data = dict(elem.attrib)
-                    
+
                     # Extract metadata entries (e.g., heart rate motion context)
-                    for metadata in elem.findall('MetadataEntry'):
-                        key = metadata.get('key')
-                        value = metadata.get('value')
-                        if key == 'HKMetadataKeyHeartRateMotionContext':
-                            record_data['motionContext'] = value
+                    for metadata in elem.findall("MetadataEntry"):
+                        key = metadata.get("key")
+                        value = metadata.get("value")
+                        if key == "HKMetadataKeyHeartRateMotionContext":
+                            record_data["motionContext"] = value
 
                     yield record_data
 
@@ -88,7 +88,7 @@ class StreamingXMLParser:
     def parse_file(
         self,
         file_path: str | Path,
-        entity_type: str = 'all',
+        entity_type: str = "all",
     ) -> Generator[SleepRecord | ActivityRecord | HeartRateRecord, None, None]:
         """
         Parse file and yield domain entities.
@@ -106,19 +106,19 @@ class StreamingXMLParser:
         heart_types = self.heart_parser.supported_heart_types
 
         # Determine which types to parse
-        if entity_type == 'sleep':
+        if entity_type == "sleep":
             types_to_parse = sleep_types
-        elif entity_type == 'activity':
+        elif entity_type == "activity":
             types_to_parse = activity_types
-        elif entity_type == 'heart':
+        elif entity_type == "heart":
             types_to_parse = heart_types
         else:  # 'all'
             types_to_parse = sleep_types + activity_types + heart_types
 
         # Stream through records
         for record_dict in self.iter_records(file_path, types_to_parse):
-            record_type = record_dict.get('type')
-            
+            record_type = record_dict.get("type")
+
             try:
                 # Convert to appropriate entity based on type
                 if record_type in sleep_types:
@@ -127,19 +127,19 @@ class StreamingXMLParser:
                     entities = self.sleep_parser.parse_to_entities(elem)
                     for entity in entities:
                         yield entity
-                        
+
                 elif record_type in activity_types:
                     elem = self._dict_to_element(record_dict)
                     entities = self.activity_parser.parse_to_entities(elem)
                     for entity in entities:
                         yield entity
-                        
+
                 elif record_type in heart_types:
                     elem = self._dict_to_element(record_dict)
                     entities = self.heart_parser.parse_to_entities(elem)
                     for entity in entities:
                         yield entity
-                        
+
             except (ValueError, KeyError):
                 # Skip records that can't be converted
                 continue
@@ -148,7 +148,7 @@ class StreamingXMLParser:
         self,
         file_path: str | Path,
         batch_size: int = 1000,
-        entity_type: str = 'all',
+        entity_type: str = "all",
     ) -> Generator[list[Any], None, None]:
         """
         Parse file and yield entities in batches.
@@ -162,14 +162,14 @@ class StreamingXMLParser:
             List of domain entities
         """
         batch = []
-        
+
         for entity in self.parse_file(file_path, entity_type):
             batch.append(entity)
-            
+
             if len(batch) >= batch_size:
                 yield batch
                 batch = []
-        
+
         # Yield remaining entities
         if batch:
             yield batch
@@ -179,15 +179,15 @@ class StreamingXMLParser:
         # Create a minimal HealthData root with one Record
         root = ET.Element("HealthData")
         record = ET.SubElement(root, "Record")
-        
+
         # Set attributes
         for key, value in record_dict.items():
-            if key == 'motionContext':
+            if key == "motionContext":
                 # Recreate metadata entry for heart rate motion context
                 meta_elem = ET.SubElement(record, "MetadataEntry")
-                meta_elem.set('key', 'HKMetadataKeyHeartRateMotionContext')
-                meta_elem.set('value', value)
+                meta_elem.set("key", "HKMetadataKeyHeartRateMotionContext")
+                meta_elem.set("value", value)
             else:
                 record.set(key, str(value))
-        
+
         return root

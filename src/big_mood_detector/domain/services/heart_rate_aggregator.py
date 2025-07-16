@@ -57,7 +57,9 @@ class DailyHeartSummary:
         Indicates: poor autonomic function, stress, poor recovery
         """
         # Check both average and minimum HRV - a single low reading is clinically significant
-        return (self.avg_hrv_sdnn > 0 and self.avg_hrv_sdnn < 20) or (self.min_hrv_sdnn > 0 and self.min_hrv_sdnn < 20)
+        return (self.avg_hrv_sdnn > 0 and self.avg_hrv_sdnn < 20) or (
+            self.min_hrv_sdnn > 0 and self.min_hrv_sdnn < 20
+        )
 
     @property
     def has_abnormal_circadian_rhythm(self) -> bool:
