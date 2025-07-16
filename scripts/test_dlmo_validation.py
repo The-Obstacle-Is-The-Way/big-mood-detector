@@ -15,7 +15,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent / 'src'))
 
 from big_mood_detector.domain.entities.sleep_record import SleepRecord, SleepState
 from big_mood_detector.domain.entities.activity_record import ActivityRecord, ActivityType
-from big_mood_detector.domain.services.dlmo_calculator_v2 import DLMOCalculatorV2
+from big_mood_detector.domain.services.dlmo_calculator import DLMOCalculator
 
 
 def create_regular_sleeper_data():
@@ -196,7 +196,7 @@ def debug_circadian_model(calculator, activity_records, target_date):
 
 def main():
     """Test DLMO calculation with known patterns."""
-    calc = DLMOCalculatorV2()
+    calc = DLMOCalculator()
     
     print("DLMO VALIDATION TEST")
     print("=" * 60)

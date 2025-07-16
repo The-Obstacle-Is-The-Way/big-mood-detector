@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 """
-Compare original and enhanced DLMO calculations.
+Test unified DLMO calculator with different scenarios.
 
-Tests both implementations to show improvements in:
-1. CBT minimum detection
-2. Activity-based prediction
-3. Seasonal adjustments
+Tests the unified implementation with:
+1. Regular sleep patterns
+2. Shift work patterns
+3. Activity-based vs sleep-based prediction
+4. Seasonal adjustments
 """
 
 import sys
@@ -20,7 +21,6 @@ sys.path.insert(0, str(Path(__file__).parent.parent / 'src'))
 from big_mood_detector.domain.entities.sleep_record import SleepRecord, SleepState
 from big_mood_detector.domain.entities.activity_record import ActivityRecord, ActivityType
 from big_mood_detector.domain.services.dlmo_calculator import DLMOCalculator
-from big_mood_detector.domain.services.dlmo_calculator_v2 import DLMOCalculatorV2
 
 
 def create_test_data():
@@ -51,59 +51,57 @@ def create_test_data():
             state=SleepState.ASLEEP_CORE
         ))
         
-        # Activity pattern (realistic daily activity)
+        # Activity pattern
         # Morning activity
-        for hour in range(7, 12):
+        for hour in range(wake_hour, wake_hour + 2):
             activity_records.append(ActivityRecord(
                 source_name="test",
-                start_date=current_date.replace(hour=hour, minute=0),
-                end_date=current_date.replace(hour=hour, minute=59),
+                start_date=(current_date + timedelta(days=1)).replace(hour=hour, minute=0),
+                end_date=(current_date + timedelta(days=1)).replace(hour=hour, minute=59),
                 activity_type=ActivityType.STEP_COUNT,
-                value=np.random.randint(500, 1500),
+                value=600 + day * 50,
                 unit="count"
             ))
         
-        # Afternoon activity (higher)
-        for hour in range(12, 18):
+        # Daytime activity
+        for hour in range(9, 17):
             activity_records.append(ActivityRecord(
                 source_name="test",
-                start_date=current_date.replace(hour=hour, minute=0),
-                end_date=current_date.replace(hour=hour, minute=59),
+                start_date=(current_date + timedelta(days=1)).replace(hour=hour, minute=0),
+                end_date=(current_date + timedelta(days=1)).replace(hour=hour, minute=59),
                 activity_type=ActivityType.STEP_COUNT,
-                value=np.random.randint(800, 2000),
+                value=800 + day * 100,
                 unit="count"
             ))
         
-        # Evening activity (lower)
-        for hour in range(18, 22):
+        # Evening activity
+        for hour in range(17, 22):
             activity_records.append(ActivityRecord(
                 source_name="test",
-                start_date=current_date.replace(hour=hour, minute=0),
-                end_date=current_date.replace(hour=hour, minute=59),
+                start_date=(current_date + timedelta(days=1)).replace(hour=hour, minute=0),
+                end_date=(current_date + timedelta(days=1)).replace(hour=hour, minute=59),
                 activity_type=ActivityType.STEP_COUNT,
-                value=np.random.randint(200, 800),
+                value=400 + day * 30,
                 unit="count"
             ))
     
     return sleep_records, activity_records
 
 
-def visualize_cbt_rhythm(calculator, sleep_records, activity_records, target_date, title):
-    """Visualize the CBT rhythm to show minimum detection."""
-    # For V1, we need to access internal methods
-    if isinstance(calculator, DLMOCalculator):
-        # Create light profiles
-        profiles = calculator._create_light_profiles(
-            sleep_records, target_date, days_to_model=3
-        )
-        # Run model
-        cbt_rhythm = calculator._run_circadian_model(profiles)
-    else:
-        # For V2, we can get more detailed output
+def plot_cbt_rhythm(calculator, sleep_records, activity_records, target_date, title, use_activity=True):
+    """Plot CBT rhythm and DLMO timing."""
+    # Get light profiles
+    if use_activity and activity_records:
         profiles = calculator._create_activity_profiles(
             activity_records, target_date, days=3
         )
-        cbt_rhythm = calculator._run_circadian_model(profiles)
+    else:
+        profiles = calculator._create_light_profiles_from_sleep(
+            sleep_records, target_date, days=3
+        )
+    
+    # Run circadian model
+    cbt_rhythm = calculator._run_circadian_model(profiles)
     
     # Extract data for plotting
     hours = [h for h, _ in cbt_rhythm]
@@ -117,8 +115,8 @@ def visualize_cbt_rhythm(calculator, sleep_records, activity_records, target_dat
     min_idx = np.argmin(cbt_values)
     plt.plot(hours[min_idx], cbt_values[min_idx], 'ro', markersize=10, label='CBT Minimum')
     
-    # Mark DLMO (7.1 hours before minimum)
-    dlmo_hour = (hours[min_idx] - 7.1) % 24
+    # Mark DLMO (using calibrated offset)
+    dlmo_hour = (hours[min_idx] - calculator.CBT_TO_DLMO_OFFSET) % 24
     plt.axvline(x=dlmo_hour, color='g', linestyle='--', label=f'DLMO ({dlmo_hour:.1f}h)')
     
     plt.xlabel('Hour of Day')
@@ -133,37 +131,22 @@ def visualize_cbt_rhythm(calculator, sleep_records, activity_records, target_dat
 
 
 def main():
-    """Compare DLMO calculations."""
-    print("DLMO Calculator Comparison")
+    """Test DLMO calculator with different scenarios."""
+    print("Unified DLMO Calculator Test")
     print("=" * 60)
     
     # Create test data
     sleep_records, activity_records = create_test_data()
     target_date = date(2025, 5, 16)
     
-    # Initialize calculators
-    calc_v1 = DLMOCalculator()
-    calc_v2 = DLMOCalculatorV2()
+    # Initialize calculator
+    calc = DLMOCalculator()
     
-    print("\n1. ORIGINAL CALCULATOR (Sleep-based, Simple Minimum)")
-    print("-" * 60)
-    
-    result_v1 = calc_v1.calculate_dlmo(
-        sleep_records,
-        target_date,
-        days_to_model=7
-    )
-    
-    if result_v1:
-        print(f"DLMO Time: {result_v1.dlmo_time} ({result_v1.dlmo_hour:.2f} hours)")
-        print(f"CBT Minimum: {result_v1.cbt_min_hour:.2f} hours")
-        print(f"CBT Amplitude: {result_v1.cbt_amplitude:.4f}")
-    
-    print("\n2. ENHANCED CALCULATOR V2 (Activity-based, Local Minima)")
+    print("\n1. ACTIVITY-BASED PREDICTION (Preferred)")
     print("-" * 60)
     
     # Test with activity data
-    result_v2_activity = calc_v2.calculate_dlmo(
+    result_activity = calc.calculate_dlmo(
         sleep_records=sleep_records,
         activity_records=activity_records,
         target_date=target_date,
@@ -171,104 +154,80 @@ def main():
         use_activity=True
     )
     
-    if result_v2_activity:
-        print(f"DLMO Time: {result_v2_activity.dlmo_time} ({result_v2_activity.dlmo_hour:.2f} hours)")
-        print(f"CBT Minimum: {result_v2_activity.cbt_min_hour:.2f} hours")
-        print(f"CBT Amplitude: {result_v2_activity.cbt_amplitude:.4f}")
-        print(f"Confidence: {result_v2_activity.confidence:.2f}")
+    if result_activity:
+        print(f"DLMO Time: {result_activity.dlmo_time} ({result_activity.dlmo_hour:.1f}h)")
+        print(f"CBT Minimum: {result_activity.cbt_min_hour:.1f}h")
+        print(f"CBT Amplitude: {result_activity.cbt_amplitude:.2f}")
+        print(f"Confidence: {result_activity.confidence:.2f}")
     
-    print("\n3. ENHANCED CALCULATOR V2 (Sleep-based for comparison)")
+    print("\n2. SLEEP-BASED PREDICTION (Fallback)")
     print("-" * 60)
     
-    # Test without activity data (fallback to sleep)
-    result_v2_sleep = calc_v2.calculate_dlmo(
+    # Test with sleep data only
+    result_sleep = calc.calculate_dlmo(
         sleep_records=sleep_records,
-        activity_records=None,
         target_date=target_date,
         days_to_model=7,
         use_activity=False
     )
     
-    if result_v2_sleep:
-        print(f"DLMO Time: {result_v2_sleep.dlmo_time} ({result_v2_sleep.dlmo_hour:.2f} hours)")
-        print(f"CBT Minimum: {result_v2_sleep.cbt_min_hour:.2f} hours")
-        print(f"CBT Amplitude: {result_v2_sleep.cbt_amplitude:.4f}")
-        print(f"Confidence: {result_v2_sleep.confidence:.2f}")
+    if result_sleep:
+        print(f"DLMO Time: {result_sleep.dlmo_time} ({result_sleep.dlmo_hour:.1f}h)")
+        print(f"CBT Minimum: {result_sleep.cbt_min_hour:.1f}h")
+        print(f"CBT Amplitude: {result_sleep.cbt_amplitude:.2f}")
+        print(f"Confidence: {result_sleep.confidence:.2f}")
     
-    print("\n4. SEASONAL ADJUSTMENT TEST (Winter)")
+    print("\n3. SEASONAL ADJUSTMENT TEST")
     print("-" * 60)
     
-    # Test with short day length (winter)
-    result_v2_winter = calc_v2.calculate_dlmo(
+    # Test with winter adjustment
+    result_winter = calc.calculate_dlmo(
         sleep_records=sleep_records,
         activity_records=activity_records,
         target_date=target_date,
         days_to_model=7,
         use_activity=True,
-        day_length_hours=9.5  # Winter day
+        day_length_hours=9.5  # Winter day length
     )
     
-    if result_v2_winter:
-        print(f"DLMO Time: {result_v2_winter.dlmo_time} ({result_v2_winter.dlmo_hour:.2f} hours)")
-        print(f"CBT Minimum: {result_v2_winter.cbt_min_hour:.2f} hours")
-        print(f"CBT Amplitude: {result_v2_winter.cbt_amplitude:.4f}")
-        print(f"Note: Light sensitivity doubled for winter adjustment")
+    if result_winter:
+        print(f"Winter DLMO Time: {result_winter.dlmo_time} ({result_winter.dlmo_hour:.1f}h)")
+        print(f"Winter CBT Minimum: {result_winter.cbt_min_hour:.1f}h")
+        print(f"Winter Confidence: {result_winter.confidence:.2f}")
     
-    print("\n5. COMPARISON SUMMARY")
+    # Plot comparisons
+    print("\n4. GENERATING PLOTS...")
     print("-" * 60)
     
-    if result_v1 and result_v2_activity:
-        diff_hours = abs(result_v1.dlmo_hour - result_v2_activity.dlmo_hour)
-        if diff_hours > 12:
-            diff_hours = 24 - diff_hours
-        
-        print(f"DLMO Difference: {diff_hours:.2f} hours")
-        print(f"Amplitude Ratio: {result_v2_activity.cbt_amplitude / result_v1.cbt_amplitude:.2f}x")
-        
-        # Expected DLMO range for normal sleepers
-        print("\nExpected DLMO range for regular sleep pattern: 20:00-22:00 (8-10pm)")
-        print("V1 accuracy: ", end="")
-        if 20 <= result_v1.dlmo_hour <= 22:
-            print("✓ Within expected range")
-        else:
-            print("✗ Outside expected range")
-        
-        print("V2 accuracy: ", end="")
-        if 20 <= result_v2_activity.dlmo_hour <= 22:
-            print("✓ Within expected range")
-        else:
-            print("✗ Outside expected range")
+    # Plot activity-based
+    fig1 = plot_cbt_rhythm(
+        calc, sleep_records, activity_records, target_date,
+        "Activity-Based DLMO Prediction", use_activity=True
+    )
+    plt.savefig("dlmo_activity_based.png", dpi=150, bbox_inches='tight')
+    print("Saved: dlmo_activity_based.png")
     
-    # Visualize CBT rhythms
-    print("\n6. GENERATING CBT RHYTHM PLOTS...")
+    # Plot sleep-based
+    fig2 = plot_cbt_rhythm(
+        calc, sleep_records, activity_records, target_date,
+        "Sleep-Based DLMO Prediction", use_activity=False
+    )
+    plt.savefig("dlmo_sleep_based.png", dpi=150, bbox_inches='tight')
+    print("Saved: dlmo_sleep_based.png")
     
-    try:
-        fig1 = visualize_cbt_rhythm(
-            calc_v1, sleep_records, activity_records, target_date,
-            "Original Calculator - CBT Rhythm"
-        )
-        fig1.savefig('output/cbt_rhythm_v1.png', dpi=150, bbox_inches='tight')
-        print("Saved: output/cbt_rhythm_v1.png")
-        
-        fig2 = visualize_cbt_rhythm(
-            calc_v2, sleep_records, activity_records, target_date,
-            "Enhanced Calculator V2 - CBT Rhythm (Activity-based)"
-        )
-        fig2.savefig('output/cbt_rhythm_v2.png', dpi=150, bbox_inches='tight')
-        print("Saved: output/cbt_rhythm_v2.png")
-        
-        plt.close('all')
-    except Exception as e:
-        print(f"Could not generate plots: {e}")
-    
-    print("\n" + "=" * 60)
-    print("KEY IMPROVEMENTS IN V2:")
-    print("1. Activity-based prediction (0.72 concordance vs 0.63)")
-    print("2. Local minima detection with prominence threshold")
-    print("3. Seasonal adjustment for winter months")
-    print("4. Confidence scoring based on CBT prominence")
-    print("5. Perfect for Apple Watch (no light sensor needed)")
+    # Summary
+    print("\n5. SUMMARY")
+    print("-" * 60)
+    print("Key Features of Unified Calculator:")
+    print("- Activity-based prediction (concordance 0.72 vs 0.63)")
+    print("- Calibrated offset for correct DLMO timing (20-22h)")
+    print("- Enhanced CBT minimum detection with scipy")
+    print("- Light suppression for melatonin synthesis")
+    print("- Dynamic activity thresholds")
+    print("- Seasonal adjustment support")
+    print("\nNote: CBT minimum timing is ~6h later than physiological")
+    print("due to simplified phase proxy, but DLMO timing is calibrated correctly.")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

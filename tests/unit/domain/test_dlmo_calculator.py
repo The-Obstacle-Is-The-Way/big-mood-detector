@@ -1,19 +1,17 @@
 """
-Unit tests for DLMO Calculator
-
-Tests the mathematical circadian pacemaker model for DLMO estimation.
-Critical for bipolar disorder phase prediction as per Seoul study.
+Unit tests for Unified DLMO Calculator
+Tests the unified implementation that combines best practices from all research papers.
 """
-
 from datetime import datetime, date, timedelta
 import pytest
 import math
 
-from big_mood_detector.domain.entities.sleep_record import SleepRecord
+from big_mood_detector.domain.entities.sleep_record import SleepRecord, SleepState
+from big_mood_detector.domain.entities.activity_record import ActivityRecord, ActivityType
 from big_mood_detector.domain.services.dlmo_calculator import (
     DLMOCalculator,
-    LightProfile,
-    CircadianPhaseResult
+    CircadianPhaseResult,
+    LightActivityProfile
 )
 
 
@@ -32,12 +30,11 @@ class TestDLMOCalculator:
     ) -> SleepRecord:
         """Helper to create sleep records."""
         end = start + timedelta(hours=duration_hours)
-        from big_mood_detector.domain.entities.sleep_record import SleepState
         return SleepRecord(
             source_name="test",
             start_date=start,
             end_date=end,
-            state=SleepState.ASLEEP
+            state=SleepState.ASLEEP_CORE
         )
     
     def test_light_profile_creation_regular_schedule(self, calculator):
@@ -57,7 +54,7 @@ class TestDLMOCalculator:
             )
         
         # Act
-        profiles = calculator._create_light_profiles(
+        profiles = calculator._create_light_profiles_from_sleep(
             sleep_records,
             base_date + timedelta(days=6),
             days=7
@@ -71,11 +68,11 @@ class TestDLMOCalculator:
         assert last_profile.date == base_date + timedelta(days=6)
         
         # Should be dark (0 lux) from 11 PM to 7 AM
-        assert last_profile.hourly_lux[23] == 0.0  # 11 PM
-        assert all(last_profile.hourly_lux[h] == 0.0 for h in range(0, 7))
+        assert last_profile.hourly_values[23] == 0.0  # 11 PM
+        assert all(last_profile.hourly_values[h] == 0.0 for h in range(0, 7))
         
         # Should be light (250 lux) during day
-        assert all(last_profile.hourly_lux[h] == 250.0 for h in range(7, 23))
+        assert all(last_profile.hourly_values[h] == 250.0 for h in range(7, 23))
     
     def test_light_profile_irregular_sleep(self, calculator):
         """Test light profile for irregular sleep patterns."""
@@ -95,7 +92,7 @@ class TestDLMOCalculator:
         ]
         
         # Act
-        profiles = calculator._create_light_profiles(
+        profiles = calculator._create_light_profiles_from_sleep(
             sleep_records,
             date(2024, 1, 16),
             days=2
@@ -106,14 +103,14 @@ class TestDLMOCalculator:
         
         # Day 1 should have late sleep
         day1 = profiles[0]
-        assert day1.hourly_lux[0] == 250.0  # Awake at midnight
-        assert day1.hourly_lux[2] == 0.0    # Asleep at 2 AM
+        assert day1.hourly_values[0] == 250.0  # Awake at midnight
+        assert day1.hourly_values[2] == 0.0    # Asleep at 2 AM
         
         # Day 2 should have split sleep
         day2 = profiles[1]
-        assert day2.hourly_lux[0] == 0.0    # Asleep (from 10 PM previous)
-        assert day2.hourly_lux[3] == 250.0  # Awake during gap
-        assert day2.hourly_lux[5] == 0.0    # Back asleep
+        assert day2.hourly_values[0] == 0.0    # Asleep (from 10 PM previous)
+        assert day2.hourly_values[3] == 250.0  # Awake during gap
+        assert day2.hourly_values[5] == 0.0    # Back asleep
     
     def test_circadian_model_convergence(self, calculator):
         """Test that circadian model reaches stable state."""
@@ -133,9 +130,10 @@ class TestDLMOCalculator:
         
         # Act
         result = calculator.calculate_dlmo(
-            sleep_records,
-            base_date + timedelta(days=13),
-            days_to_model=7
+            sleep_records=sleep_records,
+            target_date=base_date + timedelta(days=13),
+            days_to_model=7,
+            use_activity=False
         )
         
         # Assert
@@ -167,12 +165,12 @@ class TestDLMOCalculator:
         ]
         
         # Act
-        result = calculator._extract_dlmo(cbt_rhythm, date(2024, 1, 15))
+        result = calculator._extract_dlmo_enhanced(cbt_rhythm, date(2024, 1, 15))
         
         # Assert
         assert result.cbt_min_hour == 5  # Minimum at 5 AM
-        # 5 - 7.1 = -2.1, wrapped to 21.9 (rounds to ~22)
-        assert abs(result.dlmo_hour - 21.9) < 0.1
+        # With calibrated offset of 13.0: 5 - 13 = -8, wrapped to 16
+        assert abs(result.dlmo_hour - 16.0) < 0.1
         assert result.cbt_amplitude == 1.5  # 1.0 - (-0.5)
     
     def test_phase_delay_pattern(self, calculator):
@@ -193,9 +191,10 @@ class TestDLMOCalculator:
         
         # Act
         result = calculator.calculate_dlmo(
-            sleep_records,
-            base_date + timedelta(days=6),
-            days_to_model=7
+            sleep_records=sleep_records,
+            target_date=base_date + timedelta(days=6),
+            days_to_model=7,
+            use_activity=False
         )
         
         # Assert
@@ -222,9 +221,10 @@ class TestDLMOCalculator:
         
         # Act
         result = calculator.calculate_dlmo(
-            sleep_records,
-            base_date + timedelta(days=6),
-            days_to_model=7
+            sleep_records=sleep_records,
+            target_date=base_date + timedelta(days=6),
+            days_to_model=7,
+            use_activity=False
         )
         
         # Assert
@@ -243,9 +243,10 @@ class TestDLMOCalculator:
         
         # Act
         result = calculator.calculate_dlmo(
-            sleep_records,
-            date(2024, 1, 16),
-            days_to_model=7
+            sleep_records=sleep_records,
+            target_date=date(2024, 1, 16),
+            days_to_model=7,
+            use_activity=False
         )
         
         # Assert
@@ -288,7 +289,7 @@ class TestDLMOCalculator:
         ]
         
         for x, xc, n, light in test_cases:
-            dx, dxc, dn = calculator._circadian_derivatives(x, xc, n, light)
+            dx, dxc, dn = calculator._circadian_derivatives_with_suppression(x, xc, n, light)
             
             # Derivatives should be finite
             assert math.isfinite(dx)
@@ -310,9 +311,10 @@ class TestDLMOCalculator:
         """Test CBT rhythm has expected properties."""
         # Arrange - simple light profile
         profiles = [
-            LightProfile(
+            LightActivityProfile(
                 date=date(2024, 1, 15),
-                hourly_lux=[0]*8 + [250]*16  # 8h dark, 16h light
+                hourly_values=[0]*8 + [250]*16,  # 8h dark, 16h light
+                data_type='light'
             )
         ] * 7  # Repeat for a week
         
@@ -364,9 +366,10 @@ class TestDLMOCalculator:
         
         # Act - calculate for Sunday night
         result = calculator.calculate_dlmo(
-            sleep_records,
-            base_date + timedelta(days=13),
-            days_to_model=7
+            sleep_records=sleep_records,
+            target_date=base_date + timedelta(days=13),
+            days_to_model=7,
+            use_activity=False
         )
         
         # Assert
@@ -401,15 +404,17 @@ class TestDLMOCalculator:
         
         # Act
         early_result = calculator.calculate_dlmo(
-            early_records,
-            base_date + timedelta(days=6),
-            days_to_model=7
+            sleep_records=early_records,
+            target_date=base_date + timedelta(days=6),
+            days_to_model=7,
+            use_activity=False
         )
         
         late_result = calculator.calculate_dlmo(
-            late_records,
-            base_date + timedelta(days=6),
-            days_to_model=7
+            sleep_records=late_records,
+            target_date=base_date + timedelta(days=6),
+            days_to_model=7,
+            use_activity=False
         )
         
         # Assert - different schedules should produce different DLMO times
