@@ -69,6 +69,10 @@ class SleepRecord:
             SleepState.REM,
             SleepState.CORE,
             SleepState.DEEP,
+            SleepState.ASLEEP_CORE,
+            SleepState.ASLEEP_DEEP,
+            SleepState.ASLEEP_REM,
+            SleepState.ASLEEP_UNSPECIFIED,
         }
 
     @property
@@ -76,9 +80,13 @@ class SleepRecord:
         """Get sleep quality based on state."""
         quality_map = {
             SleepState.DEEP: "restorative",
+            SleepState.ASLEEP_DEEP: "restorative",
             SleepState.REM: "rem",
+            SleepState.ASLEEP_REM: "rem",
             SleepState.CORE: "light",
+            SleepState.ASLEEP_CORE: "light",
             SleepState.ASLEEP: "general",
+            SleepState.ASLEEP_UNSPECIFIED: "general",
             SleepState.IN_BED: "resting",
             SleepState.AWAKE: "disrupted",
         }

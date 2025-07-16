@@ -29,6 +29,7 @@ class DailyHeartSummary:
     min_hr: float = 0.0
     max_hr: float = 0.0
     avg_hrv_sdnn: float = 0.0
+    min_hrv_sdnn: float = 0.0  # Track minimum HRV for clinical significance
     hr_measurements: int = 0
     hrv_measurements: int = 0
     high_hr_episodes: int = 0
