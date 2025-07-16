@@ -174,7 +174,7 @@ class FeatureEngineeringOrchestrator:
     ) -> UnifiedFeatureSet:
         """
         Extract all features for a specific date.
-        
+
         Args:
             target_date: Date to extract features for
             sleep_data: Historical sleep summaries
@@ -182,7 +182,7 @@ class FeatureEngineeringOrchestrator:
             heart_data: Historical heart summaries
             lookback_days: Days of history to consider
             use_cache: Whether to use cached results
-            
+
         Returns:
             Complete feature set for the date
         """
@@ -220,7 +220,7 @@ class FeatureEngineeringOrchestrator:
     ) -> list[UnifiedFeatureSet]:
         """
         Extract features for a date range.
-        
+
         Args:
             start_date: Start of date range
             end_date: End of date range (inclusive)
@@ -228,7 +228,7 @@ class FeatureEngineeringOrchestrator:
             activity_data: Historical activity summaries
             heart_data: Historical heart summaries
             lookback_days: Days of history to consider
-            
+
         Returns:
             List of feature sets for each date
         """
@@ -252,10 +252,10 @@ class FeatureEngineeringOrchestrator:
     def validate_features(self, features: UnifiedFeatureSet) -> FeatureValidationResult:
         """
         Validate feature quality and completeness.
-        
+
         Args:
             features: Feature set to validate
-            
+
         Returns:
             Validation result with quality metrics
         """
@@ -303,12 +303,12 @@ class FeatureEngineeringOrchestrator:
     ) -> CompletenessReport:
         """
         Generate data completeness report.
-        
+
         Args:
             sleep_data: Sleep summaries
             activity_data: Activity summaries
             heart_data: Heart summaries
-            
+
         Returns:
             Completeness report with coverage metrics
         """
@@ -367,10 +367,10 @@ class FeatureEngineeringOrchestrator:
     def detect_anomalies(self, features: UnifiedFeatureSet) -> AnomalyResult:
         """
         Detect anomalies in feature set.
-        
+
         Args:
             features: Feature set to analyze
-            
+
         Returns:
             Anomaly detection result
         """
@@ -430,7 +430,7 @@ class FeatureEngineeringOrchestrator:
     def get_feature_importance(self) -> dict[str, float]:
         """
         Get feature importance scores.
-        
+
         Returns:
             Dictionary of feature names to importance scores (0-1)
         """
@@ -445,10 +445,10 @@ class FeatureEngineeringOrchestrator:
     ) -> list[dict[str, Any]]:
         """
         Export feature sets to dictionary format for DataFrame conversion.
-        
+
         Args:
             feature_sets: List of feature sets
-            
+
         Returns:
             List of dictionaries with flattened features
         """
@@ -508,10 +508,10 @@ class FeatureEngineeringOrchestrator:
     ) -> UnifiedFeatureSet:
         """
         Convert AdvancedFeatures to UnifiedFeatureSet.
-        
+
         Args:
             advanced_features: Features from AdvancedFeatureEngineer
-            
+
         Returns:
             Structured unified feature set
         """

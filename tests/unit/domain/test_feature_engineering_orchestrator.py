@@ -298,7 +298,7 @@ class TestFeatureEngineeringOrchestrator:
         assert "activity_fragmentation" in importance
 
         # Importance values should be normalized
-        for feature, value in importance.items():
+        for _feature, value in importance.items():
             assert 0 <= value <= 1
 
     def test_anomaly_detection_integration(self, orchestrator, sample_sleep_data,
