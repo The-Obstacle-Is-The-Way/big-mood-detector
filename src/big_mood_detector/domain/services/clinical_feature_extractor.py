@@ -192,7 +192,7 @@ class ClinicalFeatureExtractor:
     mood disorder detection pipeline.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize with all required domain services."""
         self.sleep_window_analyzer = SleepWindowAnalyzer()
         self.activity_sequence_extractor = ActivitySequenceExtractor()

@@ -138,7 +138,7 @@ class DailyFeatures:
     circadian_phase_std: float
     circadian_phase_zscore: float
 
-    def to_dict(self) -> dict[str, float]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for DataFrame creation."""
         return {
             "date": self.date,
@@ -364,7 +364,7 @@ class MoodPredictionPipeline:
                 "avg_manic_risk": np.mean([p["manic_risk"] for p in all_predictions]),
                 "days_analyzed": len(daily_predictions),
             }
-            confidence_score = np.mean([p["confidence"] for p in all_predictions])
+            confidence_score = float(np.mean([p["confidence"] for p in all_predictions]))
             if np.isnan(confidence_score):
                 confidence_score = 0.0
         else:
@@ -373,7 +373,7 @@ class MoodPredictionPipeline:
 
         # Adjust confidence based on data quality
         if warnings:
-            confidence_score *= 0.7  # Reduce confidence for data issues
+            confidence_score = float(confidence_score * 0.7)  # Reduce confidence for data issues
 
         return PipelineResult(
             daily_predictions=daily_predictions,
