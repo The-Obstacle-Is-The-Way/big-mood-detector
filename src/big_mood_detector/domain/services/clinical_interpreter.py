@@ -129,11 +129,11 @@ class ClinicalInterpreter:
     - Seoul National XGBoost study
     - VA clinical guidelines
     """
-    
+
     def __init__(self, config: ClinicalThresholdsConfig | None = None):
         """
         Initialize the clinical interpreter.
-        
+
         Args:
             config: Clinical thresholds configuration. If None, loads from default path.
         """
@@ -147,7 +147,7 @@ class ClinicalInterpreter:
                 self._use_defaults = True
                 self.config = None
                 return
-        
+
         self.config = config
         self._use_defaults = False
 
@@ -179,7 +179,7 @@ class ClinicalInterpreter:
             sleep_threshold = 12
             severe_activity = 2000
             moderate_threshold = 10
-        
+
         # Determine risk level using configuration
         if self.config:
             if phq_score <= cutoffs.none.max:
@@ -270,26 +270,57 @@ class ClinicalInterpreter:
         - Sleep < 3 hours: Critical indicator
         - Activity > 15,000 steps: High activity marker
         """
-        # Determine risk level
-        if asrm_score < 6:
-            risk_level = RiskLevel.LOW
-            episode_type = EpisodeType.NONE
-            summary = "Mania screening within normal range."
-        elif asrm_score <= 10:
-            risk_level = RiskLevel.MODERATE
-            episode_type = EpisodeType.HYPOMANIC
-            summary = "Hypomanic symptoms detected requiring monitoring."
-        elif asrm_score <= 15:
-            risk_level = RiskLevel.HIGH
-            episode_type = EpisodeType.HYPOMANIC
-            summary = "Significant hypomanic symptoms requiring intervention."
+        # Use configuration values if available
+        if self.config:
+            cutoffs = self.config.mania.asrm_cutoffs
+            critical_sleep = self.config.mania.sleep_hours.critical_threshold
+            extreme_activity = self.config.mania.activity_steps.extreme_threshold
+            hypomanic_threshold = self.config.mania.asrm_cutoffs.hypomanic.min
         else:
-            risk_level = RiskLevel.CRITICAL
-            episode_type = EpisodeType.MANIC
-            summary = "Severe manic symptoms requiring immediate intervention."
+            # Fallback to embedded defaults
+            critical_sleep = 3
+            extreme_activity = 20000
+            hypomanic_threshold = 6
+
+        # Determine risk level using configuration
+        if self.config:
+            if asrm_score <= cutoffs.none.max:
+                risk_level = RiskLevel.LOW
+                episode_type = EpisodeType.NONE
+                summary = "Mania screening within normal range."
+            elif asrm_score <= cutoffs.hypomanic.max:
+                risk_level = RiskLevel.MODERATE
+                episode_type = EpisodeType.HYPOMANIC
+                summary = "Hypomanic symptoms detected requiring monitoring."
+            elif asrm_score <= cutoffs.manic_moderate.max:
+                risk_level = RiskLevel.HIGH
+                episode_type = EpisodeType.HYPOMANIC
+                summary = "Significant hypomanic symptoms requiring intervention."
+            else:
+                risk_level = RiskLevel.CRITICAL
+                episode_type = EpisodeType.MANIC
+                summary = "Severe manic symptoms requiring immediate intervention."
+        else:
+            # Fallback logic
+            if asrm_score < 6:
+                risk_level = RiskLevel.LOW
+                episode_type = EpisodeType.NONE
+                summary = "Mania screening within normal range."
+            elif asrm_score <= 10:
+                risk_level = RiskLevel.MODERATE
+                episode_type = EpisodeType.HYPOMANIC
+                summary = "Hypomanic symptoms detected requiring monitoring."
+            elif asrm_score <= 15:
+                risk_level = RiskLevel.HIGH
+                episode_type = EpisodeType.HYPOMANIC
+                summary = "Significant hypomanic symptoms requiring intervention."
+            else:
+                risk_level = RiskLevel.CRITICAL
+                episode_type = EpisodeType.MANIC
+                summary = "Severe manic symptoms requiring immediate intervention."
 
         # Check critical biomarkers
-        if sleep_hours < 3:
+        if sleep_hours < critical_sleep:
             risk_level = RiskLevel.CRITICAL
             episode_type = EpisodeType.MANIC
             summary += " Critical sleep reduction indicates mania."
@@ -300,7 +331,7 @@ class ClinicalInterpreter:
             summary = "Manic episode with psychotic features - immediate hospitalization may be required."
 
         # Activity elevation
-        if activity_steps > 20000:
+        if activity_steps > extreme_activity:
             summary += " Significantly elevated activity level."
             if risk_level == RiskLevel.MODERATE:
                 risk_level = RiskLevel.HIGH
@@ -313,7 +344,7 @@ class ClinicalInterpreter:
             confidence=0.85,
             clinical_summary=summary,
             recommendations=recommendations,
-            dsm5_criteria_met=(asrm_score >= 6),
+            dsm5_criteria_met=(asrm_score >= hypomanic_threshold),
             clinical_features={
                 "asrm_score": asrm_score,
                 "sleep_hours": sleep_hours,
@@ -341,16 +372,29 @@ class ClinicalInterpreter:
         - Full criteria for one pole (depression or mania)
         - ≥3 symptoms from opposite pole
         """
+        # Use configuration values if available
+        if self.config:
+            min_symptoms = self.config.mixed_features.minimum_opposite_symptoms
+            depression_threshold = self.config.depression.phq_cutoffs.moderate.min
+            mania_threshold = self.config.mania.asrm_cutoffs.hypomanic.min
+            reduced_sleep_threshold = self.config.depression.sleep_hours.normal_min
+        else:
+            # Fallback defaults
+            min_symptoms = 3
+            depression_threshold = 10
+            mania_threshold = 6
+            reduced_sleep_threshold = 6
+
         # Count opposite pole symptoms
-        manic_symptoms = sum([racing_thoughts, increased_energy, sleep_hours < 6])
+        manic_symptoms = sum([racing_thoughts, increased_energy, sleep_hours < reduced_sleep_threshold])
         depressive_symptoms = sum([depressed_mood, anhedonia, guilt])
 
         # Determine primary episode and check for mixed features
-        if phq_score >= 10 and manic_symptoms >= 3:
+        if phq_score >= depression_threshold and manic_symptoms >= min_symptoms:
             episode_type = EpisodeType.DEPRESSIVE_MIXED
             risk_level = RiskLevel.HIGH
             summary = "Major depressive episode with mixed features detected."
-        elif asrm_score >= 6 and depressive_symptoms >= 3:
+        elif asrm_score >= mania_threshold and depressive_symptoms >= min_symptoms:
             episode_type = EpisodeType.MANIC_MIXED
             risk_level = RiskLevel.HIGH
             summary = "Manic episode with mixed features detected."
@@ -387,13 +431,24 @@ class ClinicalInterpreter:
         - Hypomanic: ≥4 days
         - Major Depressive: ≥14 days
         """
-        duration_requirements = {
-            EpisodeType.MANIC: 7,
-            EpisodeType.HYPOMANIC: 4,
-            EpisodeType.DEPRESSIVE: 14,
-            EpisodeType.DEPRESSIVE_MIXED: 14,
-            EpisodeType.MANIC_MIXED: 7,
-        }
+        # Use configuration values if available
+        if self.config:
+            duration_requirements = {
+                EpisodeType.MANIC: self.config.dsm5_duration.manic_days,
+                EpisodeType.HYPOMANIC: self.config.dsm5_duration.hypomanic_days,
+                EpisodeType.DEPRESSIVE: self.config.dsm5_duration.depressive_days,
+                EpisodeType.DEPRESSIVE_MIXED: self.config.dsm5_duration.depressive_days,
+                EpisodeType.MANIC_MIXED: self.config.dsm5_duration.manic_days,
+            }
+        else:
+            # Fallback defaults
+            duration_requirements = {
+                EpisodeType.MANIC: 7,
+                EpisodeType.HYPOMANIC: 4,
+                EpisodeType.DEPRESSIVE: 14,
+                EpisodeType.DEPRESSIVE_MIXED: 14,
+                EpisodeType.MANIC_MIXED: 7,
+            }
 
         required_days = duration_requirements.get(episode_type, 0)
 
@@ -427,19 +482,30 @@ class ClinicalInterpreter:
         """Interpret sleep-related digital biomarkers."""
         result = BiomarkerInterpretation()
 
-        # Critical short sleep (< 3 hours)
-        if sleep_duration < 3:
+        # Use configuration values if available
+        if self.config:
+            critical_sleep = self.config.mania.sleep_hours.critical_threshold
+            efficiency_threshold = self.config.biomarkers.sleep.efficiency_threshold
+            timing_variance_threshold = self.config.biomarkers.sleep.timing_variance_threshold
+        else:
+            # Fallback defaults
+            critical_sleep = 3
+            efficiency_threshold = 0.85
+            timing_variance_threshold = 2
+
+        # Critical short sleep
+        if sleep_duration < critical_sleep:
             result.mania_risk_factors += 1
             result.clinical_notes.append("Critical short sleep duration indicates mania risk")
             result.recommendation_priority = "urgent"
 
-        # Poor sleep efficiency (< 85%)
-        if sleep_efficiency < 0.85:
+        # Poor sleep efficiency
+        if sleep_efficiency < efficiency_threshold:
             result.mania_risk_factors += 1
             result.clinical_notes.append("Poor sleep efficiency")
 
-        # Variable sleep timing (> 2 hours)
-        if sleep_timing_variance > 2:
+        # Variable sleep timing
+        if sleep_timing_variance > timing_variance_threshold:
             result.mania_risk_factors += 1
             result.clinical_notes.append("Highly variable sleep schedule")
 
@@ -454,13 +520,22 @@ class ClinicalInterpreter:
         """Interpret activity-related digital biomarkers."""
         result = BiomarkerInterpretation()
 
-        # High activity (> 15,000 steps)
-        if daily_steps > 15000:
+        # Use configuration values if available
+        if self.config:
+            elevated_threshold = self.config.mania.activity_steps.elevated_threshold
+            extreme_threshold = self.config.mania.activity_steps.extreme_threshold
+        else:
+            # Fallback defaults
+            elevated_threshold = 15000
+            extreme_threshold = 20000
+
+        # High activity
+        if daily_steps > elevated_threshold:
             result.mania_risk_factors += 1
             result.clinical_notes.append("Significantly elevated activity level")
 
-        # Very high activity (> 20,000 steps)
-        if daily_steps > 20000:
+        # Very high activity
+        if daily_steps > extreme_threshold:
             result.mania_risk_factors += 1
             result.clinical_notes.append("Extreme activity elevation")
 
@@ -480,18 +555,29 @@ class ClinicalInterpreter:
         """Interpret circadian rhythm biomarkers."""
         result = BiomarkerInterpretation()
 
-        # Phase advance > 2 hours (mania risk)
-        if circadian_phase_advance > 2:
+        # Use configuration values if available
+        if self.config:
+            phase_advance_threshold = self.config.biomarkers.circadian.phase_advance_threshold
+            stability_low = self.config.biomarkers.circadian.interdaily_stability_low
+            variability_high = self.config.biomarkers.circadian.intradaily_variability_high
+        else:
+            # Fallback defaults
+            phase_advance_threshold = 2
+            stability_low = 0.5
+            variability_high = 1.0
+
+        # Phase advance (mania risk)
+        if circadian_phase_advance > phase_advance_threshold:
             result.mania_risk_factors += 1
             result.clinical_notes.append("Significant circadian phase advance")
 
-        # Low interdaily stability (< 0.5)
-        if interdaily_stability < 0.5:
+        # Low interdaily stability
+        if interdaily_stability < stability_low:
             result.mood_instability_risk = "high"
             result.clinical_notes.append("Low circadian rhythm stability")
 
-        # High intradaily variability (> 1)
-        if intradaily_variability > 1:
+        # High intradaily variability
+        if intradaily_variability > variability_high:
             result.mood_instability_risk = "high"
             result.clinical_notes.append("High circadian fragmentation")
 

@@ -10,7 +10,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-import yaml
+import yaml  # type: ignore[import-untyped]
 
 
 @dataclass
@@ -18,8 +18,8 @@ class ThresholdRange:
     """Represents a min-max threshold range."""
     min: float
     max: float
-    
-    def __post_init__(self):
+
+    def __post_init__(self) -> None:
         if self.min > self.max:
             raise ValueError(f"Invalid threshold range: min ({self.min}) > max ({self.max})")
 
@@ -162,7 +162,7 @@ def _parse_phq_cutoffs(data: dict[str, Any]) -> PHQCutoffs:
     for key in required_keys:
         if key not in data:
             raise ValueError(f"Missing required PHQ cutoff: {key}")
-    
+
     return PHQCutoffs(
         none=_parse_threshold_range(data["none"]),
         mild=_parse_threshold_range(data["mild"]),
@@ -178,7 +178,7 @@ def _parse_asrm_cutoffs(data: dict[str, Any]) -> ASRMCutoffs:
     for key in required_keys:
         if key not in data:
             raise ValueError(f"Missing required ASRM cutoff: {key}")
-    
+
     return ASRMCutoffs(
         none=_parse_threshold_range(data["none"]),
         hypomanic=_parse_threshold_range(data["hypomanic"]),
@@ -190,32 +190,32 @@ def _parse_asrm_cutoffs(data: dict[str, Any]) -> ASRMCutoffs:
 def load_clinical_thresholds(config_path: Path) -> ClinicalThresholdsConfig:
     """
     Load clinical thresholds from a YAML configuration file.
-    
+
     Args:
         config_path: Path to the YAML configuration file
-        
+
     Returns:
         ClinicalThresholdsConfig object with all thresholds
-        
+
     Raises:
         FileNotFoundError: If configuration file doesn't exist
         ValueError: If configuration is invalid or missing required fields
     """
     if not config_path.exists():
         raise FileNotFoundError(f"Configuration file not found: {config_path}")
-    
-    with open(config_path, 'r') as f:
+
+    with open(config_path) as f:
         data = yaml.safe_load(f)
-    
+
     if not isinstance(data, dict):
         raise ValueError("Invalid configuration: expected a dictionary")
-    
+
     # Validate top-level structure
     required_sections = ["depression", "mania", "biomarkers", "mixed_features", "dsm5_duration"]
     for section in required_sections:
         if section not in data:
             raise ValueError(f"Missing required configuration section: {section}")
-    
+
     try:
         # Parse depression thresholds
         dep_data = data["depression"]
@@ -232,7 +232,7 @@ def load_clinical_thresholds(config_path: Path) -> ClinicalThresholdsConfig:
                 normal_min=int(dep_data["activity_steps"]["normal_min"])
             )
         )
-        
+
         # Parse mania thresholds
         mania_data = data["mania"]
         mania = ManiaThresholds(
@@ -246,7 +246,7 @@ def load_clinical_thresholds(config_path: Path) -> ClinicalThresholdsConfig:
                 extreme_threshold=int(mania_data["activity_steps"]["extreme_threshold"])
             )
         )
-        
+
         # Parse biomarker thresholds
         bio_data = data["biomarkers"]
         biomarkers = BiomarkerThresholds(
@@ -260,7 +260,7 @@ def load_clinical_thresholds(config_path: Path) -> ClinicalThresholdsConfig:
                 timing_variance_threshold=float(bio_data["sleep"]["timing_variance_threshold"])
             )
         )
-        
+
         # Parse mixed features config
         mixed_data = data["mixed_features"]
         mixed_features = MixedFeaturesConfig(
@@ -272,7 +272,7 @@ def load_clinical_thresholds(config_path: Path) -> ClinicalThresholdsConfig:
                 required_depressive_symptoms=list(mixed_data["mania_with_mixed"]["required_depressive_symptoms"])
             )
         )
-        
+
         # Parse DSM-5 duration config
         dsm5_data = data["dsm5_duration"]
         dsm5_duration = DSM5DurationConfig(
@@ -280,7 +280,7 @@ def load_clinical_thresholds(config_path: Path) -> ClinicalThresholdsConfig:
             hypomanic_days=int(dsm5_data["hypomanic_days"]),
             depressive_days=int(dsm5_data["depressive_days"])
         )
-        
+
         return ClinicalThresholdsConfig(
             depression=depression,
             mania=mania,
@@ -288,8 +288,8 @@ def load_clinical_thresholds(config_path: Path) -> ClinicalThresholdsConfig:
             mixed_features=mixed_features,
             dsm5_duration=dsm5_duration
         )
-        
+
     except KeyError as e:
-        raise ValueError(f"Missing required field in configuration: {e}")
+        raise ValueError(f"Missing required field in configuration: {e}") from e
     except (TypeError, ValueError) as e:
-        raise ValueError(f"Invalid configuration value: {e}")
+        raise ValueError(f"Invalid configuration value: {e}") from e

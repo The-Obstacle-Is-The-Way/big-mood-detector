@@ -11,8 +11,8 @@ import pytest
 
 from big_mood_detector.domain.services.clinical_interpreter import (
     ClinicalInterpreter,
-    RiskLevel,
     EpisodeType,
+    RiskLevel,
 )
 from big_mood_detector.domain.services.clinical_thresholds import (
     load_clinical_thresholds,
@@ -114,7 +114,7 @@ class TestClinicalInterpreterWithConfig:
         """Test that interpreter uses mixed features configuration."""
         # Count required symptoms from config
         manic_symptoms = len(config.mixed_features.depression_with_mixed.required_manic_symptoms)
-        
+
         # Should detect mixed features with minimum symptoms
         result = interpreter.interpret_mixed_state(
             phq_score=15,  # Depression
@@ -131,18 +131,18 @@ class TestClinicalInterpreterWithConfig:
     def test_configuration_validation(self):
         """Test that configuration is valid and complete."""
         config = load_clinical_thresholds(Path("config/clinical_thresholds.yaml"))
-        
+
         # Verify threshold ordering
         assert config.depression.phq_cutoffs.none.max < config.depression.phq_cutoffs.mild.min
         assert config.depression.phq_cutoffs.mild.max < config.depression.phq_cutoffs.moderate.min
         assert config.depression.phq_cutoffs.moderate.max < config.depression.phq_cutoffs.moderately_severe.min
         assert config.depression.phq_cutoffs.moderately_severe.max < config.depression.phq_cutoffs.severe.min
-        
+
         # Verify mania thresholds
         assert config.mania.asrm_cutoffs.none.max < config.mania.asrm_cutoffs.hypomanic.min
         assert config.mania.asrm_cutoffs.hypomanic.max < config.mania.asrm_cutoffs.manic_moderate.min
         assert config.mania.asrm_cutoffs.manic_moderate.max < config.mania.asrm_cutoffs.manic_severe.min
-        
+
         # Verify critical thresholds
         assert config.mania.sleep_hours.critical_threshold < config.mania.sleep_hours.reduced_threshold
         assert config.depression.activity_steps.severe_reduction < config.depression.activity_steps.moderate_reduction
