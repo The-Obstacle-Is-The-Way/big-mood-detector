@@ -113,7 +113,7 @@ class TestClinicalInterpreterWithConfig:
     def test_interpreter_uses_mixed_features_config(self, interpreter, config):
         """Test that interpreter uses mixed features configuration."""
         # Count required symptoms from config
-        manic_symptoms = len(config.mixed_features.depression_with_mixed.required_manic_symptoms)
+        # manic_symptoms = len(config.mixed_features.depression_with_mixed.required_manic_symptoms)
 
         # Should detect mixed features with minimum symptoms
         result = interpreter.interpret_mixed_state(
