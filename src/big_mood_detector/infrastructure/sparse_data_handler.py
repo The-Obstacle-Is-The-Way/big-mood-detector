@@ -124,7 +124,7 @@ class SparseDataHandler:
             )
 
         dates = sorted(dates)
-        date_set = set(dates)
+        set(dates)
 
         # Calculate basic metrics
         start_date = dates[0]
@@ -284,7 +284,7 @@ class SparseDataHandler:
 
             # Merge all sensors
             result = None
-            for name, df in aligned_data.items():
+            for _, df in aligned_data.items():
                 if result is None:
                     result = df
                 else:
@@ -606,7 +606,7 @@ class SparseDataHandler:
             dates = [d.date() for d in dates]
 
         density = self.assess_density(dates)
-        confidence = self.compute_confidence(dates)
+        self.compute_confidence(dates)
 
         features = {
             "confidence": True,  # Always available
@@ -643,7 +643,7 @@ class SparseDataHandler:
         sleep_set = set(sleep_dates)
         activity_set = set(activity_dates)
 
-        overlap = sorted(list(sleep_set.intersection(activity_set)))
+        overlap = sorted(sleep_set.intersection(activity_set))
 
         if len(overlap) < min_overlap_days:
             return []

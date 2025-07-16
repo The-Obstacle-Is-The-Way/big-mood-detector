@@ -179,7 +179,7 @@ class TestStreamingLargeFiles:
         record_count = 0
         peak_memory = 0
 
-        for i, entity in enumerate(streaming_parser.parse_file(export_file)):
+        for i, _entity in enumerate(streaming_parser.parse_file(export_file)):
             record_count += 1
 
             # Check memory periodically

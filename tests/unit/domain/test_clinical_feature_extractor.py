@@ -80,7 +80,7 @@ class TestClinicalFeatureExtractor:
         # Feature vector
         feature_vector = features.to_xgboost_features()
         assert len(feature_vector) == 36  # Exactly 36 features for Seoul study
-        assert all(isinstance(f, (int, float)) for f in feature_vector)
+        assert all(isinstance(f, int | float) for f in feature_vector)
 
     def test_extract_with_missing_dlmo(self):
         """Should handle gracefully when DLMO calculation fails."""

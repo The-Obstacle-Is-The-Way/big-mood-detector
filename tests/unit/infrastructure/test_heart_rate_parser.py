@@ -242,7 +242,7 @@ class TestHeartRateParser:
                     startDate="2024-01-01 10:00:00 -0800"
                     endDate="2024-01-01 10:00:00 -0800"
                     value="120">
-                <MetadataEntry key="HKMetadataKeyHeartRateMotionContext" 
+                <MetadataEntry key="HKMetadataKeyHeartRateMotionContext"
                                value="HKHeartRateMotionContextActive"/>
             </Record>
         </HealthData>"""

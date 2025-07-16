@@ -223,7 +223,7 @@ class TestCircadianRhythmAnalyzer:
         sequences = self._create_regular_pattern(date(2024, 1, 1), days=14)
 
         # Act
-        l5m10 = analyzer.calculate_l5_m10(sequences)
+        analyzer.calculate_l5_m10(sequences)
         consistency = analyzer.calculate_l5_timing_consistency(sequences)
 
         # Assert

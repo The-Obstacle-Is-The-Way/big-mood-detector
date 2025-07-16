@@ -443,14 +443,14 @@ class DLMOCalculator:
             # Fallback to simple minimum if no prominent minima found
             min_idx = np.argmin(cbt_values)
             cbt_min_hour = hours[min_idx]
-            cbt_min_value = cbt_values[min_idx]
+            cbt_values[min_idx]
             confidence = 0.5  # Lower confidence
         else:
             # Use the most prominent minimum
             prominences = properties["prominences"]
             best_idx = minima_indices[np.argmax(prominences)]
             cbt_min_hour = hours[best_idx]
-            cbt_min_value = cbt_values[best_idx]
+            cbt_values[best_idx]
             confidence = min(1.0, prominences[np.argmax(prominences)] / 0.5)
 
         # Calculate amplitude (max - min)

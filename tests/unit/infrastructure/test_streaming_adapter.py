@@ -131,7 +131,7 @@ class TestStreamingAdapter:
         tracemalloc.start()
         record_count = 0
 
-        for record in parser.iter_records(temp_path):
+        for _record in parser.iter_records(temp_path):
             record_count += 1
             # Check memory usage periodically
             if record_count % 1000 == 0:
