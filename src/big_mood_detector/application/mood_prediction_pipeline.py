@@ -444,7 +444,7 @@ class MoodPredictionPipeline:
         # Convert predictions to DataFrame
         rows = []
         for pred_date, prediction in result.daily_predictions.items():
-            row = {"date": pred_date}
+            row: dict[str, Any] = {"date": pred_date}
             row.update(prediction)
             rows.append(row)
 
@@ -556,7 +556,7 @@ class MoodPredictionPipeline:
 
     def _process_xml_export(self, xml_path: Path) -> dict[str, list]:
         """Process Apple Health XML export."""
-        records = {"sleep": [], "activity": [], "heart_rate": []}
+        records: dict[str, list] = {"sleep": [], "activity": [], "heart_rate": []}
 
         # Stream through XML
         for record in self.xml_parser.iter_records(str(xml_path)):
@@ -575,7 +575,7 @@ class MoodPredictionPipeline:
 
     def _process_json_export(self, json_dir: Path) -> dict[str, list]:
         """Process Health Auto Export JSON files."""
-        records = {"sleep": [], "activity": [], "heart_rate": []}
+        records: dict[str, list] = {"sleep": [], "activity": [], "heart_rate": []}
 
         # Process sleep data
         sleep_files = list(json_dir.glob("*[Ss]leep*.json"))

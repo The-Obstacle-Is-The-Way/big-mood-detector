@@ -266,8 +266,8 @@ class AdvancedFeatureEngineer:
         ]
         wake_times = [s.wake_time.hour + s.wake_time.minute / 60 for s in recent_sleep]
 
-        sleep_regularity = 100 - (np.std(sleep_times) + np.std(wake_times)) * 10
-        sleep_regularity = max(0.0, min(100.0, float(sleep_regularity)))
+        sleep_regularity_raw = 100 - (np.std(sleep_times) + np.std(wake_times)) * 10
+        sleep_regularity = float(max(0.0, min(100.0, sleep_regularity_raw)))
 
         # Interdaily stability (IS) - consistency across days
         # Uses non-parametric circadian rhythm analysis
@@ -336,8 +336,8 @@ class AdvancedFeatureEngineer:
         elif phase_shift < -12:
             phase_shift += 24
 
-        phase_advance = max(0.0, -phase_shift)  # Earlier than normal
-        phase_delay = max(0.0, phase_shift)  # Later than normal
+        phase_advance = float(max(0.0, -phase_shift))  # Earlier than normal
+        phase_delay = float(max(0.0, phase_shift))  # Later than normal
 
         # DLMO estimation (2 hours before habitual sleep onset)
         dlmo_hour = (avg_sleep_time - 2) % 24
@@ -613,7 +613,7 @@ class AdvancedFeatureEngineer:
         if baseline["std"] == 0:
             return 0.0
 
-        return (value - baseline["mean"]) / baseline["std"]
+        return float((value - baseline["mean"]) / baseline["std"])
 
     def _empty_sleep_features(self) -> dict[str, float]:
         """Return empty sleep features."""

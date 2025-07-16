@@ -39,11 +39,17 @@ setup: install-dev pre-commit
 test:
 	pytest --cov=big_mood_detector --cov-report=term-missing --cov-report=html
 
+test-quick:
+	pytest -x --tb=short -q
+
 test-parallel:
 	pytest -n auto --cov=big_mood_detector --cov-report=term-missing
 
 test-fast:
-	pytest -m "not slow and not integration" --cov=big_mood_detector -n auto
+	pytest -m "not slow and not integration" -x --tb=short
+
+test-unit:
+	pytest tests/unit -x --tb=short -q
 
 test-slow:
 	pytest -m "slow"
