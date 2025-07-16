@@ -131,13 +131,17 @@ class AdvancedFeatureEngineer:
     Based on peer-reviewed research methodologies.
     """
 
-    def __init__(self) -> None:
-        """Initialize with baseline statistics tracking."""
+    def __init__(self, config: dict[str, Any] | None = None) -> None:
+        """Initialize with baseline statistics tracking.
+
+        Args:
+            config: Optional configuration dictionary
+        """
         self.individual_baselines: dict[str, dict[str, Any]] = {}
         self.population_baselines: dict[str, float] = {}
 
-        # Initialize specialized calculators
-        self.sleep_calculator = SleepFeatureCalculator()
+        # Initialize specialized calculators with config
+        self.sleep_calculator = SleepFeatureCalculator(config)
 
     def extract_advanced_features(
         self,
@@ -510,6 +514,7 @@ class AdvancedFeatureEngineer:
                 return s
         return None
 
+    # TODO: Remove these stubs after Q1 2025 - moved to SleepFeatureCalculator
     # NOTE: These methods have been moved to SleepFeatureCalculator
     # Keeping stub for backward compatibility if needed
 

@@ -10,10 +10,12 @@ Design Patterns:
 - Pure Functions: All calculations are side-effect free
 """
 
+from typing import Any
 
 import numpy as np
 
 from big_mood_detector.domain.services.sleep_aggregator import DailySleepSummary
+from big_mood_detector.domain.utils.math_helpers import clamp, safe_std, safe_var
 
 
 class SleepFeatureCalculator:
@@ -23,6 +25,26 @@ class SleepFeatureCalculator:
     This service focuses solely on sleep feature calculations,
     extracted from the monolithic AdvancedFeatureEngineer.
     """
+
+    def __init__(self, config: dict[str, Any] | None = None):
+        """
+        Initialize with optional configuration.
+
+        Args:
+            config: Configuration dict with sleep_windows section
+        """
+        if config is None:
+            # Default values if no config provided
+            self.short_sleep_threshold = 6.0
+            self.long_sleep_threshold = 10.0
+            self.regularity_scaling = 10.0
+            self.fragmentation_scale = 2.0
+        else:
+            sleep_config = config.get("sleep_windows", {})
+            self.short_sleep_threshold = sleep_config.get("short_sleep_threshold", 6.0)
+            self.long_sleep_threshold = sleep_config.get("long_sleep_threshold", 10.0)
+            self.regularity_scaling = sleep_config.get("regularity_scaling", 10.0)
+            self.fragmentation_scale = sleep_config.get("fragmentation_scale", 2.0)
 
     def calculate_regularity_index(self, sleep_summaries: list[DailySleepSummary]) -> float:
         """
@@ -56,6 +78,8 @@ class SleepFeatureCalculator:
             sleep_hour = summary.earliest_bedtime.hour + summary.earliest_bedtime.minute / 60
 
             # Handle late night times (after midnight)
+            # NOTE: This assumes times before noon are late night sleep, not daytime naps
+            # TODO: Add nap detection logic if daytime sleep tracking is needed
             if sleep_hour < 12:  # Assume times before noon are late night
                 sleep_hour += 24
 
@@ -65,15 +89,15 @@ class SleepFeatureCalculator:
             wake_hour = summary.latest_wake_time.hour + summary.latest_wake_time.minute / 60
             wake_times.append(wake_hour)
 
-        # Calculate standard deviations
-        sleep_std = np.std(sleep_times) if len(sleep_times) > 1 else 0
-        wake_std = np.std(wake_times) if len(wake_times) > 1 else 0
+        # Calculate standard deviations safely
+        sleep_std = safe_std(sleep_times)
+        wake_std = safe_std(wake_times)
 
         # Regularity index: 100 - (combined variance * scaling factor)
-        regularity_raw = 100 - (sleep_std + wake_std) * 10
+        regularity_raw = 100 - (sleep_std + wake_std) * self.regularity_scaling
 
         # Clamp to 0-100 range
-        return float(max(0.0, min(100.0, float(regularity_raw))))
+        return clamp(regularity_raw, 0.0, 100.0)
 
     def calculate_interdaily_stability(self, sleep_summaries: list[DailySleepSummary]) -> float:
         """
@@ -160,10 +184,12 @@ class SleepFeatureCalculator:
             return 0.0
 
         # Use fragmentation index and efficiency as indicators
+        # NOTE: Assumes sleep_fragmentation_index is normalized to 0-1 range
+        # Different devices may report different scales - document device specs
         fragmentation_scores = []
 
         for summary in sleep_summaries:
-            # Use direct fragmentation index
+            # Use direct fragmentation index (assumed 0-1 range)
             frag_score = summary.sleep_fragmentation_index
 
             # Lower efficiency = more fragmentation
@@ -173,10 +199,10 @@ class SleepFeatureCalculator:
             fragmentation = (frag_score + efficiency_score) / 2
             fragmentation_scores.append(fragmentation)
 
-        # Average fragmentation scaled to 0-2 range
+        # Average fragmentation scaled to configured range
         avg_fragmentation = np.mean(fragmentation_scores)
 
-        return float(avg_fragmentation * 2.0)
+        return float(avg_fragmentation * self.fragmentation_scale)
 
     def calculate_relative_amplitude(self, sleep_summaries: list[DailySleepSummary]) -> float:
         """
@@ -204,7 +230,7 @@ class SleepFeatureCalculator:
         # Combine metrics
         ra_value = (duration_consistency + avg_efficiency) / 2
 
-        return float(max(0.0, min(1.0, float(ra_value))))
+        return clamp(ra_value, 0.0, 1.0)
 
     def calculate_sleep_window_percentages(
         self, sleep_summaries: list[DailySleepSummary]
@@ -224,8 +250,8 @@ class SleepFeatureCalculator:
         durations = [s.total_sleep_hours for s in sleep_summaries]
         total_days = len(durations)
 
-        short_days = sum(1 for d in durations if d < 6)
-        long_days = sum(1 for d in durations if d > 10)
+        short_days = sum(1 for d in durations if d < self.short_sleep_threshold)
+        long_days = sum(1 for d in durations if d > self.long_sleep_threshold)
 
         short_pct = (short_days / total_days) * 100
         long_pct = (long_days / total_days) * 100
@@ -266,7 +292,7 @@ class SleepFeatureCalculator:
             wake_hour = summary.latest_wake_time.hour + summary.latest_wake_time.minute / 60
             wake_times.append(wake_hour)
 
-        onset_variance = float(np.var(sleep_times))
-        wake_variance = float(np.var(wake_times))
+        onset_variance = safe_var(sleep_times)
+        wake_variance = safe_var(wake_times)
 
         return onset_variance, wake_variance

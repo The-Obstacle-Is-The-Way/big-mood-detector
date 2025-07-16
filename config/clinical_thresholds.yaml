@@ -61,6 +61,13 @@ biomarkers:
   sleep:
     efficiency_threshold: 0.85       # <85% poor efficiency
     timing_variance_threshold: 2.0   # >2 hours variable timing
+    
+# Sleep window thresholds for feature engineering
+sleep_windows:
+  short_sleep_threshold: 6    # <6 hours is short sleep
+  long_sleep_threshold: 10    # >10 hours is long sleep
+  regularity_scaling: 10      # Scaling factor for regularity index
+  fragmentation_scale: 2.0    # Max scale for intradaily variability
 
 mixed_features:
   minimum_opposite_symptoms: 3  # Need ≥3 symptoms from opposite pole
