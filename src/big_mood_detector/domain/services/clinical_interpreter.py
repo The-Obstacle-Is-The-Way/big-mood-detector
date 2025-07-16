@@ -423,3 +423,63 @@ class ClinicalInterpreter:
                 "increased_energy": increased_energy,
             }
         )
+    
+    def evaluate_episode_duration(
+        self,
+        episode_type: EpisodeType,
+        symptom_days: int,
+        hospitalization: bool = False,
+    ) -> DSM5Criteria:
+        """
+        Evaluate if episode duration meets DSM-5 criteria.
+        
+        DSM-5 Duration Requirements:
+        - Manic: ≥7 days (or any duration if hospitalization)
+        - Hypomanic: ≥4 days
+        - Depressive: ≥14 days
+        - Mixed: Follows primary episode requirements
+        """
+        # Get duration requirements from config
+        duration_config = self.config.dsm5_duration
+        
+        # Check requirements based on episode type
+        duration_met = False
+        required_days = 0
+        
+        if episode_type == EpisodeType.MANIC:
+            required_days = duration_config.manic_days
+            duration_met = symptom_days >= required_days or hospitalization
+        elif episode_type == EpisodeType.HYPOMANIC:
+            required_days = duration_config.hypomanic_days
+            duration_met = symptom_days >= required_days and not hospitalization
+        elif episode_type == EpisodeType.DEPRESSIVE:
+            required_days = duration_config.depressive_days
+            duration_met = symptom_days >= required_days
+        elif "mixed" in episode_type.value:
+            # Mixed episodes follow primary pole duration
+            if "depressive" in episode_type.value:
+                required_days = duration_config.depressive_days
+            else:
+                required_days = duration_config.manic_days
+            duration_met = symptom_days >= required_days or (
+                "manic" in episode_type.value and hospitalization
+            )
+        
+        # Create criteria result
+        if duration_met:
+            note = f"Episode duration of {symptom_days} days meets DSM-5 criteria"
+        else:
+            # Format message to match test expectations
+            episode_name = episode_type.value.replace("_", " ")
+            note = f"Duration insufficient for {episode_name} episode ({symptom_days} days < {required_days} days required)"
+        
+        if hospitalization and episode_type == EpisodeType.MANIC:
+            note += " (hospitalization overrides duration requirement)"
+        
+        return DSM5Criteria(
+            meets_dsm5_criteria=duration_met,
+            clinical_note=note,
+            duration_met=duration_met,
+            symptom_count_met=True,  # Assume this was evaluated separately
+            functional_impairment=True,  # Assume this was evaluated separately
+        )
