@@ -27,25 +27,25 @@ class TestAdvancedFeaturePipeline:
 <!DOCTYPE HealthData>
 <HealthData locale="en_US">
   <ExportDate value="2024-01-20 10:00:00 -0800"/>
-  
+
   <!-- Multiple days of sleep data for temporal features (need at least 7 days history) -->
   <Record type="HKCategoryTypeIdentifierSleepAnalysis" sourceName="Apple Watch" value="HKCategoryValueSleepAnalysisAsleepCore" startDate="2024-01-01 23:00:00 -0800" endDate="2024-01-02 03:00:00 -0800"/>
   <Record type="HKCategoryTypeIdentifierSleepAnalysis" sourceName="Apple Watch" value="HKCategoryValueSleepAnalysisAsleepREM" startDate="2024-01-02 03:00:00 -0800" endDate="2024-01-02 05:00:00 -0800"/>
   <Record type="HKCategoryTypeIdentifierSleepAnalysis" sourceName="Apple Watch" value="HKCategoryValueSleepAnalysisAsleepDeep" startDate="2024-01-02 05:00:00 -0800" endDate="2024-01-02 07:00:00 -0800"/>
-  
+
   <Record type="HKCategoryTypeIdentifierSleepAnalysis" sourceName="Apple Watch" value="HKCategoryValueSleepAnalysisAsleepCore" startDate="2024-01-02 22:30:00 -0800" endDate="2024-01-03 02:30:00 -0800"/>
   <Record type="HKCategoryTypeIdentifierSleepAnalysis" sourceName="Apple Watch" value="HKCategoryValueSleepAnalysisAsleepREM" startDate="2024-01-03 02:30:00 -0800" endDate="2024-01-03 06:30:00 -0800"/>
-  
+
   <Record type="HKCategoryTypeIdentifierSleepAnalysis" sourceName="Apple Watch" value="HKCategoryValueSleepAnalysisAsleepCore" startDate="2024-01-03 23:15:00 -0800" endDate="2024-01-04 03:15:00 -0800"/>
   <Record type="HKCategoryTypeIdentifierSleepAnalysis" sourceName="Apple Watch" value="HKCategoryValueSleepAnalysisAsleepDeep" startDate="2024-01-04 03:15:00 -0800" endDate="2024-01-04 06:45:00 -0800"/>
-  
+
   <Record type="HKCategoryTypeIdentifierSleepAnalysis" sourceName="Apple Watch" value="HKCategoryValueSleepAnalysisAsleepCore" startDate="2024-01-04 23:00:00 -0800" endDate="2024-01-05 07:00:00 -0800"/>
   <Record type="HKCategoryTypeIdentifierSleepAnalysis" sourceName="Apple Watch" value="HKCategoryValueSleepAnalysisAsleepCore" startDate="2024-01-05 22:45:00 -0800" endDate="2024-01-06 06:45:00 -0800"/>
   <Record type="HKCategoryTypeIdentifierSleepAnalysis" sourceName="Apple Watch" value="HKCategoryValueSleepAnalysisAsleepCore" startDate="2024-01-06 23:30:00 -0800" endDate="2024-01-07 07:30:00 -0800"/>
   <Record type="HKCategoryTypeIdentifierSleepAnalysis" sourceName="Apple Watch" value="HKCategoryValueSleepAnalysisAsleepCore" startDate="2024-01-07 23:00:00 -0800" endDate="2024-01-08 07:00:00 -0800"/>
   <Record type="HKCategoryTypeIdentifierSleepAnalysis" sourceName="Apple Watch" value="HKCategoryValueSleepAnalysisAsleepCore" startDate="2024-01-08 22:30:00 -0800" endDate="2024-01-09 06:30:00 -0800"/>
   <Record type="HKCategoryTypeIdentifierSleepAnalysis" sourceName="Apple Watch" value="HKCategoryValueSleepAnalysisAsleepCore" startDate="2024-01-09 23:00:00 -0800" endDate="2024-01-10 07:00:00 -0800"/>
-  
+
   <!-- Activity data -->
   <Record type="HKQuantityTypeIdentifierStepCount" sourceName="iPhone" value="8000" startDate="2024-01-02 08:00:00 -0800" endDate="2024-01-02 18:00:00 -0800" unit="count"/>
   <Record type="HKQuantityTypeIdentifierStepCount" sourceName="iPhone" value="12000" startDate="2024-01-03 08:00:00 -0800" endDate="2024-01-03 18:00:00 -0800" unit="count"/>
@@ -56,7 +56,7 @@ class TestAdvancedFeaturePipeline:
   <Record type="HKQuantityTypeIdentifierStepCount" sourceName="iPhone" value="8500" startDate="2024-01-08 08:00:00 -0800" endDate="2024-01-08 18:00:00 -0800" unit="count"/>
   <Record type="HKQuantityTypeIdentifierStepCount" sourceName="iPhone" value="11000" startDate="2024-01-09 08:00:00 -0800" endDate="2024-01-09 18:00:00 -0800" unit="count"/>
   <Record type="HKQuantityTypeIdentifierStepCount" sourceName="iPhone" value="9500" startDate="2024-01-10 08:00:00 -0800" endDate="2024-01-10 18:00:00 -0800" unit="count"/>
-  
+
   <!-- Heart rate data -->
   <Record type="HKQuantityTypeIdentifierHeartRate" sourceName="Apple Watch" value="65" startDate="2024-01-02 06:00:00 -0800" endDate="2024-01-02 06:01:00 -0800" unit="count/min"/>
   <Record type="HKQuantityTypeIdentifierHeartRate" sourceName="Apple Watch" value="70" startDate="2024-01-03 06:00:00 -0800" endDate="2024-01-03 06:01:00 -0800" unit="count/min"/>
