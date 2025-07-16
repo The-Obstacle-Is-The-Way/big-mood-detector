@@ -231,4 +231,3 @@ class HeartRateAggregator:
             evening_hr = sum(r.value for r in evening_records) / len(evening_records)
 
         return morning_hr, evening_hr
-

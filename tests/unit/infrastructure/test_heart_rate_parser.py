@@ -7,9 +7,7 @@ Following Clean Architecture and SOLID principles.
 
 import pytest
 
-from big_mood_detector.infrastructure.parsers.heart_rate_parser import (
-    HeartRateParser,
-)
+from big_mood_detector.infrastructure.parsers.xml import HeartRateParser
 
 
 class TestHeartRateParser:

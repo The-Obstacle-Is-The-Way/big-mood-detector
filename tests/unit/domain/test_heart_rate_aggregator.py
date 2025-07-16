@@ -375,4 +375,3 @@ class TestHeartRateAggregator:
         assert len(result) == 3
         for day_num in range(1, 4):
             assert date(2024, 1, day_num) in result
-

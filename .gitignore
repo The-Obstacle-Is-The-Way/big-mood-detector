@@ -94,6 +94,15 @@ Icon
 tmp/
 temp/
 
+# Test coverage and cache files
+.coverage
+*.coverage
+htmlcov/
+.mypy_cache/
+.pytest_cache/
+__pycache__/
+*.py[cod]
+
 # =====================================
 # Research-specific
 # =====================================
@@ -107,6 +116,22 @@ results/
 output/
 data/
 !converted_markdown/
+
+# =====================================
+# Personal Health Data - CRITICAL SECURITY
+# =====================================
+# NEVER commit personal health data to version control
+apple_export/
+personal_data/
+health_exports/
+*.zip
+*.xml
+export.xml
+export_*.xml
+*.sqlite
+# Allow specific example/test files only
+!docs/examples/*.xml
+!tests/fixtures/*.xml
 
 # =====================================
 # System Files

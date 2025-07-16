@@ -1,0 +1,467 @@
+{
+  "data" : {
+    "metrics" : [
+      {
+        "name" : "walking_running_distance",
+        "units" : "mi",
+        "data" : [
+          {
+            "source" : "John’s Apple Watch|John’s iPhone",
+            "qty" : 3.2436903409342905,
+            "date" : "2025-04-15 00:00:00 -0400"
+          },
+          {
+            "date" : "2025-04-16 00:00:00 -0400",
+            "qty" : 7.696615460767692,
+            "source" : "John’s Apple Watch|John’s iPhone"
+          },
+          {
+            "date" : "2025-04-17 00:00:00 -0400",
+            "qty" : 4.300342764377687,
+            "source" : "John’s Apple Watch|John’s iPhone"
+          },
+          {
+            "source" : "John’s Apple Watch|John’s iPhone",
+            "date" : "2025-04-18 00:00:00 -0400",
+            "qty" : 9.0207769493886527
+          },
+          {
+            "date" : "2025-04-19 00:00:00 -0400",
+            "qty" : 5.5445184940850165,
+            "source" : "John’s Apple Watch|John’s iPhone"
+          },
+          {
+            "qty" : 7.8530931771838004,
+            "source" : "John’s Apple Watch|John’s iPhone",
+            "date" : "2025-04-20 00:00:00 -0400"
+          },
+          {
+            "source" : "John’s Apple Watch|John’s iPhone",
+            "date" : "2025-04-21 00:00:00 -0400",
+            "qty" : 7.1728255760843806
+          },
+          {
+            "date" : "2025-04-22 00:00:00 -0400",
+            "source" : "John’s Apple Watch|John’s iPhone",
+            "qty" : 5.5873504493447745
+          },
+          {
+            "qty" : 7.0879030619277401,
+            "date" : "2025-04-23 00:00:00 -0400",
+            "source" : "John’s Apple Watch|John’s iPhone"
+          },
+          {
+            "date" : "2025-04-24 00:00:00 -0400",
+            "qty" : 9.6632418113792884,
+            "source" : "John’s Apple Watch|John’s iPhone"
+          },
+          {
+            "qty" : 3.9351521819576352,
+            "source" : "John’s Apple Watch|John’s iPhone",
+            "date" : "2025-04-25 00:00:00 -0400"
+          },
+          {
+            "source" : "John’s Apple Watch|John’s iPhone",
+            "date" : "2025-04-26 00:00:00 -0400",
+            "qty" : 5.3181295382396172
+          },
+          {
+            "date" : "2025-04-27 00:00:00 -0400",
+            "qty" : 5.1334176571210861,
+            "source" : "John’s Apple Watch|John’s iPhone"
+          },
+          {
+            "source" : "John’s Apple Watch|John’s iPhone",
+            "date" : "2025-04-28 00:00:00 -0400",
+            "qty" : 6.5763032165448703
+          },
+          {
+            "qty" : 5.0015233477562973,
+            "date" : "2025-04-29 00:00:00 -0400",
+            "source" : "John’s Apple Watch|John’s iPhone"
+          },
+          {
+            "source" : "John’s Apple Watch|John’s iPhone",
+            "qty" : 7.1953140066155461,
+            "date" : "2025-04-30 00:00:00 -0400"
+          },
+          {
+            "qty" : 1.7787689596330325,
+            "date" : "2025-05-01 00:00:00 -0400",
+            "source" : "John’s Apple Watch|John’s iPhone"
+          },
+          {
+            "qty" : 3.7175349410176359,
+            "date" : "2025-05-02 00:00:00 -0400",
+            "source" : "John’s Apple Watch|John’s iPhone"
+          },
+          {
+            "qty" : 10.590631807416672,
+            "date" : "2025-05-03 00:00:00 -0400",
+            "source" : "John’s Apple Watch|John’s iPhone"
+          },
+          {
+            "date" : "2025-05-04 00:00:00 -0400",
+            "qty" : 6.6705310316973332,
+            "source" : "John’s Apple Watch|John’s iPhone"
+          },
+          {
+            "source" : "John’s Apple Watch|John’s iPhone",
+            "date" : "2025-05-05 00:00:00 -0400",
+            "qty" : 5.6467848100740587
+          },
+          {
+            "qty" : 6.4111312139985817,
+            "date" : "2025-05-06 00:00:00 -0400",
+            "source" : "John’s Apple Watch|John’s iPhone"
+          },
+          {
+            "source" : "John’s Apple Watch|John’s iPhone",
+            "qty" : 5.7288534372554318,
+            "date" : "2025-05-07 00:00:00 -0400"
+          },
+          {
+            "date" : "2025-05-08 00:00:00 -0400",
+            "qty" : 9.0655066263719721,
+            "source" : "John’s Apple Watch|John’s iPhone"
+          },
+          {
+            "date" : "2025-05-09 00:00:00 -0400",
+            "qty" : 1.6980024158956339,
+            "source" : "John’s Apple Watch|John’s iPhone"
+          },
+          {
+            "qty" : 15.339945025056506,
+            "date" : "2025-05-10 00:00:00 -0400",
+            "source" : "John’s Apple Watch|John’s iPhone"
+          },
+          {
+            "source" : "John’s Apple Watch|John’s iPhone",
+            "qty" : 13.666231848767566,
+            "date" : "2025-05-11 00:00:00 -0400"
+          },
+          {
+            "source" : "John’s Apple Watch|John’s iPhone",
+            "date" : "2025-05-12 00:00:00 -0400",
+            "qty" : 7.3614554871858813
+          },
+          {
+            "date" : "2025-05-13 00:00:00 -0400",
+            "qty" : 4.7191270812050439,
+            "source" : "John’s Apple Watch|John’s iPhone"
+          },
+          {
+            "source" : "John’s Apple Watch|John’s iPhone",
+            "date" : "2025-05-14 00:00:00 -0400",
+            "qty" : 5.7270392709292857
+          },
+          {
+            "qty" : 3.1686760079504812,
+            "source" : "John’s Apple Watch|John’s iPhone",
+            "date" : "2025-05-15 00:00:00 -0400"
+          },
+          {
+            "source" : "John’s Apple Watch|John’s iPhone",
+            "qty" : 6.3591392403111398,
+            "date" : "2025-05-16 00:00:00 -0400"
+          },
+          {
+            "source" : "John’s Apple Watch|John’s iPhone",
+            "qty" : 5.2561121431315021,
+            "date" : "2025-05-17 00:00:00 -0400"
+          },
+          {
+            "date" : "2025-05-18 00:00:00 -0400",
+            "qty" : 4.3187689434626906,
+            "source" : "John’s Apple Watch|John’s iPhone"
+          },
+          {
+            "date" : "2025-05-19 00:00:00 -0400",
+            "qty" : 5.5750003750842971,
+            "source" : "John’s Apple Watch|John’s iPhone"
+          },
+          {
+            "qty" : 8.6413044833906465,
+            "date" : "2025-05-20 00:00:00 -0400",
+            "source" : "John’s Apple Watch|John’s iPhone"
+          },
+          {
+            "source" : "John’s Apple Watch|John’s iPhone",
+            "date" : "2025-05-21 00:00:00 -0400",
+            "qty" : 1.0450867441702851
+          },
+          {
+            "date" : "2025-05-22 00:00:00 -0400",
+            "source" : "John’s Apple Watch|John’s iPhone",
+            "qty" : 2.8873594979726684
+          },
+          {
+            "source" : "John’s Apple Watch|John’s iPhone",
+            "date" : "2025-05-23 00:00:00 -0400",
+            "qty" : 5.595582230131761
+          },
+          {
+            "qty" : 7.7369924189119468,
+            "date" : "2025-05-24 00:00:00 -0400",
+            "source" : "John’s Apple Watch|John’s iPhone"
+          },
+          {
+            "date" : "2025-05-25 00:00:00 -0400",
+            "qty" : 3.1567147856549704,
+            "source" : "John’s Apple Watch|John’s iPhone"
+          },
+          {
+            "date" : "2025-05-26 00:00:00 -0400",
+            "qty" : 2.8219454948022453,
+            "source" : "John’s Apple Watch|John’s iPhone"
+          },
+          {
+            "date" : "2025-05-27 00:00:00 -0400",
+            "source" : "John’s Apple Watch|John’s iPhone",
+            "qty" : 4.7882654238498619
+          },
+          {
+            "source" : "John’s Apple Watch|John’s iPhone",
+            "qty" : 3.2883497462381373,
+            "date" : "2025-05-28 00:00:00 -0400"
+          },
+          {
+            "qty" : 6.850801413023623,
+            "date" : "2025-05-29 00:00:00 -0400",
+            "source" : "John’s Apple Watch|John’s iPhone"
+          },
+          {
+            "qty" : 6.0253355964461806,
+            "source" : "John’s Apple Watch|John’s iPhone",
+            "date" : "2025-05-30 00:00:00 -0400"
+          },
+          {
+            "date" : "2025-05-31 00:00:00 -0400",
+            "source" : "John’s Apple Watch|John’s iPhone",
+            "qty" : 12.096262156797836
+          },
+          {
+            "date" : "2025-06-01 00:00:00 -0400",
+            "qty" : 14.010139950178644,
+            "source" : "John’s Apple Watch|John’s iPhone"
+          },
+          {
+            "source" : "John’s Apple Watch|John’s iPhone",
+            "date" : "2025-06-02 00:00:00 -0400",
+            "qty" : 2.9068941023526218
+          },
+          {
+            "date" : "2025-06-03 00:00:00 -0400",
+            "qty" : 4.9819377312799711,
+            "source" : "John’s Apple Watch|John’s iPhone"
+          },
+          {
+            "source" : "John’s Apple Watch|John’s iPhone",
+            "qty" : 6.2280309505638831,
+            "date" : "2025-06-04 00:00:00 -0400"
+          },
+          {
+            "source" : "John’s Apple Watch|John’s iPhone",
+            "date" : "2025-06-05 00:00:00 -0400",
+            "qty" : 7.0578891596547599
+          },
+          {
+            "source" : "John’s Apple Watch|John’s iPhone",
+            "qty" : 6.838937718114372,
+            "date" : "2025-06-06 00:00:00 -0400"
+          },
+          {
+            "source" : "John’s Apple Watch|John’s iPhone",
+            "date" : "2025-06-07 00:00:00 -0400",
+            "qty" : 3.8582812212171165
+          },
+          {
+            "qty" : 7.6612295690713408,
+            "source" : "John’s Apple Watch|John’s iPhone",
+            "date" : "2025-06-08 00:00:00 -0400"
+          },
+          {
+            "source" : "John’s Apple Watch|John’s iPhone",
+            "qty" : 5.0070668195773491,
+            "date" : "2025-06-09 00:00:00 -0400"
+          },
+          {
+            "source" : "John’s Apple Watch|John’s iPhone",
+            "date" : "2025-06-10 00:00:00 -0400",
+            "qty" : 4.142703925614537
+          },
+          {
+            "date" : "2025-06-11 00:00:00 -0400",
+            "qty" : 7.3876441256348508,
+            "source" : "John’s Apple Watch|John’s iPhone"
+          },
+          {
+            "date" : "2025-06-12 00:00:00 -0400",
+            "source" : "John’s Apple Watch|John’s iPhone",
+            "qty" : 8.23741965841044
+          },
+          {
+            "date" : "2025-06-13 00:00:00 -0400",
+            "qty" : 7.6385426585558518,
+            "source" : "John’s Apple Watch|John’s iPhone"
+          },
+          {
+            "source" : "John’s Apple Watch|John’s iPhone",
+            "qty" : 6.8987443627425691,
+            "date" : "2025-06-14 00:00:00 -0400"
+          },
+          {
+            "qty" : 6.3858081228030574,
+            "date" : "2025-06-15 00:00:00 -0400",
+            "source" : "John’s Apple Watch|John’s iPhone"
+          },
+          {
+            "source" : "John’s Apple Watch|John’s iPhone",
+            "date" : "2025-06-16 00:00:00 -0400",
+            "qty" : 9.7689417881207667
+          },
+          {
+            "qty" : 5.0133041139818086,
+            "source" : "John’s Apple Watch|John’s iPhone",
+            "date" : "2025-06-17 00:00:00 -0400"
+          },
+          {
+            "date" : "2025-06-18 00:00:00 -0400",
+            "qty" : 9.205810953312433,
+            "source" : "John’s Apple Watch|John’s iPhone"
+          },
+          {
+            "source" : "John’s Apple Watch|John’s iPhone",
+            "qty" : 9.7368594117877727,
+            "date" : "2025-06-19 00:00:00 -0400"
+          },
+          {
+            "qty" : 9.627790000614036,
+            "source" : "John’s Apple Watch|John’s iPhone",
+            "date" : "2025-06-20 00:00:00 -0400"
+          },
+          {
+            "source" : "John’s Apple Watch|John’s iPhone",
+            "date" : "2025-06-21 00:00:00 -0400",
+            "qty" : 10.198891760910545
+          },
+          {
+            "qty" : 9.4069901495889017,
+            "source" : "John’s Apple Watch|John’s iPhone",
+            "date" : "2025-06-22 00:00:00 -0400"
+          },
+          {
+            "qty" : 8.5070013879202229,
+            "date" : "2025-06-23 00:00:00 -0400",
+            "source" : "John’s Apple Watch|John’s iPhone"
+          },
+          {
+            "date" : "2025-06-24 00:00:00 -0400",
+            "source" : "John’s Apple Watch|John’s iPhone",
+            "qty" : 8.2592490650148722
+          },
+          {
+            "source" : "John’s Apple Watch|John’s iPhone",
+            "date" : "2025-06-25 00:00:00 -0400",
+            "qty" : 11.296880693126349
+          },
+          {
+            "date" : "2025-06-26 00:00:00 -0400",
+            "qty" : 6.9422268638234952,
+            "source" : "John’s Apple Watch|John’s iPhone"
+          },
+          {
+            "qty" : 8.3549103492186259,
+            "date" : "2025-06-27 00:00:00 -0400",
+            "source" : "John’s Apple Watch|John’s iPhone"
+          },
+          {
+            "source" : "John’s Apple Watch|John’s iPhone",
+            "date" : "2025-06-28 00:00:00 -0400",
+            "qty" : 10.611305901799318
+          },
+          {
+            "date" : "2025-06-29 00:00:00 -0400",
+            "qty" : 10.827736253048174,
+            "source" : "John’s Apple Watch|John’s iPhone"
+          },
+          {
+            "qty" : 11.803105768951591,
+            "source" : "John’s Apple Watch|John’s iPhone",
+            "date" : "2025-06-30 00:00:00 -0400"
+          },
+          {
+            "source" : "John’s Apple Watch|John’s iPhone",
+            "date" : "2025-07-01 00:00:00 -0400",
+            "qty" : 12.080906404634462
+          },
+          {
+            "source" : "John’s Apple Watch|John’s iPhone",
+            "qty" : 7.5677176175311462,
+            "date" : "2025-07-02 00:00:00 -0400"
+          },
+          {
+            "qty" : 6.2053493627286311,
+            "date" : "2025-07-03 00:00:00 -0400",
+            "source" : "John’s Apple Watch|John’s iPhone"
+          },
+          {
+            "qty" : 5.8366640499481175,
+            "source" : "John’s Apple Watch|John’s iPhone",
+            "date" : "2025-07-04 00:00:00 -0400"
+          },
+          {
+            "source" : "John’s Apple Watch|John’s iPhone",
+            "date" : "2025-07-05 00:00:00 -0400",
+            "qty" : 11.346613744611815
+          },
+          {
+            "source" : "John’s Apple Watch|John’s iPhone",
+            "date" : "2025-07-06 00:00:00 -0400",
+            "qty" : 11.064481812789447
+          },
+          {
+            "qty" : 7.7242537584331776,
+            "date" : "2025-07-07 00:00:00 -0400",
+            "source" : "John’s Apple Watch|John’s iPhone"
+          },
+          {
+            "qty" : 9.2233749499964528,
+            "date" : "2025-07-08 00:00:00 -0400",
+            "source" : "John’s Apple Watch|John’s iPhone"
+          },
+          {
+            "date" : "2025-07-09 00:00:00 -0400",
+            "qty" : 6.5146319834779112,
+            "source" : "John’s Apple Watch|John’s iPhone"
+          },
+          {
+            "date" : "2025-07-10 00:00:00 -0400",
+            "source" : "John’s Apple Watch|John’s iPhone",
+            "qty" : 9.562610869864729
+          },
+          {
+            "date" : "2025-07-11 00:00:00 -0400",
+            "qty" : 5.1163428349530653,
+            "source" : "John’s Apple Watch|John’s iPhone"
+          },
+          {
+            "date" : "2025-07-12 00:00:00 -0400",
+            "qty" : 6.1531750650706512,
+            "source" : "John’s Apple Watch|John’s iPhone"
+          },
+          {
+            "qty" : 9.2670872557693418,
+            "source" : "John’s Apple Watch|John’s iPhone",
+            "date" : "2025-07-13 00:00:00 -0400"
+          },
+          {
+            "source" : "John’s Apple Watch|John’s iPhone",
+            "date" : "2025-07-14 00:00:00 -0400",
+            "qty" : 0.63113694048883839
+          }
+        ]
+      }
+    ]
+  }
+}

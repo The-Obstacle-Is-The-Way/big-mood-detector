@@ -7,7 +7,7 @@ Following Clean Architecture and Uncle Bob's principles.
 
 import pytest
 
-from big_mood_detector.infrastructure.parsers.activity_parser import ActivityParser
+from big_mood_detector.infrastructure.parsers.xml import ActivityParser
 
 
 class TestActivityParser:

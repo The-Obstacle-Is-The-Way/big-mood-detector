@@ -7,7 +7,7 @@ Following Clean Architecture principles.
 
 import pytest
 
-from big_mood_detector.infrastructure.parsers.sleep_parser import SleepParser
+from big_mood_detector.infrastructure.parsers.xml import SleepParser
 
 
 class TestSleepParser:

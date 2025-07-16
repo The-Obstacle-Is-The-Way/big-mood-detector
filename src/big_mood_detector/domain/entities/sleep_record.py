@@ -19,6 +19,11 @@ class SleepState(Enum):
     REM = "HKCategoryValueSleepAnalysisREM"
     CORE = "HKCategoryValueSleepAnalysisCore"
     DEEP = "HKCategoryValueSleepAnalysisDeep"
+    # Newer Apple Health values
+    ASLEEP_CORE = "HKCategoryValueSleepAnalysisAsleepCore"
+    ASLEEP_DEEP = "HKCategoryValueSleepAnalysisAsleepDeep"
+    ASLEEP_REM = "HKCategoryValueSleepAnalysisAsleepREM"
+    ASLEEP_UNSPECIFIED = "HKCategoryValueSleepAnalysisAsleepUnspecified"
 
     @classmethod
     def from_healthkit_value(cls, value: str) -> "SleepState":
