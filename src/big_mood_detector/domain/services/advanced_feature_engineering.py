@@ -11,10 +11,19 @@ from typing import Any
 import numpy as np
 
 from big_mood_detector.domain.services.activity_aggregator import DailyActivitySummary
+from big_mood_detector.domain.services.activity_feature_calculator import (
+    ActivityFeatureCalculator,
+)
+from big_mood_detector.domain.services.circadian_feature_calculator import (
+    CircadianFeatureCalculator,
+)
 from big_mood_detector.domain.services.heart_rate_aggregator import DailyHeartSummary
 from big_mood_detector.domain.services.sleep_aggregator import DailySleepSummary
 from big_mood_detector.domain.services.sleep_feature_calculator import (
     SleepFeatureCalculator,
+)
+from big_mood_detector.domain.services.temporal_feature_calculator import (
+    TemporalFeatureCalculator,
 )
 
 
@@ -142,6 +151,9 @@ class AdvancedFeatureEngineer:
 
         # Initialize specialized calculators with config
         self.sleep_calculator = SleepFeatureCalculator(config)
+        self.circadian_calculator = CircadianFeatureCalculator(config)
+        self.activity_calculator = ActivityFeatureCalculator(config)
+        self.temporal_calculator = TemporalFeatureCalculator(config)
 
     def extract_advanced_features(
         self,
@@ -297,59 +309,19 @@ class AdvancedFeatureEngineer:
         if not recent_sleep:
             return self._empty_circadian_features()
 
-        # L5 and M10 calculation (requires hourly activity data)
-        # For now, estimate from daily patterns
-        l5_value = min([a.sedentary_hours * 60 for a in recent_activity] or [0])
-        m10_value = max([a.active_hours * 60 for a in recent_activity] or [0])
-
-        # Circadian phase calculation
-        # Compare to population average or individual baseline
-        sleep_times = []
-        for s in recent_sleep:
-            sleep_hour = s.sleep_onset.hour + s.sleep_onset.minute / 60
-            # Handle late night times (after midnight)
-            if (
-                sleep_hour < 12
-            ):  # Assume times before noon are late night, not early evening
-                sleep_hour += 24
-            sleep_times.append(sleep_hour)
-
-        avg_sleep_time = np.mean(sleep_times)
-        population_avg = 23.0  # 11 PM typical
-
-        # Calculate phase shift considering 24-hour wrap
-        phase_shift = float(avg_sleep_time - population_avg)
-        # Normalize to -12 to +12 range
-        if phase_shift > 12:
-            phase_shift -= 24
-        elif phase_shift < -12:
-            phase_shift += 24
-
-        phase_advance = max(0.0, -phase_shift)  # Earlier than normal
-        phase_delay = max(0.0, phase_shift)  # Later than normal
-
-        # DLMO estimation (2 hours before habitual sleep onset)
-        dlmo_hour = (avg_sleep_time - 2) % 24
-        dlmo_estimate = datetime.now().replace(
-            hour=int(dlmo_hour), minute=int((dlmo_hour % 1) * 60)
-        )
-
-        # Core body temperature nadir (2 hours before wake)
-        avg_wake_time = np.mean(
-            [s.wake_time.hour + s.wake_time.minute / 60 for s in recent_sleep]
-        )
-        temp_nadir_hour = (avg_wake_time - 2) % 24
-        temp_nadir = datetime.now().replace(
-            hour=int(temp_nadir_hour), minute=int((temp_nadir_hour % 1) * 60)
-        )
+        # Delegate to specialized calculator
+        l5_m10_result = self.circadian_calculator.calculate_l5_m10_metrics(recent_activity)
+        phase_result = self.circadian_calculator.calculate_phase_shifts(recent_sleep)
+        dlmo_estimate = self.circadian_calculator.estimate_dlmo(recent_sleep)
+        temp_nadir = self.circadian_calculator.estimate_core_temp_nadir(recent_sleep)
 
         return {
-            "l5_value": float(l5_value),
-            "m10_value": float(m10_value),
-            "l5_onset": None,  # Would need hourly data
-            "m10_onset": None,  # Would need hourly data
-            "circadian_phase_advance": float(phase_advance),
-            "circadian_phase_delay": float(phase_delay),
+            "l5_value": l5_m10_result.l5_value,
+            "m10_value": l5_m10_result.m10_value,
+            "l5_onset": l5_m10_result.l5_onset,
+            "m10_onset": l5_m10_result.m10_onset,
+            "circadian_phase_advance": phase_result.phase_advance_hours,
+            "circadian_phase_delay": phase_result.phase_delay_hours,
             "dlmo_estimate": dlmo_estimate,
             "core_body_temp_nadir": temp_nadir,
         }
@@ -363,29 +335,16 @@ class AdvancedFeatureEngineer:
         if not recent_activity:
             return self._empty_activity_features()
 
-        # Activity fragmentation (transitions between active/sedentary)
-        # Estimate from variance in daily patterns
-        step_variance = np.var([a.total_steps for a in recent_activity])
-        fragmentation = min(1.0, float(step_variance / 1000000))  # Normalize
-
-        # Sedentary bout analysis
-        sedentary_hours = [a.sedentary_hours for a in recent_activity]
-        bout_mean = np.mean(sedentary_hours) * 60  # Convert to minutes
-        bout_max = max(sedentary_hours) * 60  # Convert to minutes
-
-        # Activity intensity ratio
-        # Estimate from step count distribution
-        high_activity_days = sum(1 for a in recent_activity if a.total_steps > 10000)
-        low_activity_days = sum(1 for a in recent_activity if a.total_steps < 5000)
-        intensity_ratio = high_activity_days / (
-            low_activity_days + 1
-        )  # Avoid division by zero
+        # Delegate to specialized calculator
+        fragmentation = self.activity_calculator.calculate_activity_fragmentation(recent_activity)
+        bout_mean, bout_max, _ = self.activity_calculator.calculate_sedentary_bouts(recent_activity)
+        intensity_metrics = self.activity_calculator.calculate_activity_intensity_metrics(recent_activity)
 
         return {
-            "activity_fragmentation": float(fragmentation),
-            "sedentary_bout_mean": float(bout_mean),
-            "sedentary_bout_max": float(bout_max),
-            "activity_intensity_ratio": float(intensity_ratio),
+            "activity_fragmentation": fragmentation,
+            "sedentary_bout_mean": bout_mean,
+            "sedentary_bout_max": bout_max,
+            "activity_intensity_ratio": intensity_metrics.intensity_ratio,
         }
 
     def _calculate_normalized_features(
@@ -430,35 +389,36 @@ class AdvancedFeatureEngineer:
         recent_heart: list[DailyHeartSummary],
     ) -> dict[str, float]:
         """Calculate rolling window temporal features."""
-        # 7-day windows
-        week_sleep = recent_sleep[-7:] if len(recent_sleep) >= 7 else recent_sleep
-        week_activity = (
-            recent_activity[-7:] if len(recent_activity) >= 7 else recent_activity
+        # Delegate to specialized calculator
+
+        # Sleep temporal features (7-day window)
+        sleep_stats = self.temporal_calculator.calculate_rolling_statistics(
+            recent_sleep,
+            window_days=7,
+            metric_extractor=lambda s: s.total_sleep_hours
         )
-        week_heart = recent_heart[-7:] if len(recent_heart) >= 7 else recent_heart
 
-        # Sleep temporal features
-        sleep_durations = [s.total_sleep_hours for s in week_sleep]
-        sleep_7day_mean = np.mean(sleep_durations) if sleep_durations else 0
-        sleep_7day_std = np.std(sleep_durations) if len(sleep_durations) > 1 else 0
+        # Activity temporal features (7-day window)
+        activity_stats = self.temporal_calculator.calculate_rolling_statistics(
+            recent_activity,
+            window_days=7,
+            metric_extractor=lambda a: a.total_steps
+        )
 
-        # Activity temporal features
-        activity_steps = [a.total_steps for a in week_activity]
-        activity_7day_mean = np.mean(activity_steps) if activity_steps else 0
-        activity_7day_std = np.std(activity_steps) if len(activity_steps) > 1 else 0
-
-        # Heart rate temporal features
-        hr_values = [h.avg_resting_hr for h in week_heart]
-        hr_7day_mean = np.mean(hr_values) if hr_values else 0
-        hr_7day_std = np.std(hr_values) if len(hr_values) > 1 else 0
+        # Heart rate temporal features (7-day window)
+        hr_stats = self.temporal_calculator.calculate_rolling_statistics(
+            recent_heart,
+            window_days=7,
+            metric_extractor=lambda h: h.avg_resting_hr
+        )
 
         return {
-            "sleep_7day_mean": float(sleep_7day_mean),
-            "sleep_7day_std": float(sleep_7day_std),
-            "activity_7day_mean": float(activity_7day_mean),
-            "activity_7day_std": float(activity_7day_std),
-            "hr_7day_mean": float(hr_7day_mean),
-            "hr_7day_std": float(hr_7day_std),
+            "sleep_7day_mean": sleep_stats.mean,
+            "sleep_7day_std": sleep_stats.std,
+            "activity_7day_mean": activity_stats.mean,
+            "activity_7day_std": activity_stats.std,
+            "hr_7day_mean": hr_stats.mean,
+            "hr_7day_std": hr_stats.std,
         }
 
     def _calculate_clinical_indicators(

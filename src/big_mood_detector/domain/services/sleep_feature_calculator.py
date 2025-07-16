@@ -230,7 +230,7 @@ class SleepFeatureCalculator:
         # Combine metrics
         ra_value = (duration_consistency + avg_efficiency) / 2
 
-        return clamp(ra_value, 0.0, 1.0)
+        return clamp(float(ra_value), 0.0, 1.0)
 
     def calculate_sleep_window_percentages(
         self, sleep_summaries: list[DailySleepSummary]
