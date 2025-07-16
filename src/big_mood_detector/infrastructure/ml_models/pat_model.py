@@ -152,7 +152,10 @@ class PATModel:
         model_input = self._prepare_input(sequence)
 
         # Get encoder output
-        features = self.model.predict(model_input, verbose=0)
+        if self.model is not None:
+            features = self.model.predict(model_input, verbose=0)
+        else:
+            raise RuntimeError("Model is None despite being marked as loaded")
 
         # If model returns attention weights too, take only features
         if isinstance(features, list):
@@ -163,7 +166,7 @@ class PATModel:
         features = np.mean(features, axis=1)
 
         # Return 1D feature vector
-        return features.squeeze()
+        return features.squeeze()  # type: ignore[no-any-return]
 
     def extract_features_batch(self, sequences: list[PATSequence]) -> np.ndarray:
         """
@@ -182,7 +185,10 @@ class PATModel:
         batch_input = np.vstack([self._prepare_input(seq) for seq in sequences])
 
         # Get features
-        features = self.model.predict(batch_input, verbose=0)
+        if self.model is not None:
+            features = self.model.predict(batch_input, verbose=0)
+        else:
+            raise RuntimeError("Model is None despite being marked as loaded")
 
         if isinstance(features, list):
             features = features[0]
@@ -190,7 +196,7 @@ class PATModel:
         # Average pool
         features = np.mean(features, axis=1)
 
-        return features
+        return features  # type: ignore[no-any-return]
 
     def get_attention_weights(self, sequence: PATSequence) -> np.ndarray | None:
         """
@@ -226,13 +232,13 @@ class PATModel:
         # Add batch dimension
         return normalized.reshape(1, -1)
 
-    def _create_transformer_block(self):
+    def _create_transformer_block(self) -> None:
         """Create transformer block (placeholder for custom object)."""
         # This would need to match the exact architecture from the paper
         # For now, return None as we're loading pretrained models
         return None
 
-    def _get_positional_embeddings(self, num_patches: int, embed_dim: int):
+    def _get_positional_embeddings(self, num_patches: int, embed_dim: int) -> tf.Tensor:
         """
         Generate sine/cosine positional embeddings.
 
@@ -253,7 +259,7 @@ class PATModel:
             [tf.sin(position * div_term), tf.cos(position * div_term)], axis=-1
         )
 
-        return pos_embeddings
+        return pos_embeddings  # type: ignore[no-any-return]
 
     def get_model_info(self) -> dict:
         """

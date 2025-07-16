@@ -10,8 +10,9 @@ Based on the Seoul National University and Harvard/Fitbit studies that use
 
 import logging
 from pathlib import Path
+from typing import Any
 
-import joblib
+import joblib  # type: ignore[import-untyped]
 import numpy as np
 
 from big_mood_detector.domain.services.mood_predictor import MoodPrediction
@@ -74,9 +75,9 @@ class XGBoostModelLoader:
         "circadian_phase_Z",
     ]
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the model loader."""
-        self.models: dict[str, any] = {}
+        self.models: dict[str, Any] = {}
         self.feature_names = self.FEATURE_NAMES
         self.is_loaded = False
 
@@ -296,7 +297,7 @@ class XGBoostMoodPredictor:
     This class bridges the domain service with the infrastructure XGBoost models.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the mood predictor."""
         self.model_loader = XGBoostModelLoader()
 

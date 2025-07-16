@@ -25,11 +25,11 @@ from big_mood_detector.domain.services.activity_sequence_extractor import (
 )
 from big_mood_detector.domain.services.dlmo_calculator import DLMOCalculator
 from big_mood_detector.domain.services.sleep_window_analyzer import SleepWindowAnalyzer
-from big_mood_detector.infrastructure.parsers.xml import StreamingXMLParser
 from big_mood_detector.infrastructure.parsers.json import (
-    SleepJSONParser,
     ActivityJSONParser,
+    SleepJSONParser,
 )
+from big_mood_detector.infrastructure.parsers.xml import StreamingXMLParser
 
 
 def print_section(title):
