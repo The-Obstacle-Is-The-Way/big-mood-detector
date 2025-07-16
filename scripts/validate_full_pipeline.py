@@ -162,11 +162,11 @@ def validate_sleep_aggregation():
     print(f"Created {len(test_records)} test sleep records with 2-hour gap")
 
     # Aggregate
-    windows = analyzer.aggregate_sleep_windows(test_records)
+    windows = analyzer.analyze_sleep_episodes(test_records)
 
     if len(windows) == 1:
         print("✅ Successfully merged into 1 window (3.75h threshold working)")
-        print(f"   Total duration: {windows[0].total_minutes / 60:.1f} hours")
+        print(f"   Total duration: {windows[0].total_duration_hours:.1f} hours")
     else:
         print(f"❌ Expected 1 merged window, got {len(windows)}")
 
