@@ -97,9 +97,7 @@ class SparseDataHandler:
         self.max_interpolation_gap_hours = max_interpolation_gap_hours
         self.min_confidence_threshold = min_confidence_threshold
 
-    def assess_density(
-        self, dates: list[date] | pd.DatetimeIndex
-    ) -> DensityMetrics:
+    def assess_density(self, dates: list[date] | pd.DatetimeIndex) -> DensityMetrics:
         """
         Assess the density and quality of temporal data.
 

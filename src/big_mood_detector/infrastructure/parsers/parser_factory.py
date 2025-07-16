@@ -69,6 +69,65 @@ class ParserFactory:
         raise ValueError(f"Cannot determine format of {file_path}")
 
     @staticmethod
+    def create_parser(file_path: str | Path) -> Any:
+        """
+        Create a unified parser that can handle all data types.
+
+        For XML files, returns the StreamingXMLParser.
+        For JSON directories, returns a composite parser.
+        """
+        from .xml.streaming_adapter import StreamingXMLParser
+
+        file_path = Path(file_path)
+
+        if file_path.is_file() and file_path.suffix == ".xml":
+            return StreamingXMLParser()
+        elif file_path.is_dir():
+            # For JSON directories, return a composite parser
+            class CompositeJSONParser:
+                def __init__(self):
+                    self.sleep_parser = SleepJSONParser()
+                    self.activity_parser = ActivityJSONParser()
+                    self.heart_parser = HeartRateJSONParser()
+
+                def parse(self, directory: Path) -> dict:
+                    """Parse all JSON files in directory."""
+                    sleep_records = []
+                    activity_records = []
+                    heart_records = []
+
+                    # Parse sleep data
+                    sleep_file = directory / "Sleep Analysis.json"
+                    if sleep_file.exists():
+                        with open(sleep_file) as f:
+                            data = json.load(f)
+                        sleep_records = self.sleep_parser.parse(data)
+
+                    # Parse activity data
+                    step_file = directory / "Step Count.json"
+                    if step_file.exists():
+                        with open(step_file) as f:
+                            data = json.load(f)
+                        activity_records = self.activity_parser.parse(data)
+
+                    # Parse heart rate data
+                    heart_file = directory / "Heart Rate.json"
+                    if heart_file.exists():
+                        with open(heart_file) as f:
+                            data = json.load(f)
+                        heart_records = self.heart_parser.parse(data)
+
+                    return {
+                        "sleep_records": sleep_records,
+                        "activity_records": activity_records,
+                        "heart_rate_records": heart_records,
+                    }
+
+            return CompositeJSONParser()
+        else:
+            raise ValueError(f"Unsupported file type or structure: {file_path}")
+
+    @staticmethod
     def create_sleep_parser(format_type: str) -> DataParser:
         """Create appropriate sleep parser based on format."""
         if format_type == "json":

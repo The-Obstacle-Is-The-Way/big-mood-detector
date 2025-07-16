@@ -13,9 +13,11 @@ Design Principles:
 - Clinical validation at each step
 """
 
-from dataclasses import dataclass
+import time
+from dataclasses import dataclass, field
 from datetime import date, timedelta
 from pathlib import Path
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -26,18 +28,54 @@ from big_mood_detector.domain.services.activity_sequence_extractor import (
 from big_mood_detector.domain.services.circadian_rhythm_analyzer import (
     CircadianRhythmAnalyzer,
 )
+from big_mood_detector.domain.services.clinical_feature_extractor import (
+    ClinicalFeatureExtractor,
+    ClinicalFeatureSet,
+)
 from big_mood_detector.domain.services.dlmo_calculator import DLMOCalculator
+from big_mood_detector.domain.services.mood_predictor import (
+    MoodPredictor,
+)
 from big_mood_detector.domain.services.sleep_window_analyzer import SleepWindowAnalyzer
 from big_mood_detector.infrastructure.parsers.json.json_parsers import (
     ActivityJSONParser,
     SleepJSONParser,
 )
+from big_mood_detector.infrastructure.parsers.parser_factory import ParserFactory
 from big_mood_detector.infrastructure.parsers.xml.streaming_adapter import (
     StreamingXMLParser,
 )
 from big_mood_detector.infrastructure.sparse_data_handler import (
     SparseDataHandler,
 )
+
+
+@dataclass
+class PipelineConfig:
+    """Configuration for mood prediction pipeline."""
+
+    min_days_required: int = 7
+    include_pat_sequences: bool = False
+    confidence_threshold: float = 0.7
+    model_dir: Path | None = None
+    enable_sparse_handling: bool = True
+    max_interpolation_days: int = 3
+
+
+@dataclass
+class PipelineResult:
+    """Result of mood prediction pipeline processing."""
+
+    daily_predictions: dict[date, dict[str, float]]
+    overall_summary: dict[str, Any]
+    confidence_score: float
+    processing_time_seconds: float
+    records_processed: int = 0
+    features_extracted: int = 0
+    has_warnings: bool = False
+    warnings: list[str] = field(default_factory=list)
+    has_errors: bool = False
+    errors: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -153,6 +191,7 @@ class MoodPredictionPipeline:
 
     def __init__(
         self,
+        config: PipelineConfig | None = None,
         sleep_analyzer: SleepWindowAnalyzer | None = None,
         activity_extractor: ActivitySequenceExtractor | None = None,
         circadian_analyzer: CircadianRhythmAnalyzer | None = None,
@@ -164,16 +203,276 @@ class MoodPredictionPipeline:
 
         Uses dependency injection for testability.
         """
+        self.config = config or PipelineConfig()
         self.sleep_analyzer = sleep_analyzer or SleepWindowAnalyzer()
         self.activity_extractor = activity_extractor or ActivitySequenceExtractor()
         self.circadian_analyzer = circadian_analyzer or CircadianRhythmAnalyzer()
         self.dlmo_calculator = dlmo_calculator or DLMOCalculator()
         self.sparse_handler = sparse_handler or SparseDataHandler()
+        self.clinical_extractor = ClinicalFeatureExtractor()
+        self.mood_predictor = MoodPredictor(model_dir=self.config.model_dir)
 
         # Parsers for different data sources
         self.sleep_parser = SleepJSONParser()
         self.activity_parser = ActivityJSONParser()
         self.xml_parser = StreamingXMLParser()
+
+    def process_apple_health_file(
+        self,
+        file_path: Path,
+        start_date: date | None = None,
+        end_date: date | None = None,
+    ) -> PipelineResult:
+        """
+        Process Apple Health export file and generate mood predictions.
+
+        Args:
+            file_path: Path to export.xml or JSON directory
+            start_date: Optional start date filter
+            end_date: Optional end date filter
+
+        Returns:
+            PipelineResult with predictions and metadata
+        """
+        time.time()
+
+        # Parse health data
+        parser = ParserFactory.create_parser(str(file_path))
+        parsed_data = parser.parse(file_path)
+
+        # Extract records
+        sleep_records = parsed_data.get("sleep_records", [])
+        activity_records = parsed_data.get("activity_records", [])
+        heart_records = parsed_data.get("heart_rate_records", [])
+
+        # Filter by date range if specified
+        if start_date:
+            sleep_records = [
+                r for r in sleep_records if r.start_date.date() >= start_date
+            ]
+            activity_records = [
+                r for r in activity_records if r.start_date.date() >= start_date
+            ]
+            heart_records = [
+                r for r in heart_records if r.timestamp.date() >= start_date
+            ]
+
+        if end_date:
+            sleep_records = [
+                r for r in sleep_records if r.start_date.date() <= end_date
+            ]
+            activity_records = [
+                r for r in activity_records if r.start_date.date() <= end_date
+            ]
+            heart_records = [r for r in heart_records if r.timestamp.date() <= end_date]
+
+        # Process health data
+        return self.process_health_data(
+            sleep_records=sleep_records,
+            activity_records=activity_records,
+            heart_records=heart_records,
+            target_date=end_date or date.today(),
+        )
+
+    def process_health_data(
+        self,
+        sleep_records: list,
+        activity_records: list,
+        heart_records: list,
+        target_date: date,
+    ) -> PipelineResult:
+        """
+        Process health data and generate mood predictions.
+
+        Args:
+            sleep_records: List of sleep records
+            activity_records: List of activity records
+            heart_records: List of heart rate records
+            target_date: Target date for analysis
+
+        Returns:
+            PipelineResult with predictions and metadata
+        """
+        start_time = time.time()
+        warnings = []
+        errors = []
+
+        # Check if models are loaded
+        if not self.mood_predictor.is_loaded:
+            errors.append("Models not loaded")
+            return PipelineResult(
+                daily_predictions={},
+                overall_summary={},
+                confidence_score=0.0,
+                processing_time_seconds=time.time() - start_time,
+                has_errors=True,
+                errors=errors,
+            )
+
+        # Check data sufficiency
+        available_days = len({r.start_date.date() for r in sleep_records})
+        if available_days < self.config.min_days_required:
+            warnings.append(
+                f"Insufficient data: {available_days} days available, {self.config.min_days_required} required"
+            )
+
+        # Check for sparse data
+        if available_days > 0:
+            date_range = (
+                target_date - min(r.start_date.date() for r in sleep_records)
+            ).days + 1
+            density = available_days / date_range
+            if density < 0.5:
+                warnings.append(f"Sparse data detected: {density:.1%} density")
+
+        # Extract features for date range
+        start_date = target_date - timedelta(days=self.config.min_days_required - 1)
+        features = self.extract_features_batch(
+            sleep_records=sleep_records,
+            activity_records=activity_records,
+            heart_records=heart_records,
+            start_date=start_date,
+            end_date=target_date,
+        )
+
+        # Generate predictions
+        daily_predictions = {}
+        for feature_date, feature_set in features.items():
+            if feature_set and feature_set.seoul_features:
+                feature_vector = np.array(
+                    feature_set.seoul_features.to_xgboost_features()
+                )
+                prediction = self.mood_predictor.predict(feature_vector)
+
+                daily_predictions[feature_date] = {
+                    "depression_risk": prediction.depression_risk,
+                    "hypomanic_risk": prediction.hypomanic_risk,
+                    "manic_risk": prediction.manic_risk,
+                    "confidence": prediction.confidence,
+                }
+
+        # Calculate overall summary
+        if daily_predictions:
+            all_predictions = list(daily_predictions.values())
+            overall_summary = {
+                "avg_depression_risk": np.mean(
+                    [p["depression_risk"] for p in all_predictions]
+                ),
+                "avg_hypomanic_risk": np.mean(
+                    [p["hypomanic_risk"] for p in all_predictions]
+                ),
+                "avg_manic_risk": np.mean([p["manic_risk"] for p in all_predictions]),
+                "days_analyzed": len(daily_predictions),
+            }
+            confidence_score = np.mean([p["confidence"] for p in all_predictions])
+            if np.isnan(confidence_score):
+                confidence_score = 0.0
+        else:
+            overall_summary = {}
+            confidence_score = 0.0
+
+        # Adjust confidence based on data quality
+        if warnings:
+            confidence_score *= 0.7  # Reduce confidence for data issues
+
+        return PipelineResult(
+            daily_predictions=daily_predictions,
+            overall_summary=overall_summary,
+            confidence_score=confidence_score,
+            processing_time_seconds=time.time() - start_time,
+            records_processed=len(sleep_records)
+            + len(activity_records)
+            + len(heart_records),
+            features_extracted=len(features),
+            has_warnings=bool(warnings),
+            warnings=warnings,
+            has_errors=bool(errors),
+            errors=errors,
+        )
+
+    def extract_features_batch(
+        self,
+        sleep_records: list,
+        activity_records: list,
+        heart_records: list,
+        start_date: date,
+        end_date: date,
+    ) -> dict[date, ClinicalFeatureSet]:
+        """
+        Extract features for multiple days efficiently.
+
+        Args:
+            sleep_records: List of sleep records
+            activity_records: List of activity records
+            heart_records: List of heart rate records
+            start_date: Start date for extraction
+            end_date: End date for extraction
+
+        Returns:
+            Dictionary mapping dates to ClinicalFeatureSet
+        """
+        features = {}
+
+        current_date = start_date
+        while current_date <= end_date:
+            try:
+                feature_set = self.clinical_extractor.extract_clinical_features(
+                    sleep_records=sleep_records,
+                    activity_records=activity_records,
+                    heart_records=heart_records,
+                    target_date=current_date,
+                    include_pat_sequence=self.config.include_pat_sequences,
+                )
+                features[current_date] = feature_set
+            except Exception as e:
+                # Log error but continue processing other dates
+                print(f"Error extracting features for {current_date}: {e}")
+                features[current_date] = None
+
+            current_date += timedelta(days=1)
+
+        return features
+
+    def export_results(self, result: PipelineResult, output_path: Path) -> None:
+        """
+        Export pipeline results to CSV format.
+
+        Args:
+            result: PipelineResult to export
+            output_path: Path to save CSV file
+        """
+        # Convert predictions to DataFrame
+        rows = []
+        for pred_date, prediction in result.daily_predictions.items():
+            row = {"date": pred_date}
+            row.update(prediction)
+            rows.append(row)
+
+        df = pd.DataFrame(rows)
+        if not df.empty:
+            df = df.sort_values("date")
+
+        # Save to CSV
+        df.to_csv(output_path, index=False)
+
+        # Also save summary
+        summary_path = output_path.with_suffix(".summary.json")
+        import json
+
+        with open(summary_path, "w") as f:
+            json.dump(
+                {
+                    "overall_summary": result.overall_summary,
+                    "confidence_score": result.confidence_score,
+                    "processing_time_seconds": result.processing_time_seconds,
+                    "records_processed": result.records_processed,
+                    "warnings": result.warnings,
+                    "errors": result.errors,
+                },
+                f,
+                indent=2,
+                default=str,
+            )
 
     def process_health_export(
         self,
