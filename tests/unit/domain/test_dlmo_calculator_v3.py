@@ -26,13 +26,13 @@ class TestDLMOCalculatorV3:
         sleep_records, activity_records = self._create_regular_sleeper_data()
         target_date = date(2024, 1, 14)
         
-        # Act
+        # Act - test with sleep-based profiles first (Seoul paper approach)
         result = calculator.calculate_dlmo(
             sleep_records=sleep_records,
             activity_records=activity_records,
             target_date=target_date,
             days_to_model=14,
-            use_activity=True
+            use_activity=False  # Use sleep/wake patterns like Seoul paper
         )
         
         # Assert
