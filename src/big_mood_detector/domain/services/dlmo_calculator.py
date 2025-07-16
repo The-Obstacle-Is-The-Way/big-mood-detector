@@ -327,7 +327,7 @@ class DLMOCalculator:
             # CBT is proportional to circadian state
             # Note: This simple proxy results in ~6h phase delay
             cbt = -state_xc * math.cos(state_x)
-            cbt_rhythm.append((hour, cbt))
+            cbt_rhythm.append((float(hour), cbt))
 
         return cbt_rhythm
 
@@ -417,7 +417,7 @@ class DLMOCalculator:
         Converts light intensity to circadian drive.
         """
         # Hill equation: alpha = a0 * (I^p / (I^p + I0^p))
-        return self.A0 * (light**self.P / (light**self.P + self.I0**self.P))
+        return float(self.A0 * (light**self.P / (light**self.P + self.I0**self.P)))
 
     def _extract_dlmo_enhanced(
         self, cbt_rhythm: list[tuple[float, float]], target_date: date

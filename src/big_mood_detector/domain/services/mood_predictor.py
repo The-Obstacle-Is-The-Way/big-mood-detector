@@ -10,10 +10,12 @@ Design Principles:
 - Clear error handling
 """
 
+import os
 import pickle
 import warnings
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Any
 
 import numpy as np
 
@@ -81,13 +83,12 @@ class MoodPredictor:
         """
         if model_dir is None:
             # Default to reference models
-            import os
 
             base_path = Path(os.path.dirname(__file__)).parent.parent.parent.parent
             model_dir = base_path / "reference_repos" / "mood_ml"
 
         self.model_dir = Path(model_dir)
-        self.models = {}
+        self.models: dict[str, Any] = {}
         self._load_models()
 
     def _load_models(self) -> None:
@@ -125,9 +126,8 @@ class MoodPredictor:
         Raises:
             ValueError: If features are invalid or models not loaded
         """
-        # Validate input
-        if not isinstance(features, np.ndarray):
-            features = np.array(features)
+        # Ensure features is a numpy array
+        features = np.array(features) if not isinstance(features, np.ndarray) else features
 
         if features.shape != (36,):
             raise ValueError(f"Expected 36 features, got {features.shape}")
@@ -195,14 +195,14 @@ class MoodPredictor:
 
         confidence = (feature_quality + z_score_quality) / 2.0
 
-        return min(max(confidence, 0.0), 1.0)
+        return float(min(max(confidence, 0.0), 1.0))
 
     @property
     def is_loaded(self) -> bool:
         """Check if models are successfully loaded."""
         return len(self.models) > 0
 
-    def get_model_info(self) -> dict[str, any]:
+    def get_model_info(self) -> dict[str, Any]:
         """Get information about loaded models."""
         info = {}
         for mood_type, model in self.models.items():
