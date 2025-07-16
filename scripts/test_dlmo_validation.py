@@ -153,8 +153,26 @@ def debug_circadian_model(calculator, activity_records, target_date):
         activity_records, target_date, days=7
     )
     
+    # Debug: Show raw activity values
+    hourly_activity = calculator._calculate_hourly_activity(activity_records, target_date)
+    max_activity = max([r.value for r in activity_records if r.value > 0])
+    
+    print(f"Max activity value: {max_activity}")
+    print(f"Half max (threshold base): {max_activity/2}")
+    print("\nRaw hourly activity:")
+    for hour, activity in enumerate(hourly_activity):
+        print(f"  Hour {hour:2d}: {activity:6.0f} steps")
+    
+    # Show thresholds
+    print("\nActivity thresholds:")
+    half_max = max_activity / 2.0
+    for i, mult in enumerate(calculator.ACTIVITY_THRESHOLD_MULTIPLIERS):
+        threshold = mult * half_max
+        lux = calculator.ACTIVITY_LUX_LEVELS[i]
+        print(f"  Threshold {i}: {threshold:6.0f} steps -> {lux:4.0f} lux")
+    
     # Show activity to lux conversion
-    print("Activity to Lux Conversion (last day):")
+    print("\nActivity to Lux Conversion (last day):")
     last_profile = profiles[-1]
     for hour, lux in enumerate(last_profile.hourly_values):
         print(f"  Hour {hour:2d}: {lux:6.0f} lux")
@@ -194,7 +212,7 @@ def main():
         sleep_records=sleep_records,
         activity_records=activity_records,
         target_date=target_date,
-        days_to_model=7,
+        days_to_model=14,  # More days for steady state
         use_activity=True
     )
     
@@ -223,7 +241,7 @@ def main():
         sleep_records=sleep_records,
         activity_records=activity_records,
         target_date=target_date,
-        days_to_model=7,
+        days_to_model=14,  # More days for steady state
         use_activity=True
     )
     

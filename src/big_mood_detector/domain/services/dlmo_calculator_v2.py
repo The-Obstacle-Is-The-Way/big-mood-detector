@@ -94,8 +94,9 @@ class DLMOCalculatorV2:
     A0 = 0.05    # Maximum drive
     
     # Activity conversion parameters (from MATLAB code)
-    ACTIVITY_THRESHOLDS = [0, 0.1, 0.25, 0.4]  # Relative to max
-    ACTIVITY_LUX_LEVELS = [0, 100, 200, 500, 2000]  # Corresponding lux
+    # Note: These are multipliers for (max_activity/2), not absolute thresholds
+    ACTIVITY_THRESHOLD_MULTIPLIERS = [0, 0.1, 0.25, 0.4]
+    ACTIVITY_LUX_LEVELS = [0, 100, 300, 1000, 5000]  # Corresponding lux (increased for better differentiation)
     
     def calculate_dlmo(
         self, 
@@ -177,11 +178,8 @@ class DLMOCalculatorV2:
             # Convert activity to light equivalent
             hourly_lux = []
             for activity in hourly_activity:
-                # Normalize activity
-                normalized = activity / (max_activity / 2)  # Match MATLAB scaling
-                
-                # Map to lux levels using thresholds
-                lux = self._activity_to_lux(normalized)
+                # Map to lux levels using dynamic thresholds
+                lux = self._activity_to_lux(activity, max_activity)
                 hourly_lux.append(lux)
             
             profiles.append(LightActivityProfile(
@@ -208,15 +206,20 @@ class DLMOCalculatorV2:
         
         return hourly_totals
     
-    def _activity_to_lux(self, normalized_activity: float) -> float:
+    def _activity_to_lux(self, activity: float, max_activity: float) -> float:
         """
-        Convert normalized activity to lux equivalent.
+        Convert activity to lux equivalent using dynamic thresholds.
         
-        Based on the basicsteps function from MATLAB code.
+        Based on the basicsteps function from MATLAB code which uses
+        thresholds at 0.1, 0.25, and 0.4 times (max_activity/2).
         """
+        # Calculate dynamic thresholds based on max_activity/2
+        half_max = max_activity / 2.0
+        
         # Find appropriate threshold
-        for i in range(len(self.ACTIVITY_THRESHOLDS) - 1, -1, -1):
-            if normalized_activity >= self.ACTIVITY_THRESHOLDS[i]:
+        for i in range(len(self.ACTIVITY_THRESHOLD_MULTIPLIERS) - 1, -1, -1):
+            threshold = self.ACTIVITY_THRESHOLD_MULTIPLIERS[i] * half_max
+            if activity >= threshold:
                 return self.ACTIVITY_LUX_LEVELS[i]
         
         return 0.0
@@ -298,10 +301,14 @@ class DLMOCalculatorV2:
         
         Returns hourly CBT values for the last day.
         """
-        # Initial conditions (standard DLMO at 9pm = 21:00)
-        x = 0.0   # Circadian phase
-        xc = 0.0  # Circadian amplitude  
-        n = 0.5   # Photoreceptor state
+        # Initial conditions for normal circadian phase
+        # CBT minimum should occur around 4-5 AM (hour 4-5)
+        # CBT = -xc * cos(x), so minimum when cos(x) = -1, i.e., x = π
+        # We want this to happen at hour 4-5 on the last day
+        # Starting phase adjusted for typical sleep schedule
+        x = math.pi * 0.5   # Start at π/2 (rising phase)
+        xc = 1.0            # Normal circadian amplitude
+        n = 0.3             # Moderate photoreceptor state
         
         # Store states for the last day
         last_day_states = []
