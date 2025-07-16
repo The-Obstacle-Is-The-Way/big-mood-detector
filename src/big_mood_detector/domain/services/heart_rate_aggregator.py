@@ -56,7 +56,8 @@ class DailyHeartSummary:
         Clinical threshold: <20 ms SDNN
         Indicates: poor autonomic function, stress, poor recovery
         """
-        return self.avg_hrv_sdnn > 0 and self.avg_hrv_sdnn < 20
+        # Check both average and minimum HRV - a single low reading is clinically significant
+        return (self.avg_hrv_sdnn > 0 and self.avg_hrv_sdnn < 20) or (self.min_hrv_sdnn > 0 and self.min_hrv_sdnn < 20)
 
     @property
     def has_abnormal_circadian_rhythm(self) -> bool:
@@ -147,6 +148,7 @@ class HeartRateAggregator:
         avg_resting = self._calculate_resting_hr(hr_records)
         min_hr, max_hr = self._find_hr_range(hr_records)
         avg_hrv = self._calculate_avg_hrv(hrv_records)
+        min_hrv = self._calculate_min_hrv(hrv_records)
         high_episodes = self._count_high_hr_episodes(hr_records)
         low_episodes = self._count_low_hr_episodes(hr_records)
         morning_hr, evening_hr = self._calculate_circadian_markers(hr_records)
@@ -160,6 +162,7 @@ class HeartRateAggregator:
             min_hr=min_hr,
             max_hr=max_hr,
             avg_hrv_sdnn=avg_hrv,
+            min_hrv_sdnn=min_hrv,
             hr_measurements=len(hr_records),
             hrv_measurements=len(hrv_records),
             high_hr_episodes=high_episodes,
