@@ -20,6 +20,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 from big_mood_detector.application.mood_prediction_pipeline import (
     MoodPredictionPipeline,
 )
+from big_mood_detector.domain.entities.activity_record import ActivityType
 from big_mood_detector.domain.services.activity_sequence_extractor import (
     ActivitySequenceExtractor,
 )
@@ -195,7 +196,9 @@ def validate_activity_extraction():
                 source_name="Test",
                 start_date=timestamp,
                 end_date=timestamp + timedelta(hours=1),
-                step_count=steps,
+                activity_type=ActivityType.STEP_COUNT,
+                value=float(steps),
+                unit="count",
             )
         )
 
