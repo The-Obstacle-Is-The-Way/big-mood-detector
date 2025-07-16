@@ -1,0 +1,991 @@
+{
+  "table_of_contents": [
+    {
+      "title": "Original Article",
+      "heading_level": null,
+      "page_id": 0,
+      "polygon": [
+        [
+          53.656005859375,
+          173.6707763671875
+        ],
+        [
+          184.0673828125,
+          173.6707763671875
+        ],
+        [
+          184.0673828125,
+          189.5372314453125
+        ],
+        [
+          53.656005859375,
+          189.5372314453125
+        ]
+      ]
+    },
+    {
+      "title": "Predicting circadian misalignment with wearable \ntechnology: validation of wrist-worn actigraphy and \nphotometry in night shift workers",
+      "heading_level": null,
+      "page_id": 0,
+      "polygon": [
+        [
+          54.12890625,
+          193.647216796875
+        ],
+        [
+          482.1711730957031,
+          193.647216796875
+        ],
+        [
+          482.1711730957031,
+          267.818115234375
+        ],
+        [
+          54.12890625,
+          267.818115234375
+        ]
+      ]
+    },
+    {
+      "title": "Abstract",
+      "heading_level": null,
+      "page_id": 0,
+      "polygon": [
+        [
+          53.9833984375,
+          407.5576171875
+        ],
+        [
+          96.1806640625,
+          407.5576171875
+        ],
+        [
+          96.1806640625,
+          420.556640625
+        ],
+        [
+          53.9833984375,
+          420.556640625
+        ]
+      ]
+    },
+    {
+      "title": "Statement of Significance",
+      "heading_level": null,
+      "page_id": 0,
+      "polygon": [
+        [
+          61.47705078125,
+          599.10205078125
+        ],
+        [
+          176.064453125,
+          599.10205078125
+        ],
+        [
+          176.064453125,
+          610.57177734375
+        ],
+        [
+          61.47705078125,
+          610.57177734375
+        ]
+      ]
+    },
+    {
+      "title": "Introduction",
+      "heading_level": null,
+      "page_id": 1,
+      "polygon": [
+        [
+          54.2744140625,
+          55.1502685546875
+        ],
+        [
+          118.0068359375,
+          55.1502685546875
+        ],
+        [
+          118.0068359375,
+          65.34234619140625
+        ],
+        [
+          54.2744140625,
+          65.34234619140625
+        ]
+      ]
+    },
+    {
+      "title": "Methods",
+      "heading_level": null,
+      "page_id": 2,
+      "polygon": [
+        [
+          53.874267578125,
+          175.48681640625
+        ],
+        [
+          98.52780151367188,
+          175.48681640625
+        ],
+        [
+          98.52780151367188,
+          186.41986083984375
+        ],
+        [
+          53.874267578125,
+          186.41986083984375
+        ]
+      ]
+    },
+    {
+      "title": "Participants",
+      "heading_level": null,
+      "page_id": 2,
+      "polygon": [
+        [
+          53.76513671875,
+          193.61474609375
+        ],
+        [
+          104.39678955078125,
+          193.61474609375
+        ],
+        [
+          104.39678955078125,
+          203.01416015625
+        ],
+        [
+          53.76513671875,
+          203.01416015625
+        ]
+      ]
+    },
+    {
+      "title": "Procedures",
+      "heading_level": null,
+      "page_id": 2,
+      "polygon": [
+        [
+          306.71990966796875,
+          54.7679443359375
+        ],
+        [
+          355.330078125,
+          54.7679443359375
+        ],
+        [
+          355.330078125,
+          63.8836669921875
+        ],
+        [
+          306.71990966796875,
+          63.8836669921875
+        ]
+      ]
+    },
+    {
+      "title": "Determining DLMO",
+      "heading_level": null,
+      "page_id": 2,
+      "polygon": [
+        [
+          306.71990966796875,
+          260.7451171875
+        ],
+        [
+          375.119140625,
+          260.7451171875
+        ],
+        [
+          375.119140625,
+          269.53857421875
+        ],
+        [
+          306.71990966796875,
+          269.53857421875
+        ]
+      ]
+    },
+    {
+      "title": "DLMO prediction",
+      "heading_level": null,
+      "page_id": 2,
+      "polygon": [
+        [
+          306.71990966796875,
+          575.015625
+        ],
+        [
+          364.9573974609375,
+          575.015625
+        ],
+        [
+          364.9573974609375,
+          583.4267578125
+        ],
+        [
+          306.71990966796875,
+          583.4267578125
+        ]
+      ]
+    },
+    {
+      "title": "Input choice",
+      "heading_level": null,
+      "page_id": 3,
+      "polygon": [
+        [
+          54.5654296875,
+          54.9591064453125
+        ],
+        [
+          96.01475524902344,
+          54.9591064453125
+        ],
+        [
+          96.01475524902344,
+          63.1790771484375
+        ],
+        [
+          54.5654296875,
+          63.1790771484375
+        ]
+      ]
+    },
+    {
+      "title": "Initial conditions",
+      "heading_level": null,
+      "page_id": 3,
+      "polygon": [
+        [
+          54.238037109375,
+          463.75927734375
+        ],
+        [
+          112.80799865722656,
+          463.75927734375
+        ],
+        [
+          112.80799865722656,
+          472.17041015625
+        ],
+        [
+          54.238037109375,
+          472.17041015625
+        ]
+      ]
+    },
+    {
+      "title": "Sleep timing as a proxy of DLMO",
+      "heading_level": null,
+      "page_id": 3,
+      "polygon": [
+        [
+          54.49267578125,
+          556.6640625
+        ],
+        [
+          169.37109375,
+          556.6640625
+        ],
+        [
+          169.37109375,
+          564.4975128173828
+        ],
+        [
+          54.49267578125,
+          564.4975128173828
+        ]
+      ]
+    },
+    {
+      "title": "Analytical approach",
+      "heading_level": null,
+      "page_id": 3,
+      "polygon": [
+        [
+          306.7200012207031,
+          164.208251953125
+        ],
+        [
+          390.8190002441406,
+          164.208251953125
+        ],
+        [
+          390.8190002441406,
+          173.11474609375
+        ],
+        [
+          306.7200012207031,
+          173.11474609375
+        ]
+      ]
+    },
+    {
+      "title": "Results",
+      "heading_level": null,
+      "page_id": 3,
+      "polygon": [
+        [
+          306.1484375,
+          553.60546875
+        ],
+        [
+          343.3984375,
+          553.60546875
+        ],
+        [
+          343.3984375,
+          564.4198150634766
+        ],
+        [
+          306.1484375,
+          564.4198150634766
+        ]
+      ]
+    },
+    {
+      "title": "Sample characteristics",
+      "heading_level": null,
+      "page_id": 3,
+      "polygon": [
+        [
+          306.7200012207031,
+          571.57470703125
+        ],
+        [
+          401.6015625,
+          571.57470703125
+        ],
+        [
+          401.6015625,
+          580.1146697998047
+        ],
+        [
+          306.7200012207031,
+          580.1146697998047
+        ]
+      ]
+    },
+    {
+      "title": "DLMO prediction",
+      "heading_level": null,
+      "page_id": 4,
+      "polygon": [
+        [
+          53.91064453125,
+          229.77685546875
+        ],
+        [
+          125.79979705810547,
+          229.77685546875
+        ],
+        [
+          125.79979705810547,
+          239.11474609375
+        ],
+        [
+          53.91064453125,
+          239.11474609375
+        ]
+      ]
+    },
+    {
+      "title": "DLMO proxy using sleep timing",
+      "heading_level": null,
+      "page_id": 4,
+      "polygon": [
+        [
+          53.837890625,
+          245.4521484375
+        ],
+        [
+          163.79278564453125,
+          245.4521484375
+        ],
+        [
+          163.79278564453125,
+          253.48095703125
+        ],
+        [
+          53.837890625,
+          253.48095703125
+        ]
+      ]
+    },
+    {
+      "title": "DLMO prediction using activity and light",
+      "heading_level": null,
+      "page_id": 4,
+      "polygon": [
+        [
+          306.7203369140625,
+          89.655029296875
+        ],
+        [
+          447.8478088378906,
+          89.655029296875
+        ],
+        [
+          447.8478088378906,
+          97.94512939453125
+        ],
+        [
+          306.7203369140625,
+          97.94512939453125
+        ]
+      ]
+    },
+    {
+      "title": "Variance in error",
+      "heading_level": null,
+      "page_id": 4,
+      "polygon": [
+        [
+          306.439453125,
+          477.140625
+        ],
+        [
+          365.224609375,
+          477.140625
+        ],
+        [
+          365.224609375,
+          485.027587890625
+        ],
+        [
+          306.439453125,
+          485.027587890625
+        ]
+      ]
+    },
+    {
+      "title": "Discussion",
+      "heading_level": null,
+      "page_id": 4,
+      "polygon": [
+        [
+          306.71990966796875,
+          656.4198226928711
+        ],
+        [
+          361.6999206542969,
+          656.4198226928711
+        ],
+        [
+          361.6999206542969,
+          666.4198226928711
+        ],
+        [
+          306.71990966796875,
+          666.4198226928711
+        ]
+      ]
+    },
+    {
+      "title": "Conclusions",
+      "heading_level": null,
+      "page_id": 6,
+      "polygon": [
+        [
+          306.71990966796875,
+          208.557861328125
+        ],
+        [
+          369.0078125,
+          208.557861328125
+        ],
+        [
+          369.0078125,
+          219.41986083984375
+        ],
+        [
+          306.71990966796875,
+          219.41986083984375
+        ]
+      ]
+    },
+    {
+      "title": "Supplementary Material",
+      "heading_level": null,
+      "page_id": 6,
+      "polygon": [
+        [
+          306.439453125,
+          346.00341796875
+        ],
+        [
+          429.830078125,
+          346.00341796875
+        ],
+        [
+          429.830078125,
+          357.41986083984375
+        ],
+        [
+          306.439453125,
+          357.41986083984375
+        ]
+      ]
+    },
+    {
+      "title": "Acknowledgments",
+      "heading_level": null,
+      "page_id": 6,
+      "polygon": [
+        [
+          306.71990966796875,
+          397.23486328125
+        ],
+        [
+          402.18359375,
+          397.23486328125
+        ],
+        [
+          402.18359375,
+          407.41986083984375
+        ],
+        [
+          306.71990966796875,
+          407.41986083984375
+        ]
+      ]
+    },
+    {
+      "title": "Funding",
+      "heading_level": null,
+      "page_id": 6,
+      "polygon": [
+        [
+          306.71990966796875,
+          502.3740234375
+        ],
+        [
+          349.509765625,
+          502.3740234375
+        ],
+        [
+          349.509765625,
+          512.4198608398438
+        ],
+        [
+          306.71990966796875,
+          512.4198608398438
+        ]
+      ]
+    },
+    {
+      "title": "Disclosures statement",
+      "heading_level": null,
+      "page_id": 6,
+      "polygon": [
+        [
+          306.71990966796875,
+          562.78125
+        ],
+        [
+          418.48046875,
+          562.78125
+        ],
+        [
+          418.48046875,
+          573.4198150634766
+        ],
+        [
+          306.71990966796875,
+          573.4198150634766
+        ]
+      ]
+    },
+    {
+      "title": "Author contributions",
+      "heading_level": null,
+      "page_id": 6,
+      "polygon": [
+        [
+          306.71990966796875,
+          642.3046875
+        ],
+        [
+          414.697265625,
+          642.3046875
+        ],
+        [
+          414.697265625,
+          653.4198150634766
+        ],
+        [
+          306.71990966796875,
+          653.4198150634766
+        ]
+      ]
+    },
+    {
+      "title": "References",
+      "heading_level": null,
+      "page_id": 7,
+      "polygon": [
+        [
+          54.637996673583984,
+          54.863525390625
+        ],
+        [
+          114.25799560546875,
+          54.863525390625
+        ],
+        [
+          114.25799560546875,
+          66.33349609375
+        ],
+        [
+          54.637996673583984,
+          66.33349609375
+        ]
+      ]
+    }
+  ],
+  "page_stats": [
+    {
+      "page_id": 0,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          134
+        ],
+        [
+          "Line",
+          52
+        ],
+        [
+          "Text",
+          12
+        ],
+        [
+          "SectionHeader",
+          4
+        ],
+        [
+          "PageFooter",
+          2
+        ],
+        [
+          "Reference",
+          2
+        ],
+        [
+          "Picture",
+          1
+        ],
+        [
+          "Footnote",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 1,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          266
+        ],
+        [
+          "Line",
+          123
+        ],
+        [
+          "Text",
+          8
+        ],
+        [
+          "PageHeader",
+          1
+        ],
+        [
+          "SectionHeader",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 2,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          239
+        ],
+        [
+          "Line",
+          117
+        ],
+        [
+          "Text",
+          7
+        ],
+        [
+          "SectionHeader",
+          5
+        ],
+        [
+          "PageHeader",
+          1
+        ],
+        [
+          "TextInlineMath",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 3,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          250
+        ],
+        [
+          "Line",
+          111
+        ],
+        [
+          "Text",
+          8
+        ],
+        [
+          "SectionHeader",
+          6
+        ],
+        [
+          "PageHeader",
+          1
+        ],
+        [
+          "TextInlineMath",
+          1
+        ],
+        [
+          "ListItem",
+          1
+        ],
+        [
+          "Reference",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 4,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          207
+        ],
+        [
+          "Line",
+          94
+        ],
+        [
+          "Text",
+          9
+        ],
+        [
+          "SectionHeader",
+          5
+        ],
+        [
+          "PageHeader",
+          1
+        ],
+        [
+          "Figure",
+          1
+        ],
+        [
+          "Caption",
+          1
+        ],
+        [
+          "FigureGroup",
+          1
+        ],
+        [
+          "Reference",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 5,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          133
+        ],
+        [
+          "Line",
+          70
+        ],
+        [
+          "Text",
+          5
+        ],
+        [
+          "Figure",
+          2
+        ],
+        [
+          "Caption",
+          2
+        ],
+        [
+          "FigureGroup",
+          2
+        ],
+        [
+          "Reference",
+          2
+        ],
+        [
+          "PageHeader",
+          1
+        ],
+        [
+          "TextInlineMath",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 6,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          212
+        ],
+        [
+          "Line",
+          108
+        ],
+        [
+          "Text",
+          11
+        ],
+        [
+          "SectionHeader",
+          6
+        ],
+        [
+          "PageHeader",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 7,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          557
+        ],
+        [
+          "Line",
+          128
+        ],
+        [
+          "ListItem",
+          42
+        ],
+        [
+          "Reference",
+          38
+        ],
+        [
+          "ListGroup",
+          2
+        ],
+        [
+          "PageHeader",
+          1
+        ],
+        [
+          "SectionHeader",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    }
+  ],
+  "debug_data_path": "debug_data/predicting-circadian-misalignment"
+}

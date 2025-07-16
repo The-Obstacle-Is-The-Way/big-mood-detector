@@ -180,7 +180,7 @@ class DLMOCalculator:
         n = 0.5   # Photoreceptor state
         
         # Run model for all days to allow entrainment
-        for profile in light_profiles:
+        for profile_idx, profile in enumerate(light_profiles):
             # Simulate each hour
             for hour in range(24):
                 light = profile.hourly_lux[hour]
@@ -195,13 +195,25 @@ class DLMOCalculator:
                     xc += dxc * self.DELTA_T
                     n += dn * self.DELTA_T
         
-        # Generate CBT rhythm for last day (24 hours)
+        # Generate CBT rhythm for last day by continuing simulation
         cbt_rhythm = []
+        last_profile = light_profiles[-1]
+        
+        # Store hourly CBT values while simulating the last day
         for hour in range(24):
-            # CBT approximation from circadian phase (x)
-            # Using cosine approximation where x is the phase
-            cbt = -xc * math.cos(x + hour * math.pi / 12.0)
+            light = last_profile.hourly_lux[hour]
+            
+            # Store CBT at the start of each hour
+            # CBT is proportional to circadian state x
+            cbt = -xc * math.cos(x)
             cbt_rhythm.append((hour, cbt))
+            
+            # Continue simulation for this hour
+            for _ in range(60):
+                dx, dxc, dn = self._circadian_derivatives(x, xc, n, light)
+                x += dx * self.DELTA_T
+                xc += dxc * self.DELTA_T
+                n += dn * self.DELTA_T
         
         return cbt_rhythm
     

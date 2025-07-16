@@ -20,20 +20,13 @@ def main():
     """Run pipeline test."""
     # Find sample data
     project_root = Path(__file__).parent.parent
-    sample_data = project_root / 'data' / 'sample' / 'health_export_sample'
+    
+    # Use the user's real data
+    sample_data = project_root / 'health_auto_export'
     
     if not sample_data.exists():
-        print(f"Sample data not found at: {sample_data}")
-        print("Looking for JSON files...")
-        
-        # Try to find any JSON files
-        json_files = list(project_root.glob('**/*sleep*.json'))
-        if json_files:
-            sample_data = json_files[0].parent
-            print(f"Found data at: {sample_data}")
-        else:
-            print("No sample data found!")
-            return
+        print(f"Data not found at: {sample_data}")
+        return
     
     # Output path
     output_path = project_root / 'output' / 'test_features.csv'
@@ -51,8 +44,8 @@ def main():
         df = pipeline.process_health_export(
             sample_data,
             output_path,
-            start_date=date(2024, 1, 1),
-            end_date=date(2024, 1, 31)
+            start_date=date(2025, 5, 10),  # Use dates with overlap
+            end_date=date(2025, 5, 20)
         )
         
         print(f"\nSuccessfully processed {len(df)} days!")
@@ -66,6 +59,11 @@ def main():
         if 'circadian_phase_Z' in df.columns:
             print(f"\nCircadian phase Z-scores range: [{df['circadian_phase_Z'].min():.2f}, {df['circadian_phase_Z'].max():.2f}]")
             print("This is the most important feature for mood prediction!")
+        
+        # Also check if circadian amplitude is non-zero
+        if 'circadian_amplitude_MN' in df.columns:
+            print(f"\nCircadian amplitude mean: {df['circadian_amplitude_MN'].mean():.4f}")
+            print("(Should be non-zero if IS/IV/RA calculations are working)")
         
     except Exception as e:
         print(f"Error: {e}")
