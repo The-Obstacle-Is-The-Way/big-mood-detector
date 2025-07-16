@@ -397,7 +397,7 @@ class MoodPredictionPipeline:
         heart_records: list,
         start_date: date,
         end_date: date,
-    ) -> dict[date, ClinicalFeatureSet]:
+    ) -> dict[date, ClinicalFeatureSet | None]:
         """
         Extract features for multiple days efficiently.
 
