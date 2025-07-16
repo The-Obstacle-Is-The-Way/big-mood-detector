@@ -177,6 +177,20 @@ security-scan:
 	bandit -r big_mood_detector/
 	safety check
 
+# Security & Audit
+.PHONY: security-audit
+security-audit: ## Run comprehensive security audit
+	@echo "🔍 Running security audit..."
+	pip-audit --desc
+	@echo "\n📊 Checking for outdated packages..."
+	pip list --outdated
+	@echo "\n📋 Security documentation: docs/SECURITY.md"
+
+.PHONY: security-fix
+security-fix: ## Auto-fix security vulnerabilities where possible
+	@echo "🔧 Attempting to fix security vulnerabilities..."
+	pip-audit --desc --fix
+
 # Full CI/CD pipeline (what runs in GitHub Actions)
 ci: install-dev quality security-scan validate-models
 	@echo "✅ CI pipeline completed successfully!" 

@@ -56,10 +56,17 @@ dependencies = [
     "structlog>=23.2.0",
     "prometheus-client>=0.19.0",
     
-    # Security
-    "python-jose[cryptography]>=3.3.0",
+    # Security (⚠️ SECURITY REVIEW NEEDED BEFORE PRODUCTION ⚠️)
+    # TODO: python-jose has known CVEs (CVE-2024-33664, CVE-2024-33663) - no fixes available
+    # Alternative: pyjwt + cryptography (more secure, actively maintained)
+    "python-jose[cryptography]>=3.3.0",  # VULNERABLE - replace with pyjwt before production
     "passlib[bcrypt]>=1.7.0",
     "python-multipart>=0.0.6",
+
+    # 🔐 FUTURE: Modern JWT alternatives for production:
+    # "pyjwt>=2.8.0",                    # Secure JWT library (maintained)
+    # "cryptography>=41.0.0",            # Modern crypto primitives
+    # "python-jose[cryptography]>=3.3.0",  # REMOVE before production
 ]
 
 [project.optional-dependencies]
