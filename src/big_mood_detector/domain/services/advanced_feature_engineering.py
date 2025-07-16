@@ -4,7 +4,6 @@ Implements research-based features for clinical mood prediction.
 Based on Seoul National, Harvard/Fitbit, and XGBoost studies.
 """
 
-from collections import defaultdict
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta
 from typing import Any
@@ -14,6 +13,9 @@ import numpy as np
 from big_mood_detector.domain.services.activity_aggregator import DailyActivitySummary
 from big_mood_detector.domain.services.heart_rate_aggregator import DailyHeartSummary
 from big_mood_detector.domain.services.sleep_aggregator import DailySleepSummary
+from big_mood_detector.domain.services.sleep_feature_calculator import (
+    SleepFeatureCalculator,
+)
 
 
 @dataclass
@@ -133,6 +135,9 @@ class AdvancedFeatureEngineer:
         """Initialize with baseline statistics tracking."""
         self.individual_baselines: dict[str, dict[str, Any]] = {}
         self.population_baselines: dict[str, float] = {}
+
+        # Initialize specialized calculators
+        self.sleep_calculator = SleepFeatureCalculator()
 
     def extract_advanced_features(
         self,
@@ -260,45 +265,23 @@ class AdvancedFeatureEngineer:
         if not recent_sleep:
             return self._empty_sleep_features()
 
-        # Sleep regularity index (0-100)
-        sleep_times = [
-            s.sleep_onset.hour + s.sleep_onset.minute / 60 for s in recent_sleep
-        ]
-        wake_times = [s.wake_time.hour + s.wake_time.minute / 60 for s in recent_sleep]
-
-        sleep_regularity_raw = float(
-            100 - (np.std(sleep_times) + np.std(wake_times)) * 10
-        )
-        sleep_regularity = max(0.0, min(100.0, sleep_regularity_raw))
-
-        # Interdaily stability (IS) - consistency across days
-        # Uses non-parametric circadian rhythm analysis
-        is_value = self._calculate_interdaily_stability(recent_sleep)
-
-        # Intradaily variability (IV) - fragmentation within days
-        iv_value = self._calculate_intradaily_variability(recent_sleep)
-
-        # Relative amplitude (RA) - strength of rhythm
-        ra_value = self._calculate_relative_amplitude(recent_sleep)
-
-        # Sleep window analysis
-        durations = [s.total_sleep_hours for s in recent_sleep]
-        short_sleep_pct = sum(1 for d in durations if d < 6) / len(durations) * 100
-        long_sleep_pct = sum(1 for d in durations if d > 10) / len(durations) * 100
-
-        # Variance in timing
-        sleep_onset_var = np.var(sleep_times)
-        wake_time_var = np.var(wake_times)
+        # Delegate to specialized calculator
+        sleep_regularity = self.sleep_calculator.calculate_regularity_index(recent_sleep)
+        is_value = self.sleep_calculator.calculate_interdaily_stability(recent_sleep)
+        iv_value = self.sleep_calculator.calculate_intradaily_variability(recent_sleep)
+        ra_value = self.sleep_calculator.calculate_relative_amplitude(recent_sleep)
+        short_sleep_pct, long_sleep_pct = self.sleep_calculator.calculate_sleep_window_percentages(recent_sleep)
+        sleep_onset_var, wake_time_var = self.sleep_calculator.calculate_timing_variances(recent_sleep)
 
         return {
-            "sleep_regularity_index": float(sleep_regularity),
-            "interdaily_stability": float(is_value),
-            "intradaily_variability": float(iv_value),
-            "relative_amplitude": float(ra_value),
-            "short_sleep_window_pct": float(short_sleep_pct),
-            "long_sleep_window_pct": float(long_sleep_pct),
-            "sleep_onset_variance": float(sleep_onset_var),
-            "wake_time_variance": float(wake_time_var),
+            "sleep_regularity_index": sleep_regularity,
+            "interdaily_stability": is_value,
+            "intradaily_variability": iv_value,
+            "relative_amplitude": ra_value,
+            "short_sleep_window_pct": short_sleep_pct,
+            "long_sleep_window_pct": long_sleep_pct,
+            "sleep_onset_variance": sleep_onset_var,
+            "wake_time_variance": wake_time_var,
         }
 
     def _calculate_circadian_features(
@@ -527,68 +510,26 @@ class AdvancedFeatureEngineer:
                 return s
         return None
 
-    def _calculate_interdaily_stability(
-        self, sleep_summaries: list[DailySleepSummary]
-    ) -> float:
-        """Calculate IS using non-parametric circadian rhythm analysis."""
-        # Simplified version - full implementation would use hourly data
-        sleep_times = [
-            s.sleep_onset.hour + s.sleep_onset.minute / 60 for s in sleep_summaries
-        ]
-        if len(sleep_times) < 3:
-            return 0.0
+    # NOTE: These methods have been moved to SleepFeatureCalculator
+    # Keeping stub for backward compatibility if needed
 
-        # Calculate variance ratio
-        hourly_means = defaultdict(list)
-        for i, time in enumerate(sleep_times):
-            hour = i % 24
-            hourly_means[hour].append(time)
+    # def _calculate_interdaily_stability(
+    #     self, sleep_summaries: list[DailySleepSummary]
+    # ) -> float:
+    #     """Moved to SleepFeatureCalculator"""
+    #     return self.sleep_calculator.calculate_interdaily_stability(sleep_summaries)
 
-        between_var = np.var(
-            [np.mean(times) for times in hourly_means.values() if times]
-        )
-        total_var = np.var(sleep_times)
+    # def _calculate_intradaily_variability(
+    #     self, sleep_summaries: list[DailySleepSummary]
+    # ) -> float:
+    #     """Moved to SleepFeatureCalculator"""
+    #     return self.sleep_calculator.calculate_intradaily_variability(sleep_summaries)
 
-        return float(between_var / (total_var + 0.001))  # Avoid division by zero
-
-    def _calculate_intradaily_variability(
-        self, sleep_summaries: list[DailySleepSummary]
-    ) -> float:
-        """Calculate IV - fragmentation of rhythm."""
-        # Simplified - measures variability in sleep duration
-        durations = [s.total_sleep_hours for s in sleep_summaries]
-        if len(durations) < 2:
-            return 0.0
-
-        # First derivative squared
-        diffs = np.diff(durations)
-        var_durations = np.var(durations)
-        if var_durations == 0:
-            # If all durations are identical, IV = 0 (perfectly stable)
-            iv = 0.0
-        else:
-            iv = np.mean(diffs**2) / var_durations
-
-        return float(min(2.0, iv))  # Cap at 2.0
-
-    def _calculate_relative_amplitude(
-        self, sleep_summaries: list[DailySleepSummary]
-    ) -> float:
-        """Calculate RA - strength of circadian rhythm."""
-        if not sleep_summaries:
-            return 0.0
-
-        # Use sleep efficiency as proxy for rhythm strength
-        efficiencies = [s.sleep_efficiency for s in sleep_summaries]
-
-        # Most restful vs least restful periods
-        sorted_eff = sorted(efficiencies)
-        m10 = (
-            np.mean(sorted_eff[-10:]) if len(sorted_eff) >= 10 else np.mean(sorted_eff)
-        )
-        l5 = np.mean(sorted_eff[:5]) if len(sorted_eff) >= 5 else np.mean(sorted_eff)
-
-        return float((m10 - l5) / (m10 + l5 + 0.001))  # Normalized difference
+    # def _calculate_relative_amplitude(
+    #     self, sleep_summaries: list[DailySleepSummary]
+    # ) -> float:
+    #     """Moved to SleepFeatureCalculator"""
+    #     return self.sleep_calculator.calculate_relative_amplitude(sleep_summaries)
 
     def _update_individual_baseline(self, metric: str, value: float) -> None:
         """Update individual baseline statistics."""
