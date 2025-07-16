@@ -1,0 +1,129 @@
+# Clinical Thresholds Configuration
+# Based on evidence from DSM-5 and Clinical Dossier
+
+depression:
+  phq_cutoffs:
+    none:
+      min: 0
+      max: 4
+    mild:
+      min: 5
+      max: 9
+    moderate:
+      min: 10
+      max: 14
+    moderately_severe:
+      min: 15
+      max: 19
+    severe:
+      min: 20
+      max: 27
+  
+  sleep_hours:
+    hypersomnia_threshold: 12  # >12 hours indicates hypersomnia
+    normal_min: 6
+    normal_max: 9
+  
+  activity_steps:
+    severe_reduction: 2000   # <2000 steps/day
+    moderate_reduction: 4000 # <4000 steps/day
+    normal_min: 5000
+
+mania:
+  asrm_cutoffs:
+    none:
+      min: 0
+      max: 5
+    hypomanic:
+      min: 6
+      max: 10
+    manic_moderate:
+      min: 11
+      max: 15
+    manic_severe:
+      min: 16
+      max: 20
+  
+  sleep_hours:
+    critical_threshold: 3  # <3 hours critical indicator
+    reduced_threshold: 5   # <5 hours significant reduction
+  
+  activity_steps:
+    elevated_threshold: 15000  # >15k steps/day
+    extreme_threshold: 20000   # >20k steps/day
+
+biomarkers:
+  circadian:
+    phase_advance_threshold: 2.0     # >2 hours phase advance
+    interdaily_stability_low: 0.5    # <0.5 indicates low stability
+    intradaily_variability_high: 1.0 # >1.0 indicates high fragmentation
+  
+  sleep:
+    efficiency_threshold: 0.85       # <85% poor efficiency
+    timing_variance_threshold: 2.0   # >2 hours variable timing
+
+mixed_features:
+  minimum_opposite_symptoms: 3  # Need ≥3 symptoms from opposite pole
+  
+  depression_with_mixed:
+    required_manic_symptoms:
+      - racing_thoughts
+      - increased_energy
+      - decreased_sleep
+      - elevated_mood
+      - increased_activity
+      - inflated_self_esteem
+  
+  mania_with_mixed:
+    required_depressive_symptoms:
+      - depressed_mood
+      - anhedonia
+      - guilt
+      - worthlessness
+      - fatigue
+      - psychomotor_retardation
+
+dsm5_duration:
+  manic_days: 7         # ≥7 days (or any duration if hospitalization)
+  hypomanic_days: 4     # ≥4 days
+  depressive_days: 14   # ≥14 days
+
+# Treatment thresholds (for recommendations)
+treatment:
+  urgent_intervention:
+    phq_threshold: 20      # PHQ ≥20
+    asrm_threshold: 16     # ASRM ≥16
+    sleep_hours_min: 3     # Sleep <3 hours
+    suicidal_ideation: true
+    psychotic_features: true
+  
+  medication_recommendations:
+    first_line_depression:
+      - quetiapine
+      - lurasidone
+      - lamotrigine  # Not for rapid cycling
+    
+    first_line_mania:
+      - lithium
+      - quetiapine
+      - valproate
+      - aripiprazole
+    
+    mixed_features:
+      - cariprazine
+      - lurasidone
+      - asenapine
+
+# Early warning thresholds
+early_warning:
+  depression:
+    sleep_increase_hours: 2      # >2 hours increase
+    activity_decrease_percent: 30 # >30% reduction
+    circadian_delay_hours: 1     # >1 hour delay
+    consecutive_days: 3
+  
+  mania:
+    sleep_decrease_hours: 2      # >2 hours decrease
+    activity_increase_percent: 50 # >50% increase
+    speech_rate_increase: true
+    consecutive_days: 2
