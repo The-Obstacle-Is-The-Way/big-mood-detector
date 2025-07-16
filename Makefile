@@ -194,3 +194,30 @@ security-fix: ## Auto-fix security vulnerabilities where possible
 # Full CI/CD pipeline (what runs in GitHub Actions)
 ci: install-dev quality security-scan validate-models
 	@echo "✅ CI pipeline completed successfully!" 
+
+# Git Workflow
+.PHONY: git-status git-sync git-dev git-staging git-main
+git-status: ## Show git status and branch info
+	@echo "📊 Git Status:"
+	@git status --short --branch
+	@echo "\n🌳 All branches:"
+	@git branch -a
+
+git-sync: ## Sync current branch with origin
+	@echo "🔄 Syncing current branch with origin..."
+	@git pull origin $(shell git branch --show-current)
+
+git-dev: ## Switch to development branch
+	@echo "🛠 Switching to development branch..."
+	@git checkout development
+	@git pull origin development
+
+git-staging: ## Switch to staging branch  
+	@echo "🧪 Switching to staging branch..."
+	@git checkout staging
+	@git pull origin staging
+
+git-main: ## Switch to main branch
+	@echo "🚀 Switching to main branch..."
+	@git checkout main
+	@git pull origin main 
