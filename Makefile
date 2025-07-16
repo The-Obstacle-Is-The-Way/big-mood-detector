@@ -124,13 +124,24 @@ db-reset:
 
 # Docker targets
 docker-build:
-	docker build -t big-mood-detector .
+	docker build -t big-mood-detector:latest .
 
 docker-run:
-	docker run -p 8000:8000 big-mood-detector
+	docker run -p 8000:8000 -v $(PWD)/apple_export:/app/apple_export:ro \
+		-v $(PWD)/health_auto_export:/app/health_auto_export:ro \
+		-v $(PWD)/output:/app/output \
+		-v $(PWD)/model_weights:/app/model_weights:ro \
+		big-mood-detector:latest
 
 docker-dev:
 	docker-compose up --build
+
+docker-test:
+	docker run --rm big-mood-detector:latest pytest
+
+docker-clean:
+	docker-compose down -v
+	docker system prune -f
 
 # Documentation
 docs:

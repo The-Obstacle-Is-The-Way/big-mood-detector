@@ -1,0 +1,123 @@
+version: '3.9'
+
+services:
+  # Main application
+  app:
+    build:
+      context: .
+      target: runtime
+    image: big-mood-detector:latest
+    container_name: mood-detector-app
+    ports:
+      - "8000:8000"
+    environment:
+      - LOG_LEVEL=info
+      - ENVIRONMENT=production
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/mood_detector
+      - REDIS_URL=redis://redis:6379/0
+    volumes:
+      # Mount local data for processing
+      - ./apple_export:/app/apple_export:ro
+      - ./health_auto_export:/app/health_auto_export:ro
+      - ./output:/app/output
+      # Model weights (read-only)
+      - ./model_weights:/app/model_weights:ro
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - mood-network
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4G
+        reservations:
+          cpus: '1'
+          memory: 2G
+
+  # PostgreSQL for data persistence
+  db:
+    image: postgres:16-alpine
+    container_name: mood-detector-db
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=mood_detector
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - mood-network
+
+  # Redis for caching and job queue
+  redis:
+    image: redis:7-alpine
+    container_name: mood-detector-redis
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - mood-network
+
+  # Monitoring with Prometheus (optional)
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: mood-detector-prometheus
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    ports:
+      - "9090:9090"
+    networks:
+      - mood-network
+    profiles:
+      - monitoring
+
+  # Grafana for visualization (optional)
+  grafana:
+    image: grafana/grafana:latest
+    container_name: mood-detector-grafana
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
+    networks:
+      - mood-network
+    profiles:
+      - monitoring
+
+networks:
+  mood-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:
+  prometheus_data:
+  grafana_data:

@@ -1,0 +1,61 @@
+# Git
+.git/
+.gitignore
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+env/
+
+# Testing
+.coverage
+.pytest_cache/
+htmlcov/
+.tox/
+.mypy_cache/
+.ruff_cache/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Documentation
+docs/_build/
+*.md
+README.md
+CLAUDE.md
+
+# Data (too large, mount as volumes)
+apple_export/
+health_auto_export/
+output/
+reference_repos/
+literature/
+
+# Temporary
+*.log
+*.tmp
+.env
+env.example
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+.travis.yml
+
+# Development scripts
+scripts/
+Makefile
+pyproject.toml
+pytest.ini

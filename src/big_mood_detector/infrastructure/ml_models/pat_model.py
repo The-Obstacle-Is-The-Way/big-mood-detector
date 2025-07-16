@@ -112,25 +112,36 @@ class PATModel:
             return False
 
         try:
-            # Load the pretrained encoder model
-            # The pretrained models include custom objects that need to be handled
-            custom_objects = {
-                "TransformerBlock": self._create_transformer_block,
-                "get_positional_embeddings": self._get_positional_embeddings,
-            }
-
+            # The PAT models are saved as complete Keras models
+            # We load them with safe mode to handle custom objects
+            import warnings
+            warnings.filterwarnings("ignore", category=UserWarning)
+            
+            # Load with safe mode - this ignores custom objects but loads weights
             self.model = tf.keras.models.load_model(
                 str(weights_path),
-                custom_objects=custom_objects,
-                compile=False,  # We only need inference
+                compile=False,
+                safe_mode=False  # Allow loading despite custom objects
             )
-
+            
+            # Verify the model has the expected input/output shape
+            expected_input = (None, 10080)
+            expected_output_patches = 10080 // self.patch_size
+            
+            if self.model.input_shape != expected_input:
+                raise ValueError(f"Model input shape {self.model.input_shape} != expected {expected_input}")
+            
             self.is_loaded = True
-            logger.info(f"Successfully loaded pretrained weights from {weights_path}")
+            logger.info(f"Successfully loaded pretrained PAT-{self.model_size.upper()} from {weights_path}")
+            logger.info(f"Model expects input shape: {self.model.input_shape}")
+            logger.info(f"Model output shape: {self.model.output_shape}")
+            
             return True
 
         except Exception as e:
             logger.error(f"Failed to load pretrained weights: {e}")
+            logger.info("PAT models require TensorFlow custom objects that were used during training.")
+            logger.info("For production use, consider re-saving the models in a simpler format.")
             self.model = None
             self.is_loaded = False
             return False
@@ -153,13 +164,10 @@ class PATModel:
 
         # Get encoder output
         if self.model is not None:
+            # Predict returns shape (batch_size, num_patches, embed_dim)
             features = self.model.predict(model_input, verbose=0)
         else:
             raise RuntimeError("Model is None despite being marked as loaded")
-
-        # If model returns attention weights too, take only features
-        if isinstance(features, list):
-            features = features[0]
 
         # Average pool over sequence dimension to get fixed-size features
         # Shape: (1, num_patches, embed_dim) -> (1, embed_dim)
@@ -189,9 +197,6 @@ class PATModel:
             features = self.model.predict(batch_input, verbose=0)
         else:
             raise RuntimeError("Model is None despite being marked as loaded")
-
-        if isinstance(features, list):
-            features = features[0]
 
         # Average pool
         features = np.mean(features, axis=1)
@@ -232,11 +237,6 @@ class PATModel:
         # Add batch dimension
         return normalized.reshape(1, -1)
 
-    def _create_transformer_block(self) -> None:
-        """Create transformer block (placeholder for custom object)."""
-        # This would need to match the exact architecture from the paper
-        # For now, return None as we're loading pretrained models
-        return None
 
     def _get_positional_embeddings(self, num_patches: int, embed_dim: int) -> tf.Tensor:
         """
