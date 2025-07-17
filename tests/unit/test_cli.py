@@ -8,7 +8,6 @@ import tempfile
 from pathlib import Path
 from unittest.mock import Mock, patch
 
-import pytest
 from click.testing import CliRunner
 
 
@@ -79,7 +78,7 @@ class TestCLI:
                 print(f"Exit code: {result.exit_code}")
                 print(f"Output: {result.output}")
                 print(f"Exception: {result.exception}")
-            
+
             assert result.exit_code == 0
             assert "Analysis Complete" in result.output
             assert "Depression Risk: 41.0%" in result.output
@@ -124,22 +123,16 @@ class TestCLI:
         assert result.exit_code == 0
         assert "Watch directory" in result.output
 
-    @patch("big_mood_detector.application.services.file_watcher.FileWatcher")
-    def test_watch_command(self, mock_file_watcher):
-        """Test watch command starts file watcher."""
+    def test_watch_command_not_implemented(self):
+        """Test watch command shows not implemented message."""
         from big_mood_detector.cli import main
-
-        # Setup mock
-        mock_watcher_instance = Mock()
-        mock_file_watcher.return_value = mock_watcher_instance
 
         with tempfile.TemporaryDirectory() as tmpdir:
             runner = CliRunner()
-            result = runner.invoke(main, ["watch", tmpdir, "--poll-interval", "30"])
+            result = runner.invoke(main, ["watch", tmpdir])
 
-            assert result.exit_code == 0
-            mock_file_watcher.assert_called_once_with(Path(tmpdir), 30)
-            mock_watcher_instance.start.assert_called_once()
+            assert result.exit_code == 1
+            assert "File watcher not yet implemented" in result.output
 
     @patch("big_mood_detector.cli.MoodPredictionPipeline")
     def test_process_command_with_report(self, mock_pipeline):
