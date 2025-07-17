@@ -8,8 +8,7 @@ Tests follow the patterns from reference CLI frameworks:
 """
 
 import json
-from typing import List
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 
 import pytest
 from typer.testing import CliRunner
@@ -32,7 +31,7 @@ def mock_label_service():
 
 
 @pytest.fixture
-def sample_labels() -> List[Label]:
+def sample_labels() -> list[Label]:
     """Create sample labels for testing."""
     return [
         Label(
@@ -41,15 +40,15 @@ def sample_labels() -> List[Label]:
             description="Major depressive episode indicators",
             color="#5B6C8F",
             category="mood",
-            metadata={"dsm5_code": "296.2x"}
+            metadata={"dsm5_code": "296.2x"},
         ),
         Label(
-            id="label-2", 
+            id="label-2",
             name="Mania",
             description="Manic episode indicators",
             color="#FF6B6B",
             category="mood",
-            metadata={"dsm5_code": "296.4x"}
+            metadata={"dsm5_code": "296.4x"},
         ),
         Label(
             id="label-3",
@@ -57,22 +56,22 @@ def sample_labels() -> List[Label]:
             description="Significant sleep pattern disruption",
             color="#4ECDC4",
             category="sleep",
-            metadata={"threshold": "3.5h"}
-        )
+            metadata={"threshold": "3.5h"},
+        ),
     ]
 
 
 class TestLabelListCommand:
     """Test the 'label list' command."""
-    
+
     def test_list_all_labels_as_table(self, runner, mock_label_service, sample_labels):
         """Test listing all labels in a beautiful table format."""
         # Arrange
         mock_label_service.list_labels.return_value = sample_labels
-        
+
         # Act
         result = runner.invoke(app, ["list"])
-        
+
         # Assert
         assert result.exit_code == 0
         assert "Depression" in result.output
@@ -80,45 +79,45 @@ class TestLabelListCommand:
         assert "Sleep Disruption" in result.output
         assert "Major depressive episode" in result.output
         assert "#5B6C8F" in result.output
-        
+
     def test_list_labels_by_category(self, runner, mock_label_service, sample_labels):
         """Test filtering labels by category."""
         # Arrange
-        mood_labels = [l for l in sample_labels if l.category == "mood"]
+        mood_labels = [label for label in sample_labels if label.category == "mood"]
         mock_label_service.list_labels.return_value = mood_labels
-        
+
         # Act
         result = runner.invoke(app, ["list", "--category", "mood"])
-        
+
         # Assert
         assert result.exit_code == 0
         assert "Depression" in result.output
         assert "Mania" in result.output
         assert "Sleep Disruption" not in result.output
         mock_label_service.list_labels.assert_called_once_with(category="mood")
-        
+
     def test_list_labels_as_json(self, runner, mock_label_service, sample_labels):
         """Test JSON output format."""
         # Arrange
         mock_label_service.list_labels.return_value = sample_labels
-        
+
         # Act
         result = runner.invoke(app, ["list", "--format", "json"])
-        
+
         # Assert
         assert result.exit_code == 0
         output_data = json.loads(result.output)
         assert len(output_data) == 3
         assert output_data[0]["name"] == "Depression"
-        
+
     def test_empty_label_list(self, runner, mock_label_service):
         """Test graceful handling of empty label list."""
         # Arrange
         mock_label_service.list_labels.return_value = []
-        
+
         # Act
         result = runner.invoke(app, ["list"])
-        
+
         # Assert
         assert result.exit_code == 0
         assert "No labels found" in result.output
@@ -126,7 +125,7 @@ class TestLabelListCommand:
 
 class TestLabelCreateCommand:
     """Test the 'label create' command."""
-    
+
     def test_create_label_interactive(self, runner, mock_label_service):
         """Test creating a label with interactive prompts."""
         # Arrange
@@ -136,22 +135,22 @@ class TestLabelCreateCommand:
             description="Hypomanic episode indicators",
             color="#FFA500",
             category="mood",
-            metadata={}
+            metadata={},
         )
         mock_label_service.create_label.return_value = created_label
-        
+
         # Act - simulate user input
         result = runner.invoke(
-            app, 
+            app,
             ["create"],
-            input="Hypomania\nHypomanic episode indicators\nmood\n#FFA500\n"
+            input="Hypomania\nHypomanic episode indicators\nmood\n#FFA500\n",
         )
-        
+
         # Assert
         assert result.exit_code == 0
         assert "Label 'Hypomania' created successfully" in result.output
         assert "#FFA500" in result.output
-        
+
     def test_create_label_with_arguments(self, runner, mock_label_service):
         """Test creating a label with command line arguments."""
         # Arrange
@@ -161,36 +160,51 @@ class TestLabelCreateCommand:
             description="Anxiety indicators",
             color="#9B59B6",
             category="mood",
-            metadata={}
+            metadata={},
         )
         mock_label_service.create_label.return_value = created_label
-        
+
         # Act
-        result = runner.invoke(app, [
-            "create",
-            "--name", "Anxiety",
-            "--description", "Anxiety indicators",
-            "--category", "mood",
-            "--color", "#9B59B6"
-        ])
-        
+        result = runner.invoke(
+            app,
+            [
+                "create",
+                "--name",
+                "Anxiety",
+                "--description",
+                "Anxiety indicators",
+                "--category",
+                "mood",
+                "--color",
+                "#9B59B6",
+            ],
+        )
+
         # Assert
         assert result.exit_code == 0
         assert "Label 'Anxiety' created successfully" in result.output
-        
+
     def test_create_label_duplicate_name(self, runner, mock_label_service):
         """Test error handling for duplicate label names."""
         # Arrange
-        mock_label_service.create_label.side_effect = ValueError("Label with name 'Depression' already exists")
-        
+        mock_label_service.create_label.side_effect = ValueError(
+            "Label with name 'Depression' already exists"
+        )
+
         # Act
-        result = runner.invoke(app, [
-            "create",
-            "--name", "Depression",
-            "--description", "Test",
-            "--category", "mood"
-        ])
-        
+        result = runner.invoke(
+            app,
+            [
+                "create",
+                "--name",
+                "Depression",
+                "--description",
+                "Test",
+                "--category",
+                "mood",
+            ],
+        )
+
         # Assert
         assert result.exit_code == 1
         assert "Error" in result.output
@@ -199,31 +213,33 @@ class TestLabelCreateCommand:
 
 class TestLabelSearchCommand:
     """Test the 'label search' command."""
-    
+
     def test_search_labels_by_name(self, runner, mock_label_service, sample_labels):
         """Test searching labels by name."""
         # Arrange
-        search_results = [l for l in sample_labels if "sleep" in l.name.lower()]
+        search_results = [
+            label for label in sample_labels if "sleep" in label.name.lower()
+        ]
         mock_label_service.search_labels.return_value = search_results
-        
+
         # Act
         result = runner.invoke(app, ["search", "sleep"])
-        
+
         # Assert
         assert result.exit_code == 0
         assert "Sleep Disruption" in result.output
         assert "Depression" not in result.output
         # Should highlight the search term
         assert "sleep" in result.output.lower()
-        
+
     def test_search_no_results(self, runner, mock_label_service):
         """Test search with no results."""
         # Arrange
         mock_label_service.search_labels.return_value = []
-        
+
         # Act
         result = runner.invoke(app, ["search", "nonexistent"])
-        
+
         # Assert
         assert result.exit_code == 0
         assert "No labels found matching 'nonexistent'" in result.output
@@ -231,61 +247,69 @@ class TestLabelSearchCommand:
 
 class TestLabelDeleteCommand:
     """Test the 'label delete' command."""
-    
-    def test_delete_label_with_confirmation(self, runner, mock_label_service, sample_labels):
+
+    def test_delete_label_with_confirmation(
+        self, runner, mock_label_service, sample_labels
+    ):
         """Test deleting a label with confirmation prompt."""
         # Arrange
         label_to_delete = sample_labels[0]
         mock_label_service.get_label.return_value = label_to_delete
         mock_label_service.delete_label.return_value = True
-        
+
         # Act - simulate user confirming deletion
-        result = runner.invoke(
-            app,
-            ["delete", "label-1"],
-            input="y\n"
-        )
-        
+        result = runner.invoke(app, ["delete", "label-1"], input="y\n")
+
         # Assert
         assert result.exit_code == 0
         assert "Are you sure you want to delete" in result.output
         assert "Depression" in result.output
         assert "deleted successfully" in result.output
-        
+
     def test_delete_label_cancelled(self, runner, mock_label_service, sample_labels):
         """Test cancelling label deletion."""
         # Arrange
         label = sample_labels[0]
         mock_label_service.get_label.return_value = label
-        
+
         # Act - simulate user cancelling
-        result = runner.invoke(
-            app,
-            ["delete", "label-1"],
-            input="n\n"
-        )
-        
+        result = runner.invoke(app, ["delete", "label-1"], input="n\n")
+
         # Assert
         assert result.exit_code == 0
         assert "Deletion cancelled" in result.output
         mock_label_service.delete_label.assert_not_called()
-        
+
     def test_delete_nonexistent_label(self, runner, mock_label_service):
         """Test deleting a label that doesn't exist."""
         # Arrange
         mock_label_service.get_label.return_value = None
-        
+
         # Act
         result = runner.invoke(app, ["delete", "nonexistent"])
-        
+
         # Assert
         assert result.exit_code == 1
         assert "Label 'nonexistent' not found" in result.output
 
+    def test_delete_label_in_use(self, runner, mock_label_service, sample_labels):
+        """Test error when attempting to delete a referenced label."""
+        # Arrange
+        label = sample_labels[0]
+        mock_label_service.get_label.return_value = label
+        mock_label_service.delete_label.side_effect = ValueError("Label is referenced")
+
+        # Act
+        result = runner.invoke(app, ["delete", label.id], input="y\n")
+
+        # Assert
+        assert result.exit_code == 1
+        assert "referenced" in result.output
+
 
 class TestLabelUpdateCommand:
     """Test the 'label update' command."""
-    
+
     def test_update_label_description(self, runner, mock_label_service, sample_labels):
         """Test updating a label's description."""
         # Arrange
@@ -296,17 +320,16 @@ class TestLabelUpdateCommand:
             description="Updated description",
             color=original_label.color,
             category=original_label.category,
-            metadata=original_label.metadata
+            metadata=original_label.metadata,
         )
         mock_label_service.get_label.return_value = original_label
         mock_label_service.update_label.return_value = updated_label
-        
+
         # Act
-        result = runner.invoke(app, [
-            "update", "label-1",
-            "--description", "Updated description"
-        ])
-        
+        result = runner.invoke(
+            app, ["update", "label-1", "--description", "Updated description"]
+        )
+
         # Assert
         assert result.exit_code == 0
         assert "Label 'Depression' updated successfully" in result.output
@@ -315,7 +338,7 @@ class TestLabelUpdateCommand:
 
 class TestLabelBatchOperations:
     """Test batch operations with progress bars."""
-    
+
     def test_batch_import_labels(self, runner, mock_label_service, tmp_path):
         """Test importing multiple labels from a file with progress bar."""
         # Arrange
@@ -325,24 +348,24 @@ class TestLabelBatchOperations:
                 "name": "Label1",
                 "description": "Description1",
                 "category": "mood",
-                "color": "#FF0000"
+                "color": "#FF0000",
             },
             {
-                "name": "Label2", 
+                "name": "Label2",
                 "description": "Description2",
                 "category": "sleep",
-                "color": "#00FF00"
-            }
+                "color": "#00FF00",
+            },
         ]
         import_file.write_text(json.dumps(labels_data))
-        
+
         mock_label_service.create_label.side_effect = [
             Label(id=f"id-{i}", **data) for i, data in enumerate(labels_data)
         ]
-        
+
         # Act
         result = runner.invoke(app, ["import", str(import_file)])
-        
+
         # Assert
         assert result.exit_code == 0
         assert "Importing 2 labels" in result.output
