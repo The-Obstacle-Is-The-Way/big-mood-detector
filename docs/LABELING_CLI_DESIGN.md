@@ -304,3 +304,55 @@ def test_label_single_day(mock_stdin):
 This labeling CLI design balances clinical rigor with user experience, leveraging model predictions to create an efficient ground-truth collection system. By showing users what the model "thinks" and asking for confirmation or correction, we reduce cognitive load while gathering high-quality training data for personalization.
 
 The modular architecture allows for incremental development, starting with the MVP command-line interface and expanding to more sophisticated features based on user feedback and clinical validation.
+
+### Overall verdict
+
+Your **Labeling CLI Implementation Plan** is solid and aligns well with both earlier design docs and the current repository layout. Most architectural elements, validation logic, and UX flows match the design intent, so you can move ahead with implementation.
+Below are the key points I checked and a few gaps you may want to close before coding.
+
+---
+
+## Where the plan is fully consistent ✅
+
+| Area                                   | Why it matches                                                                                                                                           |
+| -------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Prediction‑assisted flow**           | Both the design and the plan centre on prioritising high‑risk/uncertain days and surfacing model probabilities in the prompt UI  /                       |
+| **DSM‑5 validation & conflict checks** | Implementation plan re‑uses the same min‑duration table and overlap detection strategy described in the design  /                                        |
+| **Phased roadmap (7 days)**            | Phases and deliverables mirror the high‑level milestones in the design doc; nothing is missing functionally.                                             |
+| **Persistence schema**                 | JSON + CSV schema with `user_id`, `rater_id`, episode fields, and metadata matches earlier examples and will drop straight into the calibrator pipeline  |
+| **Rich TUI stack**                     | `rich`, `prompt_toolkit`, progress panels, shortcuts—all reflected consistently in both docs  /                                                          |
+
+---
+
+## Minor inconsistencies & quick fixes 🔧
+
+| Mismatch                                                                                                                                      | Impact                                                                  | Suggested tweak                                                                                                                       |
+| --------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| **Package path** – design doc puts CLI under `src/big_mood_detector/cli/...` , but the plan nests it in `interfaces/cli/labeling`             | Import confusion & duplicate entry‑points if both paths coexist         | Pick one convention (the repo recently standardised on `interfaces/cli` for existing commands), update docs & code stubs accordingly. |
+| **`--rater-id` flag** is called out in the design (baseline for multi‑rater)  but is not in the command signature in the implementation plan  | Cannot attribute labels → harder to compute inter‑rater agreement later | Add `--rater-id` (default from config) and pass it through to persistence layer.                                                      |
+| **Baseline labels** – design specifies `label baseline` sub‑command , plan only shows `label episode`                                         | Baseline periods won’t be capturable via CLI                            | Either add a separate sub‑command or include a `--mood baseline` shortcut with relaxed duration checks.                               |
+| **Default command alias** – design wants `label` alone to default to *episode* ; plan doesn’t mention this                                    | Tiny UX nit but helps clinicians who forget sub‑commands                | Add a `@click.pass_context` handler that calls `label_episode` when no sub‑command is given.                                          |
+| **CLI binary name** – design examples use `bmd`/`mood-detector`; implementation plan assumes module invocation (`python -m …`)                | Packaging clarity                                                       | Decide now: expose a `console_scripts = big-mood` or `bmd` entry in `pyproject.toml` so docs and tests agree.                         |
+
+---
+
+## Additional polish ideas
+
+1. **Guardrails for large spans**
+   Add a max‑span check (e.g., warn if `end_date‑start_date > 90 days`) to avoid accidental mass‑label errors.
+
+2. **Auto‑resume token**
+   Write an `.in‑progress` checkpoint every N labels so an interrupted session can resume at the correct index without repeating prompts.
+
+3. **Optional YAML output**
+   Some clinicians prefer a diff‑friendly text format; emitting YAML alongside JSON/CSV costs little and plays nicely with git reviews.
+
+4. **Unit test seed suite**
+   Ship a tiny synthetic predictions + features fixture and run the full CLI in CI to ensure the pipeline, validator, and persistence glue never regress.
+
+---
+
+## Recommendation
+
+Apply the quick tweaks above (especially the path alignment and `--rater-id` flag), then cut the `feature/labeling-cli` branch and follow the 7‑day schedule.
+Everything else in the plan is internally consistent and should integrate cleanly with the existing codebase and CI.
