@@ -504,25 +504,50 @@ def setup_dependencies(settings: Any) -> Container:
 
     # Register repositories
     from pathlib import Path
-    from big_mood_detector.domain.repositories.activity_repository import ActivityRepositoryInterface
-    from big_mood_detector.domain.repositories.heart_rate_repository import HeartRateRepositoryInterface
-    from big_mood_detector.domain.repositories.sleep_repository import SleepRepositoryInterface
-    from big_mood_detector.infrastructure.repositories.file_activity_repository import FileActivityRepository
-    from big_mood_detector.infrastructure.repositories.file_heart_rate_repository import FileHeartRateRepository
-    from big_mood_detector.infrastructure.repositories.file_sleep_repository import FileSleepRepository
+
+    from big_mood_detector.domain.repositories.activity_repository import (
+        ActivityRepositoryInterface,
+    )
+    from big_mood_detector.domain.repositories.heart_rate_repository import (
+        HeartRateRepositoryInterface,
+    )
+    from big_mood_detector.domain.repositories.sleep_repository import (
+        SleepRepositoryInterface,
+    )
+    from big_mood_detector.infrastructure.repositories.file_activity_repository import (
+        FileActivityRepository,
+    )
+    from big_mood_detector.infrastructure.repositories.file_heart_rate_repository import (
+        FileHeartRateRepository,
+    )
+    from big_mood_detector.infrastructure.repositories.file_sleep_repository import (
+        FileSleepRepository,
+    )
 
     # Repository data directory from settings
-    data_dir = getattr(settings, 'data_dir', Path('data'))
-    
+    data_dir = getattr(settings, "data_dir", Path("data"))
+
     # Register concrete implementations
-    container.register_singleton(FileActivityRepository, lambda: FileActivityRepository(data_dir))
-    container.register_singleton(FileHeartRateRepository, lambda: FileHeartRateRepository(data_dir))
-    container.register_singleton(FileSleepRepository, lambda: FileSleepRepository(data_dir))
-    
+    container.register_singleton(
+        FileActivityRepository, lambda: FileActivityRepository(data_dir)
+    )
+    container.register_singleton(
+        FileHeartRateRepository, lambda: FileHeartRateRepository(data_dir)
+    )
+    container.register_singleton(
+        FileSleepRepository, lambda: FileSleepRepository(data_dir)
+    )
+
     # Register interfaces to their implementations
-    container.register_singleton(ActivityRepositoryInterface, lambda: container.resolve(FileActivityRepository))
-    container.register_singleton(HeartRateRepositoryInterface, lambda: container.resolve(FileHeartRateRepository))
-    container.register_singleton(SleepRepositoryInterface, lambda: container.resolve(FileSleepRepository))
+    container.register_singleton(
+        ActivityRepositoryInterface, lambda: container.resolve(FileActivityRepository)
+    )
+    container.register_singleton(
+        HeartRateRepositoryInterface, lambda: container.resolve(FileHeartRateRepository)
+    )
+    container.register_singleton(
+        SleepRepositoryInterface, lambda: container.resolve(FileSleepRepository)
+    )
 
     logger.info("dependencies_configured", service_count=len(container._services))
 

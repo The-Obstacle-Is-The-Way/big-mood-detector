@@ -51,7 +51,7 @@ class TestFileSleepRepository:
     async def test_save_single_record(self, repository, sample_sleep_record):
         """Test saving a single sleep record."""
         await repository.save(sample_sleep_record)
-        
+
         # Verify file was created
         stored = StoredSleepRecord.from_domain(sample_sleep_record)
         expected_file = repository.data_dir / "sleep_records" / f"{stored.id}.json"
@@ -60,10 +60,10 @@ class TestFileSleepRepository:
     async def test_save_and_retrieve_by_id(self, repository, sample_sleep_record):
         """Test saving and retrieving by ID."""
         await repository.save(sample_sleep_record)
-        
+
         # Generate the ID that would be created
         stored = StoredSleepRecord.from_domain(sample_sleep_record)
-        
+
         retrieved = await repository.get_by_id(stored.id)
         assert retrieved is not None
         assert retrieved.source_name == sample_sleep_record.source_name
@@ -87,9 +87,9 @@ class TestFileSleepRepository:
             )
             for i in range(1, 4)
         ]
-        
+
         await repository.save_batch(records)
-        
+
         # Verify all records saved
         for record in records:
             stored = StoredSleepRecord.from_domain(record)
@@ -110,12 +110,12 @@ class TestFileSleepRepository:
             )
             records.append(record)
             await repository.save(record)
-        
+
         # Get records from days 2-4
         start = datetime(2024, 1, 2)
         end = datetime(2024, 1, 4, 23, 59, 59)
         result = await repository.get_by_date_range(start, end)
-        
+
         assert len(result) == 3
         assert all(start <= r.start_date <= end for r in result)
 
@@ -132,14 +132,13 @@ class TestFileSleepRepository:
             )
             records.append(record)
             await repository.save(record)
-        
+
         # Get by period
         period = TimePeriod(
-            start=datetime(2024, 1, 2),
-            end=datetime(2024, 1, 3, 23, 59, 59)
+            start=datetime(2024, 1, 2), end=datetime(2024, 1, 3, 23, 59, 59)
         )
         result = await repository.get_by_period(period)
-        
+
         assert len(result) == 2
         assert all(period.contains(r.start_date) for r in result)
 
@@ -157,10 +156,10 @@ class TestFileSleepRepository:
             )
             records.append(record)
             await repository.save(record)
-        
+
         # Get latest 3
         result = await repository.get_latest(limit=3)
-        
+
         assert len(result) == 3
         # Should be sorted by start_date descending
         assert result[0].source_name == "test-4"
@@ -180,23 +179,22 @@ class TestFileSleepRepository:
             )
             records.append(record)
             await repository.save(record)
-        
+
         # Delete records from days 2-3
         period = TimePeriod(
-            start=datetime(2024, 1, 2),
-            end=datetime(2024, 1, 3, 23, 59, 59)
+            start=datetime(2024, 1, 2), end=datetime(2024, 1, 3, 23, 59, 59)
         )
         deleted_count = await repository.delete_by_period(period)
-        
+
         assert deleted_count == 2
-        
+
         # Verify correct records were deleted
         stored_0 = StoredSleepRecord.from_domain(records[0])
         stored_1 = StoredSleepRecord.from_domain(records[1])
         stored_2 = StoredSleepRecord.from_domain(records[2])
         stored_3 = StoredSleepRecord.from_domain(records[3])
         stored_4 = StoredSleepRecord.from_domain(records[4])
-        
+
         assert await repository.get_by_id(stored_0.id) is not None
         assert await repository.get_by_id(stored_1.id) is None  # Deleted
         assert await repository.get_by_id(stored_2.id) is None  # Deleted
@@ -206,7 +204,7 @@ class TestFileSleepRepository:
     async def test_concurrent_access(self, repository):
         """Test repository handles concurrent access safely."""
         import asyncio
-        
+
         # Create multiple records concurrently
         async def save_record(i):
             record = SleepRecord(
@@ -217,10 +215,10 @@ class TestFileSleepRepository:
             )
             await repository.save(record)
             return StoredSleepRecord.from_domain(record)
-        
+
         # Save 10 records concurrently
         stored_records = await asyncio.gather(*[save_record(i) for i in range(10)])
-        
+
         # Verify all saved correctly
         for i, stored in enumerate(stored_records):
             record = await repository.get_by_id(stored.id)
@@ -232,14 +230,14 @@ class TestFileSleepRepository:
         # Save with first instance
         repo1 = FileSleepRepository(data_dir=temp_dir)
         await repo1.save(sample_sleep_record)
-        
+
         # Get the stored ID
         stored = StoredSleepRecord.from_domain(sample_sleep_record)
-        
+
         # Load with new instance
         repo2 = FileSleepRepository(data_dir=temp_dir)
         retrieved = await repo2.get_by_id(stored.id)
-        
+
         assert retrieved is not None
         assert retrieved.source_name == sample_sleep_record.source_name
 

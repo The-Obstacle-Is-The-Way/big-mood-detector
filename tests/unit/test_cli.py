@@ -49,7 +49,9 @@ class TestCLI:
         assert result.exit_code == 0
         assert "Process health data" in result.output
 
-    @patch("big_mood_detector.application.services.data_parsing_service.DataParsingService")
+    @patch(
+        "big_mood_detector.application.services.data_parsing_service.DataParsingService"
+    )
     def test_process_command_with_directory(self, mock_pipeline: Mock) -> None:
         """Test process command with directory input."""
         from big_mood_detector.main_cli import cli  # type: ignore
@@ -68,7 +70,7 @@ class TestCLI:
             # Create a mock JSON file that would pass validation
             test_file = Path(tmpdir) / "Sleep Analysis.json"
             test_file.write_text('{"data": []}')  # Valid JSON health file
-            
+
             runner = CliRunner()
             result = runner.invoke(
                 cli,
@@ -126,11 +128,11 @@ class TestCLI:
         # Mock the file watcher to prevent actual watching
         mock_instance = Mock()
         mock_file_watcher.return_value = mock_instance
-        
+
         # Mock watch to complete normally instead of raising KeyboardInterrupt
         def mock_watch() -> None:
             return  # Just return normally for testing
-        
+
         mock_instance.watch = mock_watch
 
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -141,21 +143,23 @@ class TestCLI:
                     "watch",
                     tmpdir,
                     "--poll-interval",
-                    "30", 
+                    "30",
                     "--patterns",
                     "*.json",
                     "--no-recursive",
                 ],
-                catch_exceptions=False  # Better error reporting in tests
+                catch_exceptions=False,  # Better error reporting in tests
             )
 
-            # Should show setup messages  
+            # Should show setup messages
             assert result.exit_code == 0
             assert "Watching" in result.output
             assert "health data files" in result.output
             assert "Poll interval: 30" in result.output
 
-    @patch("big_mood_detector.application.services.data_parsing_service.DataParsingService")
+    @patch(
+        "big_mood_detector.application.services.data_parsing_service.DataParsingService"
+    )
     def test_process_command_error_handling(self, mock_pipeline: Mock) -> None:
         """Test process command error handling."""
         from big_mood_detector.main_cli import cli  # type: ignore
@@ -169,7 +173,7 @@ class TestCLI:
             # Create a valid health data file so validation passes
             test_file = Path(tmpdir) / "Heart Rate.json"
             test_file.write_text('{"data": []}')
-            
+
             runner = CliRunner()
             result = runner.invoke(cli, ["process", tmpdir])
 

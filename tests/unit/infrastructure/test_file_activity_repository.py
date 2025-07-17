@@ -56,7 +56,7 @@ class TestFileActivityRepository:
     async def test_save_single_record(self, repository, sample_activity_record):
         """Test saving a single activity record."""
         await repository.save(sample_activity_record)
-        
+
         # Verify file was created
         stored = StoredActivityRecord.from_domain(sample_activity_record)
         expected_file = repository.data_dir / "activity_records" / f"{stored.id}.json"
@@ -65,10 +65,10 @@ class TestFileActivityRepository:
     async def test_save_and_retrieve_by_id(self, repository, sample_activity_record):
         """Test saving and retrieving by ID."""
         await repository.save(sample_activity_record)
-        
+
         # Generate the ID that would be created
         stored = StoredActivityRecord.from_domain(sample_activity_record)
-        
+
         retrieved = await repository.get_by_id(stored.id)
         assert retrieved is not None
         assert retrieved.source_name == sample_activity_record.source_name
@@ -96,9 +96,9 @@ class TestFileActivityRepository:
             )
             for i in range(1, 4)
         ]
-        
+
         await repository.save_batch(records)
-        
+
         # Verify all records saved
         for record in records:
             stored = StoredActivityRecord.from_domain(record)
@@ -121,12 +121,12 @@ class TestFileActivityRepository:
             )
             records.append(record)
             await repository.save(record)
-        
+
         # Get records from days 2-4
         start = datetime(2024, 1, 2)
         end = datetime(2024, 1, 4, 23, 59, 59)
         result = await repository.get_by_date_range(start, end)
-        
+
         assert len(result) == 3
         assert all(start <= r.start_date <= end for r in result)
 
@@ -145,14 +145,13 @@ class TestFileActivityRepository:
             )
             records.append(record)
             await repository.save(record)
-        
+
         # Get by period
         period = TimePeriod(
-            start=datetime(2024, 1, 2),
-            end=datetime(2024, 1, 3, 23, 59, 59)
+            start=datetime(2024, 1, 2), end=datetime(2024, 1, 3, 23, 59, 59)
         )
         result = await repository.get_by_period(period)
-        
+
         assert len(result) == 2
         assert all(period.contains(r.start_date) for r in result)
 
@@ -175,17 +174,16 @@ class TestFileActivityRepository:
             value=100.0,
             unit="Cal",
         )
-        
+
         await repository.save(step_record)
         await repository.save(energy_record)
-        
+
         # Get only step count records
         period = TimePeriod(
-            start=datetime(2024, 1, 1),
-            end=datetime(2024, 1, 1, 23, 59, 59)
+            start=datetime(2024, 1, 1), end=datetime(2024, 1, 1, 23, 59, 59)
         )
         result = await repository.get_by_type(ActivityType.STEP_COUNT, period)
-        
+
         assert len(result) == 1
         assert result[0].activity_type == ActivityType.STEP_COUNT
 
@@ -205,10 +203,10 @@ class TestFileActivityRepository:
             )
             records.append(record)
             await repository.save(record)
-        
+
         # Get latest 3
         result = await repository.get_latest(limit=3)
-        
+
         assert len(result) == 3
         # Should be sorted by start_date descending
         assert result[0].source_name == "test-4"
@@ -230,23 +228,22 @@ class TestFileActivityRepository:
             )
             records.append(record)
             await repository.save(record)
-        
+
         # Delete records from days 2-3
         period = TimePeriod(
-            start=datetime(2024, 1, 2),
-            end=datetime(2024, 1, 3, 23, 59, 59)
+            start=datetime(2024, 1, 2), end=datetime(2024, 1, 3, 23, 59, 59)
         )
         deleted_count = await repository.delete_by_period(period)
-        
+
         assert deleted_count == 2
-        
+
         # Verify correct records were deleted
         stored_0 = StoredActivityRecord.from_domain(records[0])
         stored_1 = StoredActivityRecord.from_domain(records[1])
         stored_2 = StoredActivityRecord.from_domain(records[2])
         stored_3 = StoredActivityRecord.from_domain(records[3])
         stored_4 = StoredActivityRecord.from_domain(records[4])
-        
+
         assert await repository.get_by_id(stored_0.id) is not None
         assert await repository.get_by_id(stored_1.id) is None  # Deleted
         assert await repository.get_by_id(stored_2.id) is None  # Deleted
@@ -256,7 +253,7 @@ class TestFileActivityRepository:
     async def test_concurrent_access(self, repository):
         """Test repository handles concurrent access safely."""
         import asyncio
-        
+
         # Create multiple records concurrently
         async def save_record(i):
             record = ActivityRecord(
@@ -269,10 +266,10 @@ class TestFileActivityRepository:
             )
             await repository.save(record)
             return StoredActivityRecord.from_domain(record)
-        
+
         # Save 10 records concurrently
         stored_records = await asyncio.gather(*[save_record(i) for i in range(10)])
-        
+
         # Verify all saved correctly
         for i, stored in enumerate(stored_records):
             record = await repository.get_by_id(stored.id)
@@ -284,14 +281,14 @@ class TestFileActivityRepository:
         # Save with first instance
         repo1 = FileActivityRepository(data_dir=temp_dir)
         await repo1.save(sample_activity_record)
-        
+
         # Get the stored ID
         stored = StoredActivityRecord.from_domain(sample_activity_record)
-        
+
         # Load with new instance
         repo2 = FileActivityRepository(data_dir=temp_dir)
         retrieved = await repo2.get_by_id(stored.id)
-        
+
         assert retrieved is not None
         assert retrieved.source_name == sample_activity_record.source_name
 

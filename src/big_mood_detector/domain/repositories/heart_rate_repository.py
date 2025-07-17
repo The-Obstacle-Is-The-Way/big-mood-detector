@@ -9,8 +9,8 @@ from abc import ABC, abstractmethod
 from datetime import datetime
 
 from big_mood_detector.domain.entities.heart_rate_record import (
-    HeartRateRecord,
     HeartMetricType,
+    HeartRateRecord,
 )
 from big_mood_detector.domain.value_objects.time_period import TimePeriod
 

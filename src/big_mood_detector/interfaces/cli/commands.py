@@ -35,39 +35,43 @@ def validate_input_path(input_path: Path) -> None:
     """Validate input path and provide helpful error messages."""
     if not input_path.exists():
         raise click.BadParameter(f"Path does not exist: {input_path}")
-    
+
     # Check if it's a directory with health data files
     if input_path.is_dir():
         json_files = list(input_path.glob("*.json"))
         xml_files = list(input_path.glob("*.xml"))
-        
+
         if not json_files and not xml_files:
             raise click.BadParameter(
                 f"No JSON or XML health data files found in directory: {input_path}\n"
                 "Expected files like 'Sleep Analysis.json', 'Heart Rate.json', or 'export.xml'"
             )
-            
+
         click.echo(f"📁 Found {len(json_files)} JSON and {len(xml_files)} XML files")
-        
+
         # Warn about large XML files
         for xml_file in xml_files:
             size_mb = xml_file.stat().st_size / (1024 * 1024)
             if size_mb > 100:
-                click.echo(f"⚠️  Large file detected: {xml_file.name} ({size_mb:.1f} MB)")
+                click.echo(
+                    f"⚠️  Large file detected: {xml_file.name} ({size_mb:.1f} MB)"
+                )
                 click.echo("   Processing may take several minutes...")
-    
+
     # Check if it's a single file
     elif input_path.is_file():
-        if not (input_path.suffix.lower() in ['.xml', '.json']):
+        if not (input_path.suffix.lower() in [".xml", ".json"]):
             raise click.BadParameter(
                 f"Unsupported file type: {input_path.suffix}\n"
                 "Supported formats: .xml (Apple Health export), .json (Health Auto Export)"
             )
-            
+
         size_mb = input_path.stat().st_size / (1024 * 1024)
         if size_mb > 500:
             click.echo(f"⚠️  Very large file: {size_mb:.1f} MB")
-            click.echo("   Processing may take 10+ minutes. Consider using smaller date ranges.")
+            click.echo(
+                "   Processing may take 10+ minutes. Consider using smaller date ranges."
+            )
 
 
 def validate_date_range(start_date: datetime | None, end_date: datetime | None) -> None:
@@ -77,7 +81,7 @@ def validate_date_range(start_date: datetime | None, end_date: datetime | None) 
             raise click.BadParameter(
                 f"Start date ({start_date.date()}) must be before end date ({end_date.date()})"
             )
-        
+
         # Warn about very long date ranges
         days_diff = (end_date.date() - start_date.date()).days
         if days_diff > 365:
@@ -91,7 +95,9 @@ def validate_ensemble_requirements(ensemble: bool, model_dir: Path | None) -> No
         if model_dir:
             pat_weights = model_dir / "pat"
             if not pat_weights.exists():
-                click.echo("⚠️  PAT model directory not found, falling back to XGBoost only")
+                click.echo(
+                    "⚠️  PAT model directory not found, falling back to XGBoost only"
+                )
         else:
             click.echo("⚠️  Ensemble requested but no model directory specified")
             click.echo("   Using default model weights (may not include PAT)")
@@ -192,7 +198,7 @@ def generate_clinical_report(result: PipelineResult, output_path: Path) -> None:
     """Generate a detailed clinical report."""
     # Ensure parent directory exists
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    
+
     with open(output_path, "w") as f:
         f.write("CLINICAL DECISION SUPPORT (CDS) REPORT\n")
         f.write("=" * 50 + "\n\n")
@@ -306,7 +312,7 @@ def process_command(
         input_path_obj = Path(input_path)
         validate_input_path(input_path_obj)
         validate_date_range(start_date, end_date)
-        
+
         click.echo(f"Processing health data from: {input_path}")
 
         # Initialize pipeline
@@ -318,10 +324,10 @@ def process_command(
 
         # Process health export
         output_path = Path(output) if output else Path("output/features.csv")
-        
+
         # Ensure parent directory exists
         output_path.parent.mkdir(parents=True, exist_ok=True)
-        
+
         df = pipeline.process_health_export(
             export_path=Path(input_path),
             output_path=output_path,
@@ -409,10 +415,10 @@ def predict_command(
         input_path_obj = Path(input_path)
         validate_input_path(input_path_obj)
         validate_date_range(start_date, end_date)
-        
+
         model_dir_obj = Path(model_dir) if model_dir else None
         validate_ensemble_requirements(ensemble, model_dir_obj)
-        
+
         click.echo(f"Processing health data from: {input_path}")
 
         # Configure pipeline
