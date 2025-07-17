@@ -15,23 +15,23 @@ from click.testing import CliRunner
 class TestCLI:
     """Test command line interface."""
 
-    def test_cli_imports(self):
+    def test_cli_imports(self) -> None:
         """Test that CLI imports work."""
-        from big_mood_detector.main_cli import cli
+        from big_mood_detector.main_cli import cli  # type: ignore
 
         assert cli is not None
 
-    def test_main_command_exists(self):
+    def test_main_command_exists(self) -> None:
         """Test that main command exists."""
-        from big_mood_detector.main_cli import cli
+        from big_mood_detector.main_cli import cli  # type: ignore
 
         runner = CliRunner()
         result = runner.invoke(cli, ["--help"])
         assert result.exit_code == 0
 
-    def test_cli_help(self):
+    def test_cli_help(self) -> None:
         """Test CLI help shows expected commands."""
-        from big_mood_detector.main_cli import cli
+        from big_mood_detector.main_cli import cli  # type: ignore
 
         runner = CliRunner()
         result = runner.invoke(cli, ["--help"])
@@ -40,9 +40,9 @@ class TestCLI:
         assert "serve" in result.output
         assert "watch" in result.output
 
-    def test_process_command_exists(self):
+    def test_process_command_exists(self) -> None:
         """Test that process command exists."""
-        from big_mood_detector.main_cli import cli
+        from big_mood_detector.main_cli import cli  # type: ignore
 
         runner = CliRunner()
         result = runner.invoke(cli, ["process", "--help"])
@@ -50,9 +50,9 @@ class TestCLI:
         assert "Process health data" in result.output
 
     @patch("big_mood_detector.application.services.data_parsing_service.DataParsingService")
-    def test_process_command_with_directory(self, mock_pipeline):
+    def test_process_command_with_directory(self, mock_pipeline: Mock) -> None:
         """Test process command with directory input."""
-        from big_mood_detector.main_cli import cli
+        from big_mood_detector.main_cli import cli  # type: ignore
 
         # Setup mock
         mock_instance = Mock()
@@ -88,9 +88,9 @@ class TestCLI:
             # Verify pipeline was called
             mock_instance.process_health_export.assert_called_once()
 
-    def test_serve_command_exists(self):
+    def test_serve_command_exists(self) -> None:
         """Test that serve command exists."""
-        from big_mood_detector.main_cli import cli
+        from big_mood_detector.main_cli import cli  # type: ignore
 
         runner = CliRunner()
         result = runner.invoke(cli, ["serve", "--help"])
@@ -98,9 +98,9 @@ class TestCLI:
         assert "Start the API server" in result.output
 
     @patch("big_mood_detector.interfaces.cli.server.uvicorn")
-    def test_serve_command(self, mock_uvicorn):
+    def test_serve_command(self, mock_uvicorn: Mock) -> None:
         """Test serve command starts server."""
-        from big_mood_detector.main_cli import cli
+        from big_mood_detector.main_cli import cli  # type: ignore
 
         runner = CliRunner()
         result = runner.invoke(cli, ["serve", "--port", "8001"])
@@ -109,9 +109,9 @@ class TestCLI:
         # Verify uvicorn was called
         mock_uvicorn.run.assert_called_once()
 
-    def test_watch_command_exists(self):
+    def test_watch_command_exists(self) -> None:
         """Test that watch command exists."""
-        from big_mood_detector.main_cli import cli
+        from big_mood_detector.main_cli import cli  # type: ignore
 
         runner = CliRunner()
         result = runner.invoke(cli, ["watch", "--help"])
@@ -119,16 +119,16 @@ class TestCLI:
         assert "Watch directory" in result.output
 
     @patch("big_mood_detector.infrastructure.monitoring.file_watcher.FileWatcher")
-    def test_watch_command_with_options(self, mock_file_watcher):
+    def test_watch_command_with_options(self, mock_file_watcher: Mock) -> None:
         """Test watch command accepts all options."""
-        from big_mood_detector.main_cli import cli
+        from big_mood_detector.main_cli import cli  # type: ignore
 
         # Mock the file watcher to prevent actual watching
         mock_instance = Mock()
         mock_file_watcher.return_value = mock_instance
         
         # Mock watch to complete normally instead of raising KeyboardInterrupt
-        def mock_watch():
+        def mock_watch() -> None:
             return  # Just return normally for testing
         
         mock_instance.watch = mock_watch
@@ -156,9 +156,9 @@ class TestCLI:
             assert "Poll interval: 30" in result.output
 
     @patch("big_mood_detector.application.services.data_parsing_service.DataParsingService")
-    def test_process_command_error_handling(self, mock_pipeline):
+    def test_process_command_error_handling(self, mock_pipeline: Mock) -> None:
         """Test process command error handling."""
-        from big_mood_detector.main_cli import cli
+        from big_mood_detector.main_cli import cli  # type: ignore
 
         # Setup mock to raise error
         mock_instance = Mock()
