@@ -22,10 +22,12 @@ from big_mood_detector.infrastructure.di import (  # noqa: E402
     inject,
     setup_dependencies,
 )
+from big_mood_detector.infrastructure.di.container import Lazy  # noqa: E402
 
 __all__ = [
     "Container",
     "DependencyNotFoundError",
+    "Lazy",
     "Provide",
     "get_container",
     "inject",
