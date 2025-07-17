@@ -7,13 +7,13 @@ Following Single Responsibility Principle - each component has one job.
 
 import functools
 import time
-from collections.abc import Callable, Generator
+from collections.abc import Callable
 from contextlib import contextmanager
 from functools import lru_cache
 from typing import Any, cast
 
 import structlog
-from structlog.types import FilteringBoundLogger, Processor
+from structlog.types import FilteringBoundLogger
 
 from .config import Settings, settings
 

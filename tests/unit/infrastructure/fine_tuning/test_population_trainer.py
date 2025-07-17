@@ -4,13 +4,12 @@ Test Population Trainer
 TDD for training task-specific heads on NHANES cohorts.
 """
 
+from pathlib import Path
+from unittest.mock import Mock, patch
+
 import numpy as np
 import pandas as pd
 import pytest
-from pathlib import Path
-from unittest.mock import Mock, patch, MagicMock
-import torch
-import joblib
 
 
 class TestPopulationTrainer:
@@ -19,8 +18,8 @@ class TestPopulationTrainer:
     def test_trainer_can_be_imported(self):
         """Test that trainer can be imported."""
         from big_mood_detector.infrastructure.fine_tuning.population_trainer import (
-            PopulationTrainer,
             PATPopulationTrainer,
+            PopulationTrainer,
             XGBoostPopulationTrainer,
         )
 
@@ -70,7 +69,7 @@ class TestPopulationTrainer:
         )
 
         trainer = PATPopulationTrainer()
-        
+
         # Create task head
         task_head = trainer.create_task_head(
             input_dim=768,
@@ -96,7 +95,7 @@ class TestPopulationTrainer:
         labels = np.random.randint(0, 2, n_samples)  # Binary labels
 
         trainer = PATPopulationTrainer()
-        
+
         # Mock the base model
         with patch.object(trainer, "load_base_model") as mock_load:
             mock_model = Mock()
@@ -124,11 +123,11 @@ class TestPopulationTrainer:
         )
 
         trainer = PATPopulationTrainer(output_dir=tmp_path)
-        
+
         # Mock model components
         mock_encoder = Mock()
         mock_task_head = Mock()
-        
+
         # Save model
         save_path = trainer.save_model(
             encoder=mock_encoder,
@@ -139,7 +138,7 @@ class TestPopulationTrainer:
 
         assert save_path.exists()
         assert save_path.name == "pat_depression.pt"
-        
+
         # Check metadata saved
         metadata_path = tmp_path / "pat_depression_metadata.json"
         assert metadata_path.exists()
@@ -186,7 +185,7 @@ class TestPopulationTrainer:
         )
 
         trainer = XGBoostPopulationTrainer()
-        
+
         # Valid features (36 from mood_ml)
         valid_features = pd.DataFrame({
             "mean_sleep_duration": [420],
@@ -199,10 +198,10 @@ class TestPopulationTrainer:
             "M10": [500],
             # ... (would have all 36 in real implementation)
         })
-        
+
         # Should not raise
         trainer.validate_features(valid_features)
-        
+
         # Missing features should raise
         invalid_features = pd.DataFrame({"wrong_feature": [1]})
         with pytest.raises(ValueError, match="Missing required features"):
@@ -223,7 +222,7 @@ class TestPopulationTrainer:
         labels = np.random.randint(0, 2, 100)
 
         trainer = XGBoostPopulationTrainer()
-        
+
         # Mock base model
         with patch.object(trainer, "load_base_model") as mock_load:
             import xgboost as xgb
@@ -301,7 +300,7 @@ class TestPopulationTrainer:
 
         # Use concrete implementation instead of abstract class
         trainer = PATPopulationTrainer()
-        
+
         # Mock predictions
         y_true = np.array([0, 1, 1, 0, 1, 0, 1, 1])
         y_pred = np.array([0, 1, 1, 0, 0, 0, 1, 1])
@@ -317,7 +316,7 @@ class TestPopulationTrainer:
         assert "precision" in metrics
         assert "recall" in metrics
         assert "f1" in metrics
-        
+
         # Check values reasonable
         assert 0 <= metrics["accuracy"] <= 1
         assert 0 <= metrics["auc"] <= 1

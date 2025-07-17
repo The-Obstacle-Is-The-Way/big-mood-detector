@@ -4,11 +4,12 @@ Test NHANES Data Processor
 TDD for processing NHANES XPT files into labeled datasets.
 """
 
+from pathlib import Path
+from unittest.mock import patch
+
+import numpy as np
 import pandas as pd
 import pytest
-from pathlib import Path
-from unittest.mock import Mock, patch, MagicMock
-import numpy as np
 
 
 class TestNHANESProcessor:
@@ -89,7 +90,7 @@ class TestNHANESProcessor:
         assert len(depression) == 3
         assert "PHQ9_total" in depression.columns
         assert "depressed" in depression.columns
-        
+
         # Check PHQ-9 calculation
         assert depression["PHQ9_total"].tolist() == [2, 11, 27]
         assert depression["depressed"].tolist() == [0, 1, 1]  # >=10 is depressed
@@ -107,13 +108,13 @@ class TestNHANESProcessor:
             "RXDDRUG": [1001, 1002, 2001, 3001],  # Drug code
             "RXDDAYS": [30, 90, 30, 30],  # Days taken
         })
-        
+
         # Mock drug lookup
         mock_drug_df = pd.DataFrame({
             "RXDDRUG": [1001, 1002, 2001, 3001],
             "RXDDRGID": ["d00321", "d00732", "d00150", "d00555"],  # Generic drug ID
         })
-        
+
         mock_read_sas.side_effect = [mock_rx_df, mock_drug_df]
 
         processor = NHANESProcessor()
@@ -131,12 +132,12 @@ class TestNHANESProcessor:
         )
 
         processor = NHANESProcessor()
-        
+
         # Common benzodiazepine generic IDs
         assert processor.is_benzodiazepine("d00321") is True  # Alprazolam
         assert processor.is_benzodiazepine("d00732") is True  # Lorazepam
         assert processor.is_benzodiazepine("d00150") is False  # Not a benzo
-        
+
         # Should handle various formats
         assert processor.is_benzodiazepine("alprazolam") is True
         assert processor.is_benzodiazepine("XANAX") is True
@@ -149,12 +150,12 @@ class TestNHANESProcessor:
         )
 
         processor = NHANESProcessor()
-        
+
         # Common SSRI generic IDs
         assert processor.is_ssri("d00283") is True  # Fluoxetine
         assert processor.is_ssri("d00859") is True  # Sertraline
         assert processor.is_ssri("d00321") is False  # Not an SSRI
-        
+
         # Should handle drug names
         assert processor.is_ssri("fluoxetine") is True
         assert processor.is_ssri("PROZAC") is True
@@ -174,7 +175,7 @@ class TestNHANESProcessor:
             "PAXN": [1, 2, 1, 2],
             "PAXINTEN": [100, 200, 150, 250],
         })
-        
+
         mock_dpq = pd.DataFrame({
             "SEQN": [1, 2],
             "DPQ010": [3, 0],
@@ -187,17 +188,17 @@ class TestNHANESProcessor:
             "DPQ080": [3, 0],
             "DPQ090": [0, 0],
         })
-        
+
         mock_rx = pd.DataFrame({
             "SEQN": [1, 2],
             "RXDDRUG": [1001, 2001],
         })
-        
+
         mock_drug = pd.DataFrame({
             "RXDDRUG": [1001, 2001],
             "RXDDRGID": ["d00321", "d00283"],  # Alprazolam, Fluoxetine
         })
-        
+
         mock_read_sas.side_effect = [mock_acti, mock_dpq, mock_rx, mock_drug]
 
         processor = NHANESProcessor()
@@ -209,7 +210,7 @@ class TestNHANESProcessor:
         assert "depressed" in cohort.columns
         assert "benzodiazepine" in cohort.columns
         assert "ssri" in cohort.columns
-        
+
         # Check specific values
         assert cohort.loc[cohort["SEQN"] == 1, "PHQ9_total"].iloc[0] == 24
         assert cohort.loc[cohort["SEQN"] == 1, "depressed"].iloc[0] == 1
@@ -291,7 +292,7 @@ class TestNHANESProcessor:
 
         assert output_path.exists()
         assert output_path.suffix == ".parquet"
-        
+
         # Verify saved data
         loaded = pd.read_parquet(output_path)
         assert len(loaded) == 3
@@ -318,7 +319,7 @@ class TestNHANESProcessor:
         # Should have 36 features matching mood_ml
         expected_features = [
             "mean_sleep_duration",
-            "std_sleep_duration", 
+            "std_sleep_duration",
             "mean_sleep_efficiency",
             "IS",  # Interdaily Stability
             "IV",  # Intradaily Variability
@@ -327,6 +328,6 @@ class TestNHANESProcessor:
             "M10",  # Most active 10 hours
             # ... and more
         ]
-        
+
         for feature in expected_features:
             assert feature in features.columns

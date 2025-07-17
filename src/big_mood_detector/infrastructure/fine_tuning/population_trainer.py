@@ -7,7 +7,7 @@ Trains task-specific heads on NHANES cohorts for population-level fine-tuning.
 import json
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 import joblib
 import numpy as np
@@ -17,12 +17,10 @@ import torch.nn as nn
 import xgboost as xgb
 from sklearn.metrics import (
     accuracy_score,
-    auc,
     f1_score,
     precision_score,
     recall_score,
     roc_auc_score,
-    roc_curve,
 )
 from sklearn.model_selection import TimeSeriesSplit
 
@@ -77,19 +75,19 @@ class PopulationTrainer(ABC):
         """
         n_samples = len(data)
         test_samples = int(n_samples * test_size)
-        
+
         tscv = TimeSeriesSplit(
             n_splits=n_splits,
             test_size=test_samples,
         )
-        
+
         return list(tscv.split(data))
 
     def evaluate(
         self,
         y_true: np.ndarray,
         y_pred: np.ndarray,
-        y_prob: Optional[np.ndarray] = None,
+        y_prob: np.ndarray | None = None,
     ) -> dict[str, float]:
         """Evaluate model performance.
 
@@ -107,19 +105,19 @@ class PopulationTrainer(ABC):
             "recall": recall_score(y_true, y_pred, zero_division=0),
             "f1": f1_score(y_true, y_pred, zero_division=0),
         }
-        
+
         # Sensitivity = Recall for positive class
         metrics["sensitivity"] = metrics["recall"]
-        
+
         # Specificity = Recall for negative class
         tn = ((y_true == 0) & (y_pred == 0)).sum()
         fp = ((y_true == 0) & (y_pred == 1)).sum()
         metrics["specificity"] = tn / (tn + fp) if (tn + fp) > 0 else 0
-        
+
         # AUC if probabilities available
         if y_prob is not None:
             metrics["auc"] = roc_auc_score(y_true, y_prob)
-        
+
         return metrics
 
 
@@ -142,7 +140,7 @@ class TaskHead(nn.Module):
             dropout: Dropout probability
         """
         super().__init__()
-        
+
         self.layers = nn.Sequential(
             nn.Linear(input_dim, hidden_dim),
             nn.ReLU(),
@@ -152,7 +150,7 @@ class TaskHead(nn.Module):
             nn.Dropout(dropout),
             nn.Linear(hidden_dim // 2, num_classes),
         )
-        
+
         self.output_dim = num_classes
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
@@ -162,25 +160,25 @@ class TaskHead(nn.Module):
 
 def load_pat_model(model_path: str) -> Any:
     """Load pre-trained PAT model.
-    
+
     Args:
         model_path: Path to model weights
-        
+
     Returns:
         Loaded model
     """
     # Placeholder - would load actual PAT model
     logger.info(f"Loading PAT model from {model_path}")
-    
+
     # Mock model for now
     class MockPATModel:
         def __init__(self):
             self.output_dim = 768
-            
+
         def encode(self, sequences):
             # Return random embeddings for now
             return np.random.rand(len(sequences), self.output_dim)
-    
+
     return MockPATModel()
 
 
@@ -252,39 +250,39 @@ class PATPopulationTrainer(PopulationTrainer):
             Training metrics
         """
         logger.info(f"Fine-tuning PAT for {self.task_name}")
-        
+
         # Load base model
         encoder = self.load_base_model()
-        
+
         # Encode sequences
         logger.info("Encoding sequences with PAT")
         embeddings = encoder.encode(sequences)
-        
+
         # Create task head
         num_classes = len(np.unique(labels))
         # Ensure output_dim is an int, not Mock
         input_dim = getattr(encoder, "output_dim", 768)
         if hasattr(input_dim, "__class__") and "Mock" in str(input_dim.__class__):
             input_dim = 768  # Default for PAT
-        
+
         task_head = self.create_task_head(
             input_dim=input_dim,
             num_classes=num_classes,
         )
-        
+
         # Convert to tensors
         X = torch.FloatTensor(embeddings)
         y = torch.LongTensor(labels)
-        
+
         # Split data
         n_val = int(len(X) * validation_split)
         X_train, X_val = X[:-n_val], X[-n_val:]
         y_train, y_val = y[:-n_val], y[-n_val:]
-        
+
         # Training setup
         optimizer = torch.optim.Adam(task_head.parameters(), lr=learning_rate)
         criterion = nn.CrossEntropyLoss()
-        
+
         # Training loop
         task_head.train()
         for epoch in range(epochs):
@@ -292,13 +290,13 @@ class PATPopulationTrainer(PopulationTrainer):
             for i in range(0, len(X_train), batch_size):
                 batch_X = X_train[i:i+batch_size]
                 batch_y = y_train[i:i+batch_size]
-                
+
                 optimizer.zero_grad()
                 outputs = task_head(batch_X)
                 loss = criterion(outputs, batch_y)
                 loss.backward()
                 optimizer.step()
-            
+
             # Validation
             task_head.eval()
             with torch.no_grad():
@@ -306,35 +304,35 @@ class PATPopulationTrainer(PopulationTrainer):
                 val_loss = criterion(val_outputs, y_val)
                 val_preds = val_outputs.argmax(dim=1)
                 val_acc = (val_preds == y_val).float().mean()
-            
+
             task_head.train()
-            
+
             logger.info(
                 f"Epoch {epoch+1}/{epochs}: "
                 f"loss={loss:.4f}, val_loss={val_loss:.4f}, "
                 f"val_acc={val_acc:.4f}"
             )
-        
+
         # Final metrics
         task_head.eval()
         with torch.no_grad():
             final_outputs = task_head(X_val)
             final_preds = final_outputs.argmax(dim=1)
             final_probs = torch.softmax(final_outputs, dim=1)[:, 1].numpy()
-        
+
         metrics = self.evaluate(
             y_val.numpy(),
             final_preds.numpy(),
             final_probs,
         )
-        
+
         metrics["final_loss"] = float(val_loss)
         metrics["final_accuracy"] = float(val_acc)
         metrics["epochs_completed"] = epochs
-        
+
         # Save model
         self.save_model(encoder, task_head, self.task_name, metrics)
-        
+
         return metrics
 
     def save_model(
@@ -362,7 +360,7 @@ class PATPopulationTrainer(PopulationTrainer):
             "task_name": task_name,
             "metrics": metrics,
         }
-        
+
         if hasattr(task_head, "state_dict"):
             try:
                 state_dict = task_head.state_dict()
@@ -372,26 +370,26 @@ class PATPopulationTrainer(PopulationTrainer):
             except:
                 # Mock object, skip state dict
                 pass
-        
+
         torch.save(save_dict, model_path)
-        
+
         # Save metadata
         metadata_path = self.output_dir / f"pat_{task_name}_metadata.json"
-        
+
         # Get output dim safely (handle mocks)
         output_dim = getattr(task_head, "output_dim", 2)
         if hasattr(output_dim, "__class__") and "Mock" in str(output_dim.__class__):
             output_dim = 2  # Default binary classification
-            
+
         with open(metadata_path, "w") as f:
             json.dump({
                 "task_name": task_name,
                 "base_model": self.base_model_path,
-                "metrics": {k: float(v) if isinstance(v, (int, float, np.number)) else str(v) 
+                "metrics": {k: float(v) if isinstance(v, (int, float, np.number)) else str(v)
                           for k, v in metrics.items()},
                 "output_dim": output_dim,
             }, f, indent=2)
-        
+
         logger.info(f"Saved model to {model_path}")
         return model_path
 
@@ -439,7 +437,7 @@ class XGBoostPopulationTrainer(PopulationTrainer):
             "L5",
             "M10",
         ]
-        
+
         missing = set(required_features) - set(features.columns)
         if missing:
             raise ValueError(f"Missing required features: {missing}")
@@ -449,7 +447,7 @@ class XGBoostPopulationTrainer(PopulationTrainer):
         features: pd.DataFrame,
         labels: np.ndarray,
         num_boost_round: int = 50,
-        sample_weight: Optional[np.ndarray] = None,
+        sample_weight: np.ndarray | None = None,
     ) -> dict[str, float]:
         """Incrementally train XGBoost model.
 
@@ -464,16 +462,16 @@ class XGBoostPopulationTrainer(PopulationTrainer):
         """
         # Load base model
         base_model = self.load_base_model()
-        
+
         # Get current number of trees
         initial_trees = base_model.n_estimators
-        
+
         # Continue training
         dtrain = xgb.DMatrix(features, label=labels, weight=sample_weight)
-        
+
         # Convert sklearn model to native XGBoost
         xgb_model = base_model.get_booster()
-        
+
         # Additional training
         params = {
             "objective": "binary:logistic",
@@ -481,33 +479,33 @@ class XGBoostPopulationTrainer(PopulationTrainer):
             "eta": 0.01,  # Small learning rate for fine-tuning
             "max_depth": base_model.max_depth or 6,
         }
-        
+
         updated_model = xgb.train(
             params,
             dtrain,
             num_boost_round=num_boost_round,
             xgb_model=xgb_model,
         )
-        
+
         # Convert back to sklearn API
         final_model = xgb.XGBClassifier()
         final_model._Booster = updated_model
         final_model.n_estimators = initial_trees + num_boost_round
-        
+
         # Fit to set n_classes_ attribute
         final_model.fit(features, labels)
-        
+
         # Evaluate
         predictions = final_model.predict(features)
         probabilities = final_model.predict_proba(features)[:, 1]
-        
+
         metrics = self.evaluate(labels, predictions, probabilities)
         metrics["total_estimators"] = final_model.n_estimators
-        
+
         # Save updated model
         save_path = self.output_dir / f"xgboost_{self.task_name}_updated.pkl"
         joblib.dump(final_model, save_path)
-        
+
         logger.info(f"Saved updated model to {save_path}")
         return metrics
 

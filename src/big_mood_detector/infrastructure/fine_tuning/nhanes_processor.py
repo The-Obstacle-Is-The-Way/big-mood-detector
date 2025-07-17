@@ -4,9 +4,8 @@ NHANES Data Processor
 Processes NHANES XPT files into labeled datasets for fine-tuning.
 """
 
-import re
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -265,8 +264,8 @@ class NHANESProcessor:
         actigraphy: pd.DataFrame,
         window_size: int = 60,
         stride: int = 30,
-        label_col: Optional[str] = None,
-    ) -> tuple[np.ndarray, Optional[np.ndarray]]:
+        label_col: str | None = None,
+    ) -> tuple[np.ndarray, np.ndarray | None]:
         """Extract sliding window sequences for PAT model.
 
         Args:
