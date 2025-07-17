@@ -16,10 +16,10 @@ class TestLogging:
 
     def test_logger_can_be_imported(self):
         """Test that logger module can be imported."""
-        from big_mood_detector.core.logging import get_logger, logger
+        from big_mood_detector.core.logging import get_logger, get_module_logger
 
         assert get_logger is not None
-        assert logger is not None
+        assert get_module_logger is not None
 
     def test_get_logger_returns_logger_instance(self):
         """Test that get_logger returns a logger instance."""
