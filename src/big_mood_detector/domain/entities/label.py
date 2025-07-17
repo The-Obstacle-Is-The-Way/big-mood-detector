@@ -30,7 +30,7 @@ class Label:
     category: str
     metadata: Dict[str, Any] = field(default_factory=dict)
     
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate label data after initialization."""
         if not self.name:
             raise ValueError("Label name cannot be empty")

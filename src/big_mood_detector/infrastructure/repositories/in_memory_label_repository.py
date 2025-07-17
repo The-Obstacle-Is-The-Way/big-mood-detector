@@ -14,12 +14,12 @@ from big_mood_detector.domain.repositories.label_repository import LabelReposito
 class InMemoryLabelRepository(LabelRepository):
     """In-memory implementation of label repository."""
     
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize with empty storage and some default labels."""
         self._labels: Dict[str, Label] = {}
         self._initialize_default_labels()
     
-    def _initialize_default_labels(self):
+    def _initialize_default_labels(self) -> None:
         """Add some default clinical labels."""
         default_labels = [
             Label(

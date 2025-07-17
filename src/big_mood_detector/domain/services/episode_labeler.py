@@ -4,7 +4,7 @@ Episode Labeler Domain Service
 Manages mood episode labels for ground truth collection.
 """
 
-from datetime import date, datetime
+from datetime import date as date_type, datetime
 from typing import Any, Dict, List, Optional, Union
 
 import pandas as pd
@@ -22,9 +22,9 @@ class EpisodeLabeler:
     def add_episode(
         self,
         *args: Any,
-        date: Optional[Union[str, date]] = None,
-        start_date: Optional[Union[str, date]] = None,
-        end_date: Optional[Union[str, date]] = None,
+        date: Optional[Union[str, date_type]] = None,
+        start_date: Optional[Union[str, date_type]] = None,
+        end_date: Optional[Union[str, date_type]] = None,
         episode_type: str = "",
         severity: int = 3,
         notes: str = "",
@@ -43,11 +43,11 @@ class EpisodeLabeler:
             rater_id: Identifier for the rater
         """
         # Convert date objects to strings
-        if isinstance(date, date):
+        if date and isinstance(date, date_type):
             date = date.isoformat()
-        if isinstance(start_date, date):
+        if start_date and isinstance(start_date, date_type):
             start_date = start_date.isoformat()
-        if isinstance(end_date, date):
+        if end_date and isinstance(end_date, date_type):
             end_date = end_date.isoformat()
             
         # Handle positional arguments for backward compatibility
@@ -81,11 +81,11 @@ class EpisodeLabeler:
         elif start_date and end_date:
             # Date range episode
             if isinstance(start_date, str):
-                start = datetime.strptime(start_date, "%Y-%m-%d")
-                end = datetime.strptime(end_date, "%Y-%m-%d")
+                start = datetime.strptime(start_date, "%Y-%m-%d").date()
+                end = datetime.strptime(end_date, "%Y-%m-%d").date()
             else:
-                start = start_date
-                end = end_date
+                start = start_date  # type: ignore
+                end = end_date  # type: ignore
             duration = (end - start).days + 1
 
             episode["start_date"] = start_date if isinstance(start_date, str) else start_date.isoformat()
@@ -97,8 +97,8 @@ class EpisodeLabeler:
 
     def add_baseline(
         self, 
-        start_date: Union[str, date], 
-        end_date: Union[str, date], 
+        start_date: Union[str, date_type], 
+        end_date: Union[str, date_type], 
         notes: str = "",
         rater_id: str = "default"
     ) -> None:
@@ -111,9 +111,9 @@ class EpisodeLabeler:
             rater_id: Identifier for the rater
         """
         # Convert date objects to strings
-        if isinstance(start_date, date):
+        if isinstance(start_date, date_type):
             start_date = start_date.isoformat()
-        if isinstance(end_date, date):
+        if isinstance(end_date, date_type):
             end_date = end_date.isoformat()
             
         start = datetime.strptime(start_date, "%Y-%m-%d")
@@ -132,7 +132,7 @@ class EpisodeLabeler:
         self.baseline_periods.append(baseline_period)
         self._history.append({"action": "add_baseline", "data": baseline_period})
 
-    def check_overlap(self, start_date: date, end_date: date) -> bool:
+    def check_overlap(self, start_date: date_type, end_date: date_type) -> bool:
         """Check if dates overlap with existing episodes.
         
         Args:

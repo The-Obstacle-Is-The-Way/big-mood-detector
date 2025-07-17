@@ -140,6 +140,10 @@ def label_episode_command(
     elif not interactive:
         raise click.BadParameter("Must specify --mood")
     
+    # Ensure mood is not None for type checker
+    if not mood:
+        return
+    
     # Validate episode duration
     duration_days = (end_date - start_date).days + 1
     validation = validator.validate_episode_duration(mood, start_date, end_date)
