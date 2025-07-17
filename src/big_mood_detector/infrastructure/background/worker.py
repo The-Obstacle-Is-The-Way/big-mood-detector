@@ -184,7 +184,7 @@ class TaskWorker:
         logger.info("Task worker started")
 
         # Set up signal handlers
-        def stop_handler(signum, frame):
+        def stop_handler(signum: int, frame: Any) -> None:
             logger.info("Received stop signal, shutting down...")
             self._running = False
 
