@@ -6,7 +6,7 @@ Processes NHANES XPT files into labeled datasets for fine-tuning.
 
 import re
 from pathlib import Path
-from typing import Optional
+from typing import Any, Optional
 
 import numpy as np
 import pandas as pd

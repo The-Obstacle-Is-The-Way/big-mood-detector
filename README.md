@@ -16,7 +16,7 @@
 
 ```bash
 # Install and analyze your Apple Health data patterns
-git clone https://github.com/your-org/big-mood-detector.git
+git clone https://github.com/Clarity-Digital-Twin/big-mood-detector.git
 cd big-mood-detector
 make setup
 
@@ -66,13 +66,13 @@ Sleep Pattern Analysis:
 graph LR
     A[Apple Health Data] --> B[Feature Extraction]
     B --> C[ML Models]
-    C --> D[Mood Predictions]
+    C --> D[Mood Patterns]
     
     B --> B1[Sleep Patterns]
     B --> B2[Circadian Rhythms]
     B --> B3[Activity Sequences]
     
-    C --> C1[XGBoost<br/>AUC 0.98]
+    C --> C1[XGBoost<br/>Research Base]
     C --> C2[PAT Transformer<br/>29K pretrained]
 ```
 
@@ -88,7 +88,7 @@ graph LR
 |--------|--------|-----------------|----------|
 | **Apple Health Export** | XML | Raw sensor data | Research-grade analysis |
 | **Health Auto Export** | JSON | Daily summaries | Quick daily monitoring |
-| **Fitbit API** | JSON | Activity + sleep | Cross-platform support |
+| **Fitbit API** | JSON | Activity + sleep | Cross-platform support (Coming Soon) |
 
 ## 🛠️ Installation
 
@@ -100,11 +100,11 @@ graph LR
 ### Quick Start
 ```bash
 # Clone repository
-git clone https://github.com/your-org/big-mood-detector.git
+git clone https://github.com/Clarity-Digital-Twin/big-mood-detector.git
 cd big-mood-detector
 
 # Setup environment
-python -m venv .venv
+python3 -m venv .venv
 source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 make setup
 
@@ -290,7 +290,7 @@ We welcome contributions! This project needs:
 - **🧪 Research** - New features from latest mood disorder research
 
 **Getting started:**
-1. Check out [good first issues](https://github.com/your-org/big-mood-detector/labels/good%20first%20issue)
+1. Check out [good first issues](https://github.com/Clarity-Digital-Twin/big-mood-detector/labels/good%20first%20issue)
 2. Read our [contributing guide](CONTRIBUTING.md)
 3. Join our [Discord community](https://discord.gg/big-mood-detector)
 
@@ -332,7 +332,7 @@ Built with research from:
 ## 📞 Support
 
 - 📖 **Documentation**: [docs/](docs/)
-- 🐛 **Issues**: [GitHub Issues](https://github.com/your-org/big-mood-detector/issues)
+- 🐛 **Issues**: [GitHub Issues](https://github.com/Clarity-Digital-Twin/big-mood-detector/issues)
 - 💬 **Community**: [Discord](https://discord.gg/big-mood-detector)
 - 📧 **Email**: [support@big-mood-detector.org](mailto:support@big-mood-detector.org)
 
