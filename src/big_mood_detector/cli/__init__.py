@@ -3,4 +3,4 @@
 # The main CLI is in big_mood_detector.cli module (cli.py file)
 # This package contains additional CLI commands
 
-__all__ = []
+__all__: list[str] = []

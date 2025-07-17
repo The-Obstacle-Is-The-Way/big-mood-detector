@@ -167,7 +167,7 @@ def watch(
     # Track processed files
     processed_count = 0
 
-    def process_new_file(file_path: Path):
+    def process_new_file(file_path: Path) -> None:
         nonlocal processed_count
 
         click.echo(f"\n🔍 Found new file: {file_path}")

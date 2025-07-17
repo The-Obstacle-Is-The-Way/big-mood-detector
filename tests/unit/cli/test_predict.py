@@ -4,13 +4,10 @@ Test Prediction CLI Command
 TDD for mood prediction command line interface.
 """
 
-import argparse
 import json
 from datetime import date
-from pathlib import Path
 from unittest.mock import Mock, patch
 
-import pandas as pd
 import pytest
 
 from big_mood_detector.application.use_cases.process_health_data_use_case import (

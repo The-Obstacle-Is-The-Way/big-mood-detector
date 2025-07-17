@@ -8,9 +8,6 @@ from datetime import date
 from pathlib import Path
 from unittest.mock import Mock, patch
 
-import numpy as np
-import pytest
-
 from big_mood_detector.application.use_cases.predict_mood_ensemble_use_case import (
     EnsembleConfig,
     EnsembleOrchestrator,
@@ -19,7 +16,6 @@ from big_mood_detector.application.use_cases.predict_mood_ensemble_use_case impo
 from big_mood_detector.application.use_cases.process_health_data_use_case import (
     MoodPredictionPipeline,
     PipelineConfig,
-    PipelineResult,
 )
 from big_mood_detector.domain.services.mood_predictor import MoodPrediction
 
@@ -221,7 +217,7 @@ class TestPipelineEnsembleIntegration:
 
             pipeline = MoodPredictionPipeline(config=config)
 
-            result = pipeline.process_health_data(
+            _ = pipeline.process_health_data(
                 sleep_records=[],
                 activity_records=activity_records,
                 heart_records=[],

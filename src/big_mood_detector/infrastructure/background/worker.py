@@ -290,10 +290,18 @@ class AsyncTaskWorker:
             else:
                 # Sync handler, run in executor
                 loop = asyncio.get_event_loop()
+                sig = handler.__code__.co_argcount
 
-                # Create wrapper that only passes payload
-                def sync_wrapper() -> Any:
-                    return handler(task.payload)
+                # Create wrapper based on handler signature
+                if sig == 2:
+
+                    def sync_wrapper() -> Any:
+                        return handler(task.payload, context)  # type: ignore[call-arg]
+
+                else:
+
+                    def sync_wrapper() -> Any:
+                        return handler(task.payload)  # type: ignore[call-arg]
 
                 if self.task_timeout:
                     await asyncio.wait_for(

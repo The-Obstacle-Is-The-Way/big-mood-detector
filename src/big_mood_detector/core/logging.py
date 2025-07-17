@@ -44,7 +44,7 @@ def setup_logging(config: Settings) -> FilteringBoundLogger:
     # Configure structlog processors first
     timestamper = structlog.processors.TimeStamper(fmt="iso")
 
-    shared_processors = [
+    shared_processors: list[Any] = [
         structlog.stdlib.add_log_level,
         structlog.processors.StackInfoRenderer(),
         structlog.processors.format_exc_info,

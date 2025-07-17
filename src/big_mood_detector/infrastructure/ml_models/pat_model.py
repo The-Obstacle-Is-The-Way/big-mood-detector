@@ -117,19 +117,24 @@ class PATModel:
             # Check environment variable first
             env_dir = os.getenv("BIG_MOOD_PAT_WEIGHTS_DIR")
             if env_dir:
-                weights_path = Path(env_dir) / f"PAT-{self.model_size.upper()}_29k_weights.h5"
+                weights_path = (
+                    Path(env_dir) / f"PAT-{self.model_size.upper()}_29k_weights.h5"
+                )
                 logger.info(f"Using PAT weights from environment: {weights_path}")
             else:
                 # Use default path
-                weights_path = Path("model_weights/pat/pretrained") / f"PAT-{self.model_size.upper()}_29k_weights.h5"
+                weights_path = (
+                    Path("model_weights/pat/pretrained")
+                    / f"PAT-{self.model_size.upper()}_29k_weights.h5"
+                )
                 logger.info(f"Using default PAT weights path: {weights_path}")
-        
+
         if not weights_path.exists():
             logger.error(f"Weights file not found: {weights_path}")
             return False
 
         return self._load_weights_file(weights_path)
-    
+
     def _load_weights_file(self, weights_path: Path) -> bool:
         """Internal method to load weights from file."""
         try:

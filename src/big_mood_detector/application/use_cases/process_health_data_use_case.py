@@ -73,7 +73,7 @@ class PipelineConfig:
 class PipelineResult:
     """Result of mood prediction pipeline processing."""
 
-    daily_predictions: dict[date, dict[str, float]]
+    daily_predictions: dict[date, dict[str, Any]]
     overall_summary: dict[str, Any]
     confidence_score: float
     processing_time_seconds: float
@@ -130,24 +130,20 @@ class MoodPredictionPipeline:
             # Initialize XGBoost predictor for ensemble
             self.xgboost_predictor = XGBoostMoodPredictor()
             model_dir = self.config.model_dir or Path("model_weights/xgboost")
-            if self.xgboost_predictor.load_model(
-                model_dir / "depression_model.pkl",
-                model_dir / "hypomania_model.pkl",
-                model_dir / "mania_model.pkl",
-            ):
+            if self.xgboost_predictor.load_models(model_dir):
                 logger.info("XGBoost models loaded for ensemble")
 
             # Initialize PAT model
-            pat_model = PATModel()
+            pat_model: PATModel | None = PATModel()
 
             # Try to load PAT weights
             pat_weights_path = Path("model_weights/pat/pretrained/PAT-M_29k_weights.h5")
-            if pat_weights_path.exists():
-                if pat_model.load_pretrained_weights(pat_weights_path):
-                    logger.info("PAT model loaded successfully")
-                else:
+            if pat_weights_path.exists() and pat_model is not None:
+                if not pat_model.load_pretrained_weights(pat_weights_path):
                     logger.warning("Failed to load PAT model weights")
                     pat_model = None
+                else:
+                    logger.info("PAT model loaded successfully")
             else:
                 logger.warning(f"PAT weights not found at {pat_weights_path}")
                 pat_model = None
@@ -333,18 +329,22 @@ class MoodPredictionPipeline:
             all_predictions = list(daily_predictions.values())
             overall_summary = {
                 "avg_depression_risk": float(
-                    np.mean([p["depression_risk"] for p in all_predictions])
+                    np.mean(
+                        [float(p.get("depression_risk", 0)) for p in all_predictions]
+                    )
                 ),
                 "avg_hypomanic_risk": float(
-                    np.mean([p["hypomanic_risk"] for p in all_predictions])
+                    np.mean(
+                        [float(p.get("hypomanic_risk", 0)) for p in all_predictions]
+                    )
                 ),
                 "avg_manic_risk": float(
-                    np.mean([p["manic_risk"] for p in all_predictions])
+                    np.mean([float(p.get("manic_risk", 0)) for p in all_predictions])
                 ),
                 "days_analyzed": len(daily_predictions),
             }
             confidence_score = float(
-                np.mean([float(p["confidence"]) for p in all_predictions])
+                np.mean([float(p.get("confidence", 0)) for p in all_predictions])
             )
             if np.isnan(confidence_score):
                 confidence_score = 0.0

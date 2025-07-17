@@ -20,10 +20,6 @@ from datetime import date, datetime
 from pathlib import Path
 from typing import Any
 
-from big_mood_detector.application.use_cases.predict_mood_ensemble_use_case import (
-    EnsembleConfig,
-    EnsembleOrchestrator,
-)
 from big_mood_detector.application.use_cases.process_health_data_use_case import (
     MoodPredictionPipeline,
     PipelineConfig,
@@ -94,7 +90,7 @@ def print_summary(result: PipelineResult) -> None:
                     if d.get("manic_risk", 0) >= 0.3
                 ),
             }
-            print(f"\nDays at risk:")
+            print("\nDays at risk:")
             print(f"  Depression: {days_at_risk['depression']}/{total_days}")
             print(f"  Hypomanic: {days_at_risk['hypomanic']}/{total_days}")
             print(f"  Manic: {days_at_risk['manic']}/{total_days}")
@@ -137,9 +133,9 @@ def save_json_output(result: PipelineResult, output_path: Path) -> None:
 
     def convert_to_serializable(obj: Any) -> Any:
         """Convert numpy types to Python types for JSON serialization."""
-        if isinstance(obj, (np.float32, np.float64)):
+        if isinstance(obj, np.float32 | np.float64):
             return float(obj)
-        elif isinstance(obj, (np.int32, np.int64)):
+        elif isinstance(obj, np.int32 | np.int64):
             return int(obj)
         elif isinstance(obj, np.number):
             return float(obj)
@@ -395,10 +391,11 @@ Examples:
         if args.user_id:
             logger.info(f"Loading personalized model for user: {args.user_id}")
             try:
-                calibrator = PersonalCalibrator.load(
+                _ = PersonalCalibrator.load(
                     user_id=args.user_id,
                     model_dir=Path(args.model_dir),
                 )
+                # TODO: Integrate personal calibrator into pipeline
                 # TODO: Integrate calibrator with pipeline
                 logger.info("Personalized model loaded successfully")
             except Exception as e:

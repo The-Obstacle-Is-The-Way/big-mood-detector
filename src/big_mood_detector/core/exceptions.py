@@ -250,7 +250,7 @@ def retry_on_error(
 
     def decorator(func: Callable) -> Callable:
         @functools.wraps(func)
-        def wrapper(*args, **kwargs):
+        def wrapper(*args: Any, **kwargs: Any) -> Any:
             last_exception = None
             current_delay = delay
 
@@ -280,7 +280,9 @@ def retry_on_error(
                             error=str(e),
                         )
 
-            raise last_exception
+            if last_exception is not None:
+                raise last_exception
+            raise RuntimeError("No exception to re-raise")
 
         return wrapper
 
@@ -341,7 +343,7 @@ class CircuitBreaker:
         """Decorate function with circuit breaker."""
 
         @functools.wraps(func)
-        def wrapper(*args, **kwargs):
+        def wrapper(*args: Any, **kwargs: Any) -> Any:
             if self._state == "open":
                 if self._should_attempt_recovery():
                     self._state = "half-open"
@@ -410,7 +412,7 @@ class ValidationErrorCollector:
     all errors at once.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize collector."""
         self.errors: list[dict[str, Any]] = []
 
@@ -455,7 +457,7 @@ class ErrorMetrics:
     Thread-safe error metrics collection.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize metrics."""
         self._errors: dict[str, dict[str, int]] = {}
         self._total = 0
@@ -503,7 +505,7 @@ class ErrorMetrics:
         self._total = 0
 
 
-def setup_global_error_handler(logger_instance=None) -> None:
+def setup_global_error_handler(logger_instance: Any = None) -> None:
     """
     Set up global error handler for uncaught exceptions.
 
@@ -512,7 +514,9 @@ def setup_global_error_handler(logger_instance=None) -> None:
     """
     _logger = logger_instance or logger
 
-    def handle_exception(exc_type, exc_value, exc_traceback):
+    def handle_exception(
+        exc_type: type[BaseException], exc_value: BaseException, exc_traceback: Any
+    ) -> None:
         """Handle uncaught exceptions."""
         if issubclass(exc_type, KeyboardInterrupt):
             # Don't log keyboard interrupts

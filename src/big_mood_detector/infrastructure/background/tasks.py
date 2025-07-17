@@ -122,6 +122,57 @@ def batch_process_files_task(payload: dict[str, Any], context: TaskContext) -> N
     )
 
 
+def _create_clinical_report_content(
+    depression_risk: float,
+    hypomanic_risk: float,
+    manic_risk: float,
+    confidence_score: float,
+    days_analyzed: int,
+) -> str:
+    """Create clinical report content."""
+    from datetime import datetime
+
+    report = []
+    report.append("# Clinical Assessment Report\n")
+    report.append(f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n")
+
+    report.append("## Risk Assessment\n\n")
+
+    if depression_risk >= 0.7:
+        report.append("### ⚠️ Depression Risk: HIGH\n\n")
+        report.append("**Immediate Actions Recommended:**\n")
+        report.append("- Schedule clinical evaluation within 48 hours\n")
+        report.append("- Assess for suicidal ideation\n")
+        report.append("- Review current medications\n")
+        report.append("- Evaluate sleep hygiene and daily routine\n\n")
+    elif hypomanic_risk >= 0.5 or manic_risk >= 0.3:
+        report.append("### ⚠️ Elevated Mood Episode Risk\n\n")
+        report.append("**Clinical Considerations:**\n")
+        report.append("- Monitor for decreased sleep need\n")
+        report.append("- Track goal-directed activity\n")
+        report.append("- Assess medication adherence\n")
+        report.append("- Consider mood stabilizer adjustment\n\n")
+    else:
+        report.append("### ✓ Mood Stability\n\n")
+        report.append("Current data suggests stable mood patterns.\n")
+        report.append("Continue regular monitoring.\n\n")
+
+    report.append("## Detailed Metrics\n\n")
+    report.append("| Metric | Value |\n")
+    report.append("|--------|-------|\n")
+    report.append(f"| Analysis Period | {days_analyzed} days |\n")
+    report.append(f"| Data Confidence | {confidence_score:.1%} |\n")
+    report.append(f"| Depression Risk | {depression_risk:.1%} |\n")
+    report.append(f"| Hypomanic Risk | {hypomanic_risk:.1%} |\n")
+    report.append(f"| Manic Risk | {manic_risk:.1%} |\n")
+
+    report.append("\n---\n")
+    report.append("*This report is for clinical decision support only. ")
+    report.append("It should not replace professional medical judgment.*\n")
+
+    return "".join(report)
+
+
 def generate_clinical_report_task(
     payload: dict[str, Any], context: TaskContext
 ) -> None:
@@ -131,10 +182,6 @@ def generate_clinical_report_task(
         payload: Task payload with processing results
         context: Task context for progress updates
     """
-    from big_mood_detector.interfaces.api.clinical_routes import (
-        generate_clinical_report,
-    )
-
     context.update_progress(0.1, "Starting report generation")
 
     # Extract results
@@ -143,10 +190,10 @@ def generate_clinical_report_task(
     manic_risk = payload.get("manic_risk", 0)
     confidence = payload.get("confidence", 0)
 
-    # Generate report
+    # Generate report content
     context.update_progress(0.5, "Generating clinical interpretation")
 
-    report = generate_clinical_report(
+    report = _create_clinical_report_content(
         depression_risk=depression_risk,
         hypomanic_risk=hypomanic_risk,
         manic_risk=manic_risk,
