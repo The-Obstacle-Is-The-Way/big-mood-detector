@@ -14,7 +14,7 @@ warnings.warn(
     stacklevel=2,
 )
 
-from big_mood_detector.infrastructure.di import (
+from big_mood_detector.infrastructure.di import (  # noqa: E402
     Container,
     DependencyNotFoundError,
     Provide,
