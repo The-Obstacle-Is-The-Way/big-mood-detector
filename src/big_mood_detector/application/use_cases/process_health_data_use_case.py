@@ -181,15 +181,17 @@ class MoodPredictionPipeline:
                     from big_mood_detector.infrastructure.fine_tuning.personal_calibrator import (
                         PersonalCalibrator,
                     )
+
                     self.personal_calibrator = PersonalCalibrator.load(
-                        user_id=self.config.user_id,
-                        model_dir=self.config.model_dir
+                        user_id=self.config.user_id, model_dir=self.config.model_dir
                     )
-                    logger.info(f"Loaded personal model for user: {self.config.user_id}")
+                    logger.info(
+                        f"Loaded personal model for user: {self.config.user_id}"
+                    )
                 except Exception as e:
                     logger.warning(f"Could not load personal model: {e}")
                     # Continue without personal calibration
-        
+
         # Update ensemble orchestrator with personal calibrator if both exist
         if self.ensemble_orchestrator and self.personal_calibrator:
             self.ensemble_orchestrator.personal_calibrator = self.personal_calibrator
@@ -465,29 +467,29 @@ class MoodPredictionPipeline:
     ) -> dict[str, float] | None:
         """
         Update personal model with new labeled data.
-        
+
         Args:
             features: Feature matrix
             labels: Ground truth labels
             sample_weight: Optional sample weights
-            
+
         Returns:
             Dictionary of training metrics or None if no calibrator
         """
         if not self.personal_calibrator:
             logger.warning("No personal calibrator available for model update")
             return None
-            
+
         # Calibrate the model
         metrics = self.personal_calibrator.calibrate(
             features=features,
             labels=labels,
             sample_weight=sample_weight or 1.0,
         )
-        
+
         # Save the updated model
         self.personal_calibrator.save_model(metrics)
-        
+
         return metrics
 
     def export_results(self, result: PipelineResult, output_path: Path) -> None:
@@ -525,14 +527,14 @@ class MoodPredictionPipeline:
                 "warnings": result.warnings,
                 "errors": result.errors,
             }
-            
+
             # Add personal calibration info if available
             if result.metadata.get("personal_calibration_used"):
                 summary_data["personal_calibration"] = {
                     "user_id": result.metadata.get("user_id"),
                     "baseline_available": result.metadata.get("baseline_available"),
                 }
-            
+
             json.dump(summary_data, f, indent=2, default=str)
 
     def process_health_export(
