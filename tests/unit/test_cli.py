@@ -56,7 +56,12 @@ class TestCLI:
             "avg_depression_risk": 0.41,
             "avg_hypomanic_risk": 0.005,
             "avg_manic_risk": 0.001,
+            "days_analyzed": 7,
         }
+        mock_result.confidence_score = 0.85
+        mock_result.daily_predictions = {}
+        mock_result.records_processed = 100
+        mock_result.warnings = []
         mock_instance.process_apple_health_file.return_value = mock_result
         mock_instance.export_results.return_value = None
         mock_pipeline.return_value = mock_instance
@@ -69,6 +74,12 @@ class TestCLI:
                 ["process", tmpdir, "--output", "test_output.csv", "--no-report"],
             )
 
+            # Debug output
+            if result.exit_code != 0:
+                print(f"Exit code: {result.exit_code}")
+                print(f"Output: {result.output}")
+                print(f"Exception: {result.exception}")
+            
             assert result.exit_code == 0
             assert "Analysis Complete" in result.output
             assert "Depression Risk: 41.0%" in result.output
@@ -142,6 +153,7 @@ class TestCLI:
             "avg_depression_risk": 0.41,
             "avg_hypomanic_risk": 0.005,
             "avg_manic_risk": 0.001,
+            "days_analyzed": 7,
         }
         mock_result.daily_predictions = {
             "2024-01-01": {
@@ -151,7 +163,11 @@ class TestCLI:
                 "confidence": 0.8,
             }
         }
+        mock_result.confidence_score = 0.85
+        mock_result.records_processed = 100
+        mock_result.warnings = []
         mock_instance.process_apple_health_file.return_value = mock_result
+        mock_instance.export_results.return_value = None
         mock_pipeline.return_value = mock_instance
 
         with tempfile.TemporaryDirectory() as tmpdir:
