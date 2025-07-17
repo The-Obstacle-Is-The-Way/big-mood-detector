@@ -36,8 +36,8 @@ setup: install-dev pre-commit
 	@echo "✅ Project setup complete!"
 
 # Testing targets (TDD focused)
-test:
-	pytest --cov=big_mood_detector --cov-report=term-missing --cov-report=html
+test:  ## Run all tests except slow_finetune and large files
+	pytest -m "not slow_finetune and not large" --cov=big_mood_detector --cov-report=term-missing --cov-report=html
 
 test-quick:
 	pytest -x --tb=short -q
@@ -59,6 +59,9 @@ test-slow-finetune:
 
 test-integration:
 	pytest -m "integration" -n auto
+
+test-full:  ## Run FULL test suite including slow/large tests (serial execution)
+	pytest -n 0 --durations=10
 
 test-ml:
 	pytest -m "ml" --cov=big_mood_detector.ml

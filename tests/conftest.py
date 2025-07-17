@@ -4,6 +4,20 @@ Minimal conftest.py for Big Mood Detector test suite.
 Provides basic fixtures for TDD workflow.
 """
 
+import os
+
+# Set thread limits BEFORE any imports to prevent segfaults
+# This must happen before NumPy, XGBoost, or PyTorch are imported
+for var in (
+    "OMP_NUM_THREADS",
+    "MKL_NUM_THREADS", 
+    "NUMEXPR_NUM_THREADS",
+    "VECLIB_MAXIMUM_THREADS",
+    "OPENBLAS_NUM_THREADS",
+    "XGBOOST_NUM_THREADS",
+):
+    os.environ.setdefault(var, "1")
+
 import pytest
 
 
