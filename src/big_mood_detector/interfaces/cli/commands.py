@@ -6,7 +6,7 @@ This module contains all command implementations for the Big Mood Detector.
 """
 
 import sys
-from datetime import date
+from datetime import date, datetime
 from pathlib import Path
 from typing import Any, Optional
 
@@ -208,8 +208,8 @@ def generate_clinical_report(result: PipelineResult, output_path: Path) -> None:
 def process_command(
     input_path: str,
     output: Optional[str],
-    start_date: Optional[date],
-    end_date: Optional[date],
+    start_date: Optional[datetime],
+    end_date: Optional[datetime],
     verbose: bool,
 ) -> None:
     """Process health data to extract features for mood prediction."""
@@ -295,8 +295,8 @@ def predict_command(
     input_path: str,
     output: Optional[str],
     format: str,
-    start_date: Optional[date],
-    end_date: Optional[date],
+    start_date: Optional[datetime],
+    end_date: Optional[datetime],
     ensemble: bool,
     user_id: Optional[str],
     model_dir: Optional[str],

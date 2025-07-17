@@ -33,6 +33,7 @@ def serve_command(host: str, port: int, reload: bool, workers: int) -> None:
             err=True,
         )
         sys.exit(1)
+        return  # pragma: no cover
 
     click.echo(f"Starting API server on {host}:{port}")
     
