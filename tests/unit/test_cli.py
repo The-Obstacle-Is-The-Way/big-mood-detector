@@ -157,7 +157,7 @@ class TestCLI:
             assert "Poll interval: 30" in result.output
 
     @patch(
-        "big_mood_detector.application.services.data_parsing_service.DataParsingService"
+        "big_mood_detector.interfaces.cli.commands.MoodPredictionPipeline"
     )
     def test_process_command_error_handling(self, mock_pipeline: Mock) -> None:
         """Test process command error handling."""
