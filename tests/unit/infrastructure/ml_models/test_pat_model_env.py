@@ -42,13 +42,15 @@ class TestPATModelEnvironmentLoading:
         # Ensure env var is not set
         monkeypatch.delenv("BIG_MOOD_PAT_WEIGHTS_DIR", raising=False)
 
-        with patch.object(PATModel, "_load_weights_file") as mock_load:
-            mock_load.return_value = False  # Simulate weights not found
+        with patch("pathlib.Path.exists") as mock_exists, \
+             patch.object(PATModel, "_load_weights_file") as mock_load:
+            mock_exists.return_value = True
+            mock_load.return_value = False  # Simulate weights load failure
 
             model = PATModel()
             result = model.load_pretrained_weights()
 
-            # Should return False when weights not found
+            # Should return False when weights load fails
             assert result is False
 
             # Should have tried default path
