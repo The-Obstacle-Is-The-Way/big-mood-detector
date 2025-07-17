@@ -128,11 +128,32 @@ data/
 apple_export/
 personal_data/
 health_exports/
+health_auto_export/
 *.zip
 *.xml
 export.xml
 export_*.xml
 *.sqlite
+
+# Clinical outputs and reports - CONTAINS PHI
+your_mood_predictions.csv
+your_mood_predictions.summary.json
+your_clinical_report.txt
+*_clinical_report.txt
+*_mood_predictions.csv
+*_predictions.csv
+*_predictions.summary.json
+*_clinical_decision*.txt
+*_cds_report*
+*.summary.json
+
+# Processing outputs
+output/
+outputs/
+results/
+reports/
+clinical_reports/
+
 # Allow specific example/test files only
 !docs/examples/*.xml
 !tests/fixtures/*.xml
