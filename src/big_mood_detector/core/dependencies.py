@@ -298,7 +298,7 @@ class Container:
         logger.debug("overrides_reset")
 
     @contextmanager
-    def create_scope(self):
+    def create_scope(self) -> Iterator[Scope]:
         """Create a new dependency injection scope."""
         scope = Scope(self)
         logger.debug("scope_created")
