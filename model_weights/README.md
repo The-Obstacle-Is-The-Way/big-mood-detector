@@ -19,10 +19,14 @@ model_weights/
 │       └── (your fine-tuned models here)
 │
 └── xgboost/               # XGBoost models for mood prediction
-    ├── pretrained/        # Pre-trained XGBoost models
-    │   ├── depression_model.pkl
-    │   ├── hypomanic_model.pkl
-    │   └── manic_model.pkl
+    ├── pretrained/        # CANONICAL: Production models (descriptive names)
+    │   ├── depression_model.pkl    # From XGBoost_DE.pkl
+    │   ├── hypomanic_model.pkl     # From XGBoost_HME.pkl
+    │   └── manic_model.pkl         # From XGBoost_ME.pkl
+    ├── converted/         # Version-updated models (original research names)
+    │   ├── XGBoost_DE.pkl + .json
+    │   ├── XGBoost_HME.pkl + .json
+    │   └── XGBoost_ME.pkl + .json
     └── finetuned/         # Fine-tuned or retrained models
         └── (your custom models here)
 ```
@@ -124,9 +128,15 @@ The PAT H5 files contain encoder-only weights extracted after masked autoencoder
 **Single Source of Truth (SSOT)**: The PAT paper and original Jupyter notebooks define the authoritative architecture. The H5 files are legitimate pretrained weights from Dartmouth's foundation model research.
 
 ### XGBoost Models
-- **Depression Model**: Predicts depression risk (PHQ-9 ≥ 10)
-- **Hypomanic Model**: Predicts hypomanic episode risk
-- **Manic Model**: Predicts manic episode risk
+
+**SOURCE OF TRUTH**: The `pretrained/` directory contains the canonical production models with descriptive names.
+
+Model Mapping:
+| Production Name | Original Research Name | Abbreviation Meaning |
+|-----------------|------------------------|---------------------|
+| depression_model.pkl | XGBoost_DE.pkl | DE = Depression Episode |
+| hypomanic_model.pkl | XGBoost_HME.pkl | HME = Hypomanic Episode |
+| manic_model.pkl | XGBoost_ME.pkl | ME = Manic Episode |
 
 Models use 36 engineered features from sleep, activity, and circadian patterns.
 

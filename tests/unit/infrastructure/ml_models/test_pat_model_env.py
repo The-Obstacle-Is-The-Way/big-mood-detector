@@ -138,4 +138,8 @@ class TestPATModelEnvironmentLoading:
 
             # Verify the constructed path
             called_path = mock_load.call_args[0][0]
-            assert expected_path in str(called_path)
+            # For relative paths, Path normalizes away the leading ./
+            if expected_path.startswith("./"):
+                assert expected_path[2:] in str(called_path)
+            else:
+                assert expected_path in str(called_path)

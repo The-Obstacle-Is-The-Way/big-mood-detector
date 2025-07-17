@@ -79,13 +79,13 @@ class MoodPredictor:
 
         Args:
             model_dir: Directory containing XGBoost .pkl files
-                      Defaults to model_weights/xgboost/converted
+                      Defaults to model_weights/xgboost/pretrained
         """
         if model_dir is None:
-            # Default to converted models (XGBoost 3.0.2 format)
-            # This eliminates version mismatch warnings
+            # Default to pretrained models with descriptive names
+            # This aligns with infrastructure layer naming convention
             base_path = Path(os.path.dirname(__file__)).parent.parent.parent.parent
-            model_dir = base_path / "model_weights" / "xgboost" / "converted"
+            model_dir = base_path / "model_weights" / "xgboost" / "pretrained"
 
         self.model_dir = Path(model_dir)
         self.models: dict[str, Any] = {}
@@ -93,10 +93,12 @@ class MoodPredictor:
 
     def _load_models(self) -> None:
         """Load XGBoost models from pickle files."""
+        # Use descriptive names that match infrastructure layer
+        # Original names: XGBoost_DE.pkl, XGBoost_HME.pkl, XGBoost_ME.pkl
         model_files = {
-            "depression": "XGBoost_DE.pkl",
-            "hypomanic": "XGBoost_HME.pkl",
-            "manic": "XGBoost_ME.pkl",
+            "depression": "depression_model.pkl",
+            "hypomanic": "hypomanic_model.pkl",
+            "manic": "manic_model.pkl",
         }
 
         for mood_type, filename in model_files.items():
