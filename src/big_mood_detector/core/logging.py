@@ -17,6 +17,7 @@ warnings.warn(
 from big_mood_detector.infrastructure.logging import (  # noqa: E402
     get_logger,
     get_module_logger,
+    setup_logging,
 )
 
-__all__ = ["get_logger", "get_module_logger"]
+__all__ = ["get_logger", "get_module_logger", "setup_logging"]
