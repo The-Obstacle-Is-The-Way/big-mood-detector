@@ -196,7 +196,7 @@ class FileHeartRateRepository(HeartRateRepositoryInterface):
             metric_type=HeartMetricType(record_data["metric_type"]),
             value=float(record_data["value"]),
             unit=record_data["unit"],
-            motion_context=MotionContext(record_data["motion_context"]),
+            motion_context=MotionContext.from_string(record_data.get("motion_context")),
         )
 
         return StoredHeartRateRecord(
