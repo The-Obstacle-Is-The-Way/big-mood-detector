@@ -165,6 +165,15 @@ results/
 reports/
 clinical_reports/
 
+# CLI test outputs and generated files
+test_output/
+*_output/
+*.predictions.json
+*.predictions.csv
+*_clinical_report.txt
+*_features.csv
+clinical_report.txt
+
 # Upload directories from API testing
 uploads/
 upload_temp/
