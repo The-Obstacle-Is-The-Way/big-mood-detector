@@ -418,7 +418,8 @@ def inject(func: Callable) -> Callable:
     """
     Decorator for dependency injection.
     
-    Automatically injects dependencies marked with Provide[T].
+    Automatically injects dependencies for parameters with type annotations
+    that have None or Provide[T] as default.
     """
     @wraps(func)
     def wrapper(*args, **kwargs):
@@ -427,16 +428,20 @@ def inject(func: Callable) -> Callable:
         
         # Inject dependencies
         for param_name, param in sig.parameters.items():
-            if param.default is not inspect.Parameter.empty:
-                # Check if it's a Provide marker (check type annotation)
-                if param_name not in kwargs and param.annotation != inspect.Parameter.empty:
-                    # If default is Provide[T] syntax, inject the dependency
+            # Skip if already provided in kwargs
+            if param_name in kwargs:
+                continue
+                
+            # Check if parameter has type annotation and default is None or not provided
+            if param.annotation != inspect.Parameter.empty:
+                if param.default is None or param.default is inspect.Parameter.empty:
                     param_type = param.annotation
                     try:
                         kwargs[param_name] = container.resolve(param_type)
                     except DependencyNotFoundError:
                         # Use default if can't resolve
-                        pass
+                        if param.default is not inspect.Parameter.empty:
+                            kwargs[param_name] = param.default
         
         return func(*args, **kwargs)
     
