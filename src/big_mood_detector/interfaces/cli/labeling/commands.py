@@ -9,14 +9,10 @@ from pathlib import Path
 from typing import Optional
 
 import click
-from rich.console import Console
-from rich.style import Style
-
-# Create a console for beautiful output
-console = Console()
 
 from big_mood_detector.domain.services.episode_labeler import EpisodeLabeler
 from big_mood_detector.infrastructure.logging import get_module_logger
+from big_mood_detector.interfaces.cli.utils import console
 
 from .interactive import InteractiveSession
 from .validators import ClinicalValidator, parse_date_range

@@ -10,14 +10,14 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 import click
-from rich.console import Console
 from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn
-from rich.prompt import Confirm, IntPrompt, Prompt
+from rich.prompt import Confirm, Prompt
 from rich.table import Table
 
 from big_mood_detector.domain.services.episode_labeler import EpisodeLabeler
 from big_mood_detector.infrastructure.logging import get_module_logger
+from big_mood_detector.interfaces.cli.utils import console
 
 from .validators import ClinicalValidator
 
@@ -37,7 +37,6 @@ class InteractiveSession:
         self.validator = validator
         self.predictions = self._load_predictions(predictions_file) if predictions_file else []
         self.progress = {"labeled": 0, "skipped": 0, "total": len(self.predictions)}
-        self.console = Console()
     
     def _load_predictions(self, predictions_file: Path) -> List[Dict[str, Any]]:
         """Load predictions from JSON file."""
@@ -147,10 +146,10 @@ class InteractiveSession:
             border_style="blue"
         )
         
-        self.console.print(panel)
-        self.console.print(pred_table)
+        console.print(panel)
+        console.print(pred_table)
         if "features" in prediction:
-            self.console.print(bio_table)
+            console.print(bio_table)
     
     def _prompt_mood(self) -> str:
         """Prompt for mood type with Rich formatting."""
@@ -163,9 +162,9 @@ class InteractiveSession:
             "[dim]6[/dim] - Skip"
         ]
         
-        self.console.print("\n[bold]What was the mood state on this day?[/bold]")
+        console.print("\n[bold]What was the mood state on this day?[/bold]")
         for choice in choices:
-            self.console.print(f"  {choice}")
+            console.print(f"  {choice}")
         
         # Use regular click prompt instead of IntPrompt which has issues with choices
         choice = click.prompt("Choice", type=click.IntRange(1, 6))

@@ -4,6 +4,7 @@ build-backend = "hatchling.build"
 
 [tool.hatchling.build.targets.wheel]
 packages = ["src/big_mood_detector"]
+exclude = ["reference_repos"]
 
 [project]
 name = "big-mood-detector"

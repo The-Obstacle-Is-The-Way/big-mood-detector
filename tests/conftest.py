@@ -18,6 +18,9 @@ for var in (
 ):
     os.environ.setdefault(var, "1")
 
+# Disable Rich formatting in tests for speed
+os.environ["RICH_DISABLE"] = "True"
+
 import pytest  # noqa: E402
 
 
