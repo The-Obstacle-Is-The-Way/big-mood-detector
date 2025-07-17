@@ -127,7 +127,7 @@ class Scope:
             try:
                 instance = self._create_instance(descriptor)
                 self.instances[key] = instance
-                return instance
+                return cast(T, instance)
             finally:
                 self._resolving.discard(key)
 
@@ -158,7 +158,7 @@ class Container:
     support for different lifetimes and scopes.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._services: dict[str, ServiceDescriptor] = {}
         self._overrides: dict[str, Any] = {}
         self._lock = threading.Lock()
@@ -227,12 +227,12 @@ class Container:
 
         # Check overrides first
         if key in self._overrides:
-            return self._overrides[key]
+            return cast(T, self._overrides[key])
 
         # Check for Lazy type
         if get_origin(service_type) is Lazy:
             inner_type = get_args(service_type)[0]
-            return Lazy(lambda: self.resolve(inner_type, name))
+            return cast(T, Lazy(lambda: self.resolve(inner_type, name)))
 
         # Check for circular dependency using string key
         if key in self._resolving:
@@ -249,7 +249,7 @@ class Container:
             # Check if already created (with lock)
             with self._lock:
                 if descriptor.instance is not None:
-                    return descriptor.instance
+                    return cast(T, descriptor.instance)
 
             # Create instance (without holding lock to avoid deadlock)
             self._resolving.add(key)
@@ -261,14 +261,14 @@ class Container:
                     # Double-check in case another thread created it
                     if descriptor.instance is None:
                         descriptor.instance = instance
-                    return descriptor.instance
+                    return cast(T, descriptor.instance)
             finally:
                 self._resolving.discard(key)
 
         elif descriptor.lifetime == Lifetime.TRANSIENT:
             self._resolving.add(key)
             try:
-                return self._create_instance(descriptor)
+                return cast(T, self._create_instance(descriptor))
             finally:
                 self._resolving.discard(key)
 
