@@ -8,7 +8,7 @@ This module contains all command implementations for the Big Mood Detector.
 import sys
 from datetime import date, datetime
 from pathlib import Path
-from typing import Any, Optional, TypedDict
+from typing import Any, TypedDict
 
 import click
 
@@ -17,13 +17,11 @@ from big_mood_detector.application.use_cases.process_health_data_use_case import
     PipelineConfig,
     PipelineResult,
 )
-from big_mood_detector.infrastructure.fine_tuning.personal_calibrator import (
-    PersonalCalibrator,
-)
 
 
 class ProcessingMetadata(TypedDict, total=False):
     """Metadata structure for processing results."""
+
     records_processed: int
     processing_time: float
     warnings: list[str]
@@ -81,7 +79,7 @@ def save_json_output(result: PipelineResult, output_path: Path) -> None:
         "warnings": result.warnings,
         "errors": result.errors,
     }
-    
+
     # Merge additional metadata if present
     if result.metadata:
         metadata.update(result.metadata)
@@ -130,7 +128,9 @@ def generate_clinical_report(result: PipelineResult, output_path: Path) -> None:
         f.write(f"Data Quality Score: {result.confidence_score:.1%}\n")
 
         if result.metadata.get("personal_calibration_used"):
-            f.write(f"\nPersonalized Model: Active (User: {result.metadata.get('user_id')})\n")
+            f.write(
+                f"\nPersonalized Model: Active (User: {result.metadata.get('user_id')})\n"
+            )
 
         f.write("\nCLINICAL RISK ASSESSMENT\n")
         f.write("-" * 30 + "\n")
@@ -217,14 +217,12 @@ def generate_clinical_report(result: PipelineResult, output_path: Path) -> None:
     type=click.DateTime(formats=["%Y-%m-%d"]),
     help="End date for analysis (YYYY-MM-DD)",
 )
-@click.option(
-    "--verbose", "-v", is_flag=True, help="Enable verbose output"
-)
+@click.option("--verbose", "-v", is_flag=True, help="Enable verbose output")
 def process_command(
     input_path: str,
-    output: Optional[str],
-    start_date: Optional[datetime],
-    end_date: Optional[datetime],
+    output: str | None,
+    start_date: datetime | None,
+    end_date: datetime | None,
     verbose: bool,
 ) -> None:
     """Process health data to extract features for mood prediction."""
@@ -235,8 +233,8 @@ def process_command(
         pipeline = MoodPredictionPipeline()
 
         # Convert datetime to date at the edge for clean internal APIs
-        start_date_param: Optional[date] = start_date.date() if start_date else None
-        end_date_param: Optional[date] = end_date.date() if end_date else None
+        start_date_param: date | None = start_date.date() if start_date else None
+        end_date_param: date | None = end_date.date() if end_date else None
 
         # Process health export
         output_path = Path(output) if output else Path("output/features.csv")
@@ -259,6 +257,7 @@ def process_command(
         click.echo(f"❌ Error: {str(e)}", err=True)
         if verbose:
             import traceback
+
             traceback.print_exc()
         sys.exit(1)
 
@@ -307,18 +306,16 @@ def process_command(
     default=False,
     help="Generate clinical report",
 )
-@click.option(
-    "--verbose", "-v", is_flag=True, help="Enable verbose output"
-)
+@click.option("--verbose", "-v", is_flag=True, help="Enable verbose output")
 def predict_command(
     input_path: str,
-    output: Optional[str],
+    output: str | None,
     format: str,
-    start_date: Optional[datetime],
-    end_date: Optional[datetime],
+    start_date: datetime | None,
+    end_date: datetime | None,
     ensemble: bool,
-    user_id: Optional[str],
-    model_dir: Optional[str],
+    user_id: str | None,
+    model_dir: str | None,
     report: bool,
     verbose: bool,
 ) -> None:
@@ -338,8 +335,8 @@ def predict_command(
         pipeline = MoodPredictionPipeline(config=config)
 
         # Convert datetime to date at the edge for clean internal APIs
-        start_date_param: Optional[date] = start_date.date() if start_date else None
-        end_date_param: Optional[date] = end_date.date() if end_date else None
+        start_date_param: date | None = start_date.date() if start_date else None
+        end_date_param: date | None = end_date.date() if end_date else None
 
         # Process data
         result = pipeline.process_apple_health_file(
@@ -362,7 +359,11 @@ def predict_command(
 
         # Generate clinical report if requested
         if report:
-            report_path = Path(output).with_suffix(".txt") if output else Path("clinical_report.txt")
+            report_path = (
+                Path(output).with_suffix(".txt")
+                if output
+                else Path("clinical_report.txt")
+            )
             generate_clinical_report(result, report_path)
             click.echo(f"✅ Clinical report saved to: {report_path}")
 
@@ -370,5 +371,6 @@ def predict_command(
         click.echo(f"❌ Error: {str(e)}", err=True)
         if verbose:
             import traceback
+
             traceback.print_exc()
         sys.exit(1)

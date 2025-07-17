@@ -17,7 +17,7 @@ from big_mood_detector.interfaces.cli.watch import watch_command
 def cli() -> None:
     """
     Big Mood Detector - Clinical mood prediction from health data.
-    
+
     Analyze Apple Health data to detect patterns associated with
     mood episodes using validated ML models.
     """

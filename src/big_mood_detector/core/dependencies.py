@@ -7,13 +7,12 @@ Following SOLID principles, especially Dependency Inversion.
 
 import inspect
 import threading
-from collections.abc import Callable
+from collections.abc import Callable, Iterator
 from contextlib import contextmanager
 from functools import lru_cache, wraps
 from typing import (
     Any,
     Generic,
-    Iterator,
     TypeVar,
     cast,
     get_args,
@@ -56,7 +55,7 @@ class Lazy(Generic[T]):
                 if not self._initialized:
                     self._value = self._factory()
                     self._initialized = True
-        
+
         # At this point, _value is guaranteed to be initialized
         assert self._value is not None, "Lazy value not properly initialized"
         return self._value
@@ -278,7 +277,7 @@ class Container:
                 "Scoped services must be resolved within a scope. "
                 "Use create_scope() context manager."
             )
-        
+
         # This should never happen, but satisfies type checker
         raise RuntimeError(f"Unknown lifetime: {descriptor.lifetime}")
 

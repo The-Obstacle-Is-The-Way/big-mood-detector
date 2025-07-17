@@ -5,7 +5,6 @@ File monitoring and automatic processing for the Big Mood Detector.
 """
 
 from pathlib import Path
-from typing import Optional
 
 import click
 
@@ -52,7 +51,7 @@ def watch_command(
     poll_interval: int,
     patterns: tuple[str, ...],
     recursive: bool,
-    state_file: Optional[str],
+    state_file: str | None,
     auto_process: bool,
 ) -> None:
     """Watch directory for new health data files.
@@ -152,9 +151,7 @@ def watch_command(
     click.echo("Watching for new files (press Ctrl+C to stop)...")
     click.echo(f"Files: {stats['detected']} detected")
     if auto_process:
-        click.echo(
-            f"       {stats['processed']} processed, {stats['failed']} failed"
-        )
+        click.echo(f"       {stats['processed']} processed, {stats['failed']} failed")
     click.echo("=" * 50 + "\n")
 
     try:
@@ -166,7 +163,7 @@ def watch_command(
         if auto_process:
             click.echo(f"  Files processed: {stats['processed']}")
             click.echo(f"  Processing failures: {stats['failed']}")
-        
+
         if state_file:
             watcher.save_state()
             click.echo(f"\n💾 State saved to: {state_file}")

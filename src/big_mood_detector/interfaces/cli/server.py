@@ -38,9 +38,9 @@ def serve_command(host: str, port: int, reload: bool, workers: int) -> None:
             "Error: API dependencies not installed.\n"
             "Install with: pip install big-mood-detector[api]"
         )
-    
+
     click.echo(f"Starting API server on {host}:{port}")
-    
+
     if reload and workers > 1:
         click.echo("Note: --reload disables multiple workers")
         workers = 1
