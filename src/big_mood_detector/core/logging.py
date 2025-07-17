@@ -7,13 +7,13 @@ Following Single Responsibility Principle - each component has one job.
 
 import functools
 import time
-from collections.abc import Callable
+from collections.abc import Callable, Generator
 from contextlib import contextmanager
 from functools import lru_cache
-from typing import Any
+from typing import Any, cast
 
 import structlog
-from structlog.types import FilteringBoundLogger
+from structlog.types import FilteringBoundLogger, Processor
 
 from .config import Settings, settings
 
@@ -24,7 +24,7 @@ def get_logger() -> FilteringBoundLogger:
     return setup_logging(settings)
 
 
-def _sanitize_processor(logger, method_name, event_dict):
+def _sanitize_processor(logger: Any, method_name: str, event_dict: dict[str, Any]) -> dict[str, Any]:
     """Processor that sanitizes sensitive data before rendering."""
     # Sanitize the entire event dict
     return sanitize_log_data(event_dict)
@@ -71,7 +71,7 @@ def setup_logging(config: Settings) -> FilteringBoundLogger:
             cache_logger_on_first_use=False,
         )
 
-    return structlog.get_logger()
+    return cast(FilteringBoundLogger, structlog.get_logger())
 
 
 def get_module_logger(name: str) -> FilteringBoundLogger:

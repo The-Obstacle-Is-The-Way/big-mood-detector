@@ -111,19 +111,21 @@ class TaskWorker:
             # Check if handler accepts context
             sig = handler.__code__.co_argcount
             if sig == 2:
-                # Handler accepts context
+                # Handler accepts context - narrow to specific type
+                context_handler: Callable[[dict[str, Any], TaskContext], Any] = handler  # type: ignore[assignment]
                 if self.task_timeout:
-                    future = self._executor.submit(handler, task.payload, context)
+                    future = self._executor.submit(context_handler, task.payload, context)
                     future.result(timeout=self.task_timeout)
                 else:
-                    handler(task.payload, context)
+                    context_handler(task.payload, context)
             else:
-                # Handler only accepts payload
+                # Handler only accepts payload - narrow to specific type
+                payload_handler: Callable[[dict[str, Any]], Any] = handler  # type: ignore[assignment]
                 if self.task_timeout:
-                    future = self._executor.submit(handler, task.payload)
+                    future = self._executor.submit(payload_handler, task.payload)
                     future.result(timeout=self.task_timeout)
                 else:
-                    handler(task.payload)
+                    payload_handler(task.payload)
 
             # Mark as completed
             self.queue.update_task_status(
