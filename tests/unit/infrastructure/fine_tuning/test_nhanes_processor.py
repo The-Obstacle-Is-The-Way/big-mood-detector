@@ -288,7 +288,6 @@ class TestNHANESProcessor:
         assert sequences.shape == (expected_sequences, 60)
         assert labels is None
 
-    @pytest.mark.skip(reason="Requires pyarrow dependency - will fix separately")
     def test_save_processed_cohort(self, tmp_path):
         """Test saving processed cohort to parquet."""
         from big_mood_detector.infrastructure.fine_tuning.nhanes_processor import (

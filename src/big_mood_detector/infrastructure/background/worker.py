@@ -293,7 +293,7 @@ class AsyncTaskWorker:
 
                 # Create wrapper that only passes payload
                 def sync_wrapper() -> Any:
-                    return handler(task.payload)  # type: ignore[misc]
+                    return handler(task.payload)
 
                 if self.task_timeout:
                     await asyncio.wait_for(
