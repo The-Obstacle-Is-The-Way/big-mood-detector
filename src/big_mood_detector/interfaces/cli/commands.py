@@ -31,6 +31,72 @@ class ProcessingMetadata(TypedDict, total=False):
     has_errors: bool
 
 
+def validate_input_path(input_path: Path) -> None:
+    """Validate input path and provide helpful error messages."""
+    if not input_path.exists():
+        raise click.BadParameter(f"Path does not exist: {input_path}")
+    
+    # Check if it's a directory with health data files
+    if input_path.is_dir():
+        json_files = list(input_path.glob("*.json"))
+        xml_files = list(input_path.glob("*.xml"))
+        
+        if not json_files and not xml_files:
+            raise click.BadParameter(
+                f"No JSON or XML health data files found in directory: {input_path}\n"
+                "Expected files like 'Sleep Analysis.json', 'Heart Rate.json', or 'export.xml'"
+            )
+            
+        click.echo(f"📁 Found {len(json_files)} JSON and {len(xml_files)} XML files")
+        
+        # Warn about large XML files
+        for xml_file in xml_files:
+            size_mb = xml_file.stat().st_size / (1024 * 1024)
+            if size_mb > 100:
+                click.echo(f"⚠️  Large file detected: {xml_file.name} ({size_mb:.1f} MB)")
+                click.echo("   Processing may take several minutes...")
+    
+    # Check if it's a single file
+    elif input_path.is_file():
+        if not (input_path.suffix.lower() in ['.xml', '.json']):
+            raise click.BadParameter(
+                f"Unsupported file type: {input_path.suffix}\n"
+                "Supported formats: .xml (Apple Health export), .json (Health Auto Export)"
+            )
+            
+        size_mb = input_path.stat().st_size / (1024 * 1024)
+        if size_mb > 500:
+            click.echo(f"⚠️  Very large file: {size_mb:.1f} MB")
+            click.echo("   Processing may take 10+ minutes. Consider using smaller date ranges.")
+
+
+def validate_date_range(start_date: datetime | None, end_date: datetime | None) -> None:
+    """Validate that date range makes sense."""
+    if start_date and end_date:
+        if start_date.date() >= end_date.date():
+            raise click.BadParameter(
+                f"Start date ({start_date.date()}) must be before end date ({end_date.date()})"
+            )
+        
+        # Warn about very long date ranges
+        days_diff = (end_date.date() - start_date.date()).days
+        if days_diff > 365:
+            click.echo(f"⚠️  Long date range: {days_diff} days")
+            click.echo("   Consider smaller ranges for faster processing")
+
+
+def validate_ensemble_requirements(ensemble: bool, model_dir: Path | None) -> None:
+    """Validate ensemble model requirements."""
+    if ensemble:
+        if model_dir:
+            pat_weights = model_dir / "pat"
+            if not pat_weights.exists():
+                click.echo("⚠️  PAT model directory not found, falling back to XGBoost only")
+        else:
+            click.echo("⚠️  Ensemble requested but no model directory specified")
+            click.echo("   Using default model weights (may not include PAT)")
+
+
 def format_risk_level(risk_score: float) -> str:
     """Format risk score with clinical level."""
     if risk_score >= 0.7:
@@ -236,6 +302,11 @@ def process_command(
 ) -> None:
     """Process health data to extract features for mood prediction."""
     try:
+        # Validate inputs
+        input_path_obj = Path(input_path)
+        validate_input_path(input_path_obj)
+        validate_date_range(start_date, end_date)
+        
         click.echo(f"Processing health data from: {input_path}")
 
         # Initialize pipeline
@@ -334,12 +405,20 @@ def predict_command(
 ) -> None:
     """Generate mood predictions from health data."""
     try:
+        # Validate inputs
+        input_path_obj = Path(input_path)
+        validate_input_path(input_path_obj)
+        validate_date_range(start_date, end_date)
+        
+        model_dir_obj = Path(model_dir) if model_dir else None
+        validate_ensemble_requirements(ensemble, model_dir_obj)
+        
         click.echo(f"Processing health data from: {input_path}")
 
         # Configure pipeline
         config = PipelineConfig(
             include_pat_sequences=ensemble,
-            model_dir=Path(model_dir) if model_dir else None,
+            model_dir=model_dir_obj,
             enable_personal_calibration=bool(user_id),
             user_id=user_id,
         )
