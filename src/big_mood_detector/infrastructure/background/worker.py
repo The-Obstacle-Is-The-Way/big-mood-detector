@@ -12,7 +12,7 @@ import time
 from collections.abc import Callable, Coroutine
 from concurrent.futures import ThreadPoolExecutor, TimeoutError
 from dataclasses import dataclass
-from typing import Any, Union
+from typing import Any
 
 from .task_queue import TaskQueue
 
@@ -41,15 +41,15 @@ class TaskContext:
         )
 
 
-TaskHandler = Union[
-    Callable[[dict[str, Any]], Any],
-    Callable[[dict[str, Any], TaskContext], Any],
-]
+TaskHandler = (
+    Callable[[dict[str, Any]], Any]
+    | Callable[[dict[str, Any], TaskContext], Any]
+)
 
-AsyncTaskHandler = Union[
-    Callable[[dict[str, Any]], Coroutine[Any, Any, Any]],
-    Callable[[dict[str, Any], TaskContext], Coroutine[Any, Any, Any]],
-]
+AsyncTaskHandler = (
+    Callable[[dict[str, Any]], Coroutine[Any, Any, Any]]
+    | Callable[[dict[str, Any], TaskContext], Coroutine[Any, Any, Any]]
+)
 
 
 class TaskWorker:
