@@ -14,6 +14,6 @@ warnings.warn(
     stacklevel=2,
 )
 
-from big_mood_detector.infrastructure.logging import get_logger, get_module_logger
+from big_mood_detector.infrastructure.logging import get_logger, get_module_logger  # noqa: E402
 
 __all__ = ["get_logger", "get_module_logger"]
