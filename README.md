@@ -1,60 +1,64 @@
 # 🧠 Big Mood Detector
 
-> **AI-powered bipolar mood episode prediction using Apple HealthKit data**  
-> Built on 6 peer-reviewed studies • 488 tests passing • Production-ready architecture
+> **Research platform for bipolar mood pattern analysis using wearable sensor data**  
+> Based on 6 peer-reviewed studies • Research tool for personal & academic use only
 
 [![Tests](https://img.shields.io/badge/tests-488%20passing-brightgreen)](tests/)
 [![Coverage](https://img.shields.io/badge/coverage-80%25-brightgreen)](htmlcov/)
 [![Python](https://img.shields.io/badge/python-3.11%2B-blue)](pyproject.toml)
-[![Architecture](https://img.shields.io/badge/architecture-clean-blue)](docs/ARCHITECTURE.md)
+[![License](https://img.shields.io/badge/license-research%20only-orange)](LICENSE)
 
-**Predict mood episodes 1-7 days before they happen** using sleep patterns, activity data, and circadian rhythms from your Apple Watch and iPhone.
+**Experimental platform for analyzing mood patterns** in sleep, activity, and circadian data from consumer wearables. Research suggests these patterns may be associated with mood state changes.
 
-## 🚀 Quick Demo
+> ⚠️ **Important**: This is a research tool for informational purposes only. Not clinically validated. Consult healthcare professionals for medical decisions.
+
+## 🔬 Research Demo
 
 ```bash
-# Install and run prediction on your Apple Health data
+# Install and analyze your Apple Health data patterns
 git clone https://github.com/your-org/big-mood-detector.git
 cd big-mood-detector
 make setup
 
-# Predict mood episodes from your Apple Health export
-mood-detector predict health_export.json
+# Extract features and analyze patterns (requires baseline establishment)
+mood-detector analyze health_export.json --establish-baseline
 ```
 
-**Output:**
+**Sample Analysis Output:**
 ```
-📊 Mood Episode Predictions (Next 7 Days)
+📊 Personal Baseline Establishment (Minimum 30-60 days required)
 
-🟡 March 15: Hypomanic Risk 0.78 (High)
-   └─ Sleep efficiency down 15%, bedtime advanced 2.3h
-   
-🟢 March 16: Low Risk 0.12 
-🟢 March 17: Low Risk 0.09
-🔴 March 18: Depression Risk 0.91 (Very High)
-   └─ Sleep phase delayed 4.1h, activity fragmentation increased
+Sleep Pattern Analysis:
+└─ Circadian phase: +2.3h delay from personal average
+└─ Sleep efficiency: 78% (15% below personal baseline)
+└─ Sleep fragmentation: Elevated (Z-score: +1.8)
 
-Confidence: 94% • Based on 42 days of baseline data
+⚠️  Pattern Analysis: 
+   Research suggests these patterns may be associated with mood changes.
+   Requires individual baseline + mood episode labels for personalization.
+
+📖 Next Steps: Label historical mood episodes to enable pattern learning
 ```
 
-## ✨ What Makes This Special
+## ✨ Research Foundation
 
-### 🎯 **Clinically Validated**
-- **AUC 0.98** for mania detection (Nature Digital Medicine 2024)
-- **80-89%** accuracy on consumer devices (Harvard Medical School)
-- Based on **6 peer-reviewed studies** with 29K+ participants
+### 🔬 **Peer-Reviewed Research Base**
+- **Research studies** suggest potential for mood pattern detection (Nature Digital Medicine 2024)
+- **Experimental validation** on consumer devices in controlled cohorts (Harvard Medical School)
+- Implementation based on **6 academic studies** with 29K+ research participants
+- **Not clinically validated** - research tool for pattern exploration only
 
-### 🏗️ **Production-Ready Architecture**
-- **29 specialized services** following Clean Architecture
-- **488 tests** with 80%+ coverage, 100% type-safe
-- **Dual data pipelines** (JSON daily summaries + XML raw data)
-- **Real-time processing** of 520MB+ Apple Health exports in 13 seconds
+### 🏗️ **Technical Implementation**
+- **29 specialized services** following Clean Architecture principles
+- **488 tests** with 80%+ coverage, research-grade code quality
+- **Dual data pipelines** supporting multiple Apple Health export formats
+- **Efficient processing** of large health datasets (520MB+ files in ~13 seconds)
 
-### 🧬 **Advanced ML Pipeline**
-- **XGBoost models** trained on Seoul National University clinical data
-- **PAT Transformer** for movement pattern analysis (Dartmouth College)
-- **36 sleep/circadian features** including DLMO estimation
-- **Ensemble predictions** with confidence scoring
+### 🧬 **Individual Personalization Required**
+- **Personal baseline establishment** - requires 30-60 days of individual data
+- **Mood episode labeling** - user must provide historical mood state information
+- **Z-score normalization** - all patterns computed relative to personal averages
+- **Transfer learning** - models adapt to individual circadian and sleep patterns
 
 ## 📊 How It Works
 
@@ -121,61 +125,80 @@ make test-fast
 2. Configure automatic daily exports
 3. Download JSON files from your cloud storage
 
-## 🧪 Usage Examples
+## 🧪 Research Usage Examples
 
-### Basic Mood Prediction
+### Step 1: Baseline Establishment
 ```bash
-# Predict from Apple Health export
-mood-detector predict export.xml --days 7
+# Extract and analyze your patterns (minimum 30 days of data)
+mood-detector analyze export.xml --establish-baseline --min-days 30
 
-# Predict from JSON files  
-mood-detector predict health_data/ --format json
-
-# Save detailed report
-mood-detector predict export.xml --report clinical_report.pdf
+# View your personal circadian and sleep patterns
+mood-detector patterns --sleep --circadian --activity
 ```
 
-### Advanced Analysis
+### Step 2: Mood Episode Labeling
+```bash
+# Label historical mood episodes (required for personalization)
+mood-detector label --date 2024-03-15 --mood "depressive" --severity 3
+mood-detector label --date-range 2024-03-10:2024-03-17 --mood "hypomanic"
+
+# Import clinical notes or mood tracker data
+mood-detector import mood-data.csv
+```
+
+### Step 3: Personal Model Training
 ```python
-from big_mood_detector import MoodPredictionPipeline
+from big_mood_detector import PersonalizedPipeline
 
-# Load and process data
-pipeline = MoodPredictionPipeline()
-features = pipeline.extract_features("export.xml")
+# Requires both baseline data AND mood episode labels
+pipeline = PersonalizedPipeline()
 
-# Get predictions
-prediction = pipeline.predict(features)
-print(f"Depression risk: {prediction.depression_risk:.2f}")
-print(f"Confidence: {prediction.confidence:.2f}")
+# Establish personal baseline patterns
+baseline = pipeline.establish_baseline("export.xml", min_days=60)
 
-# Clinical interpretation
-if prediction.highest_risk_value > 0.7:
-    print(f"⚠️  High {prediction.highest_risk_type} risk detected")
-    print("Consider consulting healthcare provider")
+# Train personal model (requires mood episode labels)
+model = pipeline.train_personal_model(baseline, mood_episodes=mood_labels)
+
+# Analyze current patterns relative to your baseline
+current_analysis = pipeline.analyze_patterns("recent_data.xml")
+print(f"Circadian phase: {current_analysis.circadian_z_score:.2f} (Z-score)")
+print(f"Sleep efficiency: {current_analysis.sleep_efficiency_z_score:.2f} (Z-score)")
 ```
 
-### Background Monitoring
+### Pattern Exploration (No Predictions)
 ```bash
-# Watch folder for new data files
-mood-detector monitor ~/health-exports/ --notify
-
-# Run periodic analysis
-mood-detector schedule --daily --email alerts@example.com
+# Explore your data patterns without mood prediction
+mood-detector explore export.xml --features sleep,circadian,activity
+mood-detector visualize --timeline --personal-averages
 ```
 
-## 🧬 Scientific Foundation
+## 🧬 Research Literature Foundation
 
-Built on peer-reviewed research from leading institutions:
+Based on peer-reviewed studies (research cohorts, not clinical trials):
 
-| Study | Institution | Key Finding | Implementation |
-|-------|------------|------------|----------------|
-| **Sleep-Circadian ML** | Seoul National University | AUC 0.98 mania detection | `XGBoostMoodPredictor` |
-| **Fitbit Validation** | Harvard Medical School | 80-89% accuracy consumer devices | `BiMMLForestClassifier` |
-| **Digital Biomarkers** | University of Barcelona | Multi-modal sensor fusion | `BiomarkerInterpreter` |
-| **PAT Foundation** | Dartmouth College | Movement pattern transformer | `PATSequenceBuilder` |
-| **Sleep Staging** | UC Berkeley | 85.9% automated sleep analysis | `YASASleepStager` |
+| Study | Institution | Key Research Finding | Implementation Notes |
+|-------|------------|---------------------|---------------------|
+| **Sleep-Circadian Patterns** | Seoul National University | Individual Z-score patterns associated with episodes | Requires personal baseline establishment |
+| **Consumer Device Analysis** | Harvard Medical School | Personalized ML on 9-month individual data | BiMM forest with individual training |
+| **Digital Biomarker Research** | University of Barcelona | Multi-modal research protocol | Research framework implementation |
+| **Foundation Model** | Dartmouth College | Pretrained transformer for actigraphy | Requires fine-tuning on individual data |
+| **Sleep Analysis** | UC Berkeley | Automated sleep staging research | Research tool for sleep pattern analysis |
 
-> 📚 **Full technical documentation:** [docs/TECHNICAL_DOCUMENTATION.md](docs/TECHNICAL_DOCUMENTATION.md)
+> 📚 **Full research documentation:** [docs/TECHNICAL_DOCUMENTATION.md](docs/TECHNICAL_DOCUMENTATION.md)
+
+### 🔬 Research Limitations & Requirements
+
+**Individual Personalization Essential:**
+- Models trained on population data **do not generalize** to new individuals
+- Requires **30-60 days baseline** establishment with your personal data
+- **Mood episode labeling** needed for pattern learning (self-reported or clinical)
+- Performance metrics from studies **do not apply** to new users without personalization
+
+**Academic Research Context:**
+- Studies conducted in **controlled research environments**
+- Participants had regular clinical follow-up and mood assessments
+- **Not validated** for real-world clinical deployment
+- Results represent research potential, not clinical diagnostic capability
 
 ## 🏗️ Architecture
 
@@ -271,14 +294,31 @@ We welcome contributions! This project needs:
 2. Read our [contributing guide](CONTRIBUTING.md)
 3. Join our [Discord community](https://discord.gg/big-mood-detector)
 
-## 📄 License & Ethics
+## ⚠️ Important Disclaimers & Limitations
 
-- **Code**: Apache 2.0 License (commercial use permitted)
-- **Clinical use**: Consult healthcare providers - this is a research tool
-- **Privacy**: All processing can be done locally, no data required to leave your device
-- **Bias**: Validated across diverse populations (Korean, American, European cohorts)
+### 🚨 **Medical Disclaimer**
+- **NOT A MEDICAL DEVICE** - This is research software for academic and personal exploration only
+- **NOT CLINICALLY VALIDATED** - No FDA approval or clinical validation for diagnostic use
+- **NOT FOR MEDICAL DECISIONS** - Do not use for diagnosis, treatment, or medical decision-making
+- **CONSULT PROFESSIONALS** - Always work with qualified healthcare providers for mental health concerns
 
-> ⚠️ **Important**: This tool is for research and informational purposes. Always consult healthcare professionals for medical decisions.
+### 🔬 **Research Limitations**
+- **Individual calibration required** - Population models do not work out-of-the-box for new users
+- **Baseline establishment needed** - Requires 30-60 days of personal data + mood episode labels
+- **Research context only** - Performance metrics from academic studies do not apply to individual use
+- **Pattern exploration tool** - Designed for understanding personal patterns, not prediction
+
+### 📊 **Technical Limitations**
+- **Data quality dependent** - Accuracy depends on consistent wearable device usage
+- **Individual variation** - Circadian patterns vary significantly between individuals
+- **Correlation vs causation** - Detects patterns but cannot establish causal relationships
+- **False positives/negatives** - Pattern detection will include incorrect associations
+
+### 📄 **License & Ethics**
+- **Code**: Apache 2.0 License (research and personal use)
+- **Privacy**: Local processing available, no cloud requirements
+- **Bias awareness**: Based on primarily Western research cohorts
+- **Research ethics**: IRB-approved studies, but not clinical validation
 
 ## 🙏 Acknowledgments
 
