@@ -117,15 +117,21 @@ class PATModel:
             # Check environment variable first
             env_dir = os.getenv("BIG_MOOD_PAT_WEIGHTS_DIR")
             if env_dir:
-                weights_path = (
-                    Path(env_dir) / f"PAT-{self.model_size.upper()}_29k_weights.h5"
-                )
+                # Map model size to file suffix
+                size_suffix = {"small": "S", "medium": "M", "large": "L"}[
+                    self.model_size
+                ]
+                weights_path = Path(env_dir) / f"PAT-{size_suffix}_29k_weights.h5"
                 logger.info(f"Using PAT weights from environment: {weights_path}")
             else:
                 # Use default path
+                # Map model size to file suffix
+                size_suffix = {"small": "S", "medium": "M", "large": "L"}[
+                    self.model_size
+                ]
                 weights_path = (
                     Path("model_weights/pat/pretrained")
-                    / f"PAT-{self.model_size.upper()}_29k_weights.h5"
+                    / f"PAT-{size_suffix}_29k_weights.h5"
                 )
                 logger.info(f"Using default PAT weights path: {weights_path}")
 

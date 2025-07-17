@@ -23,29 +23,33 @@ from big_mood_detector.domain.services.mood_predictor import MoodPrediction
 class TestPipelineEnsembleIntegration:
     """Test that ensemble models are properly integrated."""
 
-    @patch("big_mood_detector.infrastructure.ml_models.xgboost_models.XGBoostMoodPredictor")
+    @patch(
+        "big_mood_detector.infrastructure.ml_models.xgboost_models.XGBoostMoodPredictor"
+    )
     @patch("big_mood_detector.infrastructure.ml_models.pat_model.PATModel")
     @patch("pathlib.Path.exists")
-    def test_pipeline_uses_ensemble_when_configured(self, mock_exists, mock_pat_class, mock_xgb_class):
+    def test_pipeline_uses_ensemble_when_configured(
+        self, mock_exists, mock_pat_class, mock_xgb_class
+    ):
         """Test that pipeline uses ensemble orchestrator when enabled."""
         # Mock file existence check
         mock_exists.return_value = True
-        
+
         # Mock XGBoost predictor
         mock_xgb_instance = Mock()
         mock_xgb_instance.load_models.return_value = {
             "depression": True,
             "hypomanic": True,
-            "manic": True
+            "manic": True,
         }
         mock_xgb_instance.is_loaded = True
         mock_xgb_class.return_value = mock_xgb_instance
-        
+
         # Mock PAT model
         mock_pat_instance = Mock()
         mock_pat_instance.load_pretrained_weights.return_value = True
         mock_pat_class.return_value = mock_pat_instance
-        
+
         # Create pipeline with ensemble enabled
         config = PipelineConfig(
             include_pat_sequences=True,  # This should trigger ensemble
@@ -59,25 +63,33 @@ class TestPipelineEnsembleIntegration:
         assert pipeline.ensemble_orchestrator is not None
         assert isinstance(pipeline.ensemble_orchestrator, EnsembleOrchestrator)
 
-    @patch("big_mood_detector.infrastructure.ml_models.xgboost_models.XGBoostMoodPredictor")
+    @patch(
+        "big_mood_detector.infrastructure.ml_models.xgboost_models.XGBoostMoodPredictor"
+    )
     @patch("big_mood_detector.infrastructure.ml_models.pat_model.PATModel")
     @patch("pathlib.Path.exists")
-    def test_pipeline_uses_ensemble_for_predictions(self, mock_exists, mock_pat_class, mock_xgb_class):
+    def test_pipeline_uses_ensemble_for_predictions(
+        self, mock_exists, mock_pat_class, mock_xgb_class
+    ):
         """Test that predictions go through ensemble orchestrator."""
         # Mock file existence
         mock_exists.return_value = True
-        
+
         # Mock XGBoost predictor
         mock_xgb_instance = Mock()
-        mock_xgb_instance.load_models.return_value = {"depression": True, "hypomanic": True, "manic": True}
+        mock_xgb_instance.load_models.return_value = {
+            "depression": True,
+            "hypomanic": True,
+            "manic": True,
+        }
         mock_xgb_instance.is_loaded = True
         mock_xgb_class.return_value = mock_xgb_instance
-        
+
         # Mock PAT model
         mock_pat_instance = Mock()
         mock_pat_instance.load_pretrained_weights.return_value = True
         mock_pat_class.return_value = mock_pat_instance
-        
+
         config = PipelineConfig(
             include_pat_sequences=True,
             model_dir=Path("models"),
@@ -114,18 +126,60 @@ class TestPipelineEnsembleIntegration:
                 processing_time_ms={"xgboost": 10, "pat": 40},
             )
 
-            pipeline = MoodPredictionPipeline(config=config)
+            # Mock the clinical feature extractor to return features
+            import numpy as np
 
-            # Process some data
-            result = pipeline.process_health_data(
-                sleep_records=[],
-                activity_records=[],
-                heart_records=[],
-                target_date=date.today(),
+            from big_mood_detector.domain.services.clinical_feature_extractor import (
+                ClinicalFeatureSet,
+                SeoulFeatures,
             )
 
-            # Verify ensemble was used
-            assert mock_ensemble.predict.called
+            pipeline = MoodPredictionPipeline(config=config)
+
+            with patch.object(
+                pipeline.clinical_extractor, "extract_clinical_features"
+            ) as mock_extract:
+                # Create mock features
+                mock_features = Mock(spec=ClinicalFeatureSet)
+                mock_seoul = Mock(spec=SeoulFeatures)
+                mock_seoul.to_xgboost_features.return_value = np.zeros(36)
+                mock_features.seoul_features = mock_seoul
+                mock_extract.return_value = mock_features
+
+                # Also need to provide some sleep records for date calculation
+                from datetime import datetime, timedelta
+
+                from big_mood_detector.domain.entities.sleep_record import (
+                    SleepRecord,
+                    SleepState,
+                )
+
+                target_date = date.today()
+                sleep_records = [
+                    SleepRecord(
+                        source_name="test",
+                        start_date=datetime.combine(
+                            target_date - timedelta(days=i), datetime.min.time()
+                        ),
+                        end_date=datetime.combine(
+                            target_date - timedelta(days=i), datetime.min.time()
+                        )
+                        + timedelta(hours=8),
+                        state=SleepState.ASLEEP,
+                    )
+                    for i in range(7)
+                ]
+
+                # Process some data
+                result = pipeline.process_health_data(
+                    sleep_records=sleep_records,
+                    activity_records=[],
+                    heart_records=[],
+                    target_date=target_date,
+                )
+
+                # Verify ensemble was used
+                assert mock_ensemble.predict.called
 
             # Verify combined predictions are used
             if result.daily_predictions:
@@ -137,40 +191,45 @@ class TestPipelineEnsembleIntegration:
         """Test fallback to XGBoost-only when PAT is disabled."""
         config = PipelineConfig(
             include_pat_sequences=False,  # Disable ensemble
-            model_dir=Path("models"),
+            model_dir=Path("model_weights/xgboost/pretrained"),
         )
 
         pipeline = MoodPredictionPipeline(config=config)
 
         # Should not have ensemble orchestrator
-        assert (
-            not hasattr(pipeline, "ensemble_orchestrator")
-            or pipeline.ensemble_orchestrator is None
-        )
+        assert pipeline.ensemble_orchestrator is None
 
         # Should still have basic mood predictor
         assert hasattr(pipeline, "mood_predictor")
         assert pipeline.mood_predictor is not None
 
-    @patch("big_mood_detector.infrastructure.ml_models.xgboost_models.XGBoostMoodPredictor")
+    @patch(
+        "big_mood_detector.infrastructure.ml_models.xgboost_models.XGBoostMoodPredictor"
+    )
     @patch("big_mood_detector.infrastructure.ml_models.pat_model.PATModel")
     @patch("pathlib.Path.exists")
-    def test_ensemble_handles_pat_model_failure(self, mock_exists, mock_pat_class, mock_xgb_class):
+    def test_ensemble_handles_pat_model_failure(
+        self, mock_exists, mock_pat_class, mock_xgb_class
+    ):
         """Test that ensemble gracefully handles PAT model failures."""
         # Mock file existence
         mock_exists.return_value = True
-        
+
         # Mock XGBoost predictor
         mock_xgb_instance = Mock()
-        mock_xgb_instance.load_models.return_value = {"depression": True, "hypomanic": True, "manic": True}
+        mock_xgb_instance.load_models.return_value = {
+            "depression": True,
+            "hypomanic": True,
+            "manic": True,
+        }
         mock_xgb_instance.is_loaded = True
         mock_xgb_class.return_value = mock_xgb_instance
-        
+
         # Mock PAT model
         mock_pat_instance = Mock()
         mock_pat_instance.load_pretrained_weights.return_value = True
         mock_pat_class.return_value = mock_pat_instance
-        
+
         config = PipelineConfig(
             include_pat_sequences=True,
             model_dir=Path("models"),
@@ -215,25 +274,33 @@ class TestPipelineEnsembleIntegration:
             # But with warnings
             assert "PAT model unavailable" in result.warnings
 
-    @patch("big_mood_detector.infrastructure.ml_models.xgboost_models.XGBoostMoodPredictor")
+    @patch(
+        "big_mood_detector.infrastructure.ml_models.xgboost_models.XGBoostMoodPredictor"
+    )
     @patch("big_mood_detector.infrastructure.ml_models.pat_model.PATModel")
     @patch("pathlib.Path.exists")
-    def test_ensemble_weight_configuration(self, mock_exists, mock_pat_class, mock_xgb_class):
+    def test_ensemble_weight_configuration(
+        self, mock_exists, mock_pat_class, mock_xgb_class
+    ):
         """Test that ensemble weights can be configured."""
         # Mock file existence
         mock_exists.return_value = True
-        
+
         # Mock XGBoost predictor
         mock_xgb_instance = Mock()
-        mock_xgb_instance.load_models.return_value = {"depression": True, "hypomanic": True, "manic": True}
+        mock_xgb_instance.load_models.return_value = {
+            "depression": True,
+            "hypomanic": True,
+            "manic": True,
+        }
         mock_xgb_instance.is_loaded = True
         mock_xgb_class.return_value = mock_xgb_instance
-        
+
         # Mock PAT model
         mock_pat_instance = Mock()
         mock_pat_instance.load_pretrained_weights.return_value = True
         mock_pat_class.return_value = mock_pat_instance
-        
+
         ensemble_config = EnsembleConfig(
             xgboost_weight=0.7,
             pat_weight=0.3,
@@ -250,10 +317,14 @@ class TestPipelineEnsembleIntegration:
         assert pipeline.ensemble_orchestrator.config.xgboost_weight == 0.7
         assert pipeline.ensemble_orchestrator.config.pat_weight == 0.3
 
-    @patch("big_mood_detector.infrastructure.ml_models.xgboost_models.XGBoostMoodPredictor")
+    @patch(
+        "big_mood_detector.infrastructure.ml_models.xgboost_models.XGBoostMoodPredictor"
+    )
     @patch("big_mood_detector.infrastructure.ml_models.pat_model.PATModel")
     @patch("pathlib.Path.exists")
-    def test_pipeline_passes_activity_data_to_ensemble(self, mock_exists, mock_pat_class, mock_xgb_class):
+    def test_pipeline_passes_activity_data_to_ensemble(
+        self, mock_exists, mock_pat_class, mock_xgb_class
+    ):
         """Test that activity records are passed to ensemble for PAT."""
         from big_mood_detector.domain.entities.activity_record import (
             ActivityRecord,
@@ -262,13 +333,17 @@ class TestPipelineEnsembleIntegration:
 
         # Mock file existence
         mock_exists.return_value = True
-        
+
         # Mock XGBoost predictor
         mock_xgb_instance = Mock()
-        mock_xgb_instance.load_models.return_value = {"depression": True, "hypomanic": True, "manic": True}
+        mock_xgb_instance.load_models.return_value = {
+            "depression": True,
+            "hypomanic": True,
+            "manic": True,
+        }
         mock_xgb_instance.is_loaded = True
         mock_xgb_class.return_value = mock_xgb_instance
-        
+
         # Mock PAT model
         mock_pat_instance = Mock()
         mock_pat_instance.load_pretrained_weights.return_value = True

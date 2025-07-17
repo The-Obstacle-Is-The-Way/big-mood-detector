@@ -136,7 +136,7 @@ class TestFullPipeline:
             assert 0 <= prediction["manic_risk"] <= 1
 
     @pytest.mark.skipif(
-        not Path("model_weights/pat/pretrained/PAT-MEDIUM_29k_weights.h5").exists(),
+        not Path("model_weights/pat/pretrained/PAT-M_29k_weights.h5").exists(),
         reason="PAT weights not available",
     )
     def test_pipeline_with_ensemble(self, sample_data):

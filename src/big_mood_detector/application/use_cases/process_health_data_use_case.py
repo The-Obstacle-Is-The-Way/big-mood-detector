@@ -129,7 +129,9 @@ class MoodPredictionPipeline:
 
             # Initialize XGBoost predictor for ensemble
             self.xgboost_predictor = XGBoostMoodPredictor()
-            model_dir = self.config.model_dir or Path("model_weights/xgboost")
+            model_dir = self.config.model_dir or Path(
+                "model_weights/xgboost/pretrained"
+            )
             if self.xgboost_predictor.load_models(model_dir):
                 logger.info("XGBoost models loaded for ensemble")
 
@@ -137,16 +139,12 @@ class MoodPredictionPipeline:
             pat_model: PATModel | None = PATModel()
 
             # Try to load PAT weights
-            pat_weights_path = Path("model_weights/pat/pretrained/PAT-M_29k_weights.h5")
-            if pat_weights_path.exists() and pat_model is not None:
-                if not pat_model.load_pretrained_weights(pat_weights_path):
+            if pat_model is not None:
+                if not pat_model.load_pretrained_weights():
                     logger.warning("Failed to load PAT model weights")
                     pat_model = None
                 else:
                     logger.info("PAT model loaded successfully")
-            else:
-                logger.warning(f"PAT weights not found at {pat_weights_path}")
-                pat_model = None
 
             if self.xgboost_predictor and self.xgboost_predictor.is_loaded:
                 self.ensemble_orchestrator = EnsembleOrchestrator(
@@ -287,7 +285,7 @@ class MoodPredictionPipeline:
                     date_activity_records = [
                         r
                         for r in activity_records
-                        if r.start_date <= feature_date <= r.end_date
+                        if r.start_date.date() <= feature_date <= r.end_date.date()
                     ]
 
                     ensemble_result = self.ensemble_orchestrator.predict(

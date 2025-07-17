@@ -17,7 +17,7 @@ class TestPATModelEnvironmentLoading:
         # Create fake weights file
         weights_dir = tmp_path / "custom_weights"
         weights_dir.mkdir()
-        weights_file = weights_dir / "PAT-MEDIUM_29k_weights.h5"
+        weights_file = weights_dir / "PAT-M_29k_weights.h5"
         weights_file.touch()  # Create empty file
 
         # Set environment variable
@@ -42,8 +42,10 @@ class TestPATModelEnvironmentLoading:
         # Ensure env var is not set
         monkeypatch.delenv("BIG_MOOD_PAT_WEIGHTS_DIR", raising=False)
 
-        with patch("pathlib.Path.exists") as mock_exists, \
-             patch.object(PATModel, "_load_weights_file") as mock_load:
+        with (
+            patch("pathlib.Path.exists") as mock_exists,
+            patch.object(PATModel, "_load_weights_file") as mock_load,
+        ):
             mock_exists.return_value = True
             mock_load.return_value = False  # Simulate weights load failure
 
@@ -109,11 +111,11 @@ class TestPATModelEnvironmentLoading:
     @pytest.mark.parametrize(
         "env_value,expected_path",
         [
-            ("/custom/path", "/custom/path/PAT-MEDIUM_29k_weights.h5"),
-            ("./relative/path", "./relative/path/PAT-MEDIUM_29k_weights.h5"),
+            ("/custom/path", "/custom/path/PAT-M_29k_weights.h5"),
+            ("./relative/path", "./relative/path/PAT-M_29k_weights.h5"),
             (
                 "",
-                "model_weights/pat/pretrained/PAT-MEDIUM_29k_weights.h5",
+                "model_weights/pat/pretrained/PAT-M_29k_weights.h5",
             ),  # Empty = default
         ],
     )
@@ -124,8 +126,10 @@ class TestPATModelEnvironmentLoading:
         else:
             monkeypatch.delenv("BIG_MOOD_PAT_WEIGHTS_DIR", raising=False)
 
-        with patch("pathlib.Path.exists") as mock_exists, \
-             patch.object(PATModel, "_load_weights_file") as mock_load:
+        with (
+            patch("pathlib.Path.exists") as mock_exists,
+            patch.object(PATModel, "_load_weights_file") as mock_load,
+        ):
             mock_exists.return_value = True
             mock_load.return_value = True
 
