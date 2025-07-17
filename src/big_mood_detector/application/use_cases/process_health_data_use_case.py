@@ -67,6 +67,9 @@ class PipelineConfig:
     enable_sparse_handling: bool = True
     max_interpolation_days: int = 3
     ensemble_config: EnsembleConfig | None = None
+    enable_personal_calibration: bool = False
+    personal_calibrator: Any | None = None  # PersonalCalibrator instance
+    user_id: str | None = None
 
 
 @dataclass
@@ -83,6 +86,7 @@ class PipelineResult:
     warnings: list[str] = field(default_factory=list)
     has_errors: bool = False
     errors: list[str] = field(default_factory=list)
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
 class MoodPredictionPipeline:
@@ -163,6 +167,27 @@ class MoodPredictionPipeline:
             circadian_analyzer=self.circadian_analyzer,
             dlmo_calculator=self.dlmo_calculator,
         )
+
+        # Initialize personal calibrator
+        self.personal_calibrator = None
+        if self.config.enable_personal_calibration:
+            if self.config.personal_calibrator:
+                # Use provided calibrator
+                self.personal_calibrator = self.config.personal_calibrator
+            elif self.config.user_id and self.config.model_dir:
+                # Try to load existing personal model
+                try:
+                    from big_mood_detector.infrastructure.fine_tuning.personal_calibrator import (
+                        PersonalCalibrator,
+                    )
+                    self.personal_calibrator = PersonalCalibrator.load(
+                        user_id=self.config.user_id,
+                        model_dir=self.config.model_dir
+                    )
+                    logger.info(f"Loaded personal model for user: {self.config.user_id}")
+                except Exception as e:
+                    logger.warning(f"Could not load personal model: {e}")
+                    # Continue without personal calibration
 
     def process_apple_health_file(
         self,
