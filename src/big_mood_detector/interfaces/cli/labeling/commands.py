@@ -183,7 +183,7 @@ def label_episode_command(
             date=start_date,
             episode_type=mood,
             severity=severity,
-            notes=notes,
+            notes=notes or "",
             rater_id=rater_id
         )
         click.echo(click.style(f"✓ Labeled {start_date} as {mood}", fg="green"))
@@ -193,7 +193,7 @@ def label_episode_command(
             end_date=end_date,
             episode_type=mood,
             severity=severity,
-            notes=notes,
+            notes=notes or "",
             rater_id=rater_id
         )
         click.echo(click.style(
@@ -258,7 +258,7 @@ def label_baseline_command(
     labeler.add_baseline(
         start_date=start_date,
         end_date=end_date,
-        notes=notes,
+        notes=notes or "",
         rater_id=rater_id
     )
     

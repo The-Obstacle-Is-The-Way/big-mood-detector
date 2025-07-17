@@ -42,7 +42,8 @@ class InteractiveSession:
         """Load predictions from JSON file."""
         with open(predictions_file) as f:
             data = json.load(f)
-            return data.get("predictions", [])
+            predictions = data.get("predictions", [])
+        return predictions if isinstance(predictions, list) else []
     
     def run(self) -> None:
         """Run the interactive labeling session."""
@@ -182,7 +183,8 @@ class InteractiveSession:
     
     def _prompt_severity(self) -> int:
         """Prompt for severity."""
-        return click.prompt("Severity (1-5)", type=int, default=3)
+        severity = click.prompt("Severity (1-5)", type=int, default=3)
+        return int(severity)
     
     def _prompt_episode_span(self) -> bool:
         """Ask if part of longer episode."""
