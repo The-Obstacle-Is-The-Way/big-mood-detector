@@ -144,9 +144,7 @@ class TestPredictCLI:
         xml_file = tmp_path / "export.xml"
         xml_file.write_text("<HealthData></HealthData>")
 
-        with patch(
-            "sys.argv", ["predict", "--input", str(xml_file), "--ensemble"]
-        ):
+        with patch("sys.argv", ["predict", "--input", str(xml_file), "--ensemble"]):
             with patch(
                 "big_mood_detector.cli.predict.MoodPredictionPipeline"
             ) as mock_pipeline_class:

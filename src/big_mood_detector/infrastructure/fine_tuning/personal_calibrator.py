@@ -14,6 +14,7 @@ import pandas as pd
 
 class ModelProtocol(Protocol):
     """Protocol for model interface."""
+
     def encode(self, sequences: np.ndarray) -> np.ndarray:
         """Encode sequences to embeddings."""
         ...
@@ -33,6 +34,7 @@ def load_population_model(model_path: str | None, model_type: str) -> Any:
     # For now, it's a placeholder that will be mocked in tests
     if model_type == "xgboost":
         import joblib
+
         return joblib.load(model_path) if model_path else None
     elif model_type == "pat":
         # Would load PyTorch model
@@ -75,7 +77,9 @@ class BaselineExtractor:
 
         return baseline
 
-    def extract_activity_baseline(self, activity_data: pd.DataFrame) -> dict[str, float]:
+    def extract_activity_baseline(
+        self, activity_data: pd.DataFrame
+    ) -> dict[str, float]:
         """Extract baseline activity patterns from minute-level data.
 
         Args:
@@ -85,16 +89,16 @@ class BaselineExtractor:
             Dictionary with baseline activity metrics
         """
         # Group by day and calculate daily totals
-        activity_data['date_only'] = pd.to_datetime(activity_data['date']).dt.date
-        daily_activity = activity_data.groupby('date_only')['activity'].sum()
+        activity_data["date_only"] = pd.to_datetime(activity_data["date"]).dt.date
+        daily_activity = activity_data.groupby("date_only")["activity"].sum()
 
         # Use most recent baseline_window_days
         if len(daily_activity) > self.baseline_window_days:
             daily_activity = daily_activity.tail(self.baseline_window_days)
 
         # Calculate hourly pattern for rhythm analysis
-        activity_data['hour'] = pd.to_datetime(activity_data['date']).dt.hour
-        hourly_pattern = activity_data.groupby('hour')['activity'].mean()
+        activity_data["hour"] = pd.to_datetime(activity_data["date"]).dt.hour
+        hourly_pattern = activity_data.groupby("hour")["activity"].mean()
 
         # Find peak activity time
         peak_hour = hourly_pattern.idxmax()
@@ -111,7 +115,9 @@ class BaselineExtractor:
 
         return baseline
 
-    def calculate_circadian_baseline(self, circadian_data: pd.DataFrame) -> dict[str, float]:
+    def calculate_circadian_baseline(
+        self, circadian_data: pd.DataFrame
+    ) -> dict[str, float]:
         """Calculate circadian rhythm baseline from hourly activity data.
 
         Args:
@@ -121,11 +127,11 @@ class BaselineExtractor:
             Dictionary with circadian rhythm metrics
         """
         # Extract hour from timestamp
-        circadian_data['hour'] = pd.to_datetime(circadian_data['timestamp']).dt.hour
-        circadian_data['date'] = pd.to_datetime(circadian_data['timestamp']).dt.date
+        circadian_data["hour"] = pd.to_datetime(circadian_data["timestamp"]).dt.hour
+        circadian_data["date"] = pd.to_datetime(circadian_data["timestamp"]).dt.date
 
         # Calculate hourly averages across all days
-        hourly_pattern = circadian_data.groupby('hour')['activity'].mean()
+        hourly_pattern = circadian_data.groupby("hour")["activity"].mean()
 
         # Find circadian phase (time of peak activity)
         circadian_phase = float(hourly_pattern.idxmax())
@@ -135,7 +141,7 @@ class BaselineExtractor:
 
         # Calculate stability (how consistent the pattern is across days)
         # Use coefficient of variation for each hour
-        hourly_cv = circadian_data.groupby('hour')['activity'].apply(
+        hourly_cv = circadian_data.groupby("hour")["activity"].apply(
             lambda x: x.std() / x.mean() if x.mean() > 0 else 0
         )
         circadian_stability = 1 - hourly_cv.mean()  # Higher value = more stable
@@ -165,7 +171,7 @@ class EpisodeLabeler:
         end_date: str | None = None,
         episode_type: str = "",
         severity: int = 0,
-        notes: str = ""
+        notes: str = "",
     ) -> None:
         """Add an episode label.
 
@@ -216,12 +222,7 @@ class EpisodeLabeler:
 
         self.episodes.append(episode)
 
-    def add_baseline(
-        self,
-        start_date: str,
-        end_date: str,
-        notes: str = ""
-    ) -> None:
+    def add_baseline(self, start_date: str, end_date: str, notes: str = "") -> None:
         """Add a baseline (stable) period.
 
         Args:
@@ -254,22 +255,26 @@ class EpisodeLabeler:
         for episode in self.episodes:
             if "date" in episode:
                 # Single day episode
-                rows.append({
-                    "date": episode["date"],
-                    "label": episode["episode_type"],
-                    "severity": episode["severity"],
-                })
+                rows.append(
+                    {
+                        "date": episode["date"],
+                        "label": episode["episode_type"],
+                        "severity": episode["severity"],
+                    }
+                )
             else:
                 # Multi-day episode
                 start = datetime.strptime(episode["start_date"], "%Y-%m-%d")
                 end = datetime.strptime(episode["end_date"], "%Y-%m-%d")
                 current = start
                 while current <= end:
-                    rows.append({
-                        "date": current.strftime("%Y-%m-%d"),
-                        "label": episode["episode_type"],
-                        "severity": episode["severity"],
-                    })
+                    rows.append(
+                        {
+                            "date": current.strftime("%Y-%m-%d"),
+                            "label": episode["episode_type"],
+                            "severity": episode["severity"],
+                        }
+                    )
                     current += pd.Timedelta(days=1)
 
         # Add baseline days
@@ -278,11 +283,13 @@ class EpisodeLabeler:
             end = datetime.strptime(baseline["end_date"], "%Y-%m-%d")
             current = start
             while current <= end:
-                rows.append({
-                    "date": current.strftime("%Y-%m-%d"),
-                    "label": "baseline",
-                    "severity": 0,
-                })
+                rows.append(
+                    {
+                        "date": current.strftime("%Y-%m-%d"),
+                        "label": "baseline",
+                        "severity": 0,
+                    }
+                )
                 current += pd.Timedelta(days=1)
 
         df = pd.DataFrame(rows)
@@ -301,7 +308,7 @@ class PersonalCalibrator:
         user_id: str = "default",
         model_type: str = "xgboost",
         base_model_path: str | None = None,
-        output_dir: str | pathlib.Path = "models/personal"
+        output_dir: str | pathlib.Path = "models/personal",
     ) -> None:
         """Initialize personal calibrator.
 
@@ -326,7 +333,7 @@ class PersonalCalibrator:
         labels: np.ndarray | None = None,
         epochs: int = 10,
         sample_weight: float = 1.0,
-        **kwargs: Any
+        **kwargs: Any,
     ) -> dict[str, float]:
         """Calibrate model to individual user data.
 
@@ -354,7 +361,10 @@ class PersonalCalibrator:
             # 3. Return accuracy metrics
 
             # For now, simulate training
-            _ = self.model.encode(sequences) if hasattr(self.model, 'encode') else sequences
+            if self.model and hasattr(self.model, "encode"):
+                _ = self.model.encode(sequences)
+            else:
+                _ = sequences
 
             # Simulate accuracy improvement
             base_accuracy = 0.65
@@ -364,9 +374,11 @@ class PersonalCalibrator:
             metrics["personal_improvement"] = personal_accuracy - base_accuracy
 
             # Mark adapter as trained
-            self.adapter = {"trained": True, "epochs": epochs}
+            self.adapter = {"trained": True, "epochs": epochs}  # type: ignore
 
-        elif self.model_type == "xgboost" and features is not None and labels is not None:
+        elif (
+            self.model_type == "xgboost" and features is not None and labels is not None
+        ):
             # XGBoost incremental training
             # In production, this would use xgboost's incremental learning
 
@@ -399,8 +411,16 @@ class PersonalCalibrator:
         elif self.model_type == "pat" and self.adapter is not None:
             adapter_path = user_dir / "pat_adapter.pt"
             # In production, would save PyTorch state dict
-            import torch
-            torch.save(self.adapter, adapter_path)
+            try:
+                import torch
+
+                torch.save(self.adapter, adapter_path)
+            except ImportError:
+                # Fallback if torch not available
+                import json
+
+                with open(adapter_path.with_suffix(".json"), "w") as f:
+                    json.dump(self.adapter, f)
 
         # Save metadata
         metadata = {
@@ -452,16 +472,20 @@ class PersonalCalibrator:
             model_path = user_dir / "xgboost_model.pkl"
             if model_path.exists():
                 import joblib
+
                 calibrator.model = joblib.load(model_path)
         elif metadata["model_type"] == "pat":
             adapter_path = user_dir / "pat_adapter.pt"
             if adapter_path.exists():
                 import torch
+
                 calibrator.adapter = torch.load(adapter_path)
 
         return calibrator
 
-    def calculate_deviations(self, current_features: dict[str, float]) -> dict[str, float]:
+    def calculate_deviations(
+        self, current_features: dict[str, float]
+    ) -> dict[str, float]:
         """Calculate deviations from personal baseline.
 
         Args:
@@ -473,17 +497,25 @@ class PersonalCalibrator:
         deviations = {}
 
         # Sleep duration z-score
-        if "sleep_duration" in current_features and "mean_sleep_duration" in self.baseline:
+        if (
+            "sleep_duration" in current_features
+            and "mean_sleep_duration" in self.baseline
+        ):
             mean = self.baseline["mean_sleep_duration"]
             std = self.baseline.get("std_sleep_duration", 30.0)  # Default 30 min
             z_score = (current_features["sleep_duration"] - mean) / std
             deviations["sleep_duration_z_score"] = z_score
 
         # Activity percent change
-        if "daily_activity" in current_features and "mean_daily_activity" in self.baseline:
+        if (
+            "daily_activity" in current_features
+            and "mean_daily_activity" in self.baseline
+        ):
             baseline_activity = self.baseline["mean_daily_activity"]
             current_activity = current_features["daily_activity"]
-            pct_change = ((current_activity - baseline_activity) / baseline_activity) * 100
+            pct_change = (
+                (current_activity - baseline_activity) / baseline_activity
+            ) * 100
             deviations["activity_percent_change"] = pct_change
 
         return deviations
@@ -503,10 +535,14 @@ class PersonalCalibrator:
         if high_conf_mask.any():
             # Calculate accuracy when confident
             predictions = (raw_probs > 0.5).astype(int)
-            high_conf_accuracy = (predictions[high_conf_mask] == true_labels[high_conf_mask]).mean()
+            high_conf_accuracy = (
+                predictions[high_conf_mask] == true_labels[high_conf_mask]
+            ).mean()
 
             # If accuracy is low when confident, we need to calibrate
-            self.confidence_factor = min(1.0, high_conf_accuracy + 0.2)  # Add some buffer
+            self.confidence_factor = min(
+                1.0, high_conf_accuracy + 0.2
+            )  # Add some buffer
         else:
             self.confidence_factor = 1.0
 
@@ -528,11 +564,14 @@ class PersonalCalibrator:
 
         # For high probabilities, reduce if model is overconfident
         high_mask = raw_probs > 0.7
-        calibrated[high_mask] = 0.5 + (raw_probs[high_mask] - 0.5) * self.confidence_factor
+        calibrated[high_mask] = (
+            0.5 + (raw_probs[high_mask] - 0.5) * self.confidence_factor
+        )
 
         # For low probabilities, increase if model is overconfident
         low_mask = raw_probs < 0.3
-        calibrated[low_mask] = 0.5 - (0.5 - raw_probs[low_mask]) * self.confidence_factor
+        calibrated[low_mask] = (
+            0.5 - (0.5 - raw_probs[low_mask]) * self.confidence_factor
+        )
 
         return np.clip(calibrated, 0.0, 1.0)
-

@@ -117,14 +117,29 @@ class MoodPredictionPipeline:
         self.sparse_handler = sparse_handler or SparseDataHandler()
         self.clinical_extractor = ClinicalFeatureExtractor()
         self.mood_predictor = MoodPredictor(model_dir=self.config.model_dir)
-        
+        self.xgboost_predictor = None  # Will be loaded separately for ensemble
+
         # Initialize ensemble orchestrator if PAT sequences are enabled
+        self.ensemble_orchestrator = None
         if self.config.include_pat_sequences:
             from big_mood_detector.infrastructure.ml_models.pat_model import PATModel
-            
+            from big_mood_detector.infrastructure.ml_models.xgboost_models import (
+                XGBoostMoodPredictor,
+            )
+
+            # Initialize XGBoost predictor for ensemble
+            self.xgboost_predictor = XGBoostMoodPredictor()
+            model_dir = self.config.model_dir or Path("model_weights/xgboost")
+            if self.xgboost_predictor.load_model(
+                model_dir / "depression_model.pkl",
+                model_dir / "hypomania_model.pkl",
+                model_dir / "mania_model.pkl",
+            ):
+                logger.info("XGBoost models loaded for ensemble")
+
             # Initialize PAT model
             pat_model = PATModel()
-            
+
             # Try to load PAT weights
             pat_weights_path = Path("model_weights/pat/pretrained/PAT-M_29k_weights.h5")
             if pat_weights_path.exists():
@@ -136,14 +151,13 @@ class MoodPredictionPipeline:
             else:
                 logger.warning(f"PAT weights not found at {pat_weights_path}")
                 pat_model = None
-            
-            self.ensemble_orchestrator = EnsembleOrchestrator(
-                xgboost_predictor=self.mood_predictor,
-                pat_model=pat_model,
-                config=self.config.ensemble_config or EnsembleConfig(),
-            )
-        else:
-            self.ensemble_orchestrator = None
+
+            if self.xgboost_predictor and self.xgboost_predictor.is_loaded:
+                self.ensemble_orchestrator = EnsembleOrchestrator(
+                    xgboost_predictor=self.xgboost_predictor,
+                    pat_model=pat_model,
+                    config=self.config.ensemble_config or EnsembleConfig(),
+                )
 
         # Data parsing service (extracted)
         self.data_parsing_service = data_parsing_service or DataParsingService()
@@ -270,23 +284,24 @@ class MoodPredictionPipeline:
                 feature_vector = np.array(
                     feature_set.seoul_features.to_xgboost_features()
                 )
-                
+
                 if self.ensemble_orchestrator:
                     # Use ensemble predictions
                     # Get activity records for the current date
                     date_activity_records = [
-                        r for r in activity_records
+                        r
+                        for r in activity_records
                         if r.start_date <= feature_date <= r.end_date
                     ]
-                    
+
                     ensemble_result = self.ensemble_orchestrator.predict(
                         statistical_features=feature_vector,
                         activity_records=date_activity_records,
                         prediction_date=np.datetime64(feature_date),
                     )
-                    
+
                     prediction = ensemble_result.ensemble_prediction
-                    
+
                     daily_predictions[feature_date] = {
                         "depression_risk": prediction.depression_risk,
                         "hypomanic_risk": prediction.hypomanic_risk,
@@ -295,9 +310,12 @@ class MoodPredictionPipeline:
                         "models_used": ensemble_result.models_used,
                         "confidence_scores": ensemble_result.confidence_scores,
                     }
-                    
+
                     # Add warning if PAT failed
-                    if "pat" not in ensemble_result.models_used or ensemble_result.pat_enhanced_prediction is None:
+                    if (
+                        "pat" not in ensemble_result.models_used
+                        or ensemble_result.pat_enhanced_prediction is None
+                    ):
                         warnings.append("PAT model unavailable")
                 else:
                     # Use XGBoost-only predictions
@@ -314,17 +332,19 @@ class MoodPredictionPipeline:
         if daily_predictions:
             all_predictions = list(daily_predictions.values())
             overall_summary = {
-                "avg_depression_risk": np.mean(
-                    [p["depression_risk"] for p in all_predictions]
+                "avg_depression_risk": float(
+                    np.mean([p["depression_risk"] for p in all_predictions])
                 ),
-                "avg_hypomanic_risk": np.mean(
-                    [p["hypomanic_risk"] for p in all_predictions]
+                "avg_hypomanic_risk": float(
+                    np.mean([p["hypomanic_risk"] for p in all_predictions])
                 ),
-                "avg_manic_risk": np.mean([p["manic_risk"] for p in all_predictions]),
+                "avg_manic_risk": float(
+                    np.mean([p["manic_risk"] for p in all_predictions])
+                ),
                 "days_analyzed": len(daily_predictions),
             }
             confidence_score = float(
-                np.mean([p["confidence"] for p in all_predictions])
+                np.mean([float(p["confidence"]) for p in all_predictions])
             )
             if np.isnan(confidence_score):
                 confidence_score = 0.0

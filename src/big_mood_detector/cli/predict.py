@@ -64,23 +64,35 @@ def print_summary(result: PipelineResult) -> None:
     if result.overall_summary:
         print("\n📊 Overall Risk Summary:")
         print("-" * 30)
-        
+
         # Use the actual field names from the pipeline
         dep_risk = result.overall_summary.get("avg_depression_risk", 0)
         hypo_risk = result.overall_summary.get("avg_hypomanic_risk", 0)
         manic_risk = result.overall_summary.get("avg_manic_risk", 0)
-        
+
         print(f"Depression: {format_risk_level(dep_risk)}")
         print(f"Hypomanic: {format_risk_level(hypo_risk)}")
         print(f"Manic: {format_risk_level(manic_risk)}")
-        
+
         # Count days at risk
         total_days = len(result.daily_predictions)
         if total_days > 0:
             days_at_risk = {
-                "depression": sum(1 for d in result.daily_predictions.values() if d.get("depression_risk", 0) >= 0.4),
-                "hypomanic": sum(1 for d in result.daily_predictions.values() if d.get("hypomanic_risk", 0) >= 0.4),
-                "manic": sum(1 for d in result.daily_predictions.values() if d.get("manic_risk", 0) >= 0.3),
+                "depression": sum(
+                    1
+                    for d in result.daily_predictions.values()
+                    if d.get("depression_risk", 0) >= 0.4
+                ),
+                "hypomanic": sum(
+                    1
+                    for d in result.daily_predictions.values()
+                    if d.get("hypomanic_risk", 0) >= 0.4
+                ),
+                "manic": sum(
+                    1
+                    for d in result.daily_predictions.values()
+                    if d.get("manic_risk", 0) >= 0.3
+                ),
             }
             print(f"\nDays at risk:")
             print(f"  Depression: {days_at_risk['depression']}/{total_days}")
@@ -91,12 +103,14 @@ def print_summary(result: PipelineResult) -> None:
     if result.daily_predictions:
         print("\n📅 Recent Daily Predictions:")
         print("-" * 30)
-        
+
         sorted_dates = sorted(result.daily_predictions.keys(), reverse=True)
         for pred_date in sorted_dates[:7]:
             predictions = result.daily_predictions[pred_date]
             print(f"\n{pred_date}:")
-            print(f"  Depression: {format_risk_level(predictions.get('depression_risk', 0))}")
+            print(
+                f"  Depression: {format_risk_level(predictions.get('depression_risk', 0))}"
+            )
             print(f"  Hypomanic: {predictions.get('hypomanic_risk', 0):.1%}")
             print(f"  Manic: {predictions.get('manic_risk', 0):.1%}")
 
@@ -120,7 +134,7 @@ def print_summary(result: PipelineResult) -> None:
 def save_json_output(result: PipelineResult, output_path: Path) -> None:
     """Save results as JSON."""
     import numpy as np
-    
+
     def convert_to_serializable(obj: Any) -> Any:
         """Convert numpy types to Python types for JSON serialization."""
         if isinstance(obj, (np.float32, np.float64)):
@@ -136,7 +150,7 @@ def save_json_output(result: PipelineResult, output_path: Path) -> None:
         elif isinstance(obj, list):
             return [convert_to_serializable(item) for item in obj]
         return obj
-    
+
     # Convert dates to strings and handle numpy types
     data = {
         "daily_predictions": {
@@ -152,7 +166,7 @@ def save_json_output(result: PipelineResult, output_path: Path) -> None:
         "errors": result.errors,
         "timestamp": datetime.now().isoformat(),
     }
-    
+
     with open(output_path, "w") as f:
         json.dump(data, f, indent=2)
 
@@ -160,14 +174,14 @@ def save_json_output(result: PipelineResult, output_path: Path) -> None:
 def save_csv_output(result: PipelineResult, output_path: Path) -> None:
     """Save results as CSV."""
     import pandas as pd
-    
+
     # Create dataframe from daily predictions
     rows = []
     for pred_date, predictions in result.daily_predictions.items():
-        row = {"date": pred_date}
+        row: dict[str, Any] = {"date": pred_date}
         row.update(predictions)
         rows.append(row)
-    
+
     df = pd.DataFrame(rows)
     df.to_csv(output_path, index=False)
 
@@ -177,15 +191,15 @@ def generate_clinical_report(result: PipelineResult, output_path: Path) -> None:
     with open(output_path, "w") as f:
         f.write("# Clinical Assessment Report\n\n")
         f.write(f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n")
-        
+
         # Risk assessment
         f.write("## Risk Assessment\n\n")
-        
+
         if result.overall_summary:
             dep_risk = result.overall_summary.get("avg_depression_risk", 0)
             hypo_risk = result.overall_summary.get("avg_hypomanic_risk", 0)
             manic_risk = result.overall_summary.get("avg_manic_risk", 0)
-            
+
             # Determine primary concern
             if dep_risk >= 0.7:
                 f.write("### ⚠️ Depression Risk: HIGH\n\n")
@@ -205,7 +219,7 @@ def generate_clinical_report(result: PipelineResult, output_path: Path) -> None:
                 f.write("### ✓ Mood Stability\n\n")
                 f.write("Current data suggests stable mood patterns.\n")
                 f.write("Continue regular monitoring.\n\n")
-        
+
         # Detailed metrics
         f.write("## Detailed Metrics\n\n")
         f.write("| Metric | Value |\n")
@@ -213,28 +227,28 @@ def generate_clinical_report(result: PipelineResult, output_path: Path) -> None:
         f.write(f"| Analysis Period | {len(result.daily_predictions)} days |\n")
         f.write(f"| Data Confidence | {result.confidence_score:.1%} |\n")
         f.write(f"| Records Processed | {result.records_processed:,} |\n")
-        
+
         # Trend analysis
         if len(result.daily_predictions) >= 7:
             f.write("\n## 7-Day Trend Analysis\n\n")
             recent_dates = sorted(result.daily_predictions.keys())[-7:]
-            
+
             f.write("| Date | Depression | Hypomanic | Manic |\n")
             f.write("|------|------------|-----------|-------|\n")
-            
+
             for pred_date in recent_dates:
                 preds = result.daily_predictions[pred_date]
                 f.write(f"| {pred_date} | ")
                 f.write(f"{preds.get('depression_risk', 0):.1%} | ")
                 f.write(f"{preds.get('hypomanic_risk', 0):.1%} | ")
                 f.write(f"{preds.get('manic_risk', 0):.1%} |\n")
-        
+
         # Data quality
         if result.warnings:
             f.write("\n## Data Quality Warnings\n\n")
             for warning in result.warnings:
                 f.write(f"- {warning}\n")
-        
+
         f.write("\n---\n")
         f.write("*This report is for clinical decision support only. ")
         f.write("It should not replace professional medical judgment.*\n")
