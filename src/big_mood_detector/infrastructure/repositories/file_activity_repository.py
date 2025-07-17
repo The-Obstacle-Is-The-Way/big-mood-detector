@@ -1,7 +1,7 @@
 """
-File-based Sleep Repository Implementation
+File-based Activity Repository Implementation
 
-Concrete implementation of sleep repository using JSON files.
+Concrete implementation of activity repository using JSON files.
 """
 
 import asyncio
@@ -10,35 +10,38 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-from big_mood_detector.domain.entities.sleep_record import SleepRecord, SleepState
-from big_mood_detector.domain.repositories.sleep_repository import (
-    SleepRepositoryInterface,
+from big_mood_detector.domain.entities.activity_record import (
+    ActivityRecord,
+    ActivityType,
+)
+from big_mood_detector.domain.repositories.activity_repository import (
+    ActivityRepositoryInterface,
 )
 from big_mood_detector.domain.value_objects.time_period import TimePeriod
 from big_mood_detector.infrastructure.logging import get_module_logger
-from big_mood_detector.infrastructure.repositories.models import StoredSleepRecord
+from big_mood_detector.infrastructure.repositories.models import StoredActivityRecord
 
 logger = get_module_logger(__name__)
 
 
-class FileSleepRepository(SleepRepositoryInterface):
-    """File-based implementation of sleep repository."""
+class FileActivityRepository(ActivityRepositoryInterface):
+    """File-based implementation of activity repository."""
 
     def __init__(self, data_dir: Path):
         """Initialize repository with data directory."""
         self.data_dir = Path(data_dir)
-        self.records_dir = self.data_dir / "sleep_records"
+        self.records_dir = self.data_dir / "activity_records"
         self.records_dir.mkdir(parents=True, exist_ok=True)
         self._lock = asyncio.Lock()
         logger.info("file_repository_initialized", data_dir=str(data_dir))
 
-    async def save(self, sleep_record: SleepRecord) -> None:
-        """Persist a sleep record."""
-        if sleep_record is None:
+    async def save(self, activity_record: ActivityRecord) -> None:
+        """Persist an activity record."""
+        if activity_record is None:
             raise ValueError("Cannot save None record")
         
         # Wrap in stored record
-        stored = StoredSleepRecord.from_domain(sleep_record)
+        stored = StoredActivityRecord.from_domain(activity_record)
         
         async with self._lock:
             file_path = self.records_dir / f"{stored.id}.json"
@@ -51,14 +54,14 @@ class FileSleepRepository(SleepRepositoryInterface):
             
             logger.debug("record_saved", record_id=stored.id)
 
-    async def save_batch(self, sleep_records: list[SleepRecord]) -> None:
-        """Persist multiple sleep records efficiently."""
+    async def save_batch(self, activity_records: list[ActivityRecord]) -> None:
+        """Persist multiple activity records efficiently."""
         # Use gather for concurrent saves
-        await asyncio.gather(*[self.save(record) for record in sleep_records])
-        logger.info("batch_saved", count=len(sleep_records))
+        await asyncio.gather(*[self.save(record) for record in activity_records])
+        logger.info("batch_saved", count=len(activity_records))
 
-    async def get_by_id(self, record_id: str) -> SleepRecord | None:
-        """Retrieve a sleep record by ID."""
+    async def get_by_id(self, record_id: str) -> ActivityRecord | None:
+        """Retrieve an activity record by ID."""
         file_path = self.records_dir / f"{record_id}.json"
         
         if not file_path.exists():
@@ -72,14 +75,14 @@ class FileSleepRepository(SleepRepositoryInterface):
             logger.error("failed_to_load_record", record_id=record_id, error=str(e))
             return None
 
-    async def get_by_period(self, period: TimePeriod) -> list[SleepRecord]:
-        """Retrieve all sleep records within a time period."""
+    async def get_by_period(self, period: TimePeriod) -> list[ActivityRecord]:
+        """Retrieve all activity records within a time period."""
         return await self.get_by_date_range(period.start, period.end)
 
     async def get_by_date_range(
         self, start_date: datetime, end_date: datetime
-    ) -> list[SleepRecord]:
-        """Retrieve sleep records within a date range."""
+    ) -> list[ActivityRecord]:
+        """Retrieve activity records within a date range."""
         records = []
         
         # Read all record files
@@ -100,8 +103,15 @@ class FileSleepRepository(SleepRepositoryInterface):
         records.sort(key=lambda r: r.start_date)
         return records
 
-    async def get_latest(self, limit: int = 10) -> list[SleepRecord]:
-        """Retrieve the most recent sleep records."""
+    async def get_by_type(
+        self, activity_type: ActivityType, period: TimePeriod
+    ) -> list[ActivityRecord]:
+        """Retrieve activity records of a specific type within a period."""
+        all_records = await self.get_by_period(period)
+        return [r for r in all_records if r.activity_type == activity_type]
+
+    async def get_latest(self, limit: int = 10) -> list[ActivityRecord]:
+        """Retrieve the most recent activity records."""
         all_records = []
         
         # Read all records
@@ -119,7 +129,7 @@ class FileSleepRepository(SleepRepositoryInterface):
         return [s.to_domain() for s in all_records[:limit]]
 
     async def delete_by_period(self, period: TimePeriod) -> int:
-        """Delete sleep records within a time period. Returns count deleted."""
+        """Delete activity records within a time period. Returns count deleted."""
         deleted_count = 0
         
         async with self._lock:
@@ -141,7 +151,7 @@ class FileSleepRepository(SleepRepositoryInterface):
         logger.info("records_deleted_by_period", count=deleted_count, period=str(period))
         return deleted_count
 
-    def _serialize_stored_record(self, stored: StoredSleepRecord) -> dict[str, Any]:
+    def _serialize_stored_record(self, stored: StoredActivityRecord) -> dict[str, Any]:
         """Serialize stored record to JSON-compatible dict."""
         record = stored.record
         return {
@@ -153,21 +163,25 @@ class FileSleepRepository(SleepRepositoryInterface):
                 "source_name": record.source_name,
                 "start_date": record.start_date.isoformat(),
                 "end_date": record.end_date.isoformat(),
-                "state": record.state.value,
+                "activity_type": record.activity_type.value,
+                "value": record.value,
+                "unit": record.unit,
             }
         }
 
-    def _deserialize_stored_record(self, data: dict[str, Any]) -> StoredSleepRecord:
+    def _deserialize_stored_record(self, data: dict[str, Any]) -> StoredActivityRecord:
         """Deserialize JSON dict to stored record."""
         record_data = data["record"]
-        record = SleepRecord(
+        record = ActivityRecord(
             source_name=record_data["source_name"],
             start_date=datetime.fromisoformat(record_data["start_date"]),
             end_date=datetime.fromisoformat(record_data["end_date"]),
-            state=SleepState(record_data["state"]),
+            activity_type=ActivityType(record_data["activity_type"]),
+            value=float(record_data["value"]),
+            unit=record_data["unit"],
         )
         
-        return StoredSleepRecord(
+        return StoredActivityRecord(
             id=data["id"],
             record=record,
             created_at=datetime.fromisoformat(data["created_at"]),
