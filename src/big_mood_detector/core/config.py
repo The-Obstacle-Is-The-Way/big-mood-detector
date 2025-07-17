@@ -14,7 +14,10 @@ warnings.warn(
     stacklevel=2,
 )
 
-from big_mood_detector.infrastructure.settings import Settings, get_settings  # noqa: E402
+from big_mood_detector.infrastructure.settings import (  # noqa: E402
+    Settings,
+    get_settings,
+)
 from big_mood_detector.infrastructure.settings.config import settings  # noqa: E402
 
 __all__ = ["Settings", "get_settings", "settings"]
