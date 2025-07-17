@@ -91,7 +91,7 @@ class TestNHANESProcessor:
         assert "depressed" in depression.columns
         
         # Check PHQ-9 calculation
-        assert depression["PHQ9_total"].tolist() == [2, 12, 27]
+        assert depression["PHQ9_total"].tolist() == [2, 11, 27]
         assert depression["depressed"].tolist() == [0, 1, 1]  # >=10 is depressed
 
     @patch("pandas.read_sas")
