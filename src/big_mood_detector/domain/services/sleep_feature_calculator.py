@@ -11,6 +11,7 @@ Design Patterns:
 """
 
 from typing import Any
+from datetime import datetime, timedelta
 
 import numpy as np
 
@@ -76,14 +77,31 @@ class SleepFeatureCalculator:
             if summary.earliest_bedtime is None or summary.latest_wake_time is None:
                 continue
 
+            # Determine bedtime hour, excluding daytime naps if present
+            bedtime = summary.earliest_bedtime
+
+            if (
+                bedtime
+                and summary.mid_sleep_time
+                and summary.longest_sleep_hours > 0
+                and 8 <= bedtime.hour <= 18
+            ):
+                # Approximate main sleep start from mid-sleep and longest duration
+                main_start = summary.mid_sleep_time - timedelta(
+                    hours=summary.longest_sleep_hours / 2
+                )
+                bed_dt = datetime.combine(summary.date, bedtime)
+                diff_hours = abs((bed_dt - main_start).total_seconds() / 3600)
+
+                # If the earliest bedtime is far from the main sleep start,
+                # treat it as a daytime nap and use the main sleep start time
+                if diff_hours > 4:
+                    bedtime = main_start.time()
+
             # Convert to hours since midnight
-            sleep_hour = (
-                summary.earliest_bedtime.hour + summary.earliest_bedtime.minute / 60
-            )
+            sleep_hour = bedtime.hour + bedtime.minute / 60
 
             # Handle late night times (after midnight)
-            # NOTE: This assumes times before noon are late night sleep, not daytime naps
-            # TODO: Add nap detection logic if daytime sleep tracking is needed
             if sleep_hour < 12:  # Assume times before noon are late night
                 sleep_hour += 24
 

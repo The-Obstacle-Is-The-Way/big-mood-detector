@@ -271,3 +271,32 @@ class TestSleepFeatureCalculator:
         onset_var, wake_var = calculator.calculate_timing_variances(summaries)
         assert onset_var < 0.5  # Low variance for consistent times
         assert wake_var < 0.5
+
+    def test_regularity_excludes_daytime_naps(self, calculator):
+        """Daytime naps should not affect sleep regularity calculations."""
+        summaries = []
+        base_date = date(2024, 1, 1)
+
+        for i in range(7):
+            # Main sleep: 11 PM to 7 AM with a daytime nap at 12:30 PM
+            mid_sleep = datetime.combine(
+                base_date + timedelta(days=i + 1),
+                time(3, 0),
+            )
+
+            summary = DailySleepSummary(
+                date=base_date + timedelta(days=i),
+                total_time_in_bed_hours=9.0,
+                total_sleep_hours=8.5,
+                sleep_efficiency=0.9,
+                sleep_sessions=2,
+                longest_sleep_hours=8.0,
+                sleep_fragmentation_index=0.1,
+                earliest_bedtime=time(12, 30),  # Daytime nap start
+                latest_wake_time=time(13, 30),  # Nap end later than morning wake
+                mid_sleep_time=mid_sleep,
+            )
+            summaries.append(summary)
+
+        regularity = calculator.calculate_regularity_index(summaries)
+        assert regularity > 80
