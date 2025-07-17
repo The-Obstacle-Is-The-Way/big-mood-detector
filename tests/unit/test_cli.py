@@ -49,7 +49,7 @@ class TestCLI:
         assert "Process health data" in result.output
 
     @patch(
-        "big_mood_detector.application.services.data_parsing_service.DataParsingService"
+        "big_mood_detector.interfaces.cli.commands.MoodPredictionPipeline"
     )
     def test_process_command_with_directory(self, mock_pipeline: Mock) -> None:
         """Test process command with directory input."""
