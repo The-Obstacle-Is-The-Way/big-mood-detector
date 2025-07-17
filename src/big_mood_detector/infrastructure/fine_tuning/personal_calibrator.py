@@ -361,13 +361,7 @@ class PersonalCalibrator:
             # 3. Return accuracy metrics
 
             # For now, simulate training
-            if self.model is not None and hasattr(self.model, "encode"):  # type: ignore[unreachable]
-                try:
-                    _ = self.model.encode(sequences)
-                except AttributeError:
-                    _ = sequences
-            else:
-                _ = sequences
+            _ = sequences  # Just use sequences directly in mock implementation
 
             # Simulate accuracy improvement
             base_accuracy = 0.65

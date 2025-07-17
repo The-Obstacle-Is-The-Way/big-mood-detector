@@ -490,7 +490,7 @@ class MoodPredictionPipeline:
         # Save the updated model
         self.personal_calibrator.save_model(metrics)
 
-        return metrics
+        return metrics  # type: ignore[no-any-return]
 
     def export_results(self, result: PipelineResult, output_path: Path) -> None:
         """
