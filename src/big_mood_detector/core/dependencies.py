@@ -98,16 +98,16 @@ class Scope:
     def __init__(self, container: 'Container'):
         self.container = container
         self.instances: Dict[str, Any] = {}
-        self._resolving: set[Type] = set()
+        self._resolving: set[str] = set()  # Use string keys
     
     def resolve(self, service_type: Type[T], name: Optional[str] = None) -> T:
         """Resolve a dependency within this scope."""
         key = self._get_key(service_type, name)
         
-        # Check for circular dependency
-        if service_type in self._resolving:
+        # Check for circular dependency using string key
+        if key in self._resolving:
             raise CircularDependencyError(
-                f"Circular dependency detected for {service_type}"
+                f"Circular dependency detected for {service_type.__name__}"
             )
         
         # Check if already resolved in this scope
@@ -123,13 +123,13 @@ class Scope:
         
         # Handle scoped lifetime
         if descriptor.lifetime == Lifetime.SCOPED:
-            self._resolving.add(service_type)
+            self._resolving.add(key)
             try:
                 instance = self._create_instance(descriptor)
                 self.instances[key] = instance
                 return instance
             finally:
-                self._resolving.remove(service_type)
+                self._resolving.discard(key)
         
         # Delegate to container for other lifetimes
         return self.container.resolve(service_type, name)
