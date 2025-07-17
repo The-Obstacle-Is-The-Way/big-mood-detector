@@ -78,7 +78,8 @@ def save_json_output(result: PipelineResult, output_path: Path) -> None:
     }
 
     if result.metadata:
-        output_data["metadata"].update(result.metadata)
+        # mypy needs help understanding that metadata is a dict
+        output_data["metadata"].update(result.metadata)  # type: ignore[attr-defined]
 
     with open(output_path, "w") as f:
         json.dump(output_data, f, indent=2, default=str)

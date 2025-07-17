@@ -27,24 +27,23 @@ except ImportError:
 def serve_command(host: str, port: int, reload: bool, workers: int) -> None:
     """Start the API server."""
     if uvicorn is None:
-        click.echo(
+        click.echo(  # type: ignore[unreachable]
             "Error: API dependencies not installed.\n"
             "Install with: pip install big-mood-detector[api]",
             err=True,
         )
         sys.exit(1)
-        return  # pragma: no cover
+    else:
+        click.echo(f"Starting API server on {host}:{port}")
+        
+        if reload and workers > 1:
+            click.echo("Note: --reload disables multiple workers")
+            workers = 1
 
-    click.echo(f"Starting API server on {host}:{port}")
-    
-    if reload and workers > 1:
-        click.echo("Note: --reload disables multiple workers")
-        workers = 1
-
-    uvicorn.run(
-        "big_mood_detector.interfaces.api.main:app",
-        host=host,
-        port=port,
-        reload=reload,
-        workers=workers if not reload else 1,
-    )
+        uvicorn.run(
+            "big_mood_detector.interfaces.api.main:app",
+            host=host,
+            port=port,
+            reload=reload,
+            workers=workers if not reload else 1,
+        )
