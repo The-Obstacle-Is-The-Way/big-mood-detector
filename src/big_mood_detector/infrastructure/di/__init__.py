@@ -1,6 +1,7 @@
 """Dependency Injection infrastructure."""
 
 from big_mood_detector.infrastructure.di.container import (
+    CircularDependencyError,
     Container,
     DependencyNotFoundError,
     Provide,
@@ -10,6 +11,7 @@ from big_mood_detector.infrastructure.di.container import (
 )
 
 __all__ = [
+    "CircularDependencyError",
     "Container",
     "DependencyNotFoundError",
     "Provide",
