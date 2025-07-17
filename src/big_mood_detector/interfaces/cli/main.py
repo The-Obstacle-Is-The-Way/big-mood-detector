@@ -34,12 +34,36 @@ cli.add_command(label_group)
 
 
 @cli.command(name="train")
-@click.option("--data", type=click.Path(exists=True), help="Training data")
-@click.option("--labels", type=click.Path(exists=True), help="Ground truth labels")
-def train_command(data: str, labels: str) -> None:
-    """Train personalized models (coming soon)."""
-    click.echo("🚧 Train command coming soon!")
-    click.echo("This will enable personal model fine-tuning.")
+@click.option("--model-type", type=click.Choice(["xgboost", "pat"]), default="xgboost", help="Model type")
+@click.option("--user-id", required=True, help="User identifier for the personal model")
+@click.option("--data", type=click.Path(exists=True), required=True, help="Training data (CSV for xgboost or NPY for PAT)")
+@click.option("--labels", type=click.Path(exists=True), required=True, help="Ground truth labels (CSV or NPY)")
+def train_command(model_type: str, user_id: str, data: str, labels: str) -> None:
+    """Train a personalized model using ``PersonalCalibrator``."""
+    from big_mood_detector.infrastructure.fine_tuning.personal_calibrator import (
+        PersonalCalibrator,
+    )
+    import pandas as pd
+    import numpy as np
+
+    click.echo(f"Training {model_type} model for user {user_id}...")
+
+    calibrator = PersonalCalibrator(user_id=user_id, model_type=model_type)
+
+    if labels.endswith(".npy"):
+        y = np.load(labels)
+    else:
+        y = pd.read_csv(labels).iloc[:, 0].to_numpy()
+
+    if model_type == "xgboost":
+        features = pd.read_csv(data)
+        metrics = calibrator.calibrate(features=features, labels=y)
+    else:
+        sequences = np.load(data)
+        metrics = calibrator.calibrate(sequences=sequences, labels=y)
+
+    calibrator.save_model(metrics)
+    click.echo("✅ Personal model saved")
 
 
 if __name__ == "__main__":
