@@ -13,6 +13,7 @@ from functools import lru_cache, wraps
 from typing import (
     Any,
     Generic,
+    Iterator,
     TypeVar,
     cast,
     get_args,
