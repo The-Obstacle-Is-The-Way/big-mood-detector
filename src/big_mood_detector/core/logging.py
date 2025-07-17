@@ -10,7 +10,7 @@ import time
 from collections.abc import Callable
 from contextlib import contextmanager
 from functools import lru_cache
-from typing import Any, cast
+from typing import Any, Iterator, cast
 
 import structlog
 from structlog.types import FilteringBoundLogger
@@ -53,8 +53,7 @@ def setup_logging(config: Settings) -> FilteringBoundLogger:
     if config.LOG_FORMAT == "json":
         # JSON output direct to console
         structlog.configure(
-            processors=[
-                *shared_processors,
+            processors=shared_processors + [
                 structlog.processors.dict_tracebacks,
                 structlog.processors.JSONRenderer(),
             ],
@@ -65,7 +64,7 @@ def setup_logging(config: Settings) -> FilteringBoundLogger:
     else:
         # Human-readable console output
         structlog.configure(
-            processors=[*shared_processors, structlog.dev.ConsoleRenderer()],
+            processors=shared_processors + [structlog.dev.ConsoleRenderer()],
             context_class=dict,
             logger_factory=structlog.PrintLoggerFactory(),
             cache_logger_on_first_use=False,
@@ -145,7 +144,7 @@ def log_performance(logger: FilteringBoundLogger | None = None) -> Callable:
 
     def decorator(func: Callable) -> Callable:
         @functools.wraps(func)
-        def wrapper(*args, **kwargs):
+        def wrapper(*args: Any, **kwargs: Any) -> Any:
             start_time = time.time()
             _logger = logger or get_logger()
 
@@ -178,7 +177,7 @@ def log_performance(logger: FilteringBoundLogger | None = None) -> Callable:
 
 
 @contextmanager
-def log_context(logger: FilteringBoundLogger, **context):
+def log_context(logger: FilteringBoundLogger, **context: Any) -> Iterator[FilteringBoundLogger]:
     """Context manager for temporary logging context.
 
     Args:

@@ -289,13 +289,17 @@ class AsyncTaskWorker:
             else:
                 # Sync handler, run in executor
                 loop = asyncio.get_event_loop()
+                # Create wrapper that only passes payload
+                def sync_wrapper() -> Any:
+                    return handler(task.payload)  # type: ignore[misc]
+                
                 if self.task_timeout:
                     await asyncio.wait_for(
-                        loop.run_in_executor(None, handler, task.payload),
+                        loop.run_in_executor(None, sync_wrapper),
                         timeout=self.task_timeout,
                     )
                 else:
-                    await loop.run_in_executor(None, handler, task.payload)
+                    await loop.run_in_executor(None, sync_wrapper)
 
             # Mark as completed
             self.queue.update_task_status(

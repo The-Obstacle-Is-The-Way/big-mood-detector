@@ -63,7 +63,6 @@ class Settings(BaseSettings):
         return v
 
     @computed_field
-    @property
     def log_config(self) -> dict:
         """Generate logging configuration."""
         return {
