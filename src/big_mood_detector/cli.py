@@ -31,7 +31,7 @@ def main() -> None:
 @click.option(
     "--output",
     "-o",
-    default="mood_predictions.csv",
+    default="output/mood_predictions.csv",
     help="Output CSV file path",
 )
 @click.option(

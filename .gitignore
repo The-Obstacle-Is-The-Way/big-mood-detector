@@ -146,6 +146,10 @@ your_clinical_report.txt
 *_clinical_decision*.txt
 *_cds_report*
 *.summary.json
+*_mood_analysis.*
+*_record_analysis.txt
+ray_mood_analysis.*
+xml_record_analysis.txt
 
 # Processing outputs
 output/
