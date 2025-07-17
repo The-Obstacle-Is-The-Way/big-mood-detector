@@ -12,7 +12,7 @@ from unittest.mock import Mock, patch
 import pytest
 from click.testing import CliRunner
 
-from big_mood_detector.domain.models.episode import EpisodeLabel
+# Remove unused import
 
 
 class TestLabelCLI:
@@ -23,6 +23,12 @@ class TestLabelCLI:
         """Create a CLI test runner."""
         return CliRunner()
 
+    @pytest.fixture(autouse=True)
+    def reset_imports(self):
+        """Reset module imports between tests to avoid pollution."""
+        yield
+        # Clean up any module-level state
+        
     @pytest.fixture
     def mock_episode_labeler(self):
         """Mock the EpisodeLabeler."""
@@ -35,7 +41,7 @@ class TestLabelCLI:
         
         result = runner.invoke(cli, ["label", "--help"])
         assert result.exit_code == 0
-        assert "Create ground truth labels" in result.output
+        assert "Manage labels and create ground truth annotations" in result.output
 
     def test_label_defaults_to_episode_subcommand(self, runner):
         """Test that 'label' alone defaults to episode subcommand."""
@@ -53,12 +59,23 @@ class TestLabelCLI:
         # Mock the labeler instance
         mock_instance = Mock()
         mock_episode_labeler.return_value = mock_instance
+        # Mock check_overlap to return False (no overlap)
+        mock_instance.check_overlap.return_value = False
         
-        result = runner.invoke(
-            cli,
-            ["label", "episode", "--date", "2024-03-15", "--mood", "depressive", 
-             "--severity", "3", "--rater-id", "test_clinician"],
-        )
+        # Need to mock the validator to not fail on single-day episodes
+        with patch("big_mood_detector.interfaces.cli.labeling.commands.ClinicalValidator") as mock_validator:
+            mock_validator_instance = Mock()
+            mock_validator.return_value = mock_validator_instance
+            # Return valid=True to skip the DSM-5 warning
+            mock_validator_instance.validate_episode_duration.return_value = Mock(
+                valid=True, warning=None, suggestion=None
+            )
+            
+            result = runner.invoke(
+                cli,
+                ["label", "episode", "--date", "2024-03-15", "--mood", "depressive", 
+                 "--severity", "3", "--rater-id", "test_clinician"],
+            )
         
         assert result.exit_code == 0
         assert "Labeled 2024-03-15 as depressive" in result.output
@@ -76,12 +93,21 @@ class TestLabelCLI:
         
         mock_instance = Mock()
         mock_episode_labeler.return_value = mock_instance
+        mock_instance.check_overlap.return_value = False
         
-        result = runner.invoke(
-            cli,
-            ["label", "episode", "--date-range", "2024-03-10:2024-03-20", 
-             "--mood", "hypomanic", "--severity", "3"],
-        )
+        # Mock validator
+        with patch("big_mood_detector.interfaces.cli.labeling.commands.ClinicalValidator") as mock_validator:
+            mock_validator_instance = Mock()
+            mock_validator.return_value = mock_validator_instance
+            mock_validator_instance.validate_episode_duration.return_value = Mock(
+                valid=True, warning=None, suggestion=None
+            )
+            
+            result = runner.invoke(
+                cli,
+                ["label", "episode", "--date-range", "2024-03-10:2024-03-20", 
+                 "--mood", "hypomanic", "--severity", "3"],
+            )
         
         assert result.exit_code == 0
         assert "Labeled 11-day hypomanic episode" in result.output
@@ -112,11 +138,15 @@ class TestLabelCLI:
         mock_instance = Mock()
         mock_episode_labeler.return_value = mock_instance
         
-        result = runner.invoke(
-            cli,
-            ["label", "baseline", "--start", "2024-05-01", "--end", "2024-05-14",
-             "--notes", "Stable on medication"],
-        )
+        # Need to patch the EpisodeLabeler in the baseline command module as well
+        with patch("big_mood_detector.interfaces.cli.labeling.commands.EpisodeLabeler") as mock_labeler_class:
+            mock_labeler_class.return_value = mock_instance
+            
+            result = runner.invoke(
+                cli,
+                ["label", "baseline", "--start", "2024-05-01", "--end", "2024-05-14",
+                 "--notes", "Stable on medication"],
+            )
         
         assert result.exit_code == 0
         assert "Marked baseline period" in result.output
@@ -128,24 +158,33 @@ class TestLabelCLI:
         
         mock_instance = Mock()
         mock_episode_labeler.return_value = mock_instance
+        mock_instance.check_overlap.return_value = False
         
-        # Test various aliases
-        aliases = [
-            ("dep", "depressive"),
-            ("hypo", "hypomanic"),
-            ("mania", "manic"),
-            ("mixed", "mixed"),
-        ]
-        
-        for alias, expected in aliases:
-            result = runner.invoke(
-                cli,
-                ["label", "episode", "--date", "2024-03-15", "--mood", alias],
+        # Mock validator
+        with patch("big_mood_detector.interfaces.cli.labeling.commands.ClinicalValidator") as mock_validator:
+            mock_validator_instance = Mock()
+            mock_validator.return_value = mock_validator_instance
+            mock_validator_instance.validate_episode_duration.return_value = Mock(
+                valid=True, warning=None, suggestion=None
             )
-            assert result.exit_code == 0
             
-            call_args = mock_instance.add_episode.call_args
-            assert call_args.kwargs["episode_type"] == expected
+            # Test various aliases
+            aliases = [
+                ("dep", "depressive"),
+                ("hypo", "hypomanic"),
+                ("mania", "manic"),
+                ("mixed", "mixed"),
+            ]
+            
+            for alias, expected in aliases:
+                result = runner.invoke(
+                    cli,
+                    ["label", "episode", "--date", "2024-03-15", "--mood", alias],
+                )
+                assert result.exit_code == 0
+                
+                call_args = mock_instance.add_episode.call_args
+                assert call_args.kwargs["episode_type"] == expected
 
     def test_interactive_mode_with_predictions(self, runner, mock_episode_labeler):
         """Test interactive mode showing predictions."""
@@ -211,7 +250,11 @@ class TestLabelCLI:
         mock_episode_labeler.return_value = mock_instance
         mock_instance.undo_last.return_value = True
         
-        result = runner.invoke(cli, ["label", "undo"])
+        # Need to patch EpisodeLabeler in the undo command module
+        with patch("big_mood_detector.interfaces.cli.labeling.commands.EpisodeLabeler") as mock_labeler_class:
+            mock_labeler_class.return_value = mock_instance
+            
+            result = runner.invoke(cli, ["label", "undo"])
         
         assert result.exit_code == 0
         assert "Undid last label" in result.output

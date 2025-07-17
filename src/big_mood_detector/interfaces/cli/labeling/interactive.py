@@ -10,6 +10,11 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 import click
+from rich.console import Console
+from rich.panel import Panel
+from rich.progress import Progress, SpinnerColumn, TextColumn
+from rich.prompt import Confirm, IntPrompt, Prompt
+from rich.table import Table
 
 from big_mood_detector.domain.services.episode_labeler import EpisodeLabeler
 from big_mood_detector.infrastructure.logging import get_module_logger
@@ -32,6 +37,7 @@ class InteractiveSession:
         self.validator = validator
         self.predictions = self._load_predictions(predictions_file) if predictions_file else []
         self.progress = {"labeled": 0, "skipped": 0, "total": len(self.predictions)}
+        self.console = Console()
     
     def _load_predictions(self, predictions_file: Path) -> List[Dict[str, Any]]:
         """Load predictions from JSON file."""
@@ -95,40 +101,74 @@ class InteractiveSession:
         click.echo(click.style("✓ Label saved", fg="green"))
     
     def _display_day_context(self, prediction: Dict[str, Any]) -> None:
-        """Display predictions and biomarkers."""
-        click.echo(f"\n{'─' * 60}")
-        click.echo(f"Date: {click.style(prediction['date'], bold=True)}")
-        click.echo("\nModel Predictions:")
+        """Display predictions and biomarkers with Rich formatting."""
+        # Create a table for predictions
+        pred_table = Table(title="Model Predictions", show_header=False, padding=(0, 1))
+        pred_table.add_column("Metric", style="cyan")
+        pred_table.add_column("Value", justify="right")
         
-        # Risk levels
+        # Risk levels with color coding
         dep_risk = prediction.get("depression_risk", 0)
-        risk_color = "red" if dep_risk > 0.6 else "yellow" if dep_risk > 0.4 else "green"
-        click.echo(f"  • Depression Risk: {click.style(f'{dep_risk:.0%}', fg=risk_color)}")
-        click.echo(f"  • Hypomanic Risk: {prediction.get('hypomanic_risk', 0):.0%}")
-        click.echo(f"  • Manic Risk: {prediction.get('manic_risk', 0):.0%}")
+        dep_color = "red" if dep_risk > 0.6 else "yellow" if dep_risk > 0.4 else "green"
+        pred_table.add_row("Depression Risk", f"[{dep_color}]{dep_risk:.0%}[/{dep_color}]")
         
-        # Features if available
+        hypo_risk = prediction.get("hypomanic_risk", 0)
+        hypo_color = "yellow" if hypo_risk > 0.4 else "green"
+        pred_table.add_row("Hypomanic Risk", f"[{hypo_color}]{hypo_risk:.0%}[/{hypo_color}]")
+        
+        manic_risk = prediction.get("manic_risk", 0)
+        manic_color = "red" if manic_risk > 0.4 else "green"
+        pred_table.add_row("Manic Risk", f"[{manic_color}]{manic_risk:.0%}[/{manic_color}]")
+        
+        # Create biomarkers table if available
         if "features" in prediction:
             features = prediction["features"]
-            click.echo("\nDigital Biomarkers:")
+            bio_table = Table(title="Digital Biomarkers", show_header=False, padding=(0, 1))
+            bio_table.add_column("Metric", style="cyan")
+            bio_table.add_column("Value", justify="right")
+            
             if "sleep_hours" in features:
-                click.echo(f"  • Sleep: {features['sleep_hours']:.1f} hrs")
+                bio_table.add_row("Sleep", f"{features['sleep_hours']:.1f} hrs")
             if "activity_steps" in features:
-                click.echo(f"  • Activity: {features['activity_steps']:,} steps")
+                bio_table.add_row("Activity", f"{features['activity_steps']:,} steps")
             if "sleep_efficiency" in features:
-                click.echo(f"  • Sleep Efficiency: {features['sleep_efficiency']:.0%}")
+                eff = features['sleep_efficiency']
+                eff_color = "red" if eff < 0.7 else "yellow" if eff < 0.85 else "green"
+                bio_table.add_row("Sleep Efficiency", f"[{eff_color}]{eff:.0%}[/{eff_color}]")
+        
+        # Create main panel
+        date_str = prediction['date']
+        day_num = self.progress['labeled'] + self.progress['skipped'] + 1
+        total = self.progress['total']
+        
+        panel = Panel(
+            f"[bold]Date: {date_str}[/bold]\n[dim]Day {day_num} of {total}[/dim]\n",
+            title=f"[bold blue]Labeling Session[/bold blue]",
+            border_style="blue"
+        )
+        
+        self.console.print(panel)
+        self.console.print(pred_table)
+        if "features" in prediction:
+            self.console.print(bio_table)
     
     def _prompt_mood(self) -> str:
-        """Prompt for mood type."""
-        click.echo("\nWhat was the mood state on this day?")
-        click.echo("  [1] Depressed")
-        click.echo("  [2] Hypomanic") 
-        click.echo("  [3] Manic")
-        click.echo("  [4] Mixed")
-        click.echo("  [5] Stable/Normal")
-        click.echo("  [6] Skip")
+        """Prompt for mood type with Rich formatting."""
+        choices = [
+            "[red]1[/red] - Depressed",
+            "[yellow]2[/yellow] - Hypomanic",
+            "[magenta]3[/magenta] - Manic", 
+            "[cyan]4[/cyan] - Mixed",
+            "[green]5[/green] - Stable/Normal",
+            "[dim]6[/dim] - Skip"
+        ]
         
-        choice = click.prompt("Choice (1-6)", type=int)
+        self.console.print("\n[bold]What was the mood state on this day?[/bold]")
+        for choice in choices:
+            self.console.print(f"  {choice}")
+        
+        # Use regular click prompt instead of IntPrompt which has issues with choices
+        choice = click.prompt("Choice", type=click.IntRange(1, 6))
         
         mood_map = {
             1: "depressive",
