@@ -37,10 +37,13 @@ setup: install-dev pre-commit
 
 # Testing targets (TDD focused)
 test:  ## Run all tests except slow_finetune and large files
-	pytest -m "not slow_finetune and not large" --cov=big_mood_detector --cov-report=term-missing --cov-report=html
+	pytest --cov=big_mood_detector --cov-report=term-missing
 
-test-quick:
+test-quick:  ## Quick test run with minimal output
 	pytest -x --tb=short -q
+
+test-watch:  ## Watch tests with verbose output (best for TDD)
+	pytest -v --tb=short --durations=10
 
 test-parallel:
 	pytest -n auto --cov=big_mood_detector --cov-report=term-missing
