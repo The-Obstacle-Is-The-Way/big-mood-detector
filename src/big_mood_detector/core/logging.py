@@ -19,6 +19,9 @@ from big_mood_detector.infrastructure.logging import (  # noqa: E402
     get_module_logger,
     setup_logging,
     LoggerAdapter,
+    log_performance,
+    log_context,
+    sanitize_log_data,
 )
 
-__all__ = ["get_logger", "get_module_logger", "setup_logging", "LoggerAdapter"]
+__all__ = ["get_logger", "get_module_logger", "setup_logging", "LoggerAdapter", "log_performance", "log_context", "sanitize_log_data"]
