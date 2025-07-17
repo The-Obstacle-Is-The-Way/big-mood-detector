@@ -12,9 +12,6 @@ import pandas as pd
 import pytest
 
 
-@pytest.mark.skip(
-    reason="PersonalCalibrator module not implemented yet - will implement after baseline tests are green"
-)
 class TestPersonalCalibrator:
     """Test personal calibration pipeline."""
 
