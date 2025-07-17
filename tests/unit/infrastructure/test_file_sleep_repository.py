@@ -35,14 +35,10 @@ class TestFileSleepRepository:
     def sample_sleep_record(self):
         """Create sample sleep record."""
         return SleepRecord(
-            id="test-123",
-            start_time=datetime(2024, 1, 1, 22, 0),
-            end_time=datetime(2024, 1, 2, 6, 0),
+            source_name="test-source",
+            start_date=datetime(2024, 1, 1, 22, 0),
+            end_date=datetime(2024, 1, 2, 6, 0),
             state=SleepState.ASLEEP,
-            heart_rate_samples=[],
-            motion_samples=[],
-            sound_samples=[],
-            metadata={},
         )
 
     async def test_repository_initialization(self, temp_dir):
