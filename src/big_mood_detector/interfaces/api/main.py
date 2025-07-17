@@ -11,6 +11,7 @@ from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 
 from big_mood_detector.interfaces.api.clinical_routes import router as clinical_router
+from big_mood_detector.interfaces.api.routes.upload import router as upload_router
 
 app = FastAPI(
     title="Big Mood Detector",
@@ -20,6 +21,7 @@ app = FastAPI(
 
 # Include routers
 app.include_router(clinical_router)
+app.include_router(upload_router)
 
 
 @app.get("/health")

@@ -123,16 +123,25 @@ class TestCLI:
         assert result.exit_code == 0
         assert "Watch directory" in result.output
 
-    def test_watch_command_not_implemented(self):
-        """Test watch command shows not implemented message."""
+    @patch("big_mood_detector.infrastructure.monitoring.file_watcher.FileWatcher")
+    def test_watch_command_with_options(self, mock_file_watcher):
+        """Test watch command accepts all options."""
         from big_mood_detector.cli import main
+
+        # Mock the file watcher to prevent actual watching
+        mock_instance = Mock()
+        mock_file_watcher.return_value = mock_instance
+        mock_instance.watch.side_effect = KeyboardInterrupt()  # Simulate Ctrl+C
 
         with tempfile.TemporaryDirectory() as tmpdir:
             runner = CliRunner()
-            result = runner.invoke(main, ["watch", tmpdir])
+            result = runner.invoke(main, ["watch", tmpdir, "--poll-interval", "30", "--patterns", "*.json", "--no-recursive"])
 
-            assert result.exit_code == 1
-            assert "File watcher not yet implemented" in result.output
+            # Should show setup messages
+            assert "Watching" in result.output
+            assert "health data files" in result.output
+            assert "Poll interval: 30" in result.output
+            assert "Stopping file watcher" in result.output
 
     @patch("big_mood_detector.cli.MoodPredictionPipeline")
     def test_process_command_with_report(self, mock_pipeline):

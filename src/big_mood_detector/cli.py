@@ -115,26 +115,101 @@ def serve(host: str, port: int) -> None:
     default=60,
     help="Polling interval in seconds",
 )
-def watch(directory: str, poll_interval: int) -> None:
+@click.option("--patterns", "-p", multiple=True, default=["*.xml", "*.json"], help="File patterns to watch")
+@click.option("--recursive/--no-recursive", default=True, help="Watch subdirectories")
+@click.option("--state-file", type=click.Path(), help="File to persist watcher state")
+def watch(
+    directory: str, 
+    poll_interval: int,
+    patterns: tuple[str, ...],
+    recursive: bool,
+    state_file: str | None,
+) -> None:
     """Watch directory for new health data files.
 
     Monitors DIRECTORY for new JSON or XML files and automatically
     processes them when detected.
     """
-    try:
-        from big_mood_detector.application.services.file_watcher import FileWatcher
-    except ImportError:
-        click.echo(
-            "File watcher not yet implemented. This feature is coming soon!", err=True
-        )
-        sys.exit(1)
-
-    click.echo(f"Watching directory: {directory}")
+    from big_mood_detector.infrastructure.background.task_queue import TaskQueue
+    from big_mood_detector.infrastructure.background.tasks import (
+        register_health_processing_tasks,
+    )
+    from big_mood_detector.infrastructure.background.worker import TaskWorker
+    from big_mood_detector.infrastructure.monitoring.file_watcher import FileWatcher
+    
+    watch_path = Path(directory)
+    click.echo(f"Watching {watch_path} for health data files...")
+    click.echo(f"Patterns: {', '.join(patterns)}")
+    click.echo(f"Recursive: {recursive}")
     click.echo(f"Poll interval: {poll_interval} seconds")
-    click.echo("Press Ctrl+C to stop...")
-
-    watcher = FileWatcher(Path(directory), poll_interval)
-    watcher.start()
+    
+    # Create task queue and worker
+    task_queue = TaskQueue()
+    task_worker = TaskWorker(task_queue)
+    register_health_processing_tasks(task_worker)
+    
+    # Create file watcher
+    watcher = FileWatcher(
+        watch_path=watch_path,
+        patterns=list(patterns),
+        recursive=recursive,
+        poll_interval=poll_interval,
+        state_file=Path(state_file) if state_file else None,
+        ignore_patterns=[".*", "*~", "*.tmp", "*.bak"],
+    )
+    
+    # Track processed files
+    processed_count = 0
+    
+    def process_new_file(file_path: Path):
+        nonlocal processed_count
+        
+        click.echo(f"\n🔍 Found new file: {file_path}")
+        
+        # Add to task queue
+        task_id = task_queue.add_task(
+            task_type="process_health_file",
+            payload={
+                "file_path": str(file_path),
+                "output_path": str(
+                    file_path.parent / f"{file_path.stem}_predictions.csv"
+                ),
+            },
+        )
+        
+        # Process immediately
+        click.echo("Processing...")
+        task_worker.process_one()
+        
+        # Check result
+        status = task_queue.get_task_status(task_id)
+        if status["status"] == "completed":
+            processed_count += 1
+            click.secho("✓ Processing complete!", fg="green")
+            
+            # Get task result
+            task = next((t for t in task_queue._tasks.values() if t.id == task_id), None)
+            if task and "result" in task.payload:
+                result = task.payload["result"]
+                click.echo(f"  Depression Risk: {result['depression_risk']:.1%}")
+                click.echo(f"  Hypomanic Risk: {result['hypomanic_risk']:.1%}")
+                click.echo(f"  Manic Risk: {result['manic_risk']:.1%}")
+        else:
+            click.secho(f"✗ Processing failed: {status.get('error', 'Unknown error')}", fg="red")
+    
+    # Register handlers
+    watcher.on_created(process_new_file)
+    
+    # Start watching
+    click.echo(f"\nWatching for new files (press Ctrl+C to stop)...")
+    click.echo(f"Processed files: {processed_count}")
+    
+    try:
+        watcher.watch()
+    except KeyboardInterrupt:
+        click.echo(f"\n\nStopping file watcher...")
+        click.echo(f"Total files processed: {processed_count}")
+        watcher.save_state()
 
 
 def _generate_clinical_report(result: PipelineResult, output_path: Path) -> None:

@@ -154,6 +154,10 @@ results/
 reports/
 clinical_reports/
 
+# Upload directories from API testing
+uploads/
+upload_temp/
+
 # Allow specific example/test files only
 !docs/examples/*.xml
 !tests/fixtures/*.xml
