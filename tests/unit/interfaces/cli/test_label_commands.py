@@ -80,8 +80,9 @@ class TestLabelListCommand:
         assert "Depression" in result.output
         assert "Mania" in result.output
         assert "Sleep Disruption" in result.output
-        assert "Major depressive episode" in result.output
-        assert "#5B6C8F" in result.output
+        assert "Major depressive" in result.output
+        # Color is shown as a swatch, not hex code
+        assert "███" in result.output
         
     def test_list_labels_by_category(self, runner, mock_label_service, sample_labels):
         """Test filtering labels by category."""

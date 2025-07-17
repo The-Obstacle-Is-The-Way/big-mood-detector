@@ -71,8 +71,8 @@ def create_label_table(labels: List[Label]) -> Table:
     return table
 
 
-@app.command()
-def list(
+@app.command(name="list")
+def list_labels(
     category: Optional[str] = typer.Option(
         None,
         "--category", "-c",
