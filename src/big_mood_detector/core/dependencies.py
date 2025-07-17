@@ -14,6 +14,7 @@ from typing import (
     Any,
     Generic,
     TypeVar,
+    cast,
     get_args,
     get_origin,
 )
@@ -54,13 +55,16 @@ class Lazy(Generic[T]):
                 if not self._initialized:
                     self._value = self._factory()
                     self._initialized = True
+        
+        # At this point, _value is guaranteed to be initialized
+        assert self._value is not None, "Lazy value not properly initialized"
         return self._value
 
 
 class Provide:
     """Marker for dependency injection in function parameters."""
 
-    def __class_getitem__(cls, item: type[T]) -> T:
+    def __class_getitem__(cls, item: type[T]) -> type[T]:
         """Support Provide[ServiceType] syntax."""
         return item
 
@@ -110,7 +114,7 @@ class Scope:
 
         # Check if already resolved in this scope
         if key in self.instances:
-            return self.instances[key]
+            return cast(T, self.instances[key])
 
         # Get descriptor from container
         descriptor = self.container._get_descriptor(service_type, name)

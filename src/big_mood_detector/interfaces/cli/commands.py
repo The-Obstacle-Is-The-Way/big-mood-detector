@@ -8,7 +8,7 @@ This module contains all command implementations for the Big Mood Detector.
 import sys
 from datetime import date, datetime
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, Optional, TypedDict
 
 import click
 
@@ -20,6 +20,17 @@ from big_mood_detector.application.use_cases.process_health_data_use_case import
 from big_mood_detector.infrastructure.fine_tuning.personal_calibrator import (
     PersonalCalibrator,
 )
+
+
+class ProcessingMetadata(TypedDict, total=False):
+    """Metadata structure for processing results."""
+    records_processed: int
+    processing_time: float
+    warnings: list[str]
+    errors: list[str]
+    features_extracted: int
+    has_warnings: bool
+    has_errors: bool
 
 
 def format_risk_level(risk_score: float) -> str:
@@ -63,23 +74,26 @@ def save_json_output(result: PipelineResult, output_path: Path) -> None:
     """Save results in JSON format."""
     import json
 
+    # Build metadata dict with proper typing
+    metadata: dict[str, Any] = {
+        "records_processed": result.records_processed,
+        "processing_time": result.processing_time_seconds,
+        "warnings": result.warnings,
+        "errors": result.errors,
+    }
+    
+    # Merge additional metadata if present
+    if result.metadata:
+        metadata.update(result.metadata)
+
     output_data = {
         "summary": result.overall_summary,
         "confidence": result.confidence_score,
         "daily_predictions": {
             str(date): pred for date, pred in result.daily_predictions.items()
         },
-        "metadata": {
-            "records_processed": result.records_processed,
-            "processing_time": result.processing_time_seconds,
-            "warnings": result.warnings,
-            "errors": result.errors,
-        },
+        "metadata": metadata,
     }
-
-    if result.metadata:
-        # mypy needs help understanding that metadata is a dict
-        output_data["metadata"].update(result.metadata)  # type: ignore[attr-defined]
 
     with open(output_path, "w") as f:
         json.dump(output_data, f, indent=2, default=str)
@@ -220,13 +234,17 @@ def process_command(
         # Initialize pipeline
         pipeline = MoodPredictionPipeline()
 
+        # Convert datetime to date at the edge for clean internal APIs
+        start_date_param: Optional[date] = start_date.date() if start_date else None
+        end_date_param: Optional[date] = end_date.date() if end_date else None
+
         # Process health export
         output_path = Path(output) if output else Path("output/features.csv")
         df = pipeline.process_health_export(
             export_path=Path(input_path),
             output_path=output_path,
-            start_date=start_date.date() if start_date else None,
-            end_date=end_date.date() if end_date else None,
+            start_date=start_date_param,
+            end_date=end_date_param,
         )
 
         click.echo(f"\n✅ Features extracted: {len(df)} days")
@@ -319,11 +337,15 @@ def predict_command(
         # Initialize pipeline
         pipeline = MoodPredictionPipeline(config=config)
 
+        # Convert datetime to date at the edge for clean internal APIs
+        start_date_param: Optional[date] = start_date.date() if start_date else None
+        end_date_param: Optional[date] = end_date.date() if end_date else None
+
         # Process data
         result = pipeline.process_apple_health_file(
             file_path=Path(input_path),
-            start_date=start_date.date() if start_date else None,
-            end_date=end_date.date() if end_date else None,
+            start_date=start_date_param,
+            end_date=end_date_param,
         )
 
         # Handle output based on format
