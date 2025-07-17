@@ -89,7 +89,7 @@ class TestPopulationTrainer:
         assert len(task_head.layers) >= 2  # At least hidden + output
         assert task_head.output_dim == 2
 
-    @pytest.mark.slow
+    @pytest.mark.slow_finetune
     @patch("torch.save")
     def test_pat_training_pipeline(self, mock_save):
         """Test full PAT fine-tuning pipeline."""
