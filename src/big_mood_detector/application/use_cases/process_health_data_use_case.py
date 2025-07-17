@@ -33,7 +33,6 @@ from big_mood_detector.application.use_cases.predict_mood_ensemble_use_case impo
     EnsembleConfig,
     EnsembleOrchestrator,
 )
-from big_mood_detector.core.logging import get_module_logger
 from big_mood_detector.domain.services.activity_sequence_extractor import (
     ActivitySequenceExtractor,
 )
@@ -52,6 +51,7 @@ from big_mood_detector.domain.services.sleep_window_analyzer import SleepWindowA
 from big_mood_detector.domain.services.sparse_data_handler import (
     SparseDataHandler,
 )
+from big_mood_detector.infrastructure.logging import get_module_logger
 
 logger = get_module_logger(__name__)
 

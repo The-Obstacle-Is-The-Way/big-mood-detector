@@ -10,7 +10,7 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
-from big_mood_detector.core.logging import get_module_logger
+from big_mood_detector.infrastructure.logging import get_module_logger
 
 logger = get_module_logger(__name__)
 

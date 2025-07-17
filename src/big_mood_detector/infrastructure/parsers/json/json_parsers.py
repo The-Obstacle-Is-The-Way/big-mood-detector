@@ -9,7 +9,6 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-from big_mood_detector.core.logging import get_module_logger
 from big_mood_detector.domain.entities.activity_record import (
     ActivityRecord,
     ActivityType,
@@ -20,6 +19,7 @@ from big_mood_detector.domain.entities.heart_rate_record import (
     MotionContext,
 )
 from big_mood_detector.domain.entities.sleep_record import SleepRecord, SleepState
+from big_mood_detector.infrastructure.logging import get_module_logger
 
 logger = get_module_logger(__name__)
 

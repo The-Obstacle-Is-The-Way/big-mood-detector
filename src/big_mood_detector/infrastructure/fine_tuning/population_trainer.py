@@ -24,7 +24,7 @@ from sklearn.metrics import (
 )
 from sklearn.model_selection import TimeSeriesSplit
 
-from big_mood_detector.core.logging import get_module_logger
+from big_mood_detector.infrastructure.logging import get_module_logger
 
 logger = get_module_logger(__name__)
 

@@ -15,13 +15,13 @@ from typing import Any, cast
 import structlog
 from structlog.types import FilteringBoundLogger
 
-from .config import Settings, settings
+from big_mood_detector.infrastructure.settings import Settings, get_settings
 
 
 @lru_cache
 def get_logger() -> FilteringBoundLogger:
     """Get configured logger instance (cached singleton)."""
-    return setup_logging(settings)
+    return setup_logging(get_settings())
 
 
 def _sanitize_processor(

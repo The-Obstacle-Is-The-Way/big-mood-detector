@@ -11,7 +11,7 @@ warnings.warn(
     "Importing from big_mood_detector.core.logging is deprecated. "
     "Use big_mood_detector.infrastructure.logging instead.",
     DeprecationWarning,
-    stacklevel=2
+    stacklevel=2,
 )
 
 from big_mood_detector.infrastructure.logging import get_logger, get_module_logger

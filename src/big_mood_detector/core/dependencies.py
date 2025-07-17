@@ -11,7 +11,7 @@ warnings.warn(
     "Importing from big_mood_detector.core.dependencies is deprecated. "
     "Use big_mood_detector.infrastructure.di instead.",
     DeprecationWarning,
-    stacklevel=2
+    stacklevel=2,
 )
 
 from big_mood_detector.infrastructure.di import (

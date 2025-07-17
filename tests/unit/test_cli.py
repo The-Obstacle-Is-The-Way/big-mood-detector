@@ -51,7 +51,8 @@ class TestCLI:
         mock_instance = Mock()
         # Mock process_health_export to return a DataFrame
         import pandas as pd
-        mock_df = pd.DataFrame({'test': [1, 2, 3]})
+
+        mock_df = pd.DataFrame({"test": [1, 2, 3]})
         mock_instance.process_health_export.return_value = mock_df
         mock_pipeline.return_value = mock_instance
 
@@ -142,7 +143,6 @@ class TestCLI:
             assert "Poll interval: 30" in result.output
             assert "Stopping file watcher" in result.output
 
-
     def test_process_command_error_handling(self):
         """Test process command handles errors gracefully."""
         from big_mood_detector.main_cli import cli
@@ -160,9 +160,7 @@ class TestCLI:
 
         # Setup mock to raise error
         mock_instance = Mock()
-        mock_instance.process_health_export.side_effect = Exception(
-            "Processing failed"
-        )
+        mock_instance.process_health_export.side_effect = Exception("Processing failed")
         mock_pipeline.return_value = mock_instance
 
         with tempfile.TemporaryDirectory() as tmpdir:
