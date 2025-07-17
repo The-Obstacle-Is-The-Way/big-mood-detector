@@ -63,7 +63,9 @@ class TestPipelineEnsembleIntegration:
         assert pipeline.ensemble_orchestrator is not None
         assert isinstance(pipeline.ensemble_orchestrator, EnsembleOrchestrator)
 
-    @patch("big_mood_detector.domain.services.mood_predictor.MoodPredictor._load_models")
+    @patch(
+        "big_mood_detector.domain.services.mood_predictor.MoodPredictor._load_models"
+    )
     @patch(
         "big_mood_detector.infrastructure.ml_models.xgboost_models.XGBoostMoodPredictor"
     )
@@ -114,7 +116,7 @@ class TestPipelineEnsembleIntegration:
             patch(
                 "big_mood_detector.domain.services.mood_predictor.MoodPredictor.is_loaded",
                 new_callable=PropertyMock,
-                return_value=True
+                return_value=True,
             ),
         ):
             mock_ensemble = Mock()
@@ -216,7 +218,9 @@ class TestPipelineEnsembleIntegration:
         assert hasattr(pipeline, "mood_predictor")
         assert pipeline.mood_predictor is not None
 
-    @patch("big_mood_detector.domain.services.mood_predictor.MoodPredictor._load_models")
+    @patch(
+        "big_mood_detector.domain.services.mood_predictor.MoodPredictor._load_models"
+    )
     @patch(
         "big_mood_detector.infrastructure.ml_models.xgboost_models.XGBoostMoodPredictor"
     )
@@ -259,7 +263,7 @@ class TestPipelineEnsembleIntegration:
             patch(
                 "big_mood_detector.domain.services.mood_predictor.MoodPredictor.is_loaded",
                 new_callable=PropertyMock,
-                return_value=True
+                return_value=True,
             ),
         ):
             mock_ensemble = Mock()
@@ -342,7 +346,9 @@ class TestPipelineEnsembleIntegration:
         assert pipeline.ensemble_orchestrator.config.xgboost_weight == 0.7
         assert pipeline.ensemble_orchestrator.config.pat_weight == 0.3
 
-    @patch("big_mood_detector.domain.services.mood_predictor.MoodPredictor._load_models")
+    @patch(
+        "big_mood_detector.domain.services.mood_predictor.MoodPredictor._load_models"
+    )
     @patch(
         "big_mood_detector.infrastructure.ml_models.xgboost_models.XGBoostMoodPredictor"
     )
@@ -384,6 +390,7 @@ class TestPipelineEnsembleIntegration:
 
         # Create test activity records
         from datetime import datetime
+
         today = date.today()
         activity_records = [
             ActivityRecord(
@@ -403,7 +410,7 @@ class TestPipelineEnsembleIntegration:
             patch(
                 "big_mood_detector.domain.services.mood_predictor.MoodPredictor.is_loaded",
                 new_callable=PropertyMock,
-                return_value=True
+                return_value=True,
             ),
         ):
             mock_ensemble = Mock()

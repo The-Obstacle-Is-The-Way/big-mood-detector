@@ -170,12 +170,13 @@ class TestPopulationTrainer:
     @patch("joblib.load")
     def test_xgboost_model_loading(self, mock_load):
         """Test loading pre-trained XGBoost model."""
+        # Mock XGBoost model
+        import xgboost as xgb
+
         from big_mood_detector.infrastructure.fine_tuning.population_trainer import (
             XGBoostPopulationTrainer,
         )
 
-        # Mock XGBoost model
-        import xgboost as xgb
         mock_model = Mock(spec=xgb.XGBClassifier)
         mock_model.n_estimators = 100
         mock_load.return_value = mock_model

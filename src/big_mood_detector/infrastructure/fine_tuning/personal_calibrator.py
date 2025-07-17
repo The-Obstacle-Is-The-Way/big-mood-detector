@@ -361,7 +361,7 @@ class PersonalCalibrator:
             # 3. Return accuracy metrics
 
             # For now, simulate training
-            if self.model is not None and hasattr(self.model, "encode"):
+            if self.model is not None and hasattr(self.model, "encode"):  # type: ignore[unreachable]
                 try:
                     _ = self.model.encode(sequences)
                 except AttributeError:
@@ -401,7 +401,7 @@ class PersonalCalibrator:
         """
         import json
 
-        import joblib  # type: ignore[import-untyped]
+        import joblib
 
         # Create user-specific directory
         user_dir = self.output_dir / "users" / self.user_id
@@ -409,10 +409,10 @@ class PersonalCalibrator:
 
         # Save model weights
         if self.model_type == "xgboost" and self.model is not None:
-            model_path = user_dir / "xgboost_model.pkl"
+            model_path = user_dir / "xgboost_model.pkl"  # type: ignore[unreachable]
             joblib.dump(self.model, model_path)
         elif self.model_type == "pat" and self.adapter is not None:
-            adapter_path = user_dir / "pat_adapter.pt"
+            adapter_path = user_dir / "pat_adapter.pt"  # type: ignore[unreachable]
             # In production, would save PyTorch state dict
             try:
                 import torch
@@ -472,7 +472,7 @@ class PersonalCalibrator:
         if metadata["model_type"] == "xgboost":
             model_path = user_dir / "xgboost_model.pkl"
             if model_path.exists():
-                import joblib  # type: ignore[import-untyped]
+                import joblib
 
                 calibrator.model = joblib.load(model_path)
         elif metadata["model_type"] == "pat":

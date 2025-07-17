@@ -247,12 +247,12 @@ class PATPopulationTrainer(PopulationTrainer):
             Training metrics
         """
         # Extract parameters from kwargs
-        sequences = kwargs['sequences']
-        labels = kwargs['labels']
-        epochs = kwargs.get('epochs', 10)
-        batch_size = kwargs.get('batch_size', 32)
-        learning_rate = kwargs.get('learning_rate', 1e-4)
-        validation_split = kwargs.get('validation_split', 0.2)
+        sequences = kwargs["sequences"]
+        labels = kwargs["labels"]
+        epochs = kwargs.get("epochs", 10)
+        batch_size = kwargs.get("batch_size", 32)
+        learning_rate = kwargs.get("learning_rate", 1e-4)
+        validation_split = kwargs.get("validation_split", 0.2)
 
         logger.info(f"Fine-tuning PAT for {self.task_name}")
 
@@ -543,8 +543,8 @@ class XGBoostPopulationTrainer(PopulationTrainer):
             Training metrics
         """
         # Extract parameters from kwargs
-        features = kwargs['features']
-        labels = kwargs['labels']
+        features = kwargs["features"]
+        labels = kwargs["labels"]
         self.validate_features(features)
         return self.incremental_train(features, labels, **kwargs)
 

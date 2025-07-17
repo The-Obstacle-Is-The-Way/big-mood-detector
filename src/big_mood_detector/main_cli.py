@@ -97,10 +97,10 @@ def serve(host: str, port: int) -> None:
         click.echo(
             "Error: uvicorn not installed. Install with: pip install uvicorn", err=True
         )
-        raise SystemExit(1)
-    
+        raise SystemExit(1)  # type: ignore[unreachable]
+
     # Type narrowing - if we get here, uvicorn is not None
-    click.echo(f"Starting API server on {host}:{port}")  # type: ignore[unreachable]
+    click.echo(f"Starting API server on {host}:{port}")
     uvicorn.run(
         "big_mood_detector.interfaces.api.main:app",
         host=host,
