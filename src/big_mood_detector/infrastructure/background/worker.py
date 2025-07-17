@@ -267,23 +267,25 @@ class AsyncTaskWorker:
             if asyncio.iscoroutinefunction(handler):
                 sig = handler.__code__.co_argcount
                 if sig == 2:
-                    # Handler accepts context
+                    # Handler accepts context - narrow to specific type
+                    context_handler: Callable[[dict[str, Any], TaskContext], Coroutine[Any, Any, Any]] = handler  # type: ignore[assignment]
                     if self.task_timeout:
                         await asyncio.wait_for(
-                            handler(task.payload, context),
+                            context_handler(task.payload, context),
                             timeout=self.task_timeout,
                         )
                     else:
-                        await handler(task.payload, context)
+                        await context_handler(task.payload, context)
                 else:
-                    # Handler only accepts payload
+                    # Handler only accepts payload - narrow to specific type
+                    payload_handler: Callable[[dict[str, Any]], Coroutine[Any, Any, Any]] = handler  # type: ignore[assignment]
                     if self.task_timeout:
                         await asyncio.wait_for(
-                            handler(task.payload),
+                            payload_handler(task.payload),
                             timeout=self.task_timeout,
                         )
                     else:
-                        await handler(task.payload)
+                        await payload_handler(task.payload)
             else:
                 # Sync handler, run in executor
                 loop = asyncio.get_event_loop()
