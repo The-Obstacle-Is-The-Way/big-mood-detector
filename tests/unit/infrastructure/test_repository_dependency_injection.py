@@ -19,7 +19,7 @@ from big_mood_detector.domain.repositories.heart_rate_repository import (
 from big_mood_detector.domain.repositories.sleep_repository import (
     SleepRepositoryInterface,
 )
-from big_mood_detector.infrastructure.di.container import Container, setup_dependencies
+from big_mood_detector.infrastructure.di.container import setup_dependencies
 from big_mood_detector.infrastructure.repositories.file_activity_repository import (
     FileActivityRepository,
 )

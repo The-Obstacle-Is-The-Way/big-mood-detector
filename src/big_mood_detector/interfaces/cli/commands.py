@@ -60,7 +60,7 @@ def validate_input_path(input_path: Path) -> None:
 
     # Check if it's a single file
     elif input_path.is_file():
-        if not (input_path.suffix.lower() in [".xml", ".json"]):
+        if input_path.suffix.lower() not in [".xml", ".json"]:
             raise click.BadParameter(
                 f"Unsupported file type: {input_path.suffix}\n"
                 "Supported formats: .xml (Apple Health export), .json (Health Auto Export)"
