@@ -367,7 +367,7 @@ class PATPopulationTrainer(PopulationTrainer):
                 # Check if it's a real state dict (not Mock)
                 if not hasattr(state_dict, "__class__") or "Mock" not in str(state_dict.__class__):
                     save_dict["task_head_state_dict"] = state_dict
-            except:
+            except Exception:
                 # Mock object, skip state dict
                 pass
 
@@ -385,7 +385,7 @@ class PATPopulationTrainer(PopulationTrainer):
             json.dump({
                 "task_name": task_name,
                 "base_model": self.base_model_path,
-                "metrics": {k: float(v) if isinstance(v, (int, float, np.number)) else str(v)
+                "metrics": {k: float(v) if isinstance(v, int | float | np.number) else str(v)
                           for k, v in metrics.items()},
                 "output_dim": output_dim,
             }, f, indent=2)

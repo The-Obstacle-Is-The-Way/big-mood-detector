@@ -204,7 +204,7 @@ def handle_errors(
 
     def decorator(func: Callable) -> Callable:
         @functools.wraps(func)
-        def wrapper(*args, **kwargs):
+        def wrapper(*args: Any, **kwargs: Any) -> Any:
             _logger = logger or get_module_logger(func.__module__)
 
             try:

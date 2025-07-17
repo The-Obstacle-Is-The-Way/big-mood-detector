@@ -104,28 +104,28 @@ class LoggerAdapter:
         self.logger = logger
         self.context = context
 
-    def _log(self, method: str, event: str, **kwargs) -> None:
+    def _log(self, method: str, event: str, **kwargs: Any) -> None:
         """Internal log method that adds context."""
         combined_context = {**self.context, **kwargs}
         getattr(self.logger, method)(event, **combined_context)
 
-    def debug(self, event: str, **kwargs) -> None:
+    def debug(self, event: str, **kwargs: Any) -> None:
         """Log debug message with context."""
         self._log("debug", event, **kwargs)
 
-    def info(self, event: str, **kwargs) -> None:
+    def info(self, event: str, **kwargs: Any) -> None:
         """Log info message with context."""
         self._log("info", event, **kwargs)
 
-    def warning(self, event: str, **kwargs) -> None:
+    def warning(self, event: str, **kwargs: Any) -> None:
         """Log warning message with context."""
         self._log("warning", event, **kwargs)
 
-    def error(self, event: str, **kwargs) -> None:
+    def error(self, event: str, **kwargs: Any) -> None:
         """Log error message with context."""
         self._log("error", event, **kwargs)
 
-    def exception(self, event: str, **kwargs) -> None:
+    def exception(self, event: str, **kwargs: Any) -> None:
         """Log exception with context."""
         self._log("exception", event, **kwargs)
 
