@@ -124,7 +124,7 @@ class TestCLI:
         assert result.exit_code == 0
         assert "Watch directory" in result.output
 
-    @patch("big_mood_detector.cli.FileWatcher")
+    @patch("big_mood_detector.application.services.file_watcher.FileWatcher")
     def test_watch_command(self, mock_file_watcher):
         """Test watch command starts file watcher."""
         from big_mood_detector.cli import main
