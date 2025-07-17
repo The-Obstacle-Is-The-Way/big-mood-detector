@@ -83,7 +83,7 @@ def list_labels(
         "--format", "-f",
         help="Output format: table or json"
     )
-):
+) -> None:
     """
     List all labels in a beautiful table format.
     
@@ -346,7 +346,7 @@ def update(
             return
         
         # Update the label
-        updated_label = label_service.update_label(label_id, **update_data)
+        updated_label = label_service.update_label(label_id, update_data)
         
         # Show success message
         console.print(
