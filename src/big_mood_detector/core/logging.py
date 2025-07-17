@@ -25,6 +25,12 @@ def get_logger() -> FilteringBoundLogger:
     return setup_logging(settings)
 
 
+def _sanitize_processor(logger, method_name, event_dict):
+    """Processor that sanitizes sensitive data before rendering."""
+    # Sanitize the entire event dict
+    return sanitize_log_data(event_dict)
+
+
 def setup_logging(config: Settings) -> FilteringBoundLogger:
     """Set up structured logging based on configuration.
     
@@ -42,6 +48,7 @@ def setup_logging(config: Settings) -> FilteringBoundLogger:
         structlog.processors.StackInfoRenderer(),
         structlog.processors.format_exc_info,
         timestamper,
+        _sanitize_processor,  # Sanitize BEFORE rendering
     ]
     
     if config.LOG_FORMAT == "json":

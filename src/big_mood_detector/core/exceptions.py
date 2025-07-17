@@ -174,6 +174,7 @@ def build_error_response(
 
 
 def handle_errors(
+    *,
     default_return: Any = None,
     logger: Optional[Any] = None,
     reraise: bool = True,
@@ -216,6 +217,7 @@ def handle_errors(
 
 
 def retry_on_error(
+    *,
     max_attempts: int = 3,
     exceptions: tuple[Type[Exception], ...] = (Exception,),
     delay: float = 1.0,
@@ -285,6 +287,7 @@ class CircuitBreaker:
         failure_threshold: int = 5,
         recovery_timeout: float = 60.0,
         expected_exception: Type[Exception] = Exception,
+        name: Optional[str] = None,
     ):
         """
         Initialize circuit breaker.
@@ -293,14 +296,33 @@ class CircuitBreaker:
             failure_threshold: Number of failures before opening
             recovery_timeout: Seconds before attempting recovery
             expected_exception: Exception type to track
+            name: Optional name for this breaker (for metrics)
         """
         self.failure_threshold = failure_threshold
         self.recovery_timeout = recovery_timeout
         self.expected_exception = expected_exception
+        self.name = name or f"breaker_{id(self)}"
         
         self._failure_count = 0
         self._last_failure_time: Optional[float] = None
         self._state = "closed"  # closed, open, half-open
+    
+    @property
+    def state(self) -> str:
+        """Get current circuit breaker state."""
+        return self._state
+    
+    @property
+    def metrics(self) -> dict[str, Any]:
+        """Get circuit breaker metrics."""
+        return {
+            "name": self.name,
+            "state": self._state,
+            "failure_count": self._failure_count,
+            "failure_threshold": self.failure_threshold,
+            "last_failure_time": self._last_failure_time,
+            "recovery_timeout": self.recovery_timeout,
+        }
     
     def __call__(self, func: Callable) -> Callable:
         """Decorate function with circuit breaker."""
@@ -333,16 +355,30 @@ class CircuitBreaker:
     
     def _on_success(self) -> None:
         """Handle successful call."""
+        old_state = self._state
         self._failure_count = 0
         self._state = "closed"
+        
+        # Track state change
+        if old_state != "closed":
+            error_metrics.record_error("CircuitBreaker", f"state_change_{old_state}_to_closed")
+            logger.info("circuit_breaker_closed", previous_state=old_state)
     
     def _on_failure(self) -> None:
         """Handle failed call."""
         self._failure_count += 1
         self._last_failure_time = time.time()
         
+        # Track failure
+        error_metrics.record_error("CircuitBreaker", "call_failed")
+        
         if self._failure_count >= self.failure_threshold:
+            old_state = self._state
             self._state = "open"
+            
+            # Track state change
+            error_metrics.record_error("CircuitBreaker", f"state_change_{old_state}_to_open")
+            
             logger.warning(
                 "circuit_breaker_opened",
                 failure_count=self._failure_count,

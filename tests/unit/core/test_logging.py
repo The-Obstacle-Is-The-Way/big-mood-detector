@@ -251,3 +251,34 @@ class TestLogging:
         # Should be bound with the module name
         assert hasattr(logger, "_context")
         assert logger._context.get("logger") == "big_mood_detector.domain.services"
+
+    @patch("sys.stdout", new_callable=StringIO)
+    def test_sensitive_data_scrubbing_in_logs(self, mock_stdout):
+        """Test that sensitive data is scrubbed in actual log output."""
+        from big_mood_detector.core.config import Settings
+        from big_mood_detector.core.logging import setup_logging
+        
+        # Configure for JSON
+        settings = Settings(LOG_FORMAT="json")
+        logger = setup_logging(settings)
+        
+        # Log sensitive data
+        logger.info(
+            "user_login",
+            user_id="12345",
+            password="super_secret",
+            api_key="sk-1234567890abcdef",
+            email="user@example.com",
+            safe_data="this is fine"
+        )
+        
+        # Get output
+        output = mock_stdout.getvalue()
+        log_entry = json.loads(output.strip())
+        
+        # Verify scrubbing
+        assert log_entry["password"] == "***"
+        assert log_entry["api_key"] == "sk-****"
+        assert log_entry["email"] == "u***@example.com"
+        assert log_entry["safe_data"] == "this is fine"
+        assert log_entry["user_id"] == "12345"

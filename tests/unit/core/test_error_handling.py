@@ -188,12 +188,17 @@ class TestErrorHandling:
         breaker = CircuitBreaker(
             failure_threshold=2,
             recovery_timeout=0.1,
-            expected_exception=ExternalServiceError
+            expected_exception=ExternalServiceError,
+            name="test_breaker"
         )
         
         @breaker
         def external_call():
             raise ExternalServiceError("Service down")
+        
+        # Check initial state
+        assert breaker.state == "closed"
+        assert breaker.metrics["failure_count"] == 0
         
         # First two calls should fail normally
         with pytest.raises(ExternalServiceError):
@@ -203,8 +208,42 @@ class TestErrorHandling:
             external_call()
         
         # Circuit should now be open
+        assert breaker.state == "open"
+        assert breaker.metrics["failure_count"] == 2
+        
         with pytest.raises(CircuitOpenError):
             external_call()
+    
+    def test_circuit_breaker_metrics_tracking(self):
+        """Test that circuit breaker tracks metrics."""
+        from big_mood_detector.core.exceptions import (
+            CircuitBreaker,
+            ExternalServiceError,
+            ErrorMetrics,
+            error_metrics
+        )
+        
+        # Reset metrics
+        error_metrics.reset()
+        
+        breaker = CircuitBreaker(
+            failure_threshold=1,
+            expected_exception=ExternalServiceError,
+            name="metrics_test"
+        )
+        
+        @breaker
+        def flaky_service():
+            raise ExternalServiceError("Down")
+        
+        # Trigger failure
+        with pytest.raises(ExternalServiceError):
+            flaky_service()
+        
+        # Check metrics
+        stats = error_metrics.get_stats()
+        assert stats["total_errors"] >= 2  # call_failed + state_change
+        assert "CircuitBreaker" in stats["by_type"]
 
     def test_validation_error_collection(self):
         """Test collecting multiple validation errors."""
@@ -280,3 +319,20 @@ class TestErrorHandling:
             model_type="xgboost"
         )
         assert error3.context["model_path"] == "/models/xgboost.pkl"
+
+    def test_keyword_only_decorators(self):
+        """Test that decorators require keyword-only arguments."""
+        from big_mood_detector.core.exceptions import handle_errors, retry_on_error
+        
+        # Should work with keyword args
+        @handle_errors(reraise=False, default_return=42)
+        def func1():
+            raise ValueError()
+        
+        assert func1() == 42
+        
+        # Should fail with positional args
+        with pytest.raises(TypeError):
+            @handle_errors(42, None, False)  # Positional not allowed
+            def func2():
+                pass

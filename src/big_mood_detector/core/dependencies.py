@@ -140,7 +140,12 @@ class Scope:
     
     def _get_key(self, service_type: Type, name: Optional[str]) -> str:
         """Get cache key for service."""
-        return f"{service_type.__module__}.{service_type.__name__}:{name or 'default'}"
+        # Handle Union types (e.g., Optional[X] which is Union[X, None])
+        if hasattr(service_type, '__module__') and hasattr(service_type, '__name__'):
+            return f"{service_type.__module__}.{service_type.__name__}:{name or 'default'}"
+        else:
+            # For Union types and other special forms, use string representation
+            return f"{str(service_type)}:{name or 'default'}"
 
 
 class Container:
@@ -239,6 +244,7 @@ class Container:
         """Resolve a dependency."""
         key = self._get_key(service_type, name)
         
+        
         # Check overrides first
         if key in self._overrides:
             return self._overrides[key]
@@ -262,14 +268,24 @@ class Container:
         
         # Handle based on lifetime
         if descriptor.lifetime == Lifetime.SINGLETON:
+            # Check if already created (with lock)
             with self._lock:
-                if descriptor.instance is None:
-                    self._resolving.add(key)
-                    try:
-                        descriptor.instance = self._create_instance(descriptor)
-                    finally:
-                        self._resolving.discard(key)
-                return descriptor.instance
+                if descriptor.instance is not None:
+                    return descriptor.instance
+            
+            # Create instance (without holding lock to avoid deadlock)
+            self._resolving.add(key)
+            try:
+                instance = self._create_instance(descriptor)
+                
+                # Store instance (with lock)
+                with self._lock:
+                    # Double-check in case another thread created it
+                    if descriptor.instance is None:
+                        descriptor.instance = instance
+                    return descriptor.instance
+            finally:
+                self._resolving.discard(key)
         
         elif descriptor.lifetime == Lifetime.TRANSIENT:
             self._resolving.add(key)
@@ -333,11 +349,17 @@ class Container:
     ) -> Optional[ServiceDescriptor]:
         """Get service descriptor."""
         key = self._get_key(service_type, name)
-        return self._services.get(key)
+        descriptor = self._services.get(key)
+        return descriptor
     
     def _get_key(self, service_type: Type, name: Optional[str]) -> str:
         """Get cache key for service."""
-        return f"{service_type.__module__}.{service_type.__name__}:{name or 'default'}"
+        # Handle Union types (e.g., Optional[X] which is Union[X, None])
+        if hasattr(service_type, '__module__') and hasattr(service_type, '__name__'):
+            return f"{service_type.__module__}.{service_type.__name__}:{name or 'default'}"
+        else:
+            # For Union types and other special forms, use string representation
+            return f"{str(service_type)}:{name or 'default'}"
     
     def _create_instance(
         self,
@@ -346,6 +368,7 @@ class Container:
     ) -> Any:
         """Create an instance of the service."""
         implementation = descriptor.implementation
+        
         
         # If it's already an instance, return it
         if not inspect.isclass(implementation) and not callable(implementation):
@@ -369,6 +392,7 @@ class Container:
                 param_type = param.annotation
                 if param_type == inspect.Parameter.empty:
                     continue
+                
                 
                 # Handle string annotations (forward references)
                 if isinstance(param_type, str):
@@ -486,10 +510,9 @@ def setup_dependencies(settings) -> Container:
     
     # Register infrastructure services
     from big_mood_detector.infrastructure.background.task_queue import TaskQueue
-    from big_mood_detector.infrastructure.background.task_worker import TaskWorker
+    # TaskWorker will be added when implemented
     
     container.register_singleton(TaskQueue)
-    container.register_transient(TaskWorker)  # New worker per request
     
     logger.info("dependencies_configured", service_count=len(container._services))
     
