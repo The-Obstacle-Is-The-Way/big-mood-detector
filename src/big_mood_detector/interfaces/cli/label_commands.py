@@ -6,6 +6,7 @@ Implements patterns from rich-cli, typer, and rich-click reference repos.
 """
 
 import json
+import sys
 from pathlib import Path
 from typing import List, Optional
 
@@ -64,7 +65,7 @@ def create_label_table(labels: List[Label]) -> Table:
             label.name,
             label.category,
             color_swatch,
-            label.description[:50] + "..." if len(label.description) > 50 else label.description
+            label.description
         )
     
     return table
@@ -453,7 +454,11 @@ def import_labels(
         error_console.print(f"Invalid JSON file: {str(e)}")
         raise typer.Exit(1)
     except Exception as e:
+        import traceback
         error_console.print(f"Error importing labels: {str(e)}")
+        # Print full traceback for debugging
+        if "--debug" in sys.argv:
+            traceback.print_exc()
         raise typer.Exit(1)
 
 
