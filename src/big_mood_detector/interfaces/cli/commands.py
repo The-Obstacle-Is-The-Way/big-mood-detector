@@ -72,6 +72,9 @@ def save_json_output(result: PipelineResult, output_path: Path) -> None:
     """Save results in JSON format."""
     import json
 
+    # Ensure parent directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
     # Build metadata dict with proper typing
     metadata: dict[str, Any] = {
         "records_processed": result.records_processed,
@@ -101,6 +104,9 @@ def save_csv_output(result: PipelineResult, output_path: Path) -> None:
     """Save results in CSV format."""
     import pandas as pd
 
+    # Ensure parent directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
     # Convert predictions to DataFrame
     rows = []
     for pred_date, prediction in result.daily_predictions.items():
@@ -118,6 +124,9 @@ def save_csv_output(result: PipelineResult, output_path: Path) -> None:
 
 def generate_clinical_report(result: PipelineResult, output_path: Path) -> None:
     """Generate a detailed clinical report."""
+    # Ensure parent directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
     with open(output_path, "w") as f:
         f.write("CLINICAL DECISION SUPPORT (CDS) REPORT\n")
         f.write("=" * 50 + "\n\n")
@@ -238,6 +247,10 @@ def process_command(
 
         # Process health export
         output_path = Path(output) if output else Path("output/features.csv")
+        
+        # Ensure parent directory exists
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        
         df = pipeline.process_health_export(
             export_path=Path(input_path),
             output_path=output_path,
