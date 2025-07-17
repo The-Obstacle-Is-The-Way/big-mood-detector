@@ -5,7 +5,7 @@ TDD approach for extracting feature aggregation logic from MoodPredictionPipelin
 The AggregationPipeline will handle all feature calculation and statistical aggregation.
 """
 
-from datetime import date, datetime, time, timedelta
+from datetime import date, datetime, timedelta
 from unittest.mock import Mock
 
 import pytest
@@ -283,9 +283,10 @@ class TestAggregationPipeline:
         for i in range(5):
             feature = Mock()
             feature.date = date(2024, 1, 1) + timedelta(days=i)
-            feature.to_dict = lambda: {
-                "date": feature.date,
-                "sleep_percentage_mean": 0.31 + i * 0.01,
+            # Use default parameters to capture values by value, not reference
+            feature.to_dict = lambda f=feature, idx=i: {
+                "date": f.date,
+                "sleep_percentage_mean": 0.31 + idx * 0.01,
                 "sleep_percentage_std": 0.02,
                 "sleep_percentage_zscore": 0.5,
                 # ... other features

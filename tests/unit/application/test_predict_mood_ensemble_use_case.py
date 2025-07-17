@@ -62,7 +62,7 @@ class TestEnsembleOrchestrator:
 
     def test_orchestrator_initialization(self, mock_xgboost_predictor, mock_pat_model):
         """Test basic orchestrator initialization."""
-        from big_mood_detector.application.ensemble_orchestrator import (
+        from big_mood_detector.application.use_cases.predict_mood_ensemble_use_case import (
             EnsembleOrchestrator,
         )
 
@@ -77,7 +77,7 @@ class TestEnsembleOrchestrator:
 
     def test_orchestrator_with_custom_config(self, mock_xgboost_predictor):
         """Test orchestrator with custom configuration."""
-        from big_mood_detector.application.ensemble_orchestrator import (
+        from big_mood_detector.application.use_cases.predict_mood_ensemble_use_case import (
             EnsembleConfig,
             EnsembleOrchestrator,
         )
@@ -94,7 +94,7 @@ class TestEnsembleOrchestrator:
 
     def test_xgboost_only_prediction(self, mock_xgboost_predictor):
         """Test prediction with only XGBoost (no PAT)."""
-        from big_mood_detector.application.ensemble_orchestrator import (
+        from big_mood_detector.application.use_cases.predict_mood_ensemble_use_case import (
             EnsembleOrchestrator,
         )
 
@@ -115,7 +115,7 @@ class TestEnsembleOrchestrator:
         self, mock_xgboost_predictor, mock_pat_model, sample_activity_records
     ):
         """Test ensemble prediction with both models."""
-        from big_mood_detector.application.ensemble_orchestrator import (
+        from big_mood_detector.application.use_cases.predict_mood_ensemble_use_case import (
             EnsembleOrchestrator,
         )
 
@@ -163,7 +163,7 @@ class TestEnsembleOrchestrator:
 
     def test_timeout_handling(self, mock_xgboost_predictor, mock_pat_model):
         """Test handling of model timeouts."""
-        from big_mood_detector.application.ensemble_orchestrator import (
+        from big_mood_detector.application.use_cases.predict_mood_ensemble_use_case import (
             EnsembleConfig,
             EnsembleOrchestrator,
         )
@@ -194,7 +194,7 @@ class TestEnsembleOrchestrator:
 
     def test_both_models_fail(self):
         """Test graceful degradation when both models fail."""
-        from big_mood_detector.application.ensemble_orchestrator import (
+        from big_mood_detector.application.use_cases.predict_mood_ensemble_use_case import (
             EnsembleOrchestrator,
         )
 
@@ -222,7 +222,7 @@ class TestEnsembleOrchestrator:
 
     def test_confidence_calculation(self, mock_xgboost_predictor, mock_pat_model):
         """Test confidence score calculation."""
-        from big_mood_detector.application.ensemble_orchestrator import (
+        from big_mood_detector.application.use_cases.predict_mood_ensemble_use_case import (
             EnsembleOrchestrator,
         )
 
@@ -239,7 +239,7 @@ class TestEnsembleOrchestrator:
 
     def test_processing_time_tracking(self, mock_xgboost_predictor):
         """Test that processing times are tracked."""
-        from big_mood_detector.application.ensemble_orchestrator import (
+        from big_mood_detector.application.use_cases.predict_mood_ensemble_use_case import (
             EnsembleOrchestrator,
         )
 
@@ -254,7 +254,7 @@ class TestEnsembleOrchestrator:
 
     def test_shutdown_cleanup(self, mock_xgboost_predictor):
         """Test proper resource cleanup."""
-        from big_mood_detector.application.ensemble_orchestrator import (
+        from big_mood_detector.application.use_cases.predict_mood_ensemble_use_case import (
             EnsembleOrchestrator,
         )
 
@@ -269,7 +269,9 @@ class TestEnsembleConfig:
 
     def test_default_config(self):
         """Test default configuration values."""
-        from big_mood_detector.application.ensemble_orchestrator import EnsembleConfig
+        from big_mood_detector.application.use_cases.predict_mood_ensemble_use_case import (
+            EnsembleConfig,
+        )
 
         config = EnsembleConfig()
 
@@ -281,7 +283,9 @@ class TestEnsembleConfig:
 
     def test_custom_config(self):
         """Test custom configuration."""
-        from big_mood_detector.application.ensemble_orchestrator import EnsembleConfig
+        from big_mood_detector.application.use_cases.predict_mood_ensemble_use_case import (
+            EnsembleConfig,
+        )
 
         config = EnsembleConfig(
             xgboost_weight=0.8,
@@ -301,7 +305,7 @@ class TestEnsemblePrediction:
 
     def test_ensemble_prediction_creation(self):
         """Test creating ensemble prediction result."""
-        from big_mood_detector.application.ensemble_orchestrator import (
+        from big_mood_detector.application.use_cases.predict_mood_ensemble_use_case import (
             EnsemblePrediction,
         )
         from big_mood_detector.domain.services.mood_predictor import MoodPrediction

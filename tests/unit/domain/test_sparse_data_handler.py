@@ -170,9 +170,13 @@ class TestDataAlignment:
         assert aligned.index[-1] == pd.Timestamp("2025-01-08")
 
         # Should have NaN for non-overlapping periods
-        assert pd.isna(aligned.loc["2025-01-01", "activity_steps"])  # Activity missing for Jan 1-2
+        assert pd.isna(
+            aligned.loc["2025-01-01", "activity_steps"]
+        )  # Activity missing for Jan 1-2
         assert pd.isna(aligned.loc["2025-01-02", "activity_steps"])
-        assert pd.isna(aligned.loc["2025-01-07", "sleep_sleep_hours"])  # Sleep missing for Jan 7-8
+        assert pd.isna(
+            aligned.loc["2025-01-07", "sleep_sleep_hours"]
+        )  # Sleep missing for Jan 7-8
         assert pd.isna(aligned.loc["2025-01-08", "sleep_sleep_hours"])
 
         # Should have values for overlapping periods
@@ -183,9 +187,7 @@ class TestDataAlignment:
         """UNION strategy should handle empty sensor data gracefully."""
         # Given: One sensor with data, one empty
         sleep_dates = pd.date_range("2025-01-01", "2025-01-03", freq="D")
-        sleep_data = pd.DataFrame(
-            {"date": sleep_dates, "sleep_hours": [8.0, 7.5, 8.2]}
-        )
+        sleep_data = pd.DataFrame({"date": sleep_dates, "sleep_hours": [8.0, 7.5, 8.2]})
 
         empty_data = pd.DataFrame(columns=["date", "value"])
 
@@ -205,17 +207,21 @@ class TestDataAlignment:
     def test_union_alignment_preserves_column_names(self):
         """UNION strategy should preserve original column names with sensor prefixes."""
         # Given: Multiple sensors with different column names
-        sleep_data = pd.DataFrame({
-            "date": pd.date_range("2025-01-01", "2025-01-02", freq="D"),
-            "duration": [8.0, 7.5],
-            "efficiency": [0.85, 0.90]
-        })
+        sleep_data = pd.DataFrame(
+            {
+                "date": pd.date_range("2025-01-01", "2025-01-02", freq="D"),
+                "duration": [8.0, 7.5],
+                "efficiency": [0.85, 0.90],
+            }
+        )
 
-        heart_data = pd.DataFrame({
-            "date": pd.date_range("2025-01-02", "2025-01-03", freq="D"),
-            "bpm": [65, 68],
-            "hrv": [45, 42]
-        })
+        heart_data = pd.DataFrame(
+            {
+                "date": pd.date_range("2025-01-02", "2025-01-03", freq="D"),
+                "bpm": [65, 68],
+                "hrv": [45, 42],
+            }
+        )
 
         handler = SparseDataHandler()
 
@@ -226,7 +232,12 @@ class TestDataAlignment:
         )
 
         # Then: Should preserve all columns with proper prefixes
-        expected_columns = ["sleep_duration", "sleep_efficiency", "heart_bpm", "heart_hrv"]
+        expected_columns = [
+            "sleep_duration",
+            "sleep_efficiency",
+            "heart_bpm",
+            "heart_hrv",
+        ]
         for col in expected_columns:
             assert col in aligned.columns
 
@@ -238,17 +249,18 @@ class TestDataAlignment:
         # Given: Sensors with different time resolutions
         # 6-hourly sleep data (2 days = 5 points: 00, 06, 12, 18 on day 1, 00 on day 2)
         sleep_times = pd.date_range("2025-01-01", "2025-01-02", freq="6h")
-        sleep_data = pd.DataFrame({
-            "timestamp": sleep_times,
-            "sleep_state": [0, 1, 1, 0, 0]  # Binary sleep state
-        })
+        sleep_data = pd.DataFrame(
+            {
+                "timestamp": sleep_times,
+                "sleep_state": [0, 1, 1, 0, 0],  # Binary sleep state
+            }
+        )
 
         # Daily activity data
         activity_dates = pd.date_range("2025-01-01", "2025-01-03", freq="D")
-        activity_data = pd.DataFrame({
-            "date": activity_dates,
-            "steps": [8000, 12000, 9500]
-        })
+        activity_data = pd.DataFrame(
+            {"date": activity_dates, "steps": [8000, 12000, 9500]}
+        )
 
         handler = SparseDataHandler()
 
@@ -277,16 +289,15 @@ class TestDataAlignment:
         """INTERPOLATE_ALIGN should handle sensors with very different time resolutions."""
         # Given: High-frequency heart rate and low-frequency sleep
         hr_times = pd.date_range("2025-01-01 00:00", "2025-01-01 06:00", freq="h")
-        hr_data = pd.DataFrame({
-            "timestamp": hr_times,
-            "bpm": [65, 62, 60, 58, 62, 68, 70]  # Hourly HR data
-        })
+        hr_data = pd.DataFrame(
+            {
+                "timestamp": hr_times,
+                "bpm": [65, 62, 60, 58, 62, 68, 70],  # Hourly HR data
+            }
+        )
 
         sleep_dates = pd.date_range("2025-01-01", "2025-01-02", freq="D")
-        sleep_data = pd.DataFrame({
-            "date": sleep_dates,
-            "duration": [7.5, 8.0]
-        })
+        sleep_data = pd.DataFrame({"date": sleep_dates, "duration": [7.5, 8.0]})
 
         handler = SparseDataHandler()
 
@@ -308,20 +319,25 @@ class TestDataAlignment:
     def test_interpolate_align_with_gaps(self):
         """INTERPOLATE_ALIGN should handle gaps in sensor data appropriately."""
         # Given: Sparse sensor data with gaps
-        temp_times = pd.to_datetime([
-            "2025-01-01 00:00", "2025-01-01 12:00",  # Day 1
-            # Gap on Day 2
-            "2025-01-03 06:00", "2025-01-03 18:00"   # Day 3
-        ])
-        temp_data = pd.DataFrame({
-            "timestamp": temp_times,
-            "temperature": [36.5, 37.0, 36.8, 36.9]
-        })
+        temp_times = pd.to_datetime(
+            [
+                "2025-01-01 00:00",
+                "2025-01-01 12:00",  # Day 1
+                # Gap on Day 2
+                "2025-01-03 06:00",
+                "2025-01-03 18:00",  # Day 3
+            ]
+        )
+        temp_data = pd.DataFrame(
+            {"timestamp": temp_times, "temperature": [36.5, 37.0, 36.8, 36.9]}
+        )
 
-        steps_data = pd.DataFrame({
-            "date": pd.date_range("2025-01-01", "2025-01-03", freq="D"),
-            "steps": [8000, 10000, 7500]
-        })
+        steps_data = pd.DataFrame(
+            {
+                "date": pd.date_range("2025-01-01", "2025-01-03", freq="D"),
+                "steps": [8000, 10000, 7500],
+            }
+        )
 
         handler = SparseDataHandler()
 

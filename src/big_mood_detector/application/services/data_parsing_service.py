@@ -199,7 +199,8 @@ class DataParsingService:
             progress_callback("Parsing sleep records", 0.0)
 
         for entity in self._xml_parser.parse_file(xml_path, entity_type="sleep"):
-            sleep_records.append(entity)
+            if isinstance(entity, SleepRecord):
+                sleep_records.append(entity)
 
         if progress_callback:
             progress_callback("Parsing sleep records", 1.0)
@@ -207,7 +208,8 @@ class DataParsingService:
 
         # Parse activity records
         for entity in self._xml_parser.parse_file(xml_path, entity_type="activity"):
-            activity_records.append(entity)
+            if isinstance(entity, ActivityRecord):
+                activity_records.append(entity)
 
         if progress_callback:
             progress_callback("Parsing activity records", 1.0)
@@ -215,7 +217,8 @@ class DataParsingService:
 
         # Parse heart rate records
         for entity in self._xml_parser.parse_file(xml_path, entity_type="heart"):
-            heart_records.append(entity)
+            if isinstance(entity, HeartRateRecord):
+                heart_records.append(entity)
 
         if progress_callback:
             progress_callback("Parsing heart rate records", 1.0)
@@ -343,7 +346,7 @@ class DataParsingService:
         # Check data density
         if date_range and sleep_records:
             days_span = (date_range[1] - date_range[0]).days + 1
-            sleep_days = len(set(r.start_date.date() for r in sleep_records))
+            sleep_days = len({r.start_date.date() for r in sleep_records})
             density = sleep_days / days_span
             if density < 0.5:
                 warnings.append(f"Sparse sleep data: {density:.1%} coverage")
@@ -372,9 +375,9 @@ class DataParsingService:
         heart_records = data.get("heart_rate_records", [])
 
         # Get unique days
-        sleep_days = set(r.start_date.date() for r in sleep_records)
-        activity_days = set(r.start_date.date() for r in activity_records)
-        heart_days = set(r.timestamp.date() for r in heart_records)
+        sleep_days = {r.start_date.date() for r in sleep_records}
+        activity_days = {r.start_date.date() for r in activity_records}
+        heart_days = {r.timestamp.date() for r in heart_records}
 
         # Calculate date range
         all_dates = list(sleep_days | activity_days | heart_days)
@@ -398,7 +401,7 @@ class DataParsingService:
             "data_density": data_density,
         }
 
-    def get_parser_for_path(self, file_path: Path) -> HealthDataParser:
+    def get_parser_for_path(self, file_path: Path) -> Any:
         """
         Get appropriate parser for file path.
 

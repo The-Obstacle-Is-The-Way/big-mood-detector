@@ -20,7 +20,7 @@ from datetime import date
 from pathlib import Path
 from typing import Any
 
-from big_mood_detector.application.mood_prediction_pipeline import (
+from big_mood_detector.application.use_cases.process_health_data_use_case import (
     MoodPredictionPipeline,
 )
 

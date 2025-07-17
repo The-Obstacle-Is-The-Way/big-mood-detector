@@ -9,7 +9,7 @@ from unittest.mock import Mock, patch
 
 import numpy as np
 
-from big_mood_detector.application.mood_prediction_pipeline import (
+from big_mood_detector.application.use_cases.process_health_data_use_case import (
     MoodPredictionPipeline,
     PipelineConfig,
     PipelineResult,
@@ -174,7 +174,9 @@ class TestMoodPredictionPipeline:
         assert result.has_warnings is True
         assert any("sparse" in w.lower() for w in result.warnings)
 
-    @patch("big_mood_detector.application.mood_prediction_pipeline.MoodPredictor")
+    @patch(
+        "big_mood_detector.application.use_cases.process_health_data_use_case.MoodPredictor"
+    )
     def test_pipeline_without_models(self, MockPredictor):
         """Handle missing ML models gracefully."""
         # Create mock predictor instance

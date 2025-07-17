@@ -199,11 +199,11 @@ class AggregationPipeline:
         self.dlmo_calculator = dlmo_calculator or DLMOCalculator()
 
         # Default normalization parameters
-        self._default_normalization_params = {
+        self._default_normalization_params: dict[str, dict[str, float]] = {
             "sleep_percentage": {"min": 0.0, "max": 0.5},
             "sleep_amplitude": {"min": 0.0, "max": 1.0},
-            "long_num": {"min": 0, "max": 5},
-            "short_num": {"min": 0, "max": 10},
+            "long_num": {"min": 0.0, "max": 5.0},
+            "short_num": {"min": 0.0, "max": 10.0},
             "circadian_amplitude": {"min": 0.0, "max": 1.0},
             "circadian_phase": {"min": 0.0, "max": 24.0},
         }
@@ -408,14 +408,14 @@ class AggregationPipeline:
 
         # Calculate z-score
         if std_val > 0:
-            zscore = (current_value - mean_val) / std_val
+            zscore = float((current_value - mean_val) / std_val)
         else:
             zscore = 0.0
 
         return {
-            "mean": mean_val,
-            "std": std_val,
-            "zscore": zscore,
+            "mean": float(mean_val),
+            "std": float(std_val),
+            "zscore": float(zscore),
         }
 
     def create_rolling_window(self, size: int) -> list[dict[str, Any]]:
@@ -513,7 +513,9 @@ class AggregationPipeline:
         Returns:
             Normalized features
         """
-        params = normalization_params or self._default_normalization_params
+        params: dict[str, dict[str, float]] = (
+            normalization_params or self._default_normalization_params
+        )
         normalized = {}
 
         for key, value in features.items():
@@ -521,8 +523,9 @@ class AggregationPipeline:
             base_name = key.rsplit("_", 1)[0] if "_" in key else key
 
             if base_name in params:
-                min_val = params[base_name]["min"]
-                max_val = params[base_name]["max"]
+                param_dict = params[base_name]
+                min_val = param_dict["min"]
+                max_val = param_dict["max"]
 
                 # Clamp and normalize
                 clamped = max(min_val, min(value, max_val))

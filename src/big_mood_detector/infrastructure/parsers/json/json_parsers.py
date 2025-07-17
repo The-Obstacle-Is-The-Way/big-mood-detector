@@ -35,15 +35,22 @@ class SleepJSONParser:
         """
         records = []
 
-        # Navigate to the actual data
-        metrics = data.get("data", {}).get("metrics", [])
-
-        for metric in metrics:
-            if metric.get("name") == "sleep_analysis":
-                for entry in metric.get("data", []):
-                    record = self._parse_sleep_entry(entry)
-                    if record:
-                        records.append(record)
+        # Check if it's simple format (direct data array)
+        if "data" in data and isinstance(data["data"], list):
+            # Simple format: {"data": [...]}
+            for entry in data["data"]:
+                record = self._parse_simple_sleep_entry(entry)
+                if record:
+                    records.append(record)
+        else:
+            # Health Auto Export format: {"data": {"metrics": [...]}}
+            metrics = data.get("data", {}).get("metrics", [])
+            for metric in metrics:
+                if metric.get("name") == "sleep_analysis":
+                    for entry in metric.get("data", []):
+                        record = self._parse_sleep_entry(entry)
+                        if record:
+                            records.append(record)
 
         return records
 
@@ -70,16 +77,21 @@ class SleepJSONParser:
             SleepRecord entity or None if parsing fails
         """
         try:
-            # Parse dates
-            start_str = entry.get("sleepStart")
-            end_str = entry.get("sleepEnd")
+            # Parse dates - support multiple field names
+            start_str = entry.get("sleepStart") or entry.get("start")
+            end_str = entry.get("sleepEnd") or entry.get("finish")
 
             if not start_str or not end_str:
                 return None
 
-            # Parse datetime strings (format: "2025-01-14 23:29:06 -0500")
-            start_date = datetime.strptime(start_str[:19], "%Y-%m-%d %H:%M:%S")
-            end_date = datetime.strptime(end_str[:19], "%Y-%m-%d %H:%M:%S")
+            # Handle different date formats
+            if "T" in start_str:  # ISO format
+                start_date = datetime.fromisoformat(start_str.replace("Z", "+00:00"))
+                end_date = datetime.fromisoformat(end_str.replace("Z", "+00:00"))
+            else:
+                # Parse datetime strings (format: "2025-01-14 23:29:06 -0500")
+                start_date = datetime.strptime(start_str[:19], "%Y-%m-%d %H:%M:%S")
+                end_date = datetime.strptime(end_str[:19], "%Y-%m-%d %H:%M:%S")
 
             # For aggregated sleep data, we'll create a single ASLEEP record
             # The individual sleep stages are stored in our test expectations
@@ -94,6 +106,42 @@ class SleepJSONParser:
 
         except (ValueError, KeyError) as e:
             print(f"Error parsing sleep entry: {e}")
+            return None
+
+    def _parse_simple_sleep_entry(self, entry: dict[str, Any]) -> SleepRecord | None:
+        """Parse a simple format sleep entry.
+
+        Args:
+            entry: Dictionary with simple sleep data format
+
+        Returns:
+            SleepRecord entity or None if parsing fails
+        """
+        try:
+            # Parse dates - handle ISO format
+            start_str = entry.get("startDate")
+            end_str = entry.get("endDate")
+
+            if not start_str or not end_str:
+                return None
+
+            # Parse ISO format dates
+            start_date = datetime.fromisoformat(start_str.replace("Z", "+00:00"))
+            end_date = datetime.fromisoformat(end_str.replace("Z", "+00:00"))
+
+            # Map value to state
+            value = entry.get("value", "").upper()
+            state = SleepState.ASLEEP if "ASLEEP" in value else SleepState.IN_BED
+
+            return SleepRecord(
+                source_name=entry.get("sourceName", "Unknown"),
+                start_date=start_date,
+                end_date=end_date,
+                state=state,
+            )
+
+        except (ValueError, KeyError, AttributeError) as e:
+            print(f"Error parsing simple sleep entry: {e}")
             return None
 
 
@@ -262,16 +310,24 @@ class ActivityJSONParser:
         """
         records = []
 
-        metrics = data.get("data", {}).get("metrics", [])
-
-        for metric in metrics:
-            metric_name = metric.get("name", "")
-            # Handle both named metrics and unnamed ones (default to step count)
-            if "step" in metric_name.lower() or metric_name == "":
-                for entry in metric.get("data", []):
-                    record = self._parse_step_entry(entry)
-                    if record:
-                        records.append(record)
+        # Check if it's simple format (direct data array)
+        if "data" in data and isinstance(data["data"], list):
+            # Simple format: {"data": [...]}
+            for entry in data["data"]:
+                record = self._parse_simple_activity_entry(entry)
+                if record:
+                    records.append(record)
+        else:
+            # Health Auto Export format: {"data": {"metrics": [...]}}
+            metrics = data.get("data", {}).get("metrics", [])
+            for metric in metrics:
+                metric_name = metric.get("name", "")
+                # Handle both named metrics and unnamed ones (default to step count)
+                if "step" in metric_name.lower() or metric_name == "":
+                    for entry in metric.get("data", []):
+                        record = self._parse_step_entry(entry)
+                        if record:
+                            records.append(record)
 
         return records
 
@@ -336,6 +392,51 @@ class ActivityJSONParser:
 
         except (ValueError, KeyError) as e:
             print(f"Error parsing step entry: {e}")
+            return None
+
+    def _parse_simple_activity_entry(
+        self, entry: dict[str, Any]
+    ) -> ActivityRecord | None:
+        """Parse a simple format activity entry.
+
+        Args:
+            entry: Dictionary with simple activity data format
+
+        Returns:
+            ActivityRecord entity or None if parsing fails
+        """
+        try:
+            # Parse dates - handle ISO format
+            start_str = entry.get("startDate")
+            end_str = entry.get("endDate")
+
+            if not start_str or not end_str:
+                return None
+
+            # Parse ISO format dates
+            start_date = datetime.fromisoformat(start_str.replace("Z", "+00:00"))
+            end_date = datetime.fromisoformat(end_str.replace("Z", "+00:00"))
+
+            # Determine activity type (default to step count)
+            unit = entry.get("unit", "count").lower()
+            if "count" in unit:
+                activity_type = ActivityType.STEP_COUNT
+            elif "km" in unit or "meter" in unit:
+                activity_type = ActivityType.DISTANCE_WALKING
+            else:
+                activity_type = ActivityType.STEP_COUNT  # Default
+
+            return ActivityRecord(
+                source_name=entry.get("sourceName", "Unknown"),
+                start_date=start_date,
+                end_date=end_date,
+                activity_type=activity_type,
+                value=float(entry.get("value", 0)),
+                unit=entry.get("unit", "count"),
+            )
+
+        except (ValueError, KeyError, AttributeError) as e:
+            print(f"Error parsing simple activity entry: {e}")
             return None
 
     def _parse_distance_entry(self, entry: dict[str, Any]) -> ActivityRecord | None:

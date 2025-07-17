@@ -44,7 +44,7 @@ from big_mood_detector.domain.services.mood_predictor import (
     MoodPredictor,
 )
 from big_mood_detector.domain.services.sleep_window_analyzer import SleepWindowAnalyzer
-from big_mood_detector.infrastructure.sparse_data_handler import (
+from big_mood_detector.domain.services.sparse_data_handler import (
     SparseDataHandler,
 )
 
@@ -75,7 +75,6 @@ class PipelineResult:
     warnings: list[str] = field(default_factory=list)
     has_errors: bool = False
     errors: list[str] = field(default_factory=list)
-
 
 
 class MoodPredictionPipeline:
@@ -147,7 +146,7 @@ class MoodPredictionPipeline:
             continue_on_error=True,
         )
 
-        # Extract records
+        # Extract records from parsed data
         sleep_records = parsed_data.get("sleep_records", [])
         activity_records = parsed_data.get("activity_records", [])
         heart_records = parsed_data.get("heart_rate_records", [])
