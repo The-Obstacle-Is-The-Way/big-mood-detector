@@ -33,7 +33,7 @@ def load_population_model(model_path: str | None, model_type: str) -> Any:
     # This would load actual models in production
     # For now, it's a placeholder that will be mocked in tests
     if model_type == "xgboost":
-        import joblib  # type: ignore[import-untyped]
+        import joblib  # type: ignore[import-untyped]  # type: ignore[import-untyped]
 
         return joblib.load(model_path) if model_path else None
     elif model_type == "pat":
@@ -361,12 +361,12 @@ class PersonalCalibrator:
             # 3. Return accuracy metrics
 
             # For now, simulate training
-            try:
-                if hasattr(self.model, "encode"):
+            if self.model is not None and hasattr(self.model, "encode"):
+                try:
                     _ = self.model.encode(sequences)
-                else:
+                except AttributeError:
                     _ = sequences
-            except AttributeError:
+            else:
                 _ = sequences
 
             # Simulate accuracy improvement
@@ -420,8 +420,6 @@ class PersonalCalibrator:
                 torch.save(self.adapter, adapter_path)
             except ImportError:
                 # Fallback if torch not available
-                import json
-
                 with open(adapter_path.with_suffix(".json"), "w") as f:
                     json.dump(self.adapter, f)
 

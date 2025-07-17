@@ -328,21 +328,21 @@ class MoodPredictionPipeline:
             overall_summary = {
                 "avg_depression_risk": float(
                     np.mean(
-                        [float(p.get("depression_risk", 0.0)) for p in all_predictions]
+                        [p["depression_risk"] for p in all_predictions]  # type: ignore[arg-type]
                     )
                 ),
                 "avg_hypomanic_risk": float(
                     np.mean(
-                        [float(p.get("hypomanic_risk", 0.0)) for p in all_predictions]
+                        [p["hypomanic_risk"] for p in all_predictions]  # type: ignore[arg-type]
                     )
                 ),
                 "avg_manic_risk": float(
-                    np.mean([float(p.get("manic_risk", 0.0)) for p in all_predictions])
+                    np.mean([p["manic_risk"] for p in all_predictions])  # type: ignore[arg-type]
                 ),
                 "days_analyzed": len(daily_predictions),
             }
             confidence_score = float(
-                np.mean([float(p.get("confidence", 0.0)) for p in all_predictions])
+                np.mean([p["confidence"] for p in all_predictions])  # type: ignore[arg-type]
             )
             if np.isnan(confidence_score):
                 confidence_score = 0.0
