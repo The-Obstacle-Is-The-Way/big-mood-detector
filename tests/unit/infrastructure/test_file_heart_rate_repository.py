@@ -150,7 +150,7 @@ class TestFileHeartRateRepository:
         # Get by period
         period = TimePeriod(
             start=datetime(2024, 1, 1, 14, 0, 0),
-            end=datetime(2024, 1, 1, 14, 30, 0)
+            end=datetime(2024, 1, 1, 14, 25, 0)  # Exclude the 14:30 record
         )
         result = await repository.get_by_period(period)
         
