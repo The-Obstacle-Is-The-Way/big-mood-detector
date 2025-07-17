@@ -8,7 +8,7 @@ import asyncio
 import tempfile
 import time
 from pathlib import Path
-from unittest.mock import AsyncMock, Mock, patch
+from unittest.mock import Mock, patch
 
 import pytest
 from fastapi.testclient import TestClient
@@ -198,7 +198,7 @@ class TestBackgroundTasks:
         from big_mood_detector.infrastructure.background.worker import TaskWorker
 
         queue = TaskQueue()
-        
+
         # Add multiple tasks
         task_ids = []
         for i in range(5):
@@ -245,7 +245,9 @@ class TestBackgroundTasks:
         from big_mood_detector.infrastructure.background.worker import TaskWorker
 
         queue = TaskQueue()
-        worker = TaskWorker(queue, task_timeout=1, max_retries=0)  # 1 second timeout, no retries
+        worker = TaskWorker(
+            queue, task_timeout=1, max_retries=0
+        )  # 1 second timeout, no retries
 
         # Add a test task
         task_id = queue.add_task(
@@ -315,9 +317,7 @@ class TestBackgroundTasks:
         register_health_processing_tasks(worker)
 
         # Create test file
-        with tempfile.NamedTemporaryFile(
-            mode="w", suffix=".json", delete=False
-        ) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
             f.write('{"data": []}')
             test_file = Path(f.name)
 

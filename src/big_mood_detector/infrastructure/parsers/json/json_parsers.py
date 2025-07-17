@@ -21,7 +21,6 @@ from big_mood_detector.domain.entities.heart_rate_record import (
 )
 from big_mood_detector.domain.entities.sleep_record import SleepRecord, SleepState
 
-
 logger = get_module_logger(__name__)
 
 
@@ -110,9 +109,7 @@ class SleepJSONParser:
 
         except (ValueError, KeyError) as e:
             logger.debug(
-                "sleep_entry_parse_error",
-                error=str(e),
-                error_type=type(e).__name__
+                "sleep_entry_parse_error", error=str(e), error_type=type(e).__name__
             )
             return None
 
@@ -152,7 +149,7 @@ class SleepJSONParser:
             logger.debug(
                 "simple_sleep_entry_parse_error",
                 error=str(e),
-                error_type=type(e).__name__
+                error_type=type(e).__name__,
             )
             return None
 
@@ -258,7 +255,7 @@ class HeartRateJSONParser:
             logger.debug(
                 "heart_rate_entry_parse_error",
                 error=str(e),
-                error_type=type(e).__name__
+                error_type=type(e).__name__,
             )
             return None
 
@@ -286,7 +283,7 @@ class HeartRateJSONParser:
             logger.debug(
                 "resting_hr_entry_parse_error",
                 error=str(e),
-                error_type=type(e).__name__
+                error_type=type(e).__name__,
             )
             return None
 
@@ -313,9 +310,7 @@ class HeartRateJSONParser:
 
         except (ValueError, KeyError) as e:
             logger.debug(
-                "hrv_entry_parse_error",
-                error=str(e),
-                error_type=type(e).__name__
+                "hrv_entry_parse_error", error=str(e), error_type=type(e).__name__
             )
             return None
 
@@ -416,9 +411,7 @@ class ActivityJSONParser:
 
         except (ValueError, KeyError) as e:
             logger.debug(
-                "step_entry_parse_error",
-                error=str(e),
-                error_type=type(e).__name__
+                "step_entry_parse_error", error=str(e), error_type=type(e).__name__
             )
             return None
 
@@ -467,7 +460,7 @@ class ActivityJSONParser:
             logger.debug(
                 "simple_activity_entry_parse_error",
                 error=str(e),
-                error_type=type(e).__name__
+                error_type=type(e).__name__,
             )
             return None
 
@@ -501,8 +494,6 @@ class ActivityJSONParser:
 
         except (ValueError, KeyError) as e:
             logger.debug(
-                "distance_entry_parse_error",
-                error=str(e),
-                error_type=type(e).__name__
+                "distance_entry_parse_error", error=str(e), error_type=type(e).__name__
             )
             return None

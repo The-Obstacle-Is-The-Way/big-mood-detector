@@ -6,11 +6,10 @@ In production, this would be replaced with Redis, RabbitMQ, or similar.
 """
 
 import threading
-import time
 import uuid
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 
 
 @dataclass
@@ -22,11 +21,11 @@ class Task:
     payload: dict[str, Any]
     status: str = "pending"
     created_at: datetime = field(default_factory=datetime.now)
-    started_at: Optional[datetime] = None
-    completed_at: Optional[datetime] = None
-    error: Optional[str] = None
+    started_at: datetime | None = None
+    completed_at: datetime | None = None
+    error: str | None = None
     progress: float = 0.0
-    message: Optional[str] = None
+    message: str | None = None
     retry_count: int = 0
 
 
@@ -43,15 +42,15 @@ class TaskQueue:
         self,
         task_type: str,
         payload: dict[str, Any],
-        task_id: Optional[str] = None,
+        task_id: str | None = None,
     ) -> str:
         """Add a task to the queue.
-        
+
         Args:
             task_type: Type of task to execute
             payload: Task payload data
             task_id: Optional task ID (generated if not provided)
-            
+
         Returns:
             Task ID
         """
@@ -70,9 +69,9 @@ class TaskQueue:
 
         return task_id
 
-    def get_next_task(self) -> Optional[Task]:
+    def get_next_task(self) -> Task | None:
         """Get the next pending task from the queue.
-        
+
         Returns:
             Next task or None if queue is empty
         """
@@ -80,7 +79,7 @@ class TaskQueue:
             while self._pending_queue:
                 task_id = self._pending_queue.pop(0)
                 task = self._tasks.get(task_id)
-                
+
                 if task and task.status == "pending":
                     task.status = "processing"
                     task.started_at = datetime.now()
@@ -92,12 +91,12 @@ class TaskQueue:
         self,
         task_id: str,
         status: str,
-        error: Optional[str] = None,
-        progress: Optional[float] = None,
-        message: Optional[str] = None,
+        error: str | None = None,
+        progress: float | None = None,
+        message: str | None = None,
     ) -> None:
         """Update task status.
-        
+
         Args:
             task_id: Task ID
             status: New status
@@ -109,25 +108,25 @@ class TaskQueue:
             task = self._tasks.get(task_id)
             if task:
                 task.status = status
-                
+
                 if error is not None:
                     task.error = error
-                    
+
                 if progress is not None:
                     task.progress = progress
-                    
+
                 if message is not None:
                     task.message = message
-                    
+
                 if status in ["completed", "failed"]:
                     task.completed_at = datetime.now()
 
     def get_task_status(self, task_id: str) -> dict[str, Any]:
         """Get task status information.
-        
+
         Args:
             task_id: Task ID
-            
+
         Returns:
             Task status dictionary
         """
@@ -145,13 +144,15 @@ class TaskQueue:
                 "error": task.error,
                 "created_at": task.created_at.isoformat(),
                 "started_at": task.started_at.isoformat() if task.started_at else None,
-                "completed_at": task.completed_at.isoformat() if task.completed_at else None,
+                "completed_at": (
+                    task.completed_at.isoformat() if task.completed_at else None
+                ),
                 "retry_count": task.retry_count,
             }
 
     def get_pending_tasks(self) -> list[str]:
         """Get list of pending task IDs.
-        
+
         Returns:
             List of pending task IDs
         """
@@ -164,10 +165,10 @@ class TaskQueue:
 
     def requeue_task(self, task_id: str) -> bool:
         """Requeue a task for retry.
-        
+
         Args:
             task_id: Task ID
-            
+
         Returns:
             True if task was requeued
         """
@@ -190,7 +191,7 @@ class TaskQueue:
 
     def get_stats(self) -> dict[str, int]:
         """Get queue statistics.
-        
+
         Returns:
             Dictionary with queue stats
         """

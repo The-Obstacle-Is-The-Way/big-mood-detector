@@ -4,8 +4,8 @@ Configuration Settings
 Centralized configuration management using Pydantic Settings.
 """
 
-from typing import Literal
 from pathlib import Path
+from typing import Literal
 
 from pydantic import Field, computed_field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -13,7 +13,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
     """Application settings with validation and environment loading."""
-    
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_ignore_empty=True,
@@ -21,47 +21,47 @@ class Settings(BaseSettings):
         case_sensitive=True,
         validate_assignment=True,
     )
-    
+
     # API Configuration
     API_V1_STR: str = "/api/v1"
     PROJECT_NAME: str = "Big Mood Detector"
     VERSION: str = "0.1.0"
     ENVIRONMENT: Literal["local", "staging", "production"] = "local"
-    
+
     # Paths
     MODEL_WEIGHTS_PATH: Path = Path("model_weights/xgboost/converted")
     OUTPUT_DIR: Path = Path("output")
     UPLOAD_DIR: Path = Path("uploads")
     TEMP_DIR: Path = Path("temp")
-    
+
     # File Processing
     MAX_FILE_SIZE: int = 100 * 1024 * 1024  # 100MB
     ALLOWED_EXTENSIONS: list[str] = [".xml", ".json"]
-    
+
     # ML Configuration
     CONFIDENCE_THRESHOLD: float = Field(default=0.7, ge=0.0, le=1.0)
     USE_PAT_MODEL: bool = False  # Until we implement PAT
-    
+
     # Background Tasks
     TASK_TIMEOUT: int = Field(default=300, gt=0)  # 5 minutes
     MAX_RETRIES: int = Field(default=3, ge=0)
-    
+
     # Logging
     LOG_LEVEL: Literal["DEBUG", "INFO", "WARNING", "ERROR"] = "INFO"
     LOG_FORMAT: Literal["json", "text"] = "json"
-    
+
     # Clinical Thresholds
     DEPRESSION_THRESHOLD: float = Field(default=0.5, ge=0.0, le=1.0)
     HYPOMANIC_THRESHOLD: float = Field(default=0.3, ge=0.0, le=1.0)
     MANIC_THRESHOLD: float = Field(default=0.3, ge=0.0, le=1.0)
-    
+
     @field_validator("MODEL_WEIGHTS_PATH", "OUTPUT_DIR", "UPLOAD_DIR", "TEMP_DIR")
     @classmethod
     def validate_paths(cls, v: Path) -> Path:
         """Ensure directories exist."""
         v.mkdir(parents=True, exist_ok=True)
         return v
-    
+
     @computed_field
     @property
     def log_config(self) -> dict:
@@ -75,19 +75,16 @@ class Settings(BaseSettings):
                 },
                 "text": {
                     "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-                }
+                },
             },
             "handlers": {
                 "console": {
                     "class": "logging.StreamHandler",
                     "formatter": self.LOG_FORMAT,
-                    "level": self.LOG_LEVEL
+                    "level": self.LOG_LEVEL,
                 }
             },
-            "root": {
-                "level": self.LOG_LEVEL,
-                "handlers": ["console"]
-            }
+            "root": {"level": self.LOG_LEVEL, "handlers": ["console"]},
         }
 
 

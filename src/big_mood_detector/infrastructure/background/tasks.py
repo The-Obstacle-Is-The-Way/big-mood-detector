@@ -19,13 +19,13 @@ logger = logging.getLogger(__name__)
 
 def process_health_file_task(payload: dict[str, Any], context: TaskContext) -> None:
     """Process a health data file.
-    
+
     Args:
         payload: Task payload with file_path and upload_id
         context: Task context for progress updates
     """
     file_path = Path(payload["file_path"])
-    upload_id = payload.get("upload_id")
+    payload.get("upload_id")
 
     if not file_path.exists():
         raise FileNotFoundError(f"File not found: {file_path}")
@@ -76,7 +76,7 @@ def process_health_file_task(payload: dict[str, Any], context: TaskContext) -> N
 
 def batch_process_files_task(payload: dict[str, Any], context: TaskContext) -> None:
     """Process multiple health data files.
-    
+
     Args:
         payload: Task payload with file_paths list
         context: Task context for progress updates
@@ -85,7 +85,7 @@ def batch_process_files_task(payload: dict[str, Any], context: TaskContext) -> N
     results = []
 
     for i, file_path in enumerate(file_paths):
-        progress = (i / len(file_paths))
+        progress = i / len(file_paths)
         context.update_progress(
             progress,
             f"Processing file {i + 1} of {len(file_paths)}: {file_path.name}",
@@ -95,22 +95,26 @@ def batch_process_files_task(payload: dict[str, Any], context: TaskContext) -> N
             # Process individual file
             file_payload = {"file_path": str(file_path)}
             process_health_file_task(file_payload, context)
-            results.append({
-                "file": str(file_path),
-                "status": "success",
-                "result": file_payload.get("result"),
-            })
+            results.append(
+                {
+                    "file": str(file_path),
+                    "status": "success",
+                    "result": file_payload.get("result"),
+                }
+            )
         except Exception as e:
-            results.append({
-                "file": str(file_path),
-                "status": "failed",
-                "error": str(e),
-            })
+            results.append(
+                {
+                    "file": str(file_path),
+                    "status": "failed",
+                    "error": str(e),
+                }
+            )
             logger.error(f"Failed to process {file_path}: {e}")
 
     # Store batch results
     payload["results"] = results
-    
+
     successful = sum(1 for r in results if r["status"] == "success")
     context.update_progress(
         1.0,
@@ -122,7 +126,7 @@ def generate_clinical_report_task(
     payload: dict[str, Any], context: TaskContext
 ) -> None:
     """Generate a clinical report from processing results.
-    
+
     Args:
         payload: Task payload with processing results
         context: Task context for progress updates
@@ -141,7 +145,7 @@ def generate_clinical_report_task(
 
     # Generate report
     context.update_progress(0.5, "Generating clinical interpretation")
-    
+
     report = generate_clinical_report(
         depression_risk=depression_risk,
         hypomanic_risk=hypomanic_risk,
@@ -164,12 +168,12 @@ def generate_clinical_report_task(
 
 def register_health_processing_tasks(worker: TaskWorker) -> None:
     """Register all health processing tasks with the worker.
-    
+
     Args:
         worker: Task worker to register handlers with
     """
     worker.register_handler("process_health_file", process_health_file_task)
     worker.register_handler("batch_process_files", batch_process_files_task)
     worker.register_handler("generate_clinical_report", generate_clinical_report_task)
-    
+
     logger.info("Registered health processing tasks")

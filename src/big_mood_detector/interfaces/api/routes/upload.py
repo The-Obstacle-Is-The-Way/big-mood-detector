@@ -6,7 +6,7 @@ Handles health data file uploads and processing status tracking.
 
 import uuid
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 import numpy as np
 from fastapi import (
@@ -18,12 +18,9 @@ from fastapi import (
     UploadFile,
     status,
 )
-from fastapi.responses import FileResponse, StreamingResponse
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
-from big_mood_detector.application.use_cases.process_health_data_use_case import (
-    MoodPredictionPipeline,
-)
 from big_mood_detector.infrastructure.background.task_queue import TaskQueue
 from big_mood_detector.infrastructure.background.tasks import (
     register_health_processing_tasks,
@@ -90,9 +87,11 @@ class UploadStatusResponse(BaseModel):
     result: dict[str, Any] | None = None
 
 
-async def process_upload(upload_id: str, file_path: Path, metadata: dict[str, Any] | None = None) -> None:
+async def process_upload(
+    upload_id: str, file_path: Path, metadata: dict[str, Any] | None = None
+) -> None:
     """Process uploaded file using task queue.
-    
+
     Args:
         upload_id: Unique upload identifier
         file_path: Path to uploaded file
@@ -104,7 +103,7 @@ async def process_upload(upload_id: str, file_path: Path, metadata: dict[str, An
         "upload_id": upload_id,
         "output_path": str(file_path.parent / f"{upload_id}_results.csv"),
     }
-    
+
     if metadata:
         payload["metadata"] = metadata
 
@@ -118,18 +117,22 @@ async def process_upload(upload_id: str, file_path: Path, metadata: dict[str, An
     # Start background processing
     # In production, this would be handled by separate worker processes
     import threading
-    
+
     def process_in_background():
         task_worker.process_one()
-        
+
         # Update upload status based on task status
         task_status = task_queue.get_task_status(task_id)
-        
+
         if task_status["status"] == "completed":
             # Extract results from task payload
-            task = next((t for t in task_queue._tasks.values() if t.id == task_id), None)
+            task = next(
+                (t for t in task_queue._tasks.values() if t.id == task_id), None
+            )
             if task and "result" in task.payload:
-                upload_results_store[upload_id] = convert_numpy_types(task.payload["result"])
+                upload_results_store[upload_id] = convert_numpy_types(
+                    task.payload["result"]
+                )
                 upload_status_store[upload_id] = {
                     "status": "completed",
                     "progress": 1.0,
@@ -149,7 +152,7 @@ async def process_upload(upload_id: str, file_path: Path, metadata: dict[str, An
                 "progress": task_status.get("progress", 0),
                 "message": task_status.get("message", "Processing..."),
             }
-    
+
     # Run in background thread
     thread = threading.Thread(target=process_in_background)
     thread.daemon = True
@@ -165,11 +168,11 @@ async def upload_file(
     processing_options: str | None = Form(None),
 ) -> UploadResponse:
     """Upload a health data file for processing.
-    
+
     Accepts:
     - Apple Health export XML files
     - Health Auto Export JSON files
-    
+
     File size limit: 10MB
     """
     # Validate file type
@@ -180,7 +183,7 @@ async def upload_file(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Unsupported file type. Only .xml and .json files are allowed.",
             )
-    
+
     # Check file size
     contents = await file.read()
     if len(contents) == 0:
@@ -188,41 +191,41 @@ async def upload_file(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Empty file",
         )
-    
+
     if len(contents) > MAX_FILE_SIZE:
         raise HTTPException(
             status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
             detail=f"File too large. Maximum size is {MAX_FILE_SIZE // (1024*1024)}MB",
         )
-    
+
     # Generate upload ID
     upload_id = str(uuid.uuid4())
-    
+
     # Save file
     upload_path = UPLOAD_DIR / upload_id
     upload_path.mkdir(exist_ok=True)
     file_path = upload_path / (file.filename or "upload.json")
-    
+
     with open(file_path, "wb") as f:
         f.write(contents)
-    
+
     # Prepare metadata
     metadata = {
         "patient_id": patient_id,
         "date_range": date_range,
         "processing_options": processing_options,
     }
-    
+
     # Initialize status
     upload_status_store[upload_id] = {
         "status": "queued",
         "progress": 0,
         "message": "Upload queued for processing",
     }
-    
+
     # Queue processing
     background_tasks.add_task(process_upload, upload_id, file_path, metadata)
-    
+
     return UploadResponse(
         upload_id=upload_id,
         filename=file.filename or "unknown",
@@ -237,12 +240,12 @@ async def upload_batch(
     files: list[UploadFile] = File(...),
 ) -> BatchUploadResponse:
     """Upload multiple health data files.
-    
+
     Useful for uploading separate JSON files from Health Auto Export.
     """
     batch_id = str(uuid.uuid4())
     upload_responses = []
-    
+
     for file in files:
         # Process each file using the same logic as upload_file
         # Validate file type
@@ -253,7 +256,7 @@ async def upload_batch(
                     status_code=status.HTTP_400_BAD_REQUEST,
                     detail="Unsupported file type. Only .xml and .json files are allowed.",
                 )
-        
+
         # Check file size
         contents = await file.read()
         if len(contents) == 0:
@@ -261,41 +264,43 @@ async def upload_batch(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Empty file",
             )
-        
+
         if len(contents) > MAX_FILE_SIZE:
             raise HTTPException(
                 status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
                 detail=f"File too large. Maximum size is {MAX_FILE_SIZE // (1024*1024)}MB",
             )
-        
+
         # Generate upload ID
         upload_id = str(uuid.uuid4())
-        
+
         # Save file
         upload_path = UPLOAD_DIR / upload_id
         upload_path.mkdir(exist_ok=True)
         file_path = upload_path / (file.filename or "upload.json")
-        
+
         with open(file_path, "wb") as f:
             f.write(contents)
-        
+
         # Initialize status
         upload_status_store[upload_id] = {
             "status": "queued",
             "progress": 0,
             "message": "Upload queued for processing",
         }
-        
+
         # Queue processing
         background_tasks.add_task(process_upload, upload_id, file_path, None)
-        
-        upload_responses.append(UploadResponse(
-            upload_id=upload_id,
-            filename=file.filename or "unknown",
-            status="queued",
-            metadata=None,
-        ))
-    
+
+        upload_responses.append(
+            UploadResponse(
+                upload_id=upload_id,
+                filename=file.filename or "unknown",
+                status="queued",
+                metadata=None,
+            )
+        )
+
     return BatchUploadResponse(
         batch_id=batch_id,
         files=upload_responses,
@@ -310,9 +315,9 @@ async def get_upload_status(upload_id: str) -> UploadStatusResponse:
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Upload not found",
         )
-    
+
     status_data = upload_status_store[upload_id]
-    
+
     return UploadStatusResponse(
         upload_id=upload_id,
         **status_data,
@@ -327,15 +332,15 @@ async def get_upload_result(upload_id: str) -> dict[str, Any]:
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Upload not found",
         )
-    
+
     status_data = upload_status_store[upload_id]
-    
+
     if status_data["status"] != "completed":
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Upload is {status_data['status']}, not completed",
         )
-    
+
     return {
         "upload_id": upload_id,
         "status": "completed",
@@ -347,17 +352,17 @@ async def get_upload_result(upload_id: str) -> dict[str, Any]:
 async def download_processed_file(upload_id: str) -> StreamingResponse:
     """Download processed results as CSV."""
     csv_path = UPLOAD_DIR / upload_id / f"{upload_id}_results.csv"
-    
+
     if not csv_path.exists():
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Processed file not found",
         )
-    
+
     def iterfile():
         with open(csv_path, "rb") as f:
             yield from f
-    
+
     return StreamingResponse(
         iterfile(),
         media_type="text/csv",

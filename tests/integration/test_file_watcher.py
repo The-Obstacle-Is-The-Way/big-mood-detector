@@ -8,7 +8,6 @@ import asyncio
 import tempfile
 import time
 from pathlib import Path
-from unittest.mock import Mock, patch
 
 import pytest
 
@@ -61,14 +60,14 @@ class TestFileWatcher:
                 handler_called = True
 
             watcher.on_created(on_file_created)
-            
+
             # Simulate file creation event
             test_file = Path(tmpdir) / "test.json"
             test_file.write_text('{"data": []}')
-            
+
             # Process events
             watcher._check_for_changes()
-            
+
             assert handler_called
 
     def test_file_pattern_matching(self):
@@ -111,7 +110,7 @@ class TestFileWatcher:
             # Create subdirectories
             subdir = Path(tmpdir) / "subdir"
             subdir.mkdir()
-            
+
             watcher = FileWatcher(
                 Path(tmpdir),
                 patterns=["*.json"],
@@ -144,9 +143,9 @@ class TestFileWatcher:
             # Create initial file
             test_file = Path(tmpdir) / "test.json"
             test_file.write_text('{"version": 1}')
-            
+
             watcher = FileWatcher(Path(tmpdir))
-            
+
             # Initialize watcher (records initial state)
             watcher._check_for_changes()
 
@@ -174,9 +173,9 @@ class TestFileWatcher:
             # Create initial file
             test_file = Path(tmpdir) / "test.json"
             test_file.write_text("{}")
-            
+
             watcher = FileWatcher(Path(tmpdir))
-            
+
             # Initialize watcher (records initial state)
             watcher._check_for_changes()
 
@@ -223,7 +222,7 @@ class TestFileWatcher:
             # Create files while watching
             (Path(tmpdir) / "file1.json").write_text("{}")
             await asyncio.sleep(0.2)
-            
+
             (Path(tmpdir) / "file2.json").write_text("{}")
             await asyncio.sleep(0.2)
 
@@ -276,7 +275,7 @@ class TestFileWatcher:
         with tempfile.TemporaryDirectory() as tmpdir:
             # Create task queue
             task_queue = TaskQueue()
-            
+
             # Create watcher
             watcher = FileWatcher(Path(tmpdir))
 
@@ -343,7 +342,7 @@ class TestFileWatcher:
 
         with tempfile.TemporaryDirectory() as tmpdir:
             state_file = Path(tmpdir) / ".watcher_state.json"
-            
+
             # Create initial files
             (Path(tmpdir) / "existing1.json").write_text("{}")
             (Path(tmpdir) / "existing2.json").write_text("{}")
@@ -353,7 +352,7 @@ class TestFileWatcher:
                 Path(tmpdir),
                 state_file=state_file,
             )
-            
+
             # Initialize (should save state)
             watcher1._check_for_changes()
             watcher1.save_state()
@@ -363,10 +362,10 @@ class TestFileWatcher:
                 Path(tmpdir),
                 state_file=state_file,
             )
-            
+
             created = []
             watcher2.on_created(lambda f: created.append(f.name))
-            
+
             # Should not detect existing files as new
             watcher2._check_for_changes()
             assert len(created) == 0
@@ -374,7 +373,7 @@ class TestFileWatcher:
             # Create new file
             (Path(tmpdir) / "new.json").write_text("{}")
             watcher2._check_for_changes()
-            
+
             # Should only detect the new file
             assert len(created) == 1
             assert "new.json" in created

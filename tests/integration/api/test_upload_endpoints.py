@@ -6,9 +6,7 @@ TDD for file upload functionality in the API.
 
 import io
 import json
-import tempfile
-from pathlib import Path
-from unittest.mock import AsyncMock, Mock, patch
+from unittest.mock import patch
 
 import pytest
 from fastapi.testclient import TestClient
@@ -97,13 +95,13 @@ class TestUploadEndpoints:
         """Test checking upload status."""
         # Mock background processing to prevent actual execution
         mock_process.return_value = None
-        
+
         # First upload a file to get a valid upload_id
         test_file = io.BytesIO(b'{"data": []}')
         files = {"file": ("test.json", test_file, "application/json")}
         upload_response = client.post("/api/v1/upload/file", files=files)
         upload_id = upload_response.json()["upload_id"]
-        
+
         # Now check its status
         response = client.get(f"/api/v1/upload/status/{upload_id}")
 
@@ -154,7 +152,7 @@ class TestUploadEndpoints:
     def test_upload_result_retrieval(self, client):
         """Test retrieving processing results after upload."""
         from big_mood_detector.interfaces.api.routes.upload import upload_status_store
-        
+
         # Create a completed upload
         upload_id = "completed-upload-123"
         upload_status_store[upload_id] = {
@@ -167,7 +165,7 @@ class TestUploadEndpoints:
                 "manic_risk": 0.01,
                 "confidence": 0.85,
                 "days_analyzed": 7,
-            }
+            },
         }
 
         response = client.get(f"/api/v1/upload/result/{upload_id}")
@@ -181,16 +179,18 @@ class TestUploadEndpoints:
     def test_download_processed_file(self, client):
         """Test downloading processed results as CSV."""
         from big_mood_detector.interfaces.api.routes.upload import UPLOAD_DIR
-        
+
         upload_id = "completed-upload-123"
-        
+
         # Create the upload directory and CSV file
         upload_path = UPLOAD_DIR / upload_id
         upload_path.mkdir(exist_ok=True, parents=True)
         csv_path = upload_path / f"{upload_id}_results.csv"
-        
+
         # Write test CSV content
-        csv_content = "date,depression_risk,hypomanic_risk,manic_risk\n2024-01-01,0.4,0.05,0.01"
+        csv_content = (
+            "date,depression_risk,hypomanic_risk,manic_risk\n2024-01-01,0.4,0.05,0.01"
+        )
         csv_path.write_text(csv_content)
 
         response = client.get(f"/api/v1/upload/download/{upload_id}")
@@ -199,14 +199,13 @@ class TestUploadEndpoints:
         assert "text/csv" in response.headers["content-type"]
         assert "attachment" in response.headers["content-disposition"]
         assert response.text == csv_content
-        
+
         # Cleanup
         csv_path.unlink()
         upload_path.rmdir()
 
     def test_concurrent_uploads(self, client):
         """Test handling multiple concurrent uploads."""
-        import asyncio
         import concurrent.futures
 
         def upload_file(filename):
@@ -216,9 +215,7 @@ class TestUploadEndpoints:
 
         # Upload 5 files concurrently
         with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
-            futures = [
-                executor.submit(upload_file, f"test{i}.json") for i in range(5)
-            ]
+            futures = [executor.submit(upload_file, f"test{i}.json") for i in range(5)]
             responses = [f.result() for f in futures]
 
         # All should succeed

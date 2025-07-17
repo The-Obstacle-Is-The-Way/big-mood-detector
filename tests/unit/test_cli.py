@@ -135,7 +135,18 @@ class TestCLI:
 
         with tempfile.TemporaryDirectory() as tmpdir:
             runner = CliRunner()
-            result = runner.invoke(main, ["watch", tmpdir, "--poll-interval", "30", "--patterns", "*.json", "--no-recursive"])
+            result = runner.invoke(
+                main,
+                [
+                    "watch",
+                    tmpdir,
+                    "--poll-interval",
+                    "30",
+                    "--patterns",
+                    "*.json",
+                    "--no-recursive",
+                ],
+            )
 
             # Should show setup messages
             assert "Watching" in result.output

@@ -10,9 +10,10 @@ import json
 import logging
 import os
 import time
-from dataclasses import dataclass, field
+from collections.abc import Callable, Coroutine
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Callable, Coroutine, Optional
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -24,7 +25,7 @@ class FileInfo:
     path: Path
     size: int
     mtime: float
-    
+
     def has_changed(self, other: "FileInfo") -> bool:
         """Check if file has changed compared to another FileInfo."""
         return self.size != other.size or self.mtime != other.mtime
@@ -41,14 +42,14 @@ class FileWatcher:
     def __init__(
         self,
         watch_path: Path,
-        patterns: Optional[list[str]] = None,
-        ignore_patterns: Optional[list[str]] = None,
+        patterns: list[str] | None = None,
+        ignore_patterns: list[str] | None = None,
         recursive: bool = False,
         poll_interval: float = 1.0,
-        state_file: Optional[Path] = None,
+        state_file: Path | None = None,
     ):
         """Initialize file watcher.
-        
+
         Args:
             watch_path: Directory to watch
             patterns: File patterns to watch (e.g., ["*.xml", "*.json"])
@@ -63,11 +64,11 @@ class FileWatcher:
         self.recursive = recursive
         self.poll_interval = poll_interval
         self.state_file = state_file
-        
+
         # Always ignore the state file if provided
         if state_file:
             self.ignore_patterns.append(state_file.name)
-        
+
         self._running = False
         self._file_state: dict[str, FileInfo] = {}
         self._created_handlers: list[FileHandler] = []
@@ -77,7 +78,7 @@ class FileWatcher:
         self._modified_async_handlers: list[AsyncFileHandler] = []
         self._deleted_async_handlers: list[AsyncFileHandler] = []
         self._error_handlers: list[ErrorHandler] = []
-        
+
         # Load previous state if available
         if self.state_file and self.state_file.exists():
             self._load_state()
@@ -113,35 +114,35 @@ class FileWatcher:
     def _matches_patterns(self, file_path: Path) -> bool:
         """Check if file matches watch patterns and not ignore patterns."""
         filename = file_path.name
-        
+
         # Check ignore patterns first
         for pattern in self.ignore_patterns:
             if fnmatch.fnmatch(filename, pattern):
                 return False
-        
+
         # Check include patterns
         for pattern in self.patterns:
             if fnmatch.fnmatch(filename, pattern):
                 return True
-        
+
         return False
 
     def _get_files(self) -> dict[str, FileInfo]:
         """Get current state of files in watch directory."""
         current_files = {}
-        
+
         if self.recursive:
             # Walk directory tree
             for root, dirs, files in os.walk(self.watch_path):
                 # Filter out ignored directories
                 dirs[:] = [
-                    d for d in dirs
+                    d
+                    for d in dirs
                     if not any(
-                        fnmatch.fnmatch(d, pattern) 
-                        for pattern in self.ignore_patterns
+                        fnmatch.fnmatch(d, pattern) for pattern in self.ignore_patterns
                     )
                 ]
-                
+
                 root_path = Path(root)
                 for filename in files:
                     file_path = root_path / filename
@@ -153,7 +154,7 @@ class FileWatcher:
                                 size=stat.st_size,
                                 mtime=stat.st_mtime,
                             )
-                        except (OSError, IOError) as e:
+                        except OSError as e:
                             logger.warning(f"Failed to stat {file_path}: {e}")
         else:
             # Only watch top-level directory
@@ -167,22 +168,22 @@ class FileWatcher:
                                 size=stat.st_size,
                                 mtime=stat.st_mtime,
                             )
-                        except (OSError, IOError) as e:
+                        except OSError as e:
                             logger.warning(f"Failed to stat {file_path}: {e}")
-            except (OSError, IOError) as e:
+            except OSError as e:
                 logger.error(f"Failed to list directory {self.watch_path}: {e}")
-        
+
         return current_files
 
     def _check_for_changes(self) -> None:
         """Check for file changes and trigger handlers."""
         current_files = self._get_files()
-        
+
         # Find created files
         for path_str, file_info in current_files.items():
             if path_str not in self._file_state:
                 self._trigger_created(file_info.path)
-        
+
         # Find modified and deleted files
         for path_str, old_info in self._file_state.items():
             if path_str in current_files:
@@ -191,14 +192,14 @@ class FileWatcher:
                     self._trigger_modified(new_info.path)
             else:
                 self._trigger_deleted(old_info.path)
-        
+
         # Update state
         self._file_state = current_files
 
     def _trigger_created(self, file_path: Path) -> None:
         """Trigger file created handlers."""
         logger.info(f"File created: {file_path}")
-        
+
         for handler in self._created_handlers:
             try:
                 handler(file_path)
@@ -209,7 +210,7 @@ class FileWatcher:
     def _trigger_modified(self, file_path: Path) -> None:
         """Trigger file modified handlers."""
         logger.info(f"File modified: {file_path}")
-        
+
         for handler in self._modified_handlers:
             try:
                 handler(file_path)
@@ -220,7 +221,7 @@ class FileWatcher:
     def _trigger_deleted(self, file_path: Path) -> None:
         """Trigger file deleted handlers."""
         logger.info(f"File deleted: {file_path}")
-        
+
         for handler in self._deleted_handlers:
             try:
                 handler(file_path)
@@ -266,17 +267,15 @@ class FileWatcher:
     async def _check_for_changes_async(self) -> None:
         """Check for file changes and trigger async handlers."""
         current_files = self._get_files()
-        
+
         # Find created files
         created_tasks = []
         for path_str, file_info in current_files.items():
             if path_str not in self._file_state:
                 self._trigger_created(file_info.path)
                 if self._created_async_handlers:
-                    created_tasks.append(
-                        self._trigger_created_async(file_info.path)
-                    )
-        
+                    created_tasks.append(self._trigger_created_async(file_info.path))
+
         # Find modified and deleted files
         modified_tasks = []
         deleted_tasks = []
@@ -292,15 +291,13 @@ class FileWatcher:
             else:
                 self._trigger_deleted(old_info.path)
                 if self._deleted_async_handlers:
-                    deleted_tasks.append(
-                        self._trigger_deleted_async(old_info.path)
-                    )
-        
+                    deleted_tasks.append(self._trigger_deleted_async(old_info.path))
+
         # Wait for all async handlers
         all_tasks = created_tasks + modified_tasks + deleted_tasks
         if all_tasks:
             await asyncio.gather(*all_tasks, return_exceptions=True)
-        
+
         # Update state
         self._file_state = current_files
 
@@ -308,7 +305,7 @@ class FileWatcher:
         """Start watching for file changes (blocking)."""
         self._running = True
         logger.info(f"Starting file watcher on {self.watch_path}")
-        
+
         try:
             while self._running:
                 self._check_for_changes()
@@ -323,7 +320,7 @@ class FileWatcher:
         """Start watching for file changes (async)."""
         self._running = True
         logger.info(f"Starting async file watcher on {self.watch_path}")
-        
+
         try:
             while self._running:
                 await self._check_for_changes_async()
@@ -342,7 +339,7 @@ class FileWatcher:
         """Save current file state to disk."""
         if not self.state_file:
             return
-        
+
         try:
             state_data = {
                 path_str: {
@@ -351,7 +348,7 @@ class FileWatcher:
                 }
                 for path_str, info in self._file_state.items()
             }
-            
+
             self.state_file.parent.mkdir(parents=True, exist_ok=True)
             self.state_file.write_text(json.dumps(state_data, indent=2))
             logger.debug(f"Saved watcher state to {self.state_file}")
@@ -362,7 +359,7 @@ class FileWatcher:
         """Load file state from disk."""
         if not self.state_file or not self.state_file.exists():
             return
-        
+
         try:
             state_data = json.loads(self.state_file.read_text())
             self._file_state = {

@@ -22,8 +22,6 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
-from big_mood_detector.core.logging import get_module_logger
-
 from big_mood_detector.application.services.aggregation_pipeline import (
     AggregationPipeline,
     DailyFeatures,
@@ -31,6 +29,7 @@ from big_mood_detector.application.services.aggregation_pipeline import (
 from big_mood_detector.application.services.data_parsing_service import (
     DataParsingService,
 )
+from big_mood_detector.core.logging import get_module_logger
 from big_mood_detector.domain.services.activity_sequence_extractor import (
     ActivitySequenceExtractor,
 )
@@ -49,7 +48,6 @@ from big_mood_detector.domain.services.sleep_window_analyzer import SleepWindowA
 from big_mood_detector.domain.services.sparse_data_handler import (
     SparseDataHandler,
 )
-
 
 logger = get_module_logger(__name__)
 
@@ -332,7 +330,7 @@ class MoodPredictionPipeline:
                     "feature_extraction_failed",
                     date=str(current_date),
                     error=str(e),
-                    error_type=type(e).__name__
+                    error_type=type(e).__name__,
                 )
                 features[current_date] = None
 
@@ -421,7 +419,7 @@ class MoodPredictionPipeline:
             logger.warning(
                 "data_validation_failed",
                 warnings=validation_result.warnings,
-                warning_count=len(validation_result.warnings)
+                warning_count=len(validation_result.warnings),
             )
 
         # Get data summary for analysis
@@ -441,7 +439,7 @@ class MoodPredictionPipeline:
                 days_count=len(sleep_dates),
                 coverage_ratio=round(sleep_density.coverage_ratio, 3),
                 max_gap_days=sleep_density.max_gap_days,
-                quality=sleep_density.density_class.name
+                quality=sleep_density.density_class.name,
             )
 
         if activity_dates:
@@ -451,7 +449,7 @@ class MoodPredictionPipeline:
                 days_count=len(activity_dates),
                 coverage_ratio=round(activity_density.coverage_ratio, 3),
                 max_gap_days=activity_density.max_gap_days,
-                quality=activity_density.density_class.name
+                quality=activity_density.density_class.name,
             )
 
         # Find overlapping windows
@@ -466,10 +464,10 @@ class MoodPredictionPipeline:
                     {
                         "start": str(start),
                         "end": str(end),
-                        "days": (end - start).days + 1
+                        "days": (end - start).days + 1,
                     }
                     for start, end in windows[:3]
-                ]
+                ],
             )
 
         # Extract features for each day using aggregation pipeline
@@ -479,7 +477,7 @@ class MoodPredictionPipeline:
         if not features:
             logger.warning(
                 "no_features_extracted",
-                message="Check date range and data availability"
+                message="Check date range and data availability",
             )
             df = pd.DataFrame()  # Empty dataframe
         else:
@@ -489,18 +487,12 @@ class MoodPredictionPipeline:
 
             # Add confidence scores based on data density
             logger.info(
-                "features_extracted",
-                days_count=len(df),
-                adding_confidence_scores=True
+                "features_extracted", days_count=len(df), adding_confidence_scores=True
             )
 
         # Save to CSV
         df.to_csv(output_path)
-        logger.info(
-            "features_saved",
-            days_count=len(df),
-            output_path=str(output_path)
-        )
+        logger.info("features_saved", days_count=len(df), output_path=str(output_path))
 
         return df
 

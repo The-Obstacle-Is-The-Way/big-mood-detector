@@ -5,14 +5,14 @@ Processes tasks from the queue with error handling and retries.
 """
 
 import asyncio
-import functools
+import builtins
 import logging
 import signal
-import threading
 import time
+from collections.abc import Callable, Coroutine
 from concurrent.futures import ThreadPoolExecutor, TimeoutError
 from dataclasses import dataclass
-from typing import Any, Callable, Coroutine, Optional, Union
+from typing import Any, Union
 
 from .task_queue import TaskQueue
 
@@ -26,9 +26,9 @@ class TaskContext:
     task_id: str
     queue: TaskQueue
 
-    def update_progress(self, progress: float, message: Optional[str] = None) -> None:
+    def update_progress(self, progress: float, message: str | None = None) -> None:
         """Update task progress.
-        
+
         Args:
             progress: Progress value (0.0 to 1.0)
             message: Optional status message
@@ -59,10 +59,10 @@ class TaskWorker:
         self,
         queue: TaskQueue,
         max_retries: int = 3,
-        task_timeout: Optional[int] = None,
+        task_timeout: int | None = None,
     ):
         """Initialize the task worker.
-        
+
         Args:
             queue: Task queue to process
             max_retries: Maximum number of retries for failed tasks
@@ -77,7 +77,7 @@ class TaskWorker:
 
     def register_handler(self, task_type: str, handler: TaskHandler) -> None:
         """Register a task handler.
-        
+
         Args:
             task_type: Type of task to handle
             handler: Handler function
@@ -86,7 +86,7 @@ class TaskWorker:
 
     def process_one(self) -> bool:
         """Process one task from the queue.
-        
+
         Returns:
             True if a task was processed, False if queue was empty
         """
@@ -114,16 +114,16 @@ class TaskWorker:
                 # Handler accepts context
                 if self.task_timeout:
                     future = self._executor.submit(handler, task.payload, context)
-                    result = future.result(timeout=self.task_timeout)
+                    future.result(timeout=self.task_timeout)
                 else:
-                    result = handler(task.payload, context)
+                    handler(task.payload, context)
             else:
                 # Handler only accepts payload
                 if self.task_timeout:
                     future = self._executor.submit(handler, task.payload)
-                    result = future.result(timeout=self.task_timeout)
+                    future.result(timeout=self.task_timeout)
                 else:
-                    result = handler(task.payload)
+                    handler(task.payload)
 
             # Mark as completed
             self.queue.update_task_status(
@@ -149,7 +149,7 @@ class TaskWorker:
 
     def _handle_task_failure(self, task: Any, error: str) -> None:
         """Handle task failure with retry logic.
-        
+
         Args:
             task: Failed task
             error: Error message
@@ -174,7 +174,7 @@ class TaskWorker:
 
     def run(self, poll_interval: float = 1.0) -> None:
         """Run the worker in a loop.
-        
+
         Args:
             poll_interval: Seconds to wait between polls when queue is empty
         """
@@ -213,10 +213,10 @@ class AsyncTaskWorker:
         self,
         queue: TaskQueue,
         max_retries: int = 3,
-        task_timeout: Optional[int] = None,
+        task_timeout: int | None = None,
     ):
         """Initialize the async task worker.
-        
+
         Args:
             queue: Task queue to process
             max_retries: Maximum number of retries for failed tasks
@@ -230,7 +230,7 @@ class AsyncTaskWorker:
 
     def register_handler(self, task_type: str, handler: AsyncTaskHandler) -> None:
         """Register an async task handler.
-        
+
         Args:
             task_type: Type of task to handle
             handler: Async handler function
@@ -239,7 +239,7 @@ class AsyncTaskWorker:
 
     async def process_one(self) -> bool:
         """Process one task from the queue.
-        
+
         Returns:
             True if a task was processed, False if queue was empty
         """
@@ -267,31 +267,31 @@ class AsyncTaskWorker:
                 if sig == 2:
                     # Handler accepts context
                     if self.task_timeout:
-                        result = await asyncio.wait_for(
+                        await asyncio.wait_for(
                             handler(task.payload, context),
                             timeout=self.task_timeout,
                         )
                     else:
-                        result = await handler(task.payload, context)
+                        await handler(task.payload, context)
                 else:
                     # Handler only accepts payload
                     if self.task_timeout:
-                        result = await asyncio.wait_for(
+                        await asyncio.wait_for(
                             handler(task.payload),
                             timeout=self.task_timeout,
                         )
                     else:
-                        result = await handler(task.payload)
+                        await handler(task.payload)
             else:
                 # Sync handler, run in executor
                 loop = asyncio.get_event_loop()
                 if self.task_timeout:
-                    result = await asyncio.wait_for(
+                    await asyncio.wait_for(
                         loop.run_in_executor(None, handler, task.payload),
                         timeout=self.task_timeout,
                     )
                 else:
-                    result = await loop.run_in_executor(None, handler, task.payload)
+                    await loop.run_in_executor(None, handler, task.payload)
 
             # Mark as completed
             self.queue.update_task_status(
@@ -303,7 +303,7 @@ class AsyncTaskWorker:
             logger.info(f"Task {task.id} completed successfully")
             return True
 
-        except asyncio.TimeoutError:
+        except builtins.TimeoutError:
             error_msg = f"Task timed out after {self.task_timeout} seconds"
             logger.error(f"Task {task.id} failed: {error_msg}")
             self._handle_task_failure(task, error_msg)
@@ -317,7 +317,7 @@ class AsyncTaskWorker:
 
     def _handle_task_failure(self, task: Any, error: str) -> None:
         """Handle task failure with retry logic.
-        
+
         Args:
             task: Failed task
             error: Error message
@@ -342,7 +342,7 @@ class AsyncTaskWorker:
 
     async def run(self, poll_interval: float = 1.0) -> None:
         """Run the async worker in a loop.
-        
+
         Args:
             poll_interval: Seconds to wait between polls when queue is empty
         """
