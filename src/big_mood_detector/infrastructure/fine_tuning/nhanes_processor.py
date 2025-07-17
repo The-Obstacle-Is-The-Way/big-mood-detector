@@ -278,8 +278,8 @@ class NHANESProcessor:
         Returns:
             Tuple of (sequences, labels) arrays
         """
-        sequences = []
-        labels = [] if label_col else None
+        sequences: list[np.ndarray] = []
+        labels: list[Any] | None = [] if label_col else None
 
         # Process each subject
         for seqn in actigraphy["SEQN"].unique():
@@ -295,17 +295,17 @@ class NHANESProcessor:
                 window = activity[i : i + window_size]
                 sequences.append(window)
 
-                if label_col:
+                if label_col and labels is not None:
                     # Use label from middle of window
                     label_idx = i + window_size // 2
                     label = subject_data.iloc[label_idx][label_col]
                     labels.append(label)
 
-        sequences = np.array(sequences)
-        labels = np.array(labels) if labels else None
+        sequences_array = np.array(sequences)
+        labels_array = np.array(labels) if labels is not None else None
 
-        logger.info(f"Extracted {len(sequences)} sequences")
-        return sequences, labels
+        logger.info(f"Extracted {len(sequences_array)} sequences")
+        return sequences_array, labels_array
 
     def save_cohort(
         self, cohort: pd.DataFrame, name: str

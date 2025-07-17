@@ -269,7 +269,7 @@ class TestPopulationTrainer:
     def test_cross_validation_split(self):
         """Test time-series aware cross-validation."""
         from big_mood_detector.infrastructure.fine_tuning.population_trainer import (
-            PopulationTrainer,
+            PATPopulationTrainer,
         )
 
         # Create time-indexed data
@@ -280,7 +280,8 @@ class TestPopulationTrainer:
             "label": np.random.randint(0, 2, 365),
         })
 
-        trainer = PopulationTrainer()
+        # Use concrete implementation instead of abstract class
+        trainer = PATPopulationTrainer()
         splits = trainer.create_time_series_splits(
             data,
             n_splits=3,
@@ -295,10 +296,11 @@ class TestPopulationTrainer:
     def test_model_evaluation_metrics(self):
         """Test comprehensive evaluation metrics."""
         from big_mood_detector.infrastructure.fine_tuning.population_trainer import (
-            PopulationTrainer,
+            PATPopulationTrainer,
         )
 
-        trainer = PopulationTrainer()
+        # Use concrete implementation instead of abstract class
+        trainer = PATPopulationTrainer()
         
         # Mock predictions
         y_true = np.array([0, 1, 1, 0, 1, 0, 1, 1])

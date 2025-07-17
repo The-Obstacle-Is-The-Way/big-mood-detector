@@ -32,7 +32,7 @@ class Task:
 class TaskQueue:
     """In-memory task queue with thread safety."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the task queue."""
         self._tasks: dict[str, Task] = {}
         self._pending_queue: list[str] = []

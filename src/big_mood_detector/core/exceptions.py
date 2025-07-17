@@ -26,7 +26,7 @@ class BigMoodError(Exception):
     Provides context storage and error chaining capabilities.
     """
 
-    def __init__(self, message: str, **context):
+    def __init__(self, message: str, **context: Any) -> None:
         """
         Initialize with message and optional context.
 
@@ -414,7 +414,7 @@ class ValidationErrorCollector:
         """Initialize collector."""
         self.errors: list[dict[str, Any]] = []
 
-    def add_error(self, field: str, message: str, **context) -> None:
+    def add_error(self, field: str, message: str, **context: Any) -> None:
         """
         Add a validation error.
 

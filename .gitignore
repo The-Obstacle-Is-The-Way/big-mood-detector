@@ -121,6 +121,13 @@ output/
 data/
 !converted_markdown/
 
+# Model outputs and fine-tuned weights
+models/
+*.pt
+*.pth
+*_metadata.json
+!models/.gitkeep
+
 # =====================================
 # Personal Health Data - CRITICAL SECURITY
 # =====================================
