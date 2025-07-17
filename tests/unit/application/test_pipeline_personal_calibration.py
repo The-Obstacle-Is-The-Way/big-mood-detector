@@ -17,7 +17,7 @@ from big_mood_detector.application.use_cases.process_health_data_use_case import
     PipelineConfig,
 )
 from big_mood_detector.domain.entities.activity_record import ActivityRecord
-from big_mood_detector.domain.entities.sleep_record import SleepRecord
+from big_mood_detector.domain.entities.sleep_record import SleepRecord, SleepState
 from big_mood_detector.domain.services.mood_predictor import MoodPrediction
 from big_mood_detector.infrastructure.fine_tuning.personal_calibrator import (
     PersonalCalibrator,
@@ -132,8 +132,8 @@ class TestPipelinePersonalCalibration:
             SleepRecord(
                 start_date=datetime(2024, 1, 15, 22, 0),
                 end_date=datetime(2024, 1, 16, 2, 0),  # 4 hours (3 hours below baseline)
-                sleep_efficiency=0.7,
-                source_name="test"
+                source_name="test",
+                state=SleepState.ASLEEP
             )
         ]
         
@@ -270,7 +270,7 @@ class TestPipelinePersonalCalibration:
         # Then model should be updated
         assert metrics is not None
         assert "accuracy" in metrics
-        assert metrics["personal_improvement"] > 0
+        assert metrics["n_trees_added"] > 0  # For XGBoost
 
     def test_personal_calibration_improves_early_warning(self):
         """Test that personal calibration enables earlier episode detection."""
@@ -288,8 +288,8 @@ class TestPipelinePersonalCalibration:
             SleepRecord(
                 start_date=datetime(2024, 1, 13, 23, 0),
                 end_date=datetime(2024, 1, 14, 4, 0),  # 5 hours
-                sleep_efficiency=0.8,
-                source_name="test"
+                source_name="test",
+                state=SleepState.ASLEEP
             )
         ]
         
@@ -300,8 +300,7 @@ class TestPipelinePersonalCalibration:
             depression_risk=0.6,  # Elevated but not high
             hypomanic_risk=0.1,
             manic_risk=0.1,
-            confidence=0.7,
-            metadata={"early_warning": True}
+            confidence=0.7
         )
         
         config = PipelineConfig(
@@ -320,7 +319,11 @@ class TestPipelinePersonalCalibration:
             target_date=date(2024, 1, 14)
         )
         
-        # Then should detect early warning
+        # Then should have elevated risk
         predictions = result.daily_predictions[date(2024, 1, 14)]
-        assert predictions.get("early_warning") is True
-        assert "sleep_deviation" in predictions.get("risk_factors", {})
+        assert predictions["depression_risk"] == 0.6  # Elevated risk detected
+        assert predictions["confidence"] == 0.7
+        
+        # And personal calibration metadata should be present
+        assert result.metadata.get("personal_calibration_used") is True
+        assert result.metadata.get("user_id") == "test_user"

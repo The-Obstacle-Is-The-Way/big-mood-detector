@@ -8,6 +8,7 @@ Implements parallel processing, confidence weighting, and fallback strategies.
 import logging
 from concurrent.futures import ThreadPoolExecutor, TimeoutError
 from dataclasses import dataclass
+from typing import Any
 
 import numpy as np
 
@@ -76,6 +77,7 @@ class EnsembleOrchestrator:
         xgboost_predictor: XGBoostMoodPredictor,
         pat_model: PATModel | None = None,
         config: EnsembleConfig | None = None,
+        personal_calibrator: Any | None = None,
     ):
         """
         Initialize the orchestrator with models.
@@ -84,11 +86,13 @@ class EnsembleOrchestrator:
             xgboost_predictor: Primary XGBoost predictor
             pat_model: Optional PAT model for enhanced features
             config: Ensemble configuration
+            personal_calibrator: Optional personal calibrator for user-specific adjustments
         """
         self.xgboost_predictor = xgboost_predictor
         self.pat_model = pat_model
         self.pat_builder = PATSequenceBuilder() if pat_model else None
         self.config = config or EnsembleConfig()
+        self.personal_calibrator = personal_calibrator
 
         # Thread pool for parallel execution
         self.executor = ThreadPoolExecutor(max_workers=3)

@@ -151,6 +151,7 @@ class MoodPredictionPipeline:
                     logger.info("PAT model loaded successfully")
 
             if self.xgboost_predictor and self.xgboost_predictor.is_loaded:
+                # Will be updated after personal calibrator is initialized
                 self.ensemble_orchestrator = EnsembleOrchestrator(
                     xgboost_predictor=self.xgboost_predictor,
                     pat_model=pat_model,
@@ -188,6 +189,10 @@ class MoodPredictionPipeline:
                 except Exception as e:
                     logger.warning(f"Could not load personal model: {e}")
                     # Continue without personal calibration
+        
+        # Update ensemble orchestrator with personal calibrator if both exist
+        if self.ensemble_orchestrator and self.personal_calibrator:
+            self.ensemble_orchestrator.personal_calibrator = self.personal_calibrator
 
     def process_apple_health_file(
         self,
@@ -381,6 +386,13 @@ class MoodPredictionPipeline:
                 confidence_score * 0.7
             )  # Reduce confidence for data issues
 
+        # Build metadata
+        metadata = {}
+        if self.personal_calibrator:
+            metadata["personal_calibration_used"] = True
+            metadata["user_id"] = self.personal_calibrator.user_id
+            metadata["baseline_available"] = bool(self.personal_calibrator.baseline)
+
         return PipelineResult(
             daily_predictions=daily_predictions,
             overall_summary=overall_summary,
@@ -394,6 +406,7 @@ class MoodPredictionPipeline:
             warnings=warnings,
             has_errors=bool(errors),
             errors=errors,
+            metadata=metadata,
         )
 
     def extract_features_batch(
@@ -444,6 +457,39 @@ class MoodPredictionPipeline:
 
         return features
 
+    def update_personal_model(
+        self,
+        features: pd.DataFrame,
+        labels: np.ndarray,
+        sample_weight: np.ndarray | None = None,
+    ) -> dict[str, float] | None:
+        """
+        Update personal model with new labeled data.
+        
+        Args:
+            features: Feature matrix
+            labels: Ground truth labels
+            sample_weight: Optional sample weights
+            
+        Returns:
+            Dictionary of training metrics or None if no calibrator
+        """
+        if not self.personal_calibrator:
+            logger.warning("No personal calibrator available for model update")
+            return None
+            
+        # Calibrate the model
+        metrics = self.personal_calibrator.calibrate(
+            features=features,
+            labels=labels,
+            sample_weight=sample_weight or 1.0,
+        )
+        
+        # Save the updated model
+        self.personal_calibrator.save_model(metrics)
+        
+        return metrics
+
     def export_results(self, result: PipelineResult, output_path: Path) -> None:
         """
         Export pipeline results to CSV format.
@@ -471,19 +517,23 @@ class MoodPredictionPipeline:
         import json
 
         with open(summary_path, "w") as f:
-            json.dump(
-                {
-                    "overall_summary": result.overall_summary,
-                    "confidence_score": result.confidence_score,
-                    "processing_time_seconds": result.processing_time_seconds,
-                    "records_processed": result.records_processed,
-                    "warnings": result.warnings,
-                    "errors": result.errors,
-                },
-                f,
-                indent=2,
-                default=str,
-            )
+            summary_data = {
+                "overall_summary": result.overall_summary,
+                "confidence_score": result.confidence_score,
+                "processing_time_seconds": result.processing_time_seconds,
+                "records_processed": result.records_processed,
+                "warnings": result.warnings,
+                "errors": result.errors,
+            }
+            
+            # Add personal calibration info if available
+            if result.metadata.get("personal_calibration_used"):
+                summary_data["personal_calibration"] = {
+                    "user_id": result.metadata.get("user_id"),
+                    "baseline_available": result.metadata.get("baseline_available"),
+                }
+            
+            json.dump(summary_data, f, indent=2, default=str)
 
     def process_health_export(
         self,
