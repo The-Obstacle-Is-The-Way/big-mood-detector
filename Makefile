@@ -42,7 +42,7 @@ test:  ## Run all tests except slow_finetune and large files
 test-quick:  ## Quick test run with minimal output
 	pytest -x --tb=short -q
 
-test-watch:  ## Watch tests with verbose output (best for TDD)
+test-verbose:  ## Run tests with verbose output (best for debugging)
 	pytest -v --tb=short --durations=10
 
 test-parallel:

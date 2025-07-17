@@ -45,13 +45,15 @@ class TestNHANESProcessor:
         )
 
         # Mock actigraphy data
-        mock_acti_df = pd.DataFrame({
-            "SEQN": [1, 2, 3],  # Subject ID
-            "PAXDAY": [1, 1, 1],  # Day number
-            "PAXN": [1, 2, 3],  # Minute number
-            "PAXINTEN": [100, 200, 150],  # Activity intensity
-            "PAXSTEP": [10, 20, 15],  # Step count
-        })
+        mock_acti_df = pd.DataFrame(
+            {
+                "SEQN": [1, 2, 3],  # Subject ID
+                "PAXDAY": [1, 1, 1],  # Day number
+                "PAXN": [1, 2, 3],  # Minute number
+                "PAXINTEN": [100, 200, 150],  # Activity intensity
+                "PAXSTEP": [10, 20, 15],  # Step count
+            }
+        )
         mock_read_sas.return_value = mock_acti_df
 
         processor = NHANESProcessor()
@@ -70,18 +72,20 @@ class TestNHANESProcessor:
         )
 
         # Mock PHQ-9 depression data
-        mock_dpq_df = pd.DataFrame({
-            "SEQN": [1, 2, 3],
-            "DPQ010": [0, 2, 3],  # Little interest
-            "DPQ020": [1, 2, 3],  # Feeling down
-            "DPQ030": [0, 1, 3],  # Sleep problems
-            "DPQ040": [0, 2, 3],  # Tired
-            "DPQ050": [1, 1, 3],  # Appetite
-            "DPQ060": [0, 2, 3],  # Feeling bad
-            "DPQ070": [0, 1, 3],  # Concentration
-            "DPQ080": [0, 0, 3],  # Moving slowly
-            "DPQ090": [0, 0, 3],  # Self harm
-        })
+        mock_dpq_df = pd.DataFrame(
+            {
+                "SEQN": [1, 2, 3],
+                "DPQ010": [0, 2, 3],  # Little interest
+                "DPQ020": [1, 2, 3],  # Feeling down
+                "DPQ030": [0, 1, 3],  # Sleep problems
+                "DPQ040": [0, 2, 3],  # Tired
+                "DPQ050": [1, 1, 3],  # Appetite
+                "DPQ060": [0, 2, 3],  # Feeling bad
+                "DPQ070": [0, 1, 3],  # Concentration
+                "DPQ080": [0, 0, 3],  # Moving slowly
+                "DPQ090": [0, 0, 3],  # Self harm
+            }
+        )
         mock_read_sas.return_value = mock_dpq_df
 
         processor = NHANESProcessor()
@@ -103,17 +107,21 @@ class TestNHANESProcessor:
         )
 
         # Mock prescription data
-        mock_rx_df = pd.DataFrame({
-            "SEQN": [1, 1, 2, 3],
-            "RXDDRUG": [1001, 1002, 2001, 3001],  # Drug code
-            "RXDDAYS": [30, 90, 30, 30],  # Days taken
-        })
+        mock_rx_df = pd.DataFrame(
+            {
+                "SEQN": [1, 1, 2, 3],
+                "RXDDRUG": [1001, 1002, 2001, 3001],  # Drug code
+                "RXDDAYS": [30, 90, 30, 30],  # Days taken
+            }
+        )
 
         # Mock drug lookup
-        mock_drug_df = pd.DataFrame({
-            "RXDDRUG": [1001, 1002, 2001, 3001],
-            "RXDDRGID": ["d00321", "d00732", "d00150", "d00555"],  # Generic drug ID
-        })
+        mock_drug_df = pd.DataFrame(
+            {
+                "RXDDRUG": [1001, 1002, 2001, 3001],
+                "RXDDRGID": ["d00321", "d00732", "d00150", "d00555"],  # Generic drug ID
+            }
+        )
 
         mock_read_sas.side_effect = [mock_rx_df, mock_drug_df]
 
@@ -169,35 +177,43 @@ class TestNHANESProcessor:
         )
 
         # Setup mock data for all files
-        mock_acti = pd.DataFrame({
-            "SEQN": [1, 1, 2, 2],
-            "PAXDAY": [1, 1, 1, 1],
-            "PAXN": [1, 2, 1, 2],
-            "PAXINTEN": [100, 200, 150, 250],
-        })
+        mock_acti = pd.DataFrame(
+            {
+                "SEQN": [1, 1, 2, 2],
+                "PAXDAY": [1, 1, 1, 1],
+                "PAXN": [1, 2, 1, 2],
+                "PAXINTEN": [100, 200, 150, 250],
+            }
+        )
 
-        mock_dpq = pd.DataFrame({
-            "SEQN": [1, 2],
-            "DPQ010": [3, 0],
-            "DPQ020": [3, 1],
-            "DPQ030": [3, 0],
-            "DPQ040": [3, 0],
-            "DPQ050": [3, 1],
-            "DPQ060": [3, 0],
-            "DPQ070": [3, 0],
-            "DPQ080": [3, 0],
-            "DPQ090": [0, 0],
-        })
+        mock_dpq = pd.DataFrame(
+            {
+                "SEQN": [1, 2],
+                "DPQ010": [3, 0],
+                "DPQ020": [3, 1],
+                "DPQ030": [3, 0],
+                "DPQ040": [3, 0],
+                "DPQ050": [3, 1],
+                "DPQ060": [3, 0],
+                "DPQ070": [3, 0],
+                "DPQ080": [3, 0],
+                "DPQ090": [0, 0],
+            }
+        )
 
-        mock_rx = pd.DataFrame({
-            "SEQN": [1, 2],
-            "RXDDRUG": [1001, 2001],
-        })
+        mock_rx = pd.DataFrame(
+            {
+                "SEQN": [1, 2],
+                "RXDDRUG": [1001, 2001],
+            }
+        )
 
-        mock_drug = pd.DataFrame({
-            "RXDDRUG": [1001, 2001],
-            "RXDDRGID": ["d00321", "d00283"],  # Alprazolam, Fluoxetine
-        })
+        mock_drug = pd.DataFrame(
+            {
+                "RXDDRUG": [1001, 2001],
+                "RXDDRGID": ["d00321", "d00283"],  # Alprazolam, Fluoxetine
+            }
+        )
 
         mock_read_sas.side_effect = [mock_acti, mock_dpq, mock_rx, mock_drug]
 
@@ -225,12 +241,14 @@ class TestNHANESProcessor:
 
         # Create minute-level data
         minutes_per_day = 1440
-        actigraphy = pd.DataFrame({
-            "SEQN": [1] * minutes_per_day,
-            "PAXDAY": [1] * minutes_per_day,
-            "PAXN": list(range(1, minutes_per_day + 1)),
-            "PAXINTEN": np.random.randint(0, 1000, minutes_per_day),
-        })
+        actigraphy = pd.DataFrame(
+            {
+                "SEQN": [1] * minutes_per_day,
+                "PAXDAY": [1] * minutes_per_day,
+                "PAXN": list(range(1, minutes_per_day + 1)),
+                "PAXINTEN": np.random.randint(0, 1000, minutes_per_day),
+            }
+        )
 
         processor = NHANESProcessor()
         daily = processor.aggregate_to_daily(actigraphy)
@@ -251,19 +269,18 @@ class TestNHANESProcessor:
 
         # Create sample minute-level data
         minutes = 120
-        actigraphy = pd.DataFrame({
-            "SEQN": [1] * minutes,
-            "PAXDAY": [1] * minutes,
-            "PAXN": list(range(1, minutes + 1)),
-            "PAXINTEN": np.random.randint(0, 1000, minutes),
-        })
+        actigraphy = pd.DataFrame(
+            {
+                "SEQN": [1] * minutes,
+                "PAXDAY": [1] * minutes,
+                "PAXN": list(range(1, minutes + 1)),
+                "PAXINTEN": np.random.randint(0, 1000, minutes),
+            }
+        )
 
         processor = NHANESProcessor()
         sequences, labels = processor.extract_pat_sequences(
-            actigraphy,
-            window_size=60,
-            stride=30,
-            label_col=None
+            actigraphy, window_size=60, stride=30, label_col=None
         )
 
         # Should create sliding windows
@@ -279,13 +296,15 @@ class TestNHANESProcessor:
         )
 
         # Create sample cohort
-        cohort = pd.DataFrame({
-            "SEQN": [1, 2, 3],
-            "PHQ9_total": [5, 12, 20],
-            "depressed": [0, 1, 1],
-            "benzodiazepine": [0, 1, 0],
-            "ssri": [1, 1, 0],
-        })
+        cohort = pd.DataFrame(
+            {
+                "SEQN": [1, 2, 3],
+                "PHQ9_total": [5, 12, 20],
+                "depressed": [0, 1, 1],
+                "benzodiazepine": [0, 1, 0],
+                "ssri": [1, 1, 0],
+            }
+        )
 
         processor = NHANESProcessor(output_dir=tmp_path)
         output_path = processor.save_cohort(cohort, "test_cohort")
@@ -305,13 +324,15 @@ class TestNHANESProcessor:
         )
 
         # Mock daily aggregated data
-        daily_data = pd.DataFrame({
-            "SEQN": [1, 1, 1, 1, 1, 1, 1],
-            "day": [1, 2, 3, 4, 5, 6, 7],
-            "total_activity": [50000, 55000, 48000, 52000, 51000, 49000, 53000],
-            "sleep_duration": [420, 450, 380, 410, 430, 400, 440],
-            "sleep_efficiency": [0.85, 0.90, 0.82, 0.88, 0.87, 0.83, 0.91],
-        })
+        daily_data = pd.DataFrame(
+            {
+                "SEQN": [1, 1, 1, 1, 1, 1, 1],
+                "day": [1, 2, 3, 4, 5, 6, 7],
+                "total_activity": [50000, 55000, 48000, 52000, 51000, 49000, 53000],
+                "sleep_duration": [420, 450, 380, 410, 430, 400, 440],
+                "sleep_efficiency": [0.85, 0.90, 0.82, 0.88, 0.87, 0.83, 0.91],
+            }
+        )
 
         processor = NHANESProcessor()
         features = processor.engineer_features(daily_data)

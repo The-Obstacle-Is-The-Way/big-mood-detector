@@ -7,10 +7,10 @@ Following Single Responsibility Principle - each component has one job.
 
 import functools
 import time
-from collections.abc import Callable
+from collections.abc import Callable, Iterator
 from contextlib import contextmanager
 from functools import lru_cache
-from typing import Any, Iterator, cast
+from typing import Any, cast
 
 import structlog
 from structlog.types import FilteringBoundLogger
@@ -24,7 +24,9 @@ def get_logger() -> FilteringBoundLogger:
     return setup_logging(settings)
 
 
-def _sanitize_processor(logger: Any, method_name: str, event_dict: dict[str, Any]) -> dict[str, Any]:
+def _sanitize_processor(
+    logger: Any, method_name: str, event_dict: dict[str, Any]
+) -> dict[str, Any]:
     """Processor that sanitizes sensitive data before rendering."""
     # Sanitize the entire event dict
     return sanitize_log_data(event_dict)
@@ -53,7 +55,8 @@ def setup_logging(config: Settings) -> FilteringBoundLogger:
     if config.LOG_FORMAT == "json":
         # JSON output direct to console
         structlog.configure(
-            processors=shared_processors + [
+            processors=shared_processors
+            + [
                 structlog.processors.dict_tracebacks,
                 structlog.processors.JSONRenderer(),
             ],
@@ -177,7 +180,9 @@ def log_performance(logger: FilteringBoundLogger | None = None) -> Callable:
 
 
 @contextmanager
-def log_context(logger: FilteringBoundLogger, **context: Any) -> Iterator[FilteringBoundLogger]:
+def log_context(
+    logger: FilteringBoundLogger, **context: Any
+) -> Iterator[FilteringBoundLogger]:
     """Context manager for temporary logging context.
 
     Args:

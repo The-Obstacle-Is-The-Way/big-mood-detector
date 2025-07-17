@@ -10,7 +10,7 @@ import os
 # This must happen before NumPy, XGBoost, or PyTorch are imported
 for var in (
     "OMP_NUM_THREADS",
-    "MKL_NUM_THREADS", 
+    "MKL_NUM_THREADS",
     "NUMEXPR_NUM_THREADS",
     "VECLIB_MAXIMUM_THREADS",
     "OPENBLAS_NUM_THREADS",
@@ -18,7 +18,7 @@ for var in (
 ):
     os.environ.setdefault(var, "1")
 
-import pytest
+import pytest  # noqa: E402
 
 
 def pytest_configure(config):

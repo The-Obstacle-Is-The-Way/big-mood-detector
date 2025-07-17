@@ -12,7 +12,9 @@ import pandas as pd
 import pytest
 
 
-@pytest.mark.skip(reason="PersonalCalibrator module not implemented yet - will implement after baseline tests are green")
+@pytest.mark.skip(
+    reason="PersonalCalibrator module not implemented yet - will implement after baseline tests are green"
+)
 class TestPersonalCalibrator:
     """Test personal calibration pipeline."""
 
@@ -50,12 +52,14 @@ class TestPersonalCalibrator:
 
         # Create sample sleep data
         dates = pd.date_range("2024-01-01", periods=30, freq="D")
-        sleep_data = pd.DataFrame({
-            "date": dates,
-            "sleep_duration": np.random.normal(420, 30, 30),  # 7h ± 30min
-            "sleep_efficiency": np.random.uniform(0.8, 0.95, 30),
-            "sleep_onset": np.random.normal(23, 1, 30),  # 11pm ± 1h
-        })
+        sleep_data = pd.DataFrame(
+            {
+                "date": dates,
+                "sleep_duration": np.random.normal(420, 30, 30),  # 7h ± 30min
+                "sleep_efficiency": np.random.uniform(0.8, 0.95, 30),
+                "sleep_onset": np.random.normal(23, 1, 30),  # 11pm ± 1h
+            }
+        )
 
         extractor = BaselineExtractor()
         baseline = extractor.extract_sleep_baseline(sleep_data)
@@ -86,13 +90,18 @@ class TestPersonalCalibrator:
             # Active hours (8am-10pm)
             active_start = 8 * 60
             active_end = 22 * 60
-            daily_activity[active_start:active_end] = np.random.exponential(100, active_end - active_start)
+            daily_activity[active_start:active_end] = np.random.exponential(
+                100, active_end - active_start
+            )
 
             for minute in range(minutes_per_day):
-                activity_data.append({
-                    "date": pd.Timestamp("2024-01-01") + timedelta(days=day, minutes=minute),
-                    "activity": daily_activity[minute],
-                })
+                activity_data.append(
+                    {
+                        "date": pd.Timestamp("2024-01-01")
+                        + timedelta(days=day, minutes=minute),
+                        "activity": daily_activity[minute],
+                    }
+                )
 
         activity_df = pd.DataFrame(activity_data)
 
@@ -123,10 +132,12 @@ class TestPersonalCalibrator:
                 else:
                     activity = np.random.normal(50, 20)
 
-                circadian_data.append({
-                    "timestamp": date + timedelta(hours=hour),
-                    "activity": activity,
-                })
+                circadian_data.append(
+                    {
+                        "timestamp": date + timedelta(hours=hour),
+                        "activity": activity,
+                    }
+                )
 
         circadian_df = pd.DataFrame(circadian_data)
 
@@ -239,7 +250,9 @@ class TestPersonalCalibrator:
         assert calibrator.model_type == "pat"
         assert calibrator.base_model_path == "models/population/pat_depression.pt"
 
-    @patch("big_mood_detector.infrastructure.fine_tuning.personal_calibrator.load_population_model")
+    @patch(
+        "big_mood_detector.infrastructure.fine_tuning.personal_calibrator.load_population_model"
+    )
     def test_pat_personal_calibration(self, mock_load):
         """Test PAT model personal calibration with LoRA."""
         from big_mood_detector.infrastructure.fine_tuning.personal_calibrator import (
@@ -291,10 +304,9 @@ class TestPersonalCalibrator:
         )
 
         # Personal features
-        features = pd.DataFrame({
-            f"feature_{i}": np.random.rand(100)
-            for i in range(36)
-        })
+        features = pd.DataFrame(
+            {f"feature_{i}": np.random.rand(100) for i in range(36)}
+        )
         labels = np.array([0] * 70 + [1] * 30)
 
         # Calibrate with higher weight on personal data
@@ -345,6 +357,7 @@ class TestPersonalCalibrator:
         user_dir.mkdir(parents=True)
 
         import json
+
         metadata = {
             "user_id": "test_user",
             "model_type": "pat",

@@ -26,11 +26,16 @@ class NHANESProcessor:
         "d00533",  # Diazepam
         "d00674",  # Temazepam
         "d00541",  # Oxazepam
-        "alprazolam", "xanax",
-        "lorazepam", "ativan",
-        "clonazepam", "klonopin",
-        "diazepam", "valium",
-        "temazepam", "restoril",
+        "alprazolam",
+        "xanax",
+        "lorazepam",
+        "ativan",
+        "clonazepam",
+        "klonopin",
+        "diazepam",
+        "valium",
+        "temazepam",
+        "restoril",
     }
 
     # SSRI generic IDs and names
@@ -41,11 +46,16 @@ class NHANESProcessor:
         "d00823",  # Citalopram
         "d04851",  # Escitalopram
         "d00506",  # Fluvoxamine
-        "fluoxetine", "prozac",
-        "sertraline", "zoloft",
-        "paroxetine", "paxil",
-        "citalopram", "celexa",
-        "escitalopram", "lexapro",
+        "fluoxetine",
+        "prozac",
+        "sertraline",
+        "zoloft",
+        "paroxetine",
+        "paxil",
+        "citalopram",
+        "celexa",
+        "escitalopram",
+        "lexapro",
     }
 
     def __init__(
@@ -109,14 +119,11 @@ class NHANESProcessor:
         df["depressed"] = (df["PHQ9_total"] >= 10).astype(int)
 
         logger.info(
-            f"Loaded {len(df)} subjects, "
-            f"{df['depressed'].sum()} with depression"
+            f"Loaded {len(df)} subjects, " f"{df['depressed'].sum()} with depression"
         )
         return df
 
-    def load_medications(
-        self, rx_file: str, drug_file: str
-    ) -> pd.DataFrame:
+    def load_medications(self, rx_file: str, drug_file: str) -> pd.DataFrame:
         """Load medication data from RXQ files.
 
         Args:
@@ -138,31 +145,27 @@ class NHANESProcessor:
         med_df = rx_df.merge(drug_df, on="RXDDRUG", how="left")
 
         # Group by subject and check medications
-        subject_meds = (
-            med_df.groupby("SEQN")["RXDDRGID"]
-            .apply(list)
-            .reset_index()
-        )
+        subject_meds = med_df.groupby("SEQN")["RXDDRGID"].apply(list).reset_index()
 
         # Check for medication classes
-        subject_meds["benzodiazepine"] = subject_meds["RXDDRGID"].apply(
-            lambda drugs: any(
-                self.is_benzodiazepine(str(d)) for d in drugs
-            )
-        ).astype(int)
+        subject_meds["benzodiazepine"] = (
+            subject_meds["RXDDRGID"]
+            .apply(lambda drugs: any(self.is_benzodiazepine(str(d)) for d in drugs))
+            .astype(int)
+        )
 
-        subject_meds["ssri"] = subject_meds["RXDDRGID"].apply(
-            lambda drugs: any(self.is_ssri(str(d)) for d in drugs)
-        ).astype(int)
+        subject_meds["ssri"] = (
+            subject_meds["RXDDRGID"]
+            .apply(lambda drugs: any(self.is_ssri(str(d)) for d in drugs))
+            .astype(int)
+        )
 
         subject_meds["antidepressant"] = subject_meds["ssri"]  # Simplified
 
         # Drop the list column
         subject_meds = subject_meds.drop("RXDDRGID", axis=1)
 
-        logger.info(
-            f"Loaded medications for {len(subject_meds)} subjects"
-        )
+        logger.info(f"Loaded medications for {len(subject_meds)} subjects")
         return subject_meds
 
     def is_benzodiazepine(self, drug_id: str) -> bool:
@@ -236,16 +239,18 @@ class NHANESProcessor:
             Daily aggregated features
         """
         # Group by subject and day
-        daily = actigraphy.groupby(["SEQN", "PAXDAY"]).agg({
-            "PAXINTEN": [
-                "sum",  # Total activity
-                "mean",  # Mean activity
-                "std",  # Activity variability
-                lambda x: (x < 100).sum(),  # Sedentary minutes
-                lambda x: ((x >= 100) & (x < 760)).sum(),  # Moderate
-                lambda x: (x >= 760).sum(),  # Vigorous
-            ]
-        })
+        daily = actigraphy.groupby(["SEQN", "PAXDAY"]).agg(
+            {
+                "PAXINTEN": [
+                    "sum",  # Total activity
+                    "mean",  # Mean activity
+                    "std",  # Activity variability
+                    lambda x: (x < 100).sum(),  # Sedentary minutes
+                    lambda x: ((x >= 100) & (x < 760)).sum(),  # Moderate
+                    lambda x: (x >= 760).sum(),  # Vigorous
+                ]
+            }
+        )
 
         # Flatten column names
         daily.columns = [
@@ -306,9 +311,7 @@ class NHANESProcessor:
         logger.info(f"Extracted {len(sequences_array)} sequences")
         return sequences_array, labels_array
 
-    def save_cohort(
-        self, cohort: pd.DataFrame, name: str
-    ) -> Path:
+    def save_cohort(self, cohort: pd.DataFrame, name: str) -> Path:
         """Save processed cohort to parquet file.
 
         Args:
@@ -364,12 +367,16 @@ class NHANESProcessor:
 
                 # Intradaily Variability (IV)
                 diffs = np.diff(activity)
-                feat["IV"] = np.mean(diffs**2) / np.var(activity) if np.var(activity) > 0 else 0
+                feat["IV"] = (
+                    np.mean(diffs**2) / np.var(activity) if np.var(activity) > 0 else 0
+                )
 
                 # Relative Amplitude (RA)
                 sorted_act = np.sort(activity)
                 L5 = np.mean(sorted_act[: len(sorted_act) // 5])  # Least active 5 hours
-                M10 = np.mean(sorted_act[-len(sorted_act) // 10 :])  # Most active 10 hours
+                M10 = np.mean(
+                    sorted_act[-len(sorted_act) // 10 :]
+                )  # Most active 10 hours
                 feat["RA"] = (M10 - L5) / (M10 + L5) if (M10 + L5) > 0 else 0
                 feat["L5"] = L5
                 feat["M10"] = M10

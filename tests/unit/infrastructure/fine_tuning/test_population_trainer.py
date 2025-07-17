@@ -50,7 +50,9 @@ class TestPopulationTrainer:
         assert trainer.task_name == "depression"
         assert trainer.output_dir == Path("models/population")
 
-    @patch("big_mood_detector.infrastructure.fine_tuning.population_trainer.load_pat_model")
+    @patch(
+        "big_mood_detector.infrastructure.fine_tuning.population_trainer.load_pat_model"
+    )
     def test_pat_model_loading(self, mock_load_model):
         """Test loading pre-trained PAT weights."""
         from big_mood_detector.infrastructure.fine_tuning.population_trainer import (
@@ -177,9 +179,7 @@ class TestPopulationTrainer:
         mock_model.n_estimators = 100
         mock_load.return_value = mock_model
 
-        trainer = XGBoostPopulationTrainer(
-            base_model_path="mood_ml/XGBoost_DE.pkl"
-        )
+        trainer = XGBoostPopulationTrainer(base_model_path="mood_ml/XGBoost_DE.pkl")
         model = trainer.load_base_model()
 
         assert model is not None
@@ -195,17 +195,19 @@ class TestPopulationTrainer:
         trainer = XGBoostPopulationTrainer()
 
         # Valid features (36 from mood_ml)
-        valid_features = pd.DataFrame({
-            "mean_sleep_duration": [420],
-            "std_sleep_duration": [30],
-            "mean_sleep_efficiency": [0.85],
-            "IS": [0.7],
-            "IV": [0.3],
-            "RA": [0.8],
-            "L5": [50],
-            "M10": [500],
-            # ... (would have all 36 in real implementation)
-        })
+        valid_features = pd.DataFrame(
+            {
+                "mean_sleep_duration": [420],
+                "std_sleep_duration": [30],
+                "mean_sleep_efficiency": [0.85],
+                "IS": [0.7],
+                "IV": [0.3],
+                "RA": [0.8],
+                "L5": [50],
+                "M10": [500],
+                # ... (would have all 36 in real implementation)
+            }
+        )
 
         # Should not raise
         trainer.validate_features(valid_features)
@@ -224,10 +226,9 @@ class TestPopulationTrainer:
         )
 
         # Create sample data
-        features = pd.DataFrame({
-            f"feature_{i}": np.random.rand(100)
-            for i in range(36)
-        })
+        features = pd.DataFrame(
+            {f"feature_{i}": np.random.rand(100) for i in range(36)}
+        )
         labels = np.random.randint(0, 2, 100)
 
         trainer = XGBoostPopulationTrainer()
@@ -235,6 +236,7 @@ class TestPopulationTrainer:
         # Mock base model
         with patch.object(trainer, "load_base_model") as mock_load:
             import xgboost as xgb
+
             mock_model = xgb.XGBClassifier(n_estimators=10)
             mock_model.fit(features, labels)  # Pre-train
             mock_load.return_value = mock_model
@@ -282,11 +284,13 @@ class TestPopulationTrainer:
 
         # Create time-indexed data
         dates = pd.date_range("2023-01-01", periods=365, freq="D")
-        data = pd.DataFrame({
-            "date": dates,
-            "value": np.random.rand(365),
-            "label": np.random.randint(0, 2, 365),
-        })
+        data = pd.DataFrame(
+            {
+                "date": dates,
+                "value": np.random.rand(365),
+                "label": np.random.randint(0, 2, 365),
+            }
+        )
 
         # Use concrete implementation instead of abstract class
         trainer = PATPopulationTrainer()
@@ -299,7 +303,9 @@ class TestPopulationTrainer:
         assert len(splits) == 3
         for train_idx, test_idx in splits:
             # Test always after train (time-series respect)
-            assert data.iloc[train_idx]["date"].max() < data.iloc[test_idx]["date"].min()
+            assert (
+                data.iloc[train_idx]["date"].max() < data.iloc[test_idx]["date"].min()
+            )
 
     def test_model_evaluation_metrics(self):
         """Test comprehensive evaluation metrics."""

@@ -42,8 +42,7 @@ class TaskContext:
 
 
 TaskHandler = (
-    Callable[[dict[str, Any]], Any]
-    | Callable[[dict[str, Any], TaskContext], Any]
+    Callable[[dict[str, Any]], Any] | Callable[[dict[str, Any], TaskContext], Any]
 )
 
 AsyncTaskHandler = (
@@ -114,7 +113,9 @@ class TaskWorker:
                 # Handler accepts context - narrow to specific type
                 context_handler: Callable[[dict[str, Any], TaskContext], Any] = handler  # type: ignore[assignment]
                 if self.task_timeout:
-                    future = self._executor.submit(context_handler, task.payload, context)
+                    future = self._executor.submit(
+                        context_handler, task.payload, context
+                    )
                     future.result(timeout=self.task_timeout)
                 else:
                     context_handler(task.payload, context)
@@ -289,10 +290,11 @@ class AsyncTaskWorker:
             else:
                 # Sync handler, run in executor
                 loop = asyncio.get_event_loop()
+
                 # Create wrapper that only passes payload
                 def sync_wrapper() -> Any:
                     return handler(task.payload)  # type: ignore[misc]
-                
+
                 if self.task_timeout:
                     await asyncio.wait_for(
                         loop.run_in_executor(None, sync_wrapper),

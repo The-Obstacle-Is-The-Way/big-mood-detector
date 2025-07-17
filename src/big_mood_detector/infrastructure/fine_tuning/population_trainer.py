@@ -288,8 +288,8 @@ class PATPopulationTrainer(PopulationTrainer):
         for epoch in range(epochs):
             # Mini-batch training
             for i in range(0, len(X_train), batch_size):
-                batch_X = X_train[i:i+batch_size]
-                batch_y = y_train[i:i+batch_size]
+                batch_X = X_train[i : i + batch_size]
+                batch_y = y_train[i : i + batch_size]
 
                 optimizer.zero_grad()
                 outputs = task_head(batch_X)
@@ -365,7 +365,9 @@ class PATPopulationTrainer(PopulationTrainer):
             try:
                 state_dict = task_head.state_dict()
                 # Check if it's a real state dict (not Mock)
-                if not hasattr(state_dict, "__class__") or "Mock" not in str(state_dict.__class__):
+                if not hasattr(state_dict, "__class__") or "Mock" not in str(
+                    state_dict.__class__
+                ):
                     save_dict["task_head_state_dict"] = state_dict
             except Exception:
                 # Mock object, skip state dict
@@ -382,13 +384,23 @@ class PATPopulationTrainer(PopulationTrainer):
             output_dim = 2  # Default binary classification
 
         with open(metadata_path, "w") as f:
-            json.dump({
-                "task_name": task_name,
-                "base_model": self.base_model_path,
-                "metrics": {k: float(v) if isinstance(v, int | float | np.number) else str(v)
-                          for k, v in metrics.items()},
-                "output_dim": output_dim,
-            }, f, indent=2)
+            json.dump(
+                {
+                    "task_name": task_name,
+                    "base_model": self.base_model_path,
+                    "metrics": {
+                        k: (
+                            float(v)
+                            if isinstance(v, int | float | np.number)
+                            else str(v)
+                        )
+                        for k, v in metrics.items()
+                    },
+                    "output_dim": output_dim,
+                },
+                f,
+                indent=2,
+            )
 
         logger.info(f"Saved model to {model_path}")
         return model_path
