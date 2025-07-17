@@ -277,6 +277,9 @@ class Container:
                 "Scoped services must be resolved within a scope. "
                 "Use create_scope() context manager."
             )
+        
+        # This should never happen, but satisfies type checker
+        raise RuntimeError(f"Unknown lifetime: {descriptor.lifetime}")
 
     def override(
         self, service_type: type[T], instance: T, name: str | None = None
@@ -416,7 +419,7 @@ def inject(func: Callable) -> Callable:
     """
 
     @wraps(func)
-    def wrapper(*args, **kwargs):
+    def wrapper(*args: Any, **kwargs: Any) -> Any:
         sig = inspect.signature(func)
         container = get_container()
 
@@ -442,7 +445,7 @@ def inject(func: Callable) -> Callable:
     return wrapper
 
 
-def setup_dependencies(settings) -> Container:
+def setup_dependencies(settings: Any) -> Container:
     """
     Set up application-wide dependencies.
 
