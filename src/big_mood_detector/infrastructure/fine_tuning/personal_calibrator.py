@@ -33,7 +33,7 @@ def load_population_model(model_path: str | None, model_type: str) -> Any:
     # This would load actual models in production
     # For now, it's a placeholder that will be mocked in tests
     if model_type == "xgboost":
-        import joblib
+        import joblib  # type: ignore[import-untyped]
 
         return joblib.load(model_path) if model_path else None
     elif model_type == "pat":
@@ -361,9 +361,12 @@ class PersonalCalibrator:
             # 3. Return accuracy metrics
 
             # For now, simulate training
-            if self.model and hasattr(self.model, "encode"):
-                _ = self.model.encode(sequences)
-            else:
+            try:
+                if hasattr(self.model, "encode"):
+                    _ = self.model.encode(sequences)
+                else:
+                    _ = sequences
+            except AttributeError:
                 _ = sequences
 
             # Simulate accuracy improvement
@@ -398,7 +401,7 @@ class PersonalCalibrator:
         """
         import json
 
-        import joblib
+        import joblib  # type: ignore[import-untyped]
 
         # Create user-specific directory
         user_dir = self.output_dir / "users" / self.user_id
@@ -471,7 +474,7 @@ class PersonalCalibrator:
         if metadata["model_type"] == "xgboost":
             model_path = user_dir / "xgboost_model.pkl"
             if model_path.exists():
-                import joblib
+                import joblib  # type: ignore[import-untyped]
 
                 calibrator.model = joblib.load(model_path)
         elif metadata["model_type"] == "pat":

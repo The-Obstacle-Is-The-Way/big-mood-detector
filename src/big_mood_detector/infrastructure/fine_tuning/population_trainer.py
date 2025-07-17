@@ -9,7 +9,7 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Any
 
-import joblib
+import joblib  # type: ignore[import-untyped]
 import numpy as np
 import pandas as pd
 import torch
@@ -53,7 +53,7 @@ class PopulationTrainer(ABC):
         pass
 
     @abstractmethod
-    def fine_tune(self, **kwargs) -> dict[str, float]:
+    def fine_tune(self, **kwargs: Any) -> dict[str, float]:
         """Fine-tune model on task data."""
         pass
 
@@ -155,7 +155,9 @@ class TaskHead(nn.Module):
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """Forward pass."""
-        return self.layers(x)
+        result = self.layers(x)
+        assert isinstance(result, torch.Tensor)
+        return result
 
 
 def load_pat_model(model_path: str) -> Any:
@@ -172,10 +174,10 @@ def load_pat_model(model_path: str) -> Any:
 
     # Mock model for now
     class MockPATModel:
-        def __init__(self):
+        def __init__(self) -> None:
             self.output_dim = 768
 
-        def encode(self, sequences):
+        def encode(self, sequences: Any) -> np.ndarray:
             # Return random embeddings for now
             return np.random.rand(len(sequences), self.output_dim)
 
@@ -229,12 +231,7 @@ class PATPopulationTrainer(PopulationTrainer):
 
     def fine_tune(
         self,
-        sequences: np.ndarray,
-        labels: np.ndarray,
-        epochs: int = 10,
-        batch_size: int = 32,
-        learning_rate: float = 1e-4,
-        validation_split: float = 0.2,
+        **kwargs: Any,
     ) -> dict[str, float]:
         """Fine-tune PAT with task head.
 
@@ -249,6 +246,14 @@ class PATPopulationTrainer(PopulationTrainer):
         Returns:
             Training metrics
         """
+        # Extract parameters from kwargs
+        sequences = kwargs['sequences']
+        labels = kwargs['labels']
+        epochs = kwargs.get('epochs', 10)
+        batch_size = kwargs.get('batch_size', 32)
+        learning_rate = kwargs.get('learning_rate', 1e-4)
+        validation_split = kwargs.get('validation_split', 0.2)
+
         logger.info(f"Fine-tuning PAT for {self.task_name}")
 
         # Load base model
@@ -428,7 +433,9 @@ class XGBoostPopulationTrainer(PopulationTrainer):
     def load_base_model(self) -> xgb.XGBClassifier:
         """Load pre-trained XGBoost model."""
         logger.info(f"Loading XGBoost model from {self.base_model_path}")
-        return joblib.load(self.base_model_path)
+        model = joblib.load(self.base_model_path)
+        assert isinstance(model, xgb.XGBClassifier)
+        return model
 
     def validate_features(self, features: pd.DataFrame) -> None:
         """Validate features match mood_ml expectations.
@@ -476,7 +483,7 @@ class XGBoostPopulationTrainer(PopulationTrainer):
         base_model = self.load_base_model()
 
         # Get current number of trees
-        initial_trees = base_model.n_estimators
+        initial_trees = base_model.n_estimators or 100
 
         # Continue training
         dtrain = xgb.DMatrix(features, label=labels, weight=sample_weight)
@@ -523,9 +530,7 @@ class XGBoostPopulationTrainer(PopulationTrainer):
 
     def fine_tune(
         self,
-        features: pd.DataFrame,
-        labels: np.ndarray,
-        **kwargs,
+        **kwargs: Any,
     ) -> dict[str, float]:
         """Fine-tune XGBoost model.
 
@@ -537,6 +542,9 @@ class XGBoostPopulationTrainer(PopulationTrainer):
         Returns:
             Training metrics
         """
+        # Extract parameters from kwargs
+        features = kwargs['features']
+        labels = kwargs['labels']
         self.validate_features(features)
         return self.incremental_train(features, labels, **kwargs)
 
@@ -544,7 +552,7 @@ class XGBoostPopulationTrainer(PopulationTrainer):
 def create_population_trainer(
     model_type: str,
     task_name: str = "depression",
-    **kwargs,
+    **kwargs: Any,
 ) -> PopulationTrainer:
     """Factory function for creating trainers.
 

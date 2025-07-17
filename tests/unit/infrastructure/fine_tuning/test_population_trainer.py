@@ -175,7 +175,8 @@ class TestPopulationTrainer:
         )
 
         # Mock XGBoost model
-        mock_model = Mock()
+        import xgboost as xgb
+        mock_model = Mock(spec=xgb.XGBClassifier)
         mock_model.n_estimators = 100
         mock_load.return_value = mock_model
 

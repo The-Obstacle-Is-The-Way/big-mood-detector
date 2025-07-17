@@ -98,7 +98,7 @@ async def process_upload(
         metadata: Optional metadata from upload
     """
     # Create task payload
-    payload = {
+    payload: dict[str, Any] = {
         "file_path": str(file_path),
         "upload_id": upload_id,
         "output_path": str(file_path.parent / f"{upload_id}_results.csv"),
@@ -118,7 +118,7 @@ async def process_upload(
     # In production, this would be handled by separate worker processes
     import threading
 
-    def process_in_background():
+    def process_in_background() -> None:
         task_worker.process_one()
 
         # Update upload status based on task status
@@ -359,7 +359,7 @@ async def download_processed_file(upload_id: str) -> StreamingResponse:
             detail="Processed file not found",
         )
 
-    def iterfile():
+    def iterfile() -> Any:
         with open(csv_path, "rb") as f:
             yield from f
 

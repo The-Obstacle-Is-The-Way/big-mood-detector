@@ -97,7 +97,7 @@ def serve(host: str, port: int) -> None:
         click.echo(
             "Error: uvicorn not installed. Install with: pip install uvicorn", err=True
         )
-        sys.exit(1)
+        raise SystemExit(1)
 
     click.echo(f"Starting API server on {host}:{port}")
     uvicorn.run(
