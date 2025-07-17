@@ -9,6 +9,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+from big_mood_detector.core.logging import get_module_logger
 from big_mood_detector.domain.entities.activity_record import (
     ActivityRecord,
     ActivityType,
@@ -19,6 +20,9 @@ from big_mood_detector.domain.entities.heart_rate_record import (
     MotionContext,
 )
 from big_mood_detector.domain.entities.sleep_record import SleepRecord, SleepState
+
+
+logger = get_module_logger(__name__)
 
 
 class SleepJSONParser:
@@ -105,7 +109,11 @@ class SleepJSONParser:
             )
 
         except (ValueError, KeyError) as e:
-            print(f"Error parsing sleep entry: {e}")
+            logger.debug(
+                "sleep_entry_parse_error",
+                error=str(e),
+                error_type=type(e).__name__
+            )
             return None
 
     def _parse_simple_sleep_entry(self, entry: dict[str, Any]) -> SleepRecord | None:
@@ -141,7 +149,11 @@ class SleepJSONParser:
             )
 
         except (ValueError, KeyError, AttributeError) as e:
-            print(f"Error parsing simple sleep entry: {e}")
+            logger.debug(
+                "simple_sleep_entry_parse_error",
+                error=str(e),
+                error_type=type(e).__name__
+            )
             return None
 
 
@@ -243,7 +255,11 @@ class HeartRateJSONParser:
             )
 
         except (ValueError, KeyError) as e:
-            print(f"Error parsing heart rate entry: {e}")
+            logger.debug(
+                "heart_rate_entry_parse_error",
+                error=str(e),
+                error_type=type(e).__name__
+            )
             return None
 
     def _parse_resting_hr_entry(self, entry: dict[str, Any]) -> HeartRateRecord | None:
@@ -267,7 +283,11 @@ class HeartRateJSONParser:
             )
 
         except (ValueError, KeyError) as e:
-            print(f"Error parsing resting HR entry: {e}")
+            logger.debug(
+                "resting_hr_entry_parse_error",
+                error=str(e),
+                error_type=type(e).__name__
+            )
             return None
 
     def _parse_hrv_entry(self, entry: dict[str, Any]) -> HeartRateRecord | None:
@@ -292,7 +312,11 @@ class HeartRateJSONParser:
             )
 
         except (ValueError, KeyError) as e:
-            print(f"Error parsing HRV entry: {e}")
+            logger.debug(
+                "hrv_entry_parse_error",
+                error=str(e),
+                error_type=type(e).__name__
+            )
             return None
 
 
@@ -391,7 +415,11 @@ class ActivityJSONParser:
             )
 
         except (ValueError, KeyError) as e:
-            print(f"Error parsing step entry: {e}")
+            logger.debug(
+                "step_entry_parse_error",
+                error=str(e),
+                error_type=type(e).__name__
+            )
             return None
 
     def _parse_simple_activity_entry(
@@ -436,7 +464,11 @@ class ActivityJSONParser:
             )
 
         except (ValueError, KeyError, AttributeError) as e:
-            print(f"Error parsing simple activity entry: {e}")
+            logger.debug(
+                "simple_activity_entry_parse_error",
+                error=str(e),
+                error_type=type(e).__name__
+            )
             return None
 
     def _parse_distance_entry(self, entry: dict[str, Any]) -> ActivityRecord | None:
@@ -468,5 +500,9 @@ class ActivityJSONParser:
             )
 
         except (ValueError, KeyError) as e:
-            print(f"Error parsing distance entry: {e}")
+            logger.debug(
+                "distance_entry_parse_error",
+                error=str(e),
+                error_type=type(e).__name__
+            )
             return None

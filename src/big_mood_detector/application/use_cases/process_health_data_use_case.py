@@ -22,6 +22,8 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
+from big_mood_detector.core.logging import get_module_logger
+
 from big_mood_detector.application.services.aggregation_pipeline import (
     AggregationPipeline,
     DailyFeatures,
@@ -47,6 +49,9 @@ from big_mood_detector.domain.services.sleep_window_analyzer import SleepWindowA
 from big_mood_detector.domain.services.sparse_data_handler import (
     SparseDataHandler,
 )
+
+
+logger = get_module_logger(__name__)
 
 
 @dataclass
@@ -323,7 +328,12 @@ class MoodPredictionPipeline:
                 features[current_date] = feature_set
             except Exception as e:
                 # Log error but continue processing other dates
-                print(f"Error extracting features for {current_date}: {e}")
+                logger.error(
+                    "feature_extraction_failed",
+                    date=str(current_date),
+                    error=str(e),
+                    error_type=type(e).__name__
+                )
                 features[current_date] = None
 
             current_date += timedelta(days=1)
@@ -408,9 +418,11 @@ class MoodPredictionPipeline:
         # Validate parsed data
         validation_result = self.data_parsing_service.validate_parsed_data(parsed_data)
         if not validation_result.is_valid:
-            print("Warning: Parsed data validation failed")
-            for warning in validation_result.warnings:
-                print(f"  - {warning}")
+            logger.warning(
+                "data_validation_failed",
+                warnings=validation_result.warnings,
+                warning_count=len(validation_result.warnings)
+            )
 
         # Get data summary for analysis
         self.data_parsing_service.get_data_summary(
@@ -421,19 +433,25 @@ class MoodPredictionPipeline:
         sleep_dates = [r.start_date.date() for r in records.get("sleep", [])]
         activity_dates = [r.start_date.date() for r in records.get("activity", [])]
 
-        print("\n=== Data Quality Analysis ===")
+        logger.info("data_quality_analysis_started")
         if sleep_dates:
             sleep_density = self.sparse_handler.assess_density(sleep_dates)
-            print(
-                f"Sleep data: {len(sleep_dates)} days, {sleep_density.coverage_ratio:.1%} coverage, "
-                f"max gap: {sleep_density.max_gap_days} days, quality: {sleep_density.density_class.name}"
+            logger.info(
+                "sleep_data_quality",
+                days_count=len(sleep_dates),
+                coverage_ratio=round(sleep_density.coverage_ratio, 3),
+                max_gap_days=sleep_density.max_gap_days,
+                quality=sleep_density.density_class.name
             )
 
         if activity_dates:
             activity_density = self.sparse_handler.assess_density(activity_dates)
-            print(
-                f"Activity data: {len(activity_dates)} days, {activity_density.coverage_ratio:.1%} coverage, "
-                f"max gap: {activity_density.max_gap_days} days, quality: {activity_density.density_class.name}"
+            logger.info(
+                "activity_data_quality",
+                days_count=len(activity_dates),
+                coverage_ratio=round(activity_density.coverage_ratio, 3),
+                max_gap_days=activity_density.max_gap_days,
+                quality=activity_density.density_class.name
             )
 
         # Find overlapping windows
@@ -441,18 +459,27 @@ class MoodPredictionPipeline:
             windows = self.sparse_handler.find_analysis_windows(
                 sleep_dates, activity_dates
             )
-            print(f"\nOverlapping windows: {len(windows)}")
-            for i, (start, end) in enumerate(windows[:3]):  # Show first 3
-                days = (end - start).days + 1
-                print(f"  Window {i+1}: {start} to {end} ({days} days)")
+            logger.info(
+                "overlapping_windows_found",
+                window_count=len(windows),
+                sample_windows=[
+                    {
+                        "start": str(start),
+                        "end": str(end),
+                        "days": (end - start).days + 1
+                    }
+                    for start, end in windows[:3]
+                ]
+            )
 
         # Extract features for each day using aggregation pipeline
         features = self._extract_daily_features(records, start_date, end_date)
 
         # Convert to DataFrame
         if not features:
-            print(
-                "\nWarning: No features extracted. Check date range and data availability."
+            logger.warning(
+                "no_features_extracted",
+                message="Check date range and data availability"
             )
             df = pd.DataFrame()  # Empty dataframe
         else:
@@ -461,12 +488,19 @@ class MoodPredictionPipeline:
             df.sort_index(inplace=True)
 
             # Add confidence scores based on data density
-            print(f"\nExtracted features for {len(df)} days")
-            print("Adding confidence scores based on data quality...")
+            logger.info(
+                "features_extracted",
+                days_count=len(df),
+                adding_confidence_scores=True
+            )
 
         # Save to CSV
         df.to_csv(output_path)
-        print(f"Saved {len(df)} days of features to {output_path}")
+        logger.info(
+            "features_saved",
+            days_count=len(df),
+            output_path=str(output_path)
+        )
 
         return df
 
