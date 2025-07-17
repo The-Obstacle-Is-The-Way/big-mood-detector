@@ -119,7 +119,7 @@ class TestCLI:
         assert result.exit_code == 0
         assert "Watch directory" in result.output
 
-    @patch("big_mood_detector.infrastructure.monitoring.file_watcher.FileWatcher")
+    @patch("big_mood_detector.interfaces.cli.watch.FileWatcher")
     def test_watch_command_with_options(self, mock_file_watcher: Mock) -> None:
         """Test watch command accepts all options."""
         from big_mood_detector.main_cli import cli  # type: ignore
@@ -128,11 +128,8 @@ class TestCLI:
         mock_instance = Mock()
         mock_file_watcher.return_value = mock_instance
 
-        # Mock watch to complete normally instead of raising KeyboardInterrupt
-        def mock_watch() -> None:
-            return  # Just return normally for testing
-
-        mock_instance.watch = mock_watch
+        # Mock watch to immediately return instead of running infinite loop
+        mock_instance.watch = Mock(return_value=None)
 
         with tempfile.TemporaryDirectory() as tmpdir:
             runner = CliRunner()
