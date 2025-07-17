@@ -22,25 +22,25 @@ from big_mood_detector.interfaces.cli.typer_bridge import typer_to_click
 def unified_label_group(ctx: click.Context) -> None:
     """
     Manage labels and create ground truth annotations.
-    
+
     This command group provides:
-    
+
     \b
     Episode Labeling:
       - episode: Label mood episodes with clinical validation
       - baseline: Mark stable baseline periods
       - undo: Undo the last label entry
-    
+
     \b
     Label Management:
       - manage: Create, list, search, and manage label definitions
-    
+
     Examples:
-    
+
     \b
     # Label a depressive episode
     $ bigmood label episode --date-range 2024-01-01:2024-01-14 --mood depressive
-    
+
     \b
     # Manage label definitions
     $ bigmood label manage list

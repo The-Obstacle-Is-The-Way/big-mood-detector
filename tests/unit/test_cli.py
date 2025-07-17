@@ -48,9 +48,7 @@ class TestCLI:
         assert result.exit_code == 0
         assert "Process health data" in result.output
 
-    @patch(
-        "big_mood_detector.interfaces.cli.commands.MoodPredictionPipeline"
-    )
+    @patch("big_mood_detector.interfaces.cli.commands.MoodPredictionPipeline")
     def test_process_command_with_directory(self, mock_pipeline: Mock) -> None:
         """Test process command with directory input."""
         from big_mood_detector.main_cli import cli  # type: ignore
@@ -153,9 +151,7 @@ class TestCLI:
             assert "health data files" in result.output
             assert "Poll interval: 30" in result.output
 
-    @patch(
-        "big_mood_detector.interfaces.cli.commands.MoodPredictionPipeline"
-    )
+    @patch("big_mood_detector.interfaces.cli.commands.MoodPredictionPipeline")
     def test_process_command_error_handling(self, mock_pipeline: Mock) -> None:
         """Test process command error handling."""
         from big_mood_detector.main_cli import cli  # type: ignore
