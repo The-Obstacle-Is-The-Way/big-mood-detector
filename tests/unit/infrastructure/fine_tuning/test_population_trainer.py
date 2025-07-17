@@ -4,12 +4,19 @@ Test Population Trainer
 TDD for training task-specific heads on NHANES cohorts.
 """
 
+import os
 from pathlib import Path
 from unittest.mock import Mock, patch
 
 import numpy as np
 import pandas as pd
 import pytest
+
+# Kill parallelism in ML libraries to prevent segfaults
+os.environ["OMP_NUM_THREADS"] = "1"
+os.environ["MKL_NUM_THREADS"] = "1"
+os.environ["NUMEXPR_NUM_THREADS"] = "1"
+os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
 
 
 class TestPopulationTrainer:
@@ -82,6 +89,7 @@ class TestPopulationTrainer:
         assert len(task_head.layers) >= 2  # At least hidden + output
         assert task_head.output_dim == 2
 
+    @pytest.mark.slow
     @patch("torch.save")
     def test_pat_training_pipeline(self, mock_save):
         """Test full PAT fine-tuning pipeline."""
@@ -207,6 +215,7 @@ class TestPopulationTrainer:
         with pytest.raises(ValueError, match="Missing required features"):
             trainer.validate_features(invalid_features)
 
+    @pytest.mark.slow_finetune
     @patch("joblib.dump")
     def test_xgboost_incremental_training(self, mock_dump):
         """Test incremental training on XGBoost."""

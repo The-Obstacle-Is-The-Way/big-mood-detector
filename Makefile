@@ -46,13 +46,16 @@ test-parallel:
 	pytest -n auto --cov=big_mood_detector --cov-report=term-missing
 
 test-fast:
-	pytest -m "not slow and not integration" -x --tb=short
+	pytest -m "not slow and not integration and not slow_finetune" -x --tb=short
 
 test-unit:
 	pytest tests/unit -x --tb=short -q
 
 test-slow:
 	pytest -m "slow"
+
+test-slow-finetune:
+	pytest -m "slow_finetune" -n 0 --durations=5
 
 test-integration:
 	pytest -m "integration" -n auto
@@ -86,8 +89,11 @@ type-check:
 	mypy src/big_mood_detector
 
 # Combined quality check (CI/CD ready)
-quality: lint type-check test
+quality: lint type-check test-fast
 	@echo "✅ All quality checks passed!"
+
+quality-full: quality test-slow-finetune
+	@echo "✅ Full quality suite passed!"
 
 # 🔥 Development server targets (2025 enhanced)
 run:
