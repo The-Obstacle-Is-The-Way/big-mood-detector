@@ -141,7 +141,7 @@ Repository = "https://github.com/clarity-digital-twin/big-mood-detector.git"
 Documentation = "https://big-mood-detector.readthedocs.io"
 
 [project.scripts]
-mood-detector = "big_mood_detector.cli:main"
+mood-detector = "big_mood_detector.main_cli:main"
 
 # Ruff Configuration (replaces flake8, isort, etc.)
 [tool.ruff]

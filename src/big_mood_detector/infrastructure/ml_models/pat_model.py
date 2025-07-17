@@ -10,6 +10,7 @@ learned representations from activity sequences for downstream tasks.
 """
 
 import logging
+import os
 from pathlib import Path
 from typing import Any
 
@@ -99,20 +100,38 @@ class PATModel:
 
         logger.info(f"Initialized PAT-{model_size.upper()} model wrapper")
 
-    def load_pretrained_weights(self, weights_path: Path) -> bool:
+    def load_pretrained_weights(self, weights_path: Path | None = None) -> bool:
         """
         Load pretrained PAT encoder weights.
 
         Args:
-            weights_path: Path to the .h5 weights file
+            weights_path: Path to the .h5 weights file. If None, will check:
+                1. BIG_MOOD_PAT_WEIGHTS_DIR environment variable
+                2. Default path: model_weights/pat/pretrained/PAT-M_29k_weights.h5
 
         Returns:
             True if successful, False otherwise
         """
+        # Determine weights path
+        if weights_path is None:
+            # Check environment variable first
+            env_dir = os.getenv("BIG_MOOD_PAT_WEIGHTS_DIR")
+            if env_dir:
+                weights_path = Path(env_dir) / f"PAT-{self.model_size.upper()}_29k_weights.h5"
+                logger.info(f"Using PAT weights from environment: {weights_path}")
+            else:
+                # Use default path
+                weights_path = Path("model_weights/pat/pretrained") / f"PAT-{self.model_size.upper()}_29k_weights.h5"
+                logger.info(f"Using default PAT weights path: {weights_path}")
+        
         if not weights_path.exists():
             logger.error(f"Weights file not found: {weights_path}")
             return False
 
+        return self._load_weights_file(weights_path)
+    
+    def _load_weights_file(self, weights_path: Path) -> bool:
+        """Internal method to load weights from file."""
         try:
             # First try to load as a complete model (for fixed models)
             try:

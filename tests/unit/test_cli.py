@@ -16,18 +16,18 @@ class TestCLI:
 
     def test_cli_imports(self):
         """Test that CLI module can be imported."""
-        from big_mood_detector import cli  # noqa: F401
+        from big_mood_detector import main_cli  # noqa: F401
 
     def test_main_command_exists(self):
         """Test that main CLI group exists."""
-        from big_mood_detector.cli import main
+        from big_mood_detector.main_cli import main
 
         assert main is not None
         assert hasattr(main, "command")
 
     def test_cli_help(self):
         """Test CLI help command."""
-        from big_mood_detector.cli import main
+        from big_mood_detector.main_cli import main
 
         runner = CliRunner()
         result = runner.invoke(main, ["--help"])
@@ -36,17 +36,17 @@ class TestCLI:
 
     def test_process_command_exists(self):
         """Test that process command exists."""
-        from big_mood_detector.cli import main
+        from big_mood_detector.main_cli import main
 
         runner = CliRunner()
         result = runner.invoke(main, ["process", "--help"])
         assert result.exit_code == 0
         assert "Process health data" in result.output
 
-    @patch("big_mood_detector.cli.MoodPredictionPipeline")
+    @patch("big_mood_detector.main_cli.MoodPredictionPipeline")
     def test_process_command_with_directory(self, mock_pipeline):
         """Test process command with directory input."""
-        from big_mood_detector.cli import main
+        from big_mood_detector.main_cli import main
 
         # Setup mock
         mock_instance = Mock()
@@ -91,17 +91,17 @@ class TestCLI:
 
     def test_serve_command_exists(self):
         """Test that serve command exists."""
-        from big_mood_detector.cli import main
+        from big_mood_detector.main_cli import main
 
         runner = CliRunner()
         result = runner.invoke(main, ["serve", "--help"])
         assert result.exit_code == 0
         assert "Start the API server" in result.output
 
-    @patch("big_mood_detector.cli.uvicorn")
+    @patch("big_mood_detector.main_cli.uvicorn")
     def test_serve_command(self, mock_uvicorn):
         """Test serve command starts uvicorn."""
-        from big_mood_detector.cli import main
+        from big_mood_detector.main_cli import main
 
         runner = CliRunner()
         result = runner.invoke(main, ["serve", "--port", "8001"])
@@ -116,7 +116,7 @@ class TestCLI:
 
     def test_watch_command_exists(self):
         """Test that watch command exists."""
-        from big_mood_detector.cli import main
+        from big_mood_detector.main_cli import main
 
         runner = CliRunner()
         result = runner.invoke(main, ["watch", "--help"])
@@ -126,7 +126,7 @@ class TestCLI:
     @patch("big_mood_detector.infrastructure.monitoring.file_watcher.FileWatcher")
     def test_watch_command_with_options(self, mock_file_watcher):
         """Test watch command accepts all options."""
-        from big_mood_detector.cli import main
+        from big_mood_detector.main_cli import main
 
         # Mock the file watcher to prevent actual watching
         mock_instance = Mock()
@@ -154,10 +154,10 @@ class TestCLI:
             assert "Poll interval: 30" in result.output
             assert "Stopping file watcher" in result.output
 
-    @patch("big_mood_detector.cli.MoodPredictionPipeline")
+    @patch("big_mood_detector.main_cli.MoodPredictionPipeline")
     def test_process_command_with_report(self, mock_pipeline):
         """Test process command generates clinical report."""
-        from big_mood_detector.cli import main
+        from big_mood_detector.main_cli import main
 
         # Setup mock
         mock_instance = Mock()
@@ -195,7 +195,7 @@ class TestCLI:
 
     def test_process_command_error_handling(self):
         """Test process command handles errors gracefully."""
-        from big_mood_detector.cli import main
+        from big_mood_detector.main_cli import main
 
         runner = CliRunner()
         result = runner.invoke(main, ["process", "/nonexistent/path"])
@@ -203,10 +203,10 @@ class TestCLI:
         assert result.exit_code == 2  # Click error code for bad path
         assert "does not exist" in result.output
 
-    @patch("big_mood_detector.cli.MoodPredictionPipeline")
+    @patch("big_mood_detector.main_cli.MoodPredictionPipeline")
     def test_process_command_pipeline_error(self, mock_pipeline):
         """Test process command handles pipeline errors."""
-        from big_mood_detector.cli import main
+        from big_mood_detector.main_cli import main
 
         # Setup mock to raise error
         mock_instance = Mock()
