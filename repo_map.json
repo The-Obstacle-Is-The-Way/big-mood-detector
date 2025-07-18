@@ -70,7 +70,8 @@
         "developer/": "Technical documentation and API reference",
         "clinical/": "Clinical validation and DSM-5 alignment",
         "completed/": "Implementation records",
-        "archive/": "Historical documentation"
+        "archive/": "Historical documentation",
+        "literature/": "Research papers and clinical references"
       }
     },
     "reference_repos/": {
@@ -80,13 +81,6 @@
         "Pretrained-Actigraphy-Transformer/": "PAT model from Dartmouth",
         "apple-health-bot/": "Apple Health XML parser",
         "tsfresh/": "Time series feature extraction"
-      }
-    },
-    "literature/": {
-      "description": "Research papers and clinical references",
-      "subdirs": {
-        "converted_markdown/": "Markdown versions of key papers",
-        "pdf/": "Original research papers"
       }
     },
     "data/": {

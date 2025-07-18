@@ -66,7 +66,7 @@ CLINICAL FLAGS:
 │   └── interfaces/          # CLI and API endpoints
 ├── model_weights/           # Pre-trained XGBoost + PAT models
 ├── reference_repos/         # Academic implementations
-├── literature/              # Research papers and clinical studies
+├── docs/literature/         # Research papers and clinical studies
 └── tests/                   # 695 comprehensive tests
 ```
 
@@ -109,15 +109,15 @@ CLINICAL FLAGS:
 
 Based on 6 peer-reviewed studies:
 
-1. **[Nature Digital Medicine 2024](literature/converted_markdown/xgboost-mood/)** - Seoul National University
+1. **[Nature Digital Medicine 2024](docs/literature/converted_markdown/xgboost-mood/)** - Seoul National University
    - 168 patients, 44,787 observation days
    - Circadian phase as top predictor
 
-2. **[Bipolar Disorders 2024](literature/converted_markdown/fitbit-bipolar-mood/)** - Harvard Medical School
+2. **[Bipolar Disorders 2024](docs/literature/converted_markdown/fitbit-bipolar-mood/)** - Harvard Medical School
    - Consumer device validation
    - BiMM Forest algorithm
 
-3. **[Pretrained Actigraphy Transformer](literature/converted_markdown/pretrained-actigraphy-transformer/)** - Dartmouth
+3. **[Pretrained Actigraphy Transformer](docs/literature/converted_markdown/pretrained-actigraphy-transformer/)** - Dartmouth
    - Foundation model for movement data
    - 29,307 participant training set
 

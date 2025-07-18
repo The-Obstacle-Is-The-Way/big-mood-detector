@@ -115,7 +115,7 @@ When adding or updating documentation:
 
 ## 🔗 External Resources
 
-- **Research Papers**: See [literature/](../literature/) directory
+- **Research Papers**: See [literature/](./literature/) directory
 - **Reference Implementations**: Check [reference_repos/](../reference_repos/)
 - **GitHub Issues**: Report problems or suggest improvements
 - **Community**: Join discussions on GitHub
