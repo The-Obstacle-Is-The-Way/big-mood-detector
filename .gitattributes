@@ -15,7 +15,11 @@ docker/entrypoint.sh text eol=lf
 *.ipynb text eol=lf
 
 # Data files - treat as binary
-*.csv binary
+*.csv text eol=lf
+*.xml text eol=lf
+*.db binary
+*.sqlite binary
+*.sqlite3 binary
 *.npy binary
 *.npz binary
 *.pkl binary
