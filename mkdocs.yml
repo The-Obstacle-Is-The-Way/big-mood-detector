@@ -1,0 +1,219 @@
+site_name: Big Mood Detector
+site_description: Clinical-grade mood episode detection from wearable data
+site_author: Big Mood Detector Contributors
+site_url: https://github.com/yourusername/big-mood-detector
+repo_url: https://github.com/yourusername/big-mood-detector
+repo_name: big-mood-detector
+copyright: Copyright &copy; 2024 Big Mood Detector Contributors
+
+# Theme configuration
+theme:
+  name: material
+  custom_dir: docs/overrides
+  palette:
+    # Light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: deep purple
+      accent: purple
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    # Dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: deep purple
+      accent: purple
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.expand
+    - navigation.prune
+    - navigation.indexes
+    - navigation.top
+    - toc.follow
+    - toc.integrate
+    - search.suggest
+    - search.highlight
+    - search.share
+    - header.autohide
+    - content.code.annotate
+    - content.code.copy
+    - content.tabs.link
+  
+  icon:
+    repo: fontawesome/brands/github
+    logo: material/heart-pulse
+
+# Plugins
+plugins:
+  - search:
+      separator: '[\s\-\.]'
+  - mkdocstrings:
+      handlers:
+        python:
+          import:
+            - https://docs.python.org/3/objects.inv
+            - https://numpy.org/doc/stable/objects.inv
+            - https://pandas.pydata.org/docs/objects.inv
+          selection:
+            docstring_style: google
+          rendering:
+            show_source: true
+            show_root_heading: true
+            show_root_toc_entry: false
+            show_category_heading: true
+            show_if_no_docstring: false
+            show_signature_annotations: true
+            show_symbol_type_heading: true
+            show_symbol_type_toc: true
+            members_order: source
+            separate_signature: true
+  - autorefs
+  - git-revision-date-localized:
+      enable_creation_date: true
+      type: date
+
+# Extensions
+markdown_extensions:
+  - abbr
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - meta
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+      toc_depth: 4
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.betterem:
+      smart_enable: all
+  - pymdownx.caret
+  - pymdownx.details
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.tilde
+
+# Extra CSS and JavaScript
+extra_css:
+  - stylesheets/extra.css
+
+extra_javascript:
+  - javascripts/mathjax.js
+  - https://polyfill.io/v3/polyfill.min.js?features=es6
+  - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
+
+# Social links
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/yourusername/big-mood-detector
+    - icon: fontawesome/brands/python
+      link: https://pypi.org/project/big-mood-detector/
+  
+  analytics:
+    provider: google
+    property: G-XXXXXXXXXX
+
+# Navigation
+nav:
+  - Home:
+    - index.md
+    - Roadmap: ROADMAP.md
+    - License: license.md
+  
+  - Getting Started:
+    - Quick Start: user/QUICK_START_GUIDE.md
+    - Apple Health Export: user/APPLE_HEALTH_EXPORT.md
+    - Advanced Usage: user/ADVANCED_USAGE.md
+  
+  - Architecture:
+    - Overview: developer/ARCHITECTURE_OVERVIEW.md
+    - Dual Pipeline: developer/DUAL_PIPELINE_ARCHITECTURE.md
+    - Model Architecture: developer/MODEL_WEIGHT_ARCHITECTURE.md
+    - Data Processing: developer/DATA_DOSSIER.md
+    - Design Patterns: refactoring/DESIGN_PATTERNS_CATALOG.md
+  
+  - Clinical Documentation:
+    - Clinical Requirements: clinical/CLINICAL_REQUIREMENTS_DOCUMENT.md
+    - Clinical Dossier: clinical/CLINICAL_DOSSIER.md
+    - Literature Review:
+      - Overview: literature/clinical_references_to_read.md
+      - XGBoost Study: literature/converted_markdown/xgboost-mood/xgboost-mood.md
+      - PAT Model: literature/converted_markdown/pretrained-actigraphy-transformer/pretrained-actigraphy-transformer.md
+      - Fitbit Bipolar: literature/converted_markdown/fitbit-bipolar-mood/fitbit-bipolar-mood.md
+  
+  - API Reference:
+    - Overview: developer/API_REFERENCE.md
+    - Endpoints:
+      - Health: api/health.md
+      - Features: api/features.md
+      - Predictions: api/predictions.md
+      - Labels: api/labels.md
+      - Clinical: api/clinical.md
+    - Python API:
+      - Domain: api/python/domain.md
+      - Application: api/python/application.md
+      - Infrastructure: api/python/infrastructure.md
+  
+  - Model Integration:
+    - Integration Guide: developer/model_integration_guide.md
+    - Fine-Tuning:
+      - Overview: completed/FINE_TUNING_DOSSIER.md
+      - Implementation: completed/FINE_TUNING_IMPLEMENTATION.md
+      - Complete Spec: completed/FINE_TUNING_COMPLETE_SPEC.md
+    - PAT Integration: completed/PAT_INTEGRATION_COMPLETE.md
+  
+  - Operations:
+    - Deployment Guide: developer/DEPLOYMENT_GUIDE.md
+    - Production Notes: developer/PRODUCTION_NOTES.md
+    - Security: developer/SECURITY.md
+    - Git Workflow: developer/GIT_WORKFLOW.md
+  
+  - Development:
+    - Labeling CLI:
+      - Design: completed/LABELING_CLI_DESIGN.md
+      - Implementation: completed/LABELING_CLI_IMPLEMENTATION_PLAN.md
+    - Validation Reports:
+      - Pipeline Validation: completed/PIPELINE_VALIDATION_REPORT.md
+      - Complete Validation: completed/COMPLETE_VALIDATION_SUMMARY.md
+    - Refactoring:
+      - Complete Guide: refactoring/REFACTORING_COMPLETE.md
+      - Pipeline Analysis: refactoring/phase3-pipeline-analysis.md
+  
+  - Archive:
+    - Technical Documentation: archive/TECHNICAL_DOCUMENTATION.md
+    - Architecture (Legacy): archive/ARCHITECTURE.md
+    - Bipolar Literature: archive/BIPOLAR_LITERATURE.md
+    - Technical Debt: archive/TECHNICAL_DEBT.md
+    - Planning:
+      - Implementation Plan: archive/planning/IMPLEMENTATION_PLAN_FROM_REFERENCES.md
+      - Operationalization: archive/planning/OPERATIONALIZATION_PLAN.md

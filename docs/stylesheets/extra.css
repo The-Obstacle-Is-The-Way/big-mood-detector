@@ -1,0 +1,150 @@
+/* Big Mood Detector Custom Styles */
+
+/* Custom color scheme */
+:root {
+  --md-primary-fg-color: #6B46C1;  /* Deep purple */
+  --md-primary-fg-color--light: #9061F9;
+  --md-primary-fg-color--dark: #4C1D95;
+  --md-accent-fg-color: #8B5CF6;
+}
+
+/* Hero section styling */
+.md-content__inner > h1:first-child {
+  text-align: center;
+  font-size: 3rem;
+  margin-bottom: 2rem;
+}
+
+/* Center images in divs with align="center" */
+div[align="center"] {
+  text-align: center;
+  margin: 2rem 0;
+}
+
+div[align="center"] img {
+  display: inline-block;
+  margin: 0 auto;
+}
+
+/* Badge styling */
+div[align="center"] a img {
+  margin: 0 0.2rem;
+}
+
+/* Feature list styling */
+.md-typeset h2:contains("Key Features") + ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.md-typeset h2:contains("Key Features") + ul li {
+  margin: 0.5rem 0;
+  padding-left: 2rem;
+  position: relative;
+}
+
+/* Code block improvements */
+.highlight pre {
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+}
+
+/* Admonition styling */
+.md-typeset .admonition {
+  border-radius: 0.5rem;
+}
+
+/* Table styling */
+.md-typeset table {
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+/* Navigation improvements */
+.md-nav__item--active > .md-nav__link {
+  font-weight: 600;
+}
+
+/* TOC styling */
+.md-sidebar--secondary .md-nav__item--active > .md-nav__link {
+  color: var(--md-accent-fg-color);
+}
+
+/* Footer improvements */
+.md-footer-meta {
+  background-color: var(--md-primary-fg-color--dark);
+}
+
+/* Performance metrics styling */
+.performance-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin: 2rem 0;
+}
+
+.performance-metric {
+  background: var(--md-code-bg-color);
+  padding: 1rem;
+  border-radius: 0.5rem;
+  text-align: center;
+}
+
+.performance-metric h3 {
+  margin: 0;
+  color: var(--md-accent-fg-color);
+  font-size: 2rem;
+}
+
+.performance-metric p {
+  margin: 0.5rem 0 0 0;
+  opacity: 0.8;
+}
+
+/* API endpoint cards */
+.api-endpoints {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+  margin: 2rem 0;
+}
+
+.api-endpoint {
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  transition: transform 0.2s;
+}
+
+.api-endpoint:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* Medical disclaimer styling */
+.medical-disclaimer {
+  background-color: #FEE2E2;
+  border: 2px solid #EF4444;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin: 2rem 0;
+}
+
+[data-md-color-scheme="slate"] .medical-disclaimer {
+  background-color: #7F1D1D;
+  border-color: #DC2626;
+}
+
+/* Print styles */
+@media print {
+  .md-sidebar,
+  .md-header,
+  .md-footer {
+    display: none;
+  }
+  
+  .md-content {
+    margin: 0;
+    padding: 2rem;
+  }
+}

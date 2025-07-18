@@ -2,6 +2,10 @@
 
 This directory contains license information for third-party components used in the Big Mood Detector project.
 
+## Project License
+
+Big Mood Detector is licensed under the Apache License 2.0. See the [LICENSE](../LICENSE) file in the project root for the full license text.
+
 ## Model Weights
 
 ### XGBoost Models
