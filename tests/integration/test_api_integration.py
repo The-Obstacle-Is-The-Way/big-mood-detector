@@ -163,7 +163,7 @@ class TestLabelsAPI:
         invalid_episode = sample_episode.copy()
         invalid_episode["episode_type"] = "invalid_type"
         
-        response = client.post("/labels/episodes", json=invalid_episode)
+        response = client.post("/api/v1/labels/episodes", json=invalid_episode)
         assert response.status_code == 422
 
     def test_invalid_date_range(self, client: TestClient, sample_episode: dict) -> None:
@@ -174,7 +174,7 @@ class TestLabelsAPI:
             invalid_episode["start_date"]
         )
         
-        response = client.post("/labels/episodes", json=invalid_episode)
+        response = client.post("/api/v1/labels/episodes", json=invalid_episode)
         assert response.status_code == 422
 
 
