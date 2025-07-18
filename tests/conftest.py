@@ -93,12 +93,31 @@ def _patch_pat_model(monkeypatch):
     class MockPATModel:
         def __init__(self, model_size="medium", **kwargs):
             self.model_size = model_size
-            self.patch_size = 18 if model_size == "medium" else 12
             self.embed_dim = 96
             self.depth = 6
             self.num_heads = 4
+            self.is_loaded = False
+
+            # Model size specific configs
+            if model_size == "small":
+                self.patch_size = 18
+                self.encoder_num_heads = 6
+                self.encoder_num_layers = 1
+            elif model_size == "medium":
+                self.patch_size = 18
+                self.encoder_num_heads = 12
+                self.encoder_num_layers = 2
+            elif model_size == "large":
+                self.patch_size = 9
+                self.encoder_num_heads = 12
+                self.encoder_num_layers = 4
+            else:
+                self.patch_size = 18
+                self.encoder_num_heads = 12
+                self.encoder_num_layers = 2
 
         def load_pretrained_weights(self, *args, **kwargs):
+            self.is_loaded = True
             return True
 
     pat_stub.PATModel = MockPATModel
