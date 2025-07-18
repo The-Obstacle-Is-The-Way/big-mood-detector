@@ -50,6 +50,9 @@ WORKDIR /app
 # Copy application code
 COPY --chown=appuser:appuser src/ ./src/
 
+# Copy configuration files
+COPY --chown=appuser:appuser config/ ./config/
+
 # Copy model weights (if available)
 COPY --chown=appuser:appuser model_weights/ ./model_weights/
 
