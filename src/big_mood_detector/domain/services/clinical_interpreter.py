@@ -174,11 +174,13 @@ class ClinicalInterpreter:
             config: Clinical thresholds configuration. If None, loads from default path.
         """
         if config is None:
-            default_path = Path("config/clinical_thresholds.yaml")
+            import os
+            config_path = os.environ.get("CLINICAL_CONFIG_PATH", "config/clinical_thresholds.yaml")
+            default_path = Path(config_path)
             if default_path.exists():
                 config = load_clinical_thresholds(default_path)
             else:
-                raise ValueError("No configuration provided and default not found")
+                raise ValueError(f"No configuration provided and default not found at {config_path}")
 
         self.config = config
 

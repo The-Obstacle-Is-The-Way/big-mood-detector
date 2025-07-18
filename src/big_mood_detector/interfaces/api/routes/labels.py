@@ -85,7 +85,9 @@ class LabelStatsResponse(BaseModel):
 # Repository will be initialized per request for better test isolation
 def get_repository() -> SQLiteEpisodeRepository:
     """Get episode repository instance."""
-    return SQLiteEpisodeRepository(db_path="labels.db")
+    import os
+    db_path = os.environ.get("LABELS_DB_PATH", "labels.db")
+    return SQLiteEpisodeRepository(db_path=db_path)
 
 
 @router.post("/episodes", response_model=EpisodeResponse, status_code=201)

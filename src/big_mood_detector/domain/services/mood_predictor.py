@@ -85,8 +85,12 @@ class MoodPredictor:
         if model_dir is None:
             # Default to pretrained models with descriptive names
             # This aligns with infrastructure layer naming convention
-            base_path = Path(os.path.dirname(__file__)).parent.parent.parent.parent
-            model_dir = base_path / "model_weights" / "xgboost" / "pretrained"
+            model_path = os.environ.get("XGBOOST_MODEL_PATH", "model_weights/xgboost/pretrained")
+            if os.path.isabs(model_path):
+                model_dir = Path(model_path)
+            else:
+                base_path = Path(os.path.dirname(__file__)).parent.parent.parent.parent
+                model_dir = base_path / model_path
 
         self.model_dir = Path(model_dir)
         self.models: dict[str, Any] = {}

@@ -5,10 +5,12 @@ Coordinates multiple ML models (PAT + XGBoost) for enhanced mood predictions.
 Implements parallel processing, confidence weighting, and fallback strategies.
 """
 
+from __future__ import annotations
+
 import logging
 from concurrent.futures import ThreadPoolExecutor, TimeoutError
 from dataclasses import dataclass
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 
@@ -20,8 +22,10 @@ from big_mood_detector.infrastructure.ml_models.xgboost_models import (
     XGBoostMoodPredictor,
 )
 
-if PAT_AVAILABLE:
+if TYPE_CHECKING or PAT_AVAILABLE:
     from big_mood_detector.infrastructure.ml_models.pat_model import PATModel
+else:
+    PATModel = None
 
 logger = logging.getLogger(__name__)
 
