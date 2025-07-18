@@ -20,6 +20,7 @@ from big_mood_detector.domain.services.clinical_feature_extractor import (
     ClinicalFeatureExtractor,
 )
 from big_mood_detector.infrastructure.logging import get_module_logger
+from big_mood_detector.interfaces.api.dependencies import get_mood_pipeline
 
 logger = get_module_logger(__name__)
 
@@ -36,7 +37,10 @@ class FeatureExtractionResponse(BaseModel):
 
 
 @router.post("/extract", response_model=FeatureExtractionResponse)
-async def extract_features(file: UploadFile = File(...)) -> FeatureExtractionResponse:
+async def extract_features(
+    file: UploadFile = File(...),
+    pipeline = Depends(get_mood_pipeline),
+) -> FeatureExtractionResponse:
     """
     Extract clinical features from uploaded health data.
 
@@ -128,12 +132,7 @@ async def extract_features(file: UploadFile = File(...)) -> FeatureExtractionRes
             days=(end_date - start_date).days + 1,
         )
         
-        # 3. Use MoodPredictionPipeline for feature extraction
-        from big_mood_detector.application.use_cases.process_health_data_use_case import (
-            MoodPredictionPipeline,
-        )
-        
-        pipeline = MoodPredictionPipeline()
+        # 3. Use injected MoodPredictionPipeline for feature extraction
         
         # Extract features using the pipeline
         try:

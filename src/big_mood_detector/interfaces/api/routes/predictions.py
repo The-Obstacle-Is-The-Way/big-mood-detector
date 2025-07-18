@@ -6,11 +6,15 @@ Direct mood prediction endpoints for extracted features.
 
 from typing import Any
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel, Field
 
 # Note: Full ensemble prediction would use EnsembleConfig from process_health_data_use_case
 from big_mood_detector.domain.services.mood_predictor import MoodPredictor
+from big_mood_detector.interfaces.api.dependencies import (
+    get_mood_predictor,
+    get_mood_pipeline,
+)
 
 router = APIRouter(prefix="/api/v1/predictions", tags=["predictions"])
 
@@ -62,7 +66,10 @@ class EnsemblePredictionResponse(BaseModel):
 
 
 @router.post("/predict", response_model=PredictionResponse)
-async def predict_mood(features: FeatureInput) -> PredictionResponse:
+async def predict_mood(
+    features: FeatureInput,
+    predictor: MoodPredictor = Depends(get_mood_predictor),
+) -> PredictionResponse:
     """
     Generate mood prediction from feature vector.
 
@@ -92,8 +99,7 @@ async def predict_mood(features: FeatureInput) -> PredictionResponse:
         if features.hrv_rmssd is not None:
             feature_dict["hrv_rmssd"] = features.hrv_rmssd
 
-        # Get prediction using MoodPredictor
-        predictor = MoodPredictor()
+        # Use injected predictor (loaded once at startup)
 
         # Convert dict to numpy array for the predict method
         import numpy as np
@@ -193,8 +199,7 @@ async def predict_mood_ensemble(features: FeatureInput) -> EnsemblePredictionRes
         # For demo purposes, create a mock ensemble result
         # In practice, this would use the full pipeline with real data
 
-        # Get base prediction
-        predictor = MoodPredictor()
+        # Use injected predictor
         import numpy as np
 
         feature_array = np.zeros(36)
@@ -257,10 +262,12 @@ async def predict_mood_ensemble(features: FeatureInput) -> EnsemblePredictionRes
 
 
 @router.get("/status")
-async def get_model_status() -> dict[str, Any]:
+async def get_model_status(
+    predictor: MoodPredictor = Depends(get_mood_predictor),
+) -> dict[str, Any]:
     """Get status of available prediction models."""
     try:
-        predictor = MoodPredictor()
+        # Use injected predictor
 
         return {
             "xgboost_available": len(predictor.models) > 0,
