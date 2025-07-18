@@ -72,13 +72,18 @@ async def extract_features(file: UploadFile = File(...)) -> FeatureExtractionRes
 
         # Process the file
         container = get_container()
-        use_case = container.resolve(ProcessHealthDataUseCase)
+        pipeline = container.resolve(MoodPredictionPipeline)
+        
+        # Configure pipeline for feature extraction only
+        config = PipelineConfig(
+            enable_pat_predictions=False,
+            save_intermediate=False,
+            verbose=False,
+        )
 
-        result = use_case.execute(
-            input_file=tmp_path,
-            output_file=None,  # Don't save, just extract features
-            extract_clinical_features=True,
-            predict_mood=False,  # Just extract features, don't predict
+        result = pipeline.process_health_data(
+            input_path=tmp_path,
+            config=config,
         )
 
         # Extract features from the result
