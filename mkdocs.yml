@@ -77,9 +77,6 @@ plugins:
             members_order: source
             separate_signature: true
   - autorefs
-  - git-revision-date-localized:
-      enable_creation_date: true
-      type: date
 
 # Extensions
 markdown_extensions:

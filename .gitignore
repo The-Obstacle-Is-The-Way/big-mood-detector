@@ -111,8 +111,18 @@ __pycache__/
 *.py[cod]
 
 # =====================================
+# Documentation & MkDocs
+# =====================================
+# MkDocs build output - never commit
+site/
+
+# =====================================
 # Research-specific
 # =====================================
+# Literature PDFs - these are copyrighted research papers
+docs/literature/pdf/*.pdf
+docs/literature/pdf/
+
 # Keep original PDFs but ignore any temporary conversion files
 *.pdf~
 *_temp.pdf
