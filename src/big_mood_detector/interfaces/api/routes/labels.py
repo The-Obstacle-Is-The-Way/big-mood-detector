@@ -7,8 +7,8 @@ CRUD operations for mood episode labels and baseline periods.
 from datetime import date
 from typing import Any
 
-from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel, Field
+from fastapi import APIRouter, HTTPException, Response
+from pydantic import BaseModel, Field, field_validator
 
 from big_mood_detector.domain.services.episode_labeler import EpisodeLabeler
 from big_mood_detector.infrastructure.repositories.sqlite_episode_repository import (
@@ -27,6 +27,15 @@ class EpisodeCreateRequest(BaseModel):
     severity: int = Field(..., ge=1, le=10)
     notes: str = ""
     rater_id: str = "api_user"
+    
+    @field_validator('end_date')
+    @classmethod
+    def validate_date_range(cls, v: date | None, info) -> date | None:
+        """Ensure end_date is after start_date if provided."""
+        if v is not None and 'start_date' in info.data:
+            if v < info.data['start_date']:
+                raise ValueError('end_date must be after or equal to start_date')
+        return v
 
 
 class BaselineCreateRequest(BaseModel):
@@ -73,11 +82,13 @@ class LabelStatsResponse(BaseModel):
     avg_severity: float | None
 
 
-# Initialize repository
-repository = SQLiteEpisodeRepository(db_path="labels.db")
+# Repository will be initialized per request for better test isolation
+def get_repository() -> SQLiteEpisodeRepository:
+    """Get episode repository instance."""
+    return SQLiteEpisodeRepository(db_path="labels.db")
 
 
-@router.post("/episodes", response_model=EpisodeResponse)
+@router.post("/episodes", response_model=EpisodeResponse, status_code=201)
 async def create_episode(request: EpisodeCreateRequest) -> EpisodeResponse:
     """Create a new mood episode label."""
     try:
@@ -94,6 +105,7 @@ async def create_episode(request: EpisodeCreateRequest) -> EpisodeResponse:
         )
 
         # Save to repository
+        repository = get_repository()
         repository.save_labeler(labeler)
 
         # Return the created episode
@@ -113,7 +125,7 @@ async def create_episode(request: EpisodeCreateRequest) -> EpisodeResponse:
         raise HTTPException(status_code=400, detail=str(e)) from e
 
 
-@router.post("/baselines", response_model=BaselineResponse)
+@router.post("/baselines", response_model=BaselineResponse, status_code=201)
 async def create_baseline(request: BaselineCreateRequest) -> BaselineResponse:
     """Create a new baseline period."""
     try:
@@ -128,6 +140,7 @@ async def create_baseline(request: BaselineCreateRequest) -> BaselineResponse:
         )
 
         # Save to repository
+        repository = get_repository()
         repository.save_labeler(labeler)
 
         # Return created baseline
@@ -154,6 +167,7 @@ async def list_episodes(
     """List mood episodes with optional filtering."""
     try:
         labeler = EpisodeLabeler()
+        repository = get_repository()
         repository.load_into_labeler(labeler)
 
         episodes = labeler.episodes
@@ -193,6 +207,7 @@ async def list_baselines(
     """List baseline periods with optional filtering."""
     try:
         labeler = EpisodeLabeler()
+        repository = get_repository()
         repository.load_into_labeler(labeler)
 
         baselines = labeler.baseline_periods
@@ -225,6 +240,7 @@ async def get_label_stats() -> LabelStatsResponse:
     """Get statistics about labeled data."""
     try:
         labeler = EpisodeLabeler()
+        repository = get_repository()
         repository.load_into_labeler(labeler)
 
         # Count episodes by type
@@ -272,10 +288,11 @@ async def get_label_stats() -> LabelStatsResponse:
         raise HTTPException(status_code=500, detail=str(e)) from e
 
 
-@router.delete("/episodes/{episode_id}")
-async def delete_episode(episode_id: int) -> dict[str, str]:
+@router.delete("/episodes/{episode_id}", status_code=204)
+async def delete_episode(episode_id: int, response: Response) -> None:
     """Delete an episode by ID."""
     try:
+        repository = get_repository()
         labeler = EpisodeLabeler()
         repository.load_into_labeler(labeler)
 
@@ -287,8 +304,8 @@ async def delete_episode(episode_id: int) -> dict[str, str]:
 
         # Save updated labeler
         repository.save_labeler(labeler)
-
-        return {"message": f"Episode {episode_id} deleted successfully"}
+        
+        # Return 204 No Content
 
     except HTTPException:
         raise
@@ -301,6 +318,7 @@ async def export_labels() -> dict[str, Any]:
     """Export all labels in training-ready format."""
     try:
         labeler = EpisodeLabeler()
+        repository = get_repository()
         repository.load_into_labeler(labeler)
         df = labeler.to_dataframe()
 

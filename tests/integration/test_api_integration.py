@@ -7,7 +7,7 @@ Tests the full API surface with TestClient to ensure proper wiring.
 import json
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Any
+from typing import Any, Generator
 
 import pytest
 from fastapi.testclient import TestClient
@@ -92,6 +92,19 @@ class TestPredictionsAPI:
 class TestLabelsAPI:
     """Test labels/episodes endpoints."""
 
+    @pytest.fixture(autouse=True)
+    def cleanup_database(self) -> Generator[None, None, None]:
+        """Clean up test database before and after each test."""
+        import os
+        db_path = "labels.db"
+        # Clean before test
+        if os.path.exists(db_path):
+            os.remove(db_path)
+        yield
+        # Clean after test
+        if os.path.exists(db_path):
+            os.remove(db_path)
+
     @pytest.fixture
     def client(self) -> TestClient:
         """Create test client."""
@@ -162,9 +175,10 @@ class TestLabelsAPI:
         delete_response = client.delete(f"/api/v1/labels/episodes/{created_id}")
         assert delete_response.status_code == 204
 
-        # Verify it's gone
-        get_response = client.get(f"/api/v1/labels/episodes/{created_id}")
-        assert get_response.status_code == 404
+        # Verify it's gone by listing all episodes
+        list_response = client.get("/api/v1/labels/episodes")
+        assert list_response.status_code == 200
+        assert list_response.json() == []  # Should be empty after deletion
 
     def test_invalid_episode_type(
         self, client: TestClient, sample_episode: dict
