@@ -48,18 +48,17 @@ COPY --from=builder --chown=appuser:appuser /app/.venv /app/.venv
 # Set working directory
 WORKDIR /app
 
+# Copy less frequently changing files first (better caching)
+# Copy configuration files (rarely change)
+COPY --chown=appuser:appuser config/ ./config/
+
 # Copy application code
 COPY --chown=appuser:appuser src/ ./src/
 
-# Copy configuration files
-COPY --chown=appuser:appuser config/ ./config/
-
-# Copy model weights (if available)
-COPY --chown=appuser:appuser model_weights/ ./model_weights/
-
-# Copy entrypoint script
+# Copy entrypoint and healthcheck scripts
 COPY --chown=appuser:appuser docker/entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
+COPY --chown=appuser:appuser docker/healthcheck.py /healthcheck.py
+RUN chmod +x /entrypoint.sh /healthcheck.py
 
 # Set environment variables
 ENV PATH="/app/.venv/bin:$PATH" \
@@ -69,9 +68,9 @@ ENV PATH="/app/.venv/bin:$PATH" \
     PIP_NO_CACHE_DIR=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1
 
-# Health check
+# Health check with dependency verification
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:8000/health || exit 1
+    CMD python /healthcheck.py || exit 1
 
 # Switch to non-root user
 USER appuser

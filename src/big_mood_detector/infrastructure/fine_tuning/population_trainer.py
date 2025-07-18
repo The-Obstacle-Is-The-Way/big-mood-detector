@@ -7,7 +7,7 @@ Trains task-specific heads on NHANES cohorts for population-level fine-tuning.
 import json
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 
 import joblib  # type: ignore[import-untyped]
 import numpy as np
@@ -567,8 +567,16 @@ class XGBoostPopulationTrainer(PopulationTrainer):
 
 
 else:
-    # Don't create a stub class - just don't export it
-    PATPopulationTrainer = None  # type: ignore
+    # Create a protocol for type checking when torch is not available
+    @runtime_checkable
+    class PATPopulationTrainer(Protocol):
+        """Protocol stub for PATPopulationTrainer when torch is not available."""
+        
+        def __init__(self, task_name: str = "depression", output_dir: Path = Path("models/population")) -> None:
+            ...
+        
+        def train(self, **kwargs: Any) -> dict[str, Any]:
+            ...
 
 
 def create_population_trainer(
