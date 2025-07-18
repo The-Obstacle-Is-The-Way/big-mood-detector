@@ -15,6 +15,8 @@ from big_mood_detector.domain.repositories.sleep_repository import (
     SleepRepositoryInterface,
 )
 from big_mood_detector.domain.value_objects.time_period import TimePeriod
+import logging
+
 from big_mood_detector.infrastructure.logging import get_module_logger
 from big_mood_detector.infrastructure.repositories.models import StoredSleepRecord
 
@@ -49,7 +51,8 @@ class FileSleepRepository(SleepRepositoryInterface):
             temp_path.write_text(json.dumps(data, indent=2, default=str))
             temp_path.replace(file_path)
 
-            logger.debug("record_saved", record_id=stored.id)
+            if logger.isEnabledFor(logging.DEBUG):
+                logger.debug("record_saved", record_id=stored.id)
 
     async def save_batch(self, sleep_records: list[SleepRecord]) -> None:
         """Persist multiple sleep records efficiently."""
@@ -137,7 +140,8 @@ class FileSleepRepository(SleepRepositoryInterface):
                     if period.contains(record.start_date):
                         file_path.unlink()
                         deleted_count += 1
-                        logger.debug("record_deleted", record_id=stored.id)
+                        if logger.isEnabledFor(logging.DEBUG):
+                            logger.debug("record_deleted", record_id=stored.id)
                 except Exception as e:
                     logger.error(
                         "failed_to_process_record_file",

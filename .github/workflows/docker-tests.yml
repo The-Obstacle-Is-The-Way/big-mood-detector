@@ -1,0 +1,92 @@
+name: Docker Tests
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  docker-tests:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        test-suite:
+          - unit
+          - integration
+          - e2e
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+    
+    - name: Build test image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        target: builder  # Use builder stage with dev dependencies
+        tags: big-mood-detector:test
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+        load: true
+    
+    - name: Run tests in Docker
+      run: |
+        docker run --rm \
+          -e TZ=UTC \
+          -e CI=true \
+          -e PYTHONDONTWRITEBYTECODE=1 \
+          -v ${{ github.workspace }}:/workspace \
+          -w /workspace \
+          big-mood-detector:test \
+          python -m pytest tests/${{ matrix.test-suite }} \
+            -v \
+            --color=yes \
+            --junit-xml=test-results-${{ matrix.test-suite }}.xml
+    
+    - name: Upload test results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: test-results-${{ matrix.test-suite }}
+        path: test-results-${{ matrix.test-suite }}.xml
+    
+  alpine-compatibility:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Build Alpine test image
+      run: |
+        cat > Dockerfile.alpine <<EOF
+        FROM python:3.11-alpine
+        RUN apk add --no-cache \
+          gcc musl-dev linux-headers \
+          libffi-dev openssl-dev \
+          libxml2-dev libxslt-dev \
+          postgresql-dev \
+          tzdata
+        WORKDIR /app
+        COPY pyproject.toml ./
+        COPY src/ ./src/
+        RUN pip install -e . && \
+            pip install pytest pytest-asyncio
+        EOF
+        
+        docker build -f Dockerfile.alpine -t big-mood-alpine:test .
+    
+    - name: Test timezone handling
+      run: |
+        docker run --rm \
+          -e TZ=America/New_York \
+          big-mood-alpine:test \
+          python -c "import pytz; print(pytz.timezone('America/New_York'))"
+    
+    - name: Test basic imports
+      run: |
+        docker run --rm \
+          big-mood-alpine:test \
+          python -c "from big_mood_detector.main import main; print('Import successful')"
