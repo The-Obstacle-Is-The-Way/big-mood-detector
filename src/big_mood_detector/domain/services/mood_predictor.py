@@ -18,6 +18,7 @@ from pathlib import Path
 from typing import Any
 
 import numpy as np
+import xgboost as xgb
 
 # Suppress XGBoost warnings about feature names
 warnings.filterwarnings("ignore", category=UserWarning, module="xgboost")
@@ -92,28 +93,44 @@ class MoodPredictor:
         self._load_models()
 
     def _load_models(self) -> None:
-        """Load XGBoost models from pickle files."""
-        # Use descriptive names that match infrastructure layer
-        # Original names: XGBoost_DE.pkl, XGBoost_HME.pkl, XGBoost_ME.pkl
-        model_files = {
+        """Load XGBoost models - prefer JSON format to avoid warnings."""
+        # Check for JSON models first to avoid pickle warnings
+        converted_dir = self.model_dir.parent / "converted"
+        json_models = {
+            "depression": "XGBoost_DE.json",
+            "hypomanic": "XGBoost_HME.json",
+            "manic": "XGBoost_ME.json",
+        }
+        pkl_models = {
             "depression": "depression_model.pkl",
             "hypomanic": "hypomanic_model.pkl",
             "manic": "manic_model.pkl",
         }
 
-        for mood_type, filename in model_files.items():
-            model_path = self.model_dir / filename
-
-            if not model_path.exists():
-                print(f"Warning: Model file not found: {model_path}")
-                continue
-
-            try:
-                with open(model_path, "rb") as f:
-                    self.models[mood_type] = pickle.load(f)
-                    print(f"Loaded {mood_type} model from {filename}")
-            except Exception as e:
-                print(f"Error loading {mood_type} model: {e}")
+        for mood_type in ["depression", "hypomanic", "manic"]:
+            # Try JSON format first (no warnings)
+            json_path = converted_dir / json_models[mood_type]
+            pkl_path = self.model_dir / pkl_models[mood_type]
+            
+            if json_path.exists():
+                try:
+                    self.models[mood_type] = xgb.Booster()
+                    self.models[mood_type].load_model(str(json_path))
+                    print(f"Loaded {mood_type} model from {json_models[mood_type]} (JSON format)")
+                    continue
+                except Exception as e:
+                    print(f"Failed to load JSON model: {e}")
+            
+            # Fall back to pickle format
+            if pkl_path.exists():
+                try:
+                    with open(pkl_path, "rb") as f:
+                        self.models[mood_type] = pickle.load(f)
+                        print(f"Loaded {mood_type} model from {pkl_models[mood_type]}")
+                except Exception as e:
+                    print(f"Error loading {mood_type} model: {e}")
+            else:
+                print(f"Warning: No model found for {mood_type}")
 
     def predict(self, features: np.ndarray) -> MoodPrediction:
         """
@@ -146,10 +163,34 @@ class MoodPredictor:
         predictions = {}
         for mood_type, model in self.models.items():
             try:
-                # Get probability of positive class (mood episode)
-                proba = model.predict_proba(features_2d)[0]
-                # XGBoost returns [prob_negative, prob_positive]
-                predictions[mood_type] = proba[1] if len(proba) > 1 else proba[0]
+                # Handle different model types
+                if isinstance(model, xgb.Booster):
+                    # JSON-loaded Booster - use DMatrix with feature names
+                    feature_names = [
+                        "ST_long_MN", "ST_long_SD", "ST_long_Zscore",
+                        "ST_short_MN", "ST_short_SD", "ST_short_Zscore",
+                        "WT_long_MN", "WT_long_SD", "WT_long_Zscore",
+                        "WT_short_MN", "WT_short_SD", "WT_short_Zscore",
+                        "LongSleepWindow_length_MN", "LongSleepWindow_length_SD", "LongSleepWindow_length_Zscore",
+                        "LongSleepWindow_number_MN", "LongSleepWindow_number_SD", "LongSleepWindow_number_Zscore",
+                        "ShortSleepWindow_length_MN", "ShortSleepWindow_length_SD", "ShortSleepWindow_length_Zscore",
+                        "ShortSleepWindow_number_MN", "ShortSleepWindow_number_SD", "ShortSleepWindow_number_Zscore",
+                        "Sleep_percentage_MN", "Sleep_percentage_SD", "Sleep_percentage_Zscore",
+                        "Sleep_amplitude_MN", "Sleep_amplitude_SD", "Sleep_amplitude_Zscore",
+                        "Circadian_phase_MN", "Circadian_phase_SD", "Circadian_phase_Zscore",
+                        "Circadian_amplitude_MN", "Circadian_amplitude_SD", "Circadian_amplitude_Zscore",
+                    ]
+                    dmatrix = xgb.DMatrix(features_2d, feature_names=feature_names)
+                    # Booster.predict returns raw scores (probabilities for binary classification)
+                    predictions[mood_type] = float(model.predict(dmatrix)[0])
+                elif hasattr(model, "predict_proba"):
+                    # Scikit-learn style model (XGBClassifier)
+                    proba = model.predict_proba(features_2d)[0]
+                    # XGBoost returns [prob_negative, prob_positive]
+                    predictions[mood_type] = proba[1] if len(proba) > 1 else proba[0]
+                else:
+                    # Fallback for other model types
+                    predictions[mood_type] = float(model.predict(features_2d)[0])
             except Exception as e:
                 print(f"Error predicting {mood_type}: {e}")
                 predictions[mood_type] = 0.0
