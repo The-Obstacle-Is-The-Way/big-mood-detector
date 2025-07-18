@@ -80,3 +80,31 @@ def expected_sleep_data():
             "value": "HKCategoryValueSleepAnalysisInBed",
         },
     ]
+
+
+@pytest.fixture(autouse=True)
+def _patch_pat_model(monkeypatch):
+    """Provide a lightweight PATModel stub scoped to each test."""
+    import sys
+    import types
+    
+    pat_stub = types.ModuleType("pat_model")
+    
+    class MockPATModel:
+        def __init__(self, model_size="medium", **kwargs):
+            self.model_size = model_size
+            self.patch_size = 18 if model_size == "medium" else 12
+            
+        def load_pretrained_weights(self, *args, **kwargs):
+            return True
+    
+    pat_stub.PATModel = MockPATModel
+    pat_stub.PATFeatureExtractor = object
+    
+    with monkeypatch.context() as m:
+        m.setitem(
+            sys.modules,
+            "big_mood_detector.infrastructure.ml_models.pat_model",
+            pat_stub
+        )
+        yield

@@ -1,27 +1,10 @@
-import sys
-import types
 from unittest.mock import patch
 
 import numpy as np
 import pandas as pd
 from click.testing import CliRunner
 
-# Stub out heavy PAT dependencies before importing the CLI
-pat_stub = types.ModuleType("pat_model")
-
-
-# Create a mock class instead of object
-class MockPATModel:
-    def __init__(self, model_size="medium", **kwargs):
-        self.model_size = model_size
-        self.patch_size = 18 if model_size == "medium" else 12
-
-
-pat_stub.PATModel = MockPATModel
-pat_stub.PATFeatureExtractor = object
-sys.modules["big_mood_detector.infrastructure.ml_models.pat_model"] = pat_stub
-
-from big_mood_detector.interfaces.cli.main import cli  # type: ignore # noqa: E402
+from big_mood_detector.interfaces.cli.main import cli
 
 
 def _create_csv(path, col_name, data):
