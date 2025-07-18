@@ -92,6 +92,8 @@ Icon
 # =====================================
 # Temporary & Log Files
 # =====================================
+logs/
+!logs/.gitkeep
 *.log
 *.tmp
 *.temp

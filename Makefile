@@ -174,6 +174,10 @@ clean:
 	find . -type d -name ".mypy_cache" -exec rm -rf {} +
 	find . -type d -name "dist" -exec rm -rf {} +
 	find . -type d -name "build" -exec rm -rf {} +
+	# Clean up log files in logs directory
+	rm -f logs/*.log
+	# Clean up any temporary files
+	rm -f *.tmp *.temp
 
 build: clean
 	python -m build
