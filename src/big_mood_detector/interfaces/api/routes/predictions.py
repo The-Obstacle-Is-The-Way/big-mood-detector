@@ -163,7 +163,10 @@ async def predict_mood(
 
 
 @router.post("/predict/ensemble", response_model=EnsemblePredictionResponse)
-async def predict_mood_ensemble(features: FeatureInput) -> EnsemblePredictionResponse:
+async def predict_mood_ensemble(
+    features: FeatureInput,
+    predictor: MoodPredictor = Depends(get_mood_predictor),
+) -> EnsemblePredictionResponse:
     """
     Generate ensemble mood prediction using all available models.
 

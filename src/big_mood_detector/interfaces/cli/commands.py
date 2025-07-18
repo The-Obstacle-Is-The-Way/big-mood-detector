@@ -462,7 +462,7 @@ def predict_command(
             report_path = (
                 Path(output).with_suffix(".txt")
                 if output
-                else Path(data_dir) / "output" / "clinical_report.txt"
+                else Path(input_path).parent / "output" / "clinical_report.txt"
             )
             generate_clinical_report(result, report_path)
             click.echo(f"✅ Clinical report saved to: {report_path}")

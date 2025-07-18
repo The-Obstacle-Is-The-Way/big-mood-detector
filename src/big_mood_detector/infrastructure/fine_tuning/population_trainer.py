@@ -137,43 +137,58 @@ except ImportError:
     nn = None  # type: ignore
 
 
-class TaskHead:
-    """Task-specific head for PAT model."""
+if TORCH_AVAILABLE:
+    class TaskHead(nn.Module):
+        """Task-specific head for PAT model."""
 
-    def __init__(
-        self,
-        input_dim: int = 768,
-        hidden_dim: int = 256,
-        num_classes: int = 2,
-        dropout: float = 0.2,
-    ):
-        """Initialize task head.
+        def __init__(
+            self,
+            input_dim: int = 768,
+            hidden_dim: int = 256,
+            num_classes: int = 2,
+            dropout: float = 0.2,
+        ):
+            """Initialize task head.
 
-        Args:
-            input_dim: Input dimension from encoder
-            hidden_dim: Hidden layer dimension
-            num_classes: Number of output classes
-            dropout: Dropout probability
-        """
-        super().__init__()
+            Args:
+                input_dim: Input dimension from encoder
+                hidden_dim: Hidden layer dimension
+                num_classes: Number of output classes
+                dropout: Dropout probability
+            """
+            super().__init__()
 
-        self.layers = nn.Sequential(
-            nn.Linear(input_dim, hidden_dim),
-            nn.ReLU(),
-            nn.Dropout(dropout),
-            nn.Linear(hidden_dim, hidden_dim // 2),
-            nn.ReLU(),
-            nn.Dropout(dropout),
-            nn.Linear(hidden_dim // 2, num_classes),
-        )
+            self.layers = nn.Sequential(
+                nn.Linear(input_dim, hidden_dim),
+                nn.ReLU(),
+                nn.Dropout(dropout),
+                nn.Linear(hidden_dim, hidden_dim // 2),
+                nn.ReLU(),
+                nn.Dropout(dropout),
+                nn.Linear(hidden_dim // 2, num_classes),
+            )
 
-        self.output_dim = num_classes
+            self.output_dim = num_classes
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """Forward pass."""
-        result = self.layers(x)
-        assert isinstance(result, torch.Tensor)
-        return result
+        def forward(self, x: torch.Tensor) -> torch.Tensor:
+            """Forward pass."""
+            result = self.layers(x)
+            assert isinstance(result, torch.Tensor)
+            return result
+
+else:
+    # Protocol stub when torch not available
+    from typing import Protocol, Iterable
+    
+    @runtime_checkable
+    class TaskHead(Protocol):
+        """Protocol for TaskHead when torch is not available."""
+        output_dim: int
+        
+        def parameters(self) -> Iterable[Any]: ...
+        def train(self, mode: bool = True) -> Any: ...
+        def eval(self) -> Any: ...
+        def __call__(self, x: Any) -> Any: ...
 
 
 def load_pat_model(model_path: str) -> Any:
@@ -360,7 +375,7 @@ if TORCH_AVAILABLE:
         def save_model(
             self,
             encoder: Any,
-            task_head: nn.Module,
+            task_head: Any,  # Can be nn.Module or TaskHead protocol
             task_name: str,
             metrics: dict[str, float],
         ) -> Path:

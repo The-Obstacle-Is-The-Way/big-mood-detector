@@ -30,7 +30,7 @@ class EpisodeCreateRequest(BaseModel):
     
     @field_validator('end_date')
     @classmethod
-    def validate_date_range(cls, v: date | None, info) -> date | None:
+    def validate_date_range(cls, v: date | None, info: Any) -> date | None:
         """Ensure end_date is after start_date if provided."""
         if v is not None and 'start_date' in info.data:
             if v < info.data['start_date']:

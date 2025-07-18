@@ -39,7 +39,7 @@ class FeatureExtractionResponse(BaseModel):
 @router.post("/extract", response_model=FeatureExtractionResponse)
 async def extract_features(
     file: UploadFile = File(...),
-    pipeline = Depends(get_mood_pipeline),
+    pipeline: MoodPredictionPipeline = Depends(get_mood_pipeline),
 ) -> FeatureExtractionResponse:
     """
     Extract clinical features from uploaded health data.
@@ -109,12 +109,12 @@ async def extract_features(
         # 2. Determine date range from the data
         from datetime import date as dt_date
         all_dates = []
-        for record in parsed_data.sleep_records:
-            all_dates.append(record.start_date.date())
-        for record in parsed_data.activity_records:
-            all_dates.append(record.start_date.date())
-        for record in parsed_data.heart_rate_records:
-            all_dates.append(record.timestamp.date())
+        for sleep_record in parsed_data.sleep_records:
+            all_dates.append(sleep_record.start_date.date())
+        for activity_record in parsed_data.activity_records:
+            all_dates.append(activity_record.start_date.date())
+        for hr_record in parsed_data.heart_rate_records:
+            all_dates.append(hr_record.timestamp.date())
         
         if not all_dates:
             raise HTTPException(

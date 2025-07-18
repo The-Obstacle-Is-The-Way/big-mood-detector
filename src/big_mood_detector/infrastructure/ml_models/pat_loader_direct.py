@@ -231,7 +231,7 @@ class DirectPATModel:
 
         output = tf.matmul(attention_output, out_kernel) + out_bias
 
-        return output  # type: ignore[no-any-return]
+        return output
 
     def _get_sinusoidal_embeddings(self, num_patches: int, embed_dim: int) -> tf.Tensor:
         """Generate sinusoidal positional embeddings (from original PAT implementation)."""
@@ -249,7 +249,7 @@ class DirectPATModel:
         pos_embeddings = tf.concat([sin_embeddings, cos_embeddings], axis=-1)
 
         # Add batch dimension
-        return pos_embeddings[tf.newaxis, :, :]  # type: ignore[no-any-return]
+        return pos_embeddings[tf.newaxis, :, :]
 
     def _layer_norm(
         self,

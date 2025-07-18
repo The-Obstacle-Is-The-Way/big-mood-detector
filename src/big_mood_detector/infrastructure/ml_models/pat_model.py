@@ -310,7 +310,7 @@ class PATModel:
             [tf.sin(position * div_term), tf.cos(position * div_term)], axis=-1
         )
 
-        return pos_embeddings  # type: ignore[no-any-return]
+        return pos_embeddings
 
     def get_model_info(self) -> dict:
         """

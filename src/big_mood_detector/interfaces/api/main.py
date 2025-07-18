@@ -29,7 +29,7 @@ app = FastAPI(
 
 # Ensure directories exist on startup
 @app.on_event("startup")
-async def startup_event():
+async def startup_event() -> None:
     """Ensure required directories exist when the API starts."""
     settings = get_settings()
     settings.ensure_directories()

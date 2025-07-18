@@ -12,9 +12,10 @@ try:
     from .pat_model import PATFeatureExtractor, PATModel
     PAT_AVAILABLE = True
 except ImportError:
+    from typing import Any
     PAT_AVAILABLE = False
-    PATModel = None
-    PATFeatureExtractor = None
+    PATModel = Any  # type: ignore
+    PATFeatureExtractor = Any  # type: ignore
 
 # Single source of truth for PAT implementation
 # The DirectPATModel is used internally by PATModel
