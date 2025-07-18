@@ -43,7 +43,7 @@ class TestSQLiteEpisodeRepository:
             SQLiteEpisodeRepository,
         )
 
-        repo = SQLiteEpisodeRepository(db_path=temp_db)
+        _ = SQLiteEpisodeRepository(db_path=temp_db)
 
         # Verify tables were created
         conn = sqlite3.connect(temp_db)

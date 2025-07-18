@@ -4,7 +4,6 @@ SQLite Episode Repository
 Provides SQLite-based persistence for episode labels.
 """
 
-import json
 import sqlite3
 import threading
 from datetime import date, datetime
@@ -106,8 +105,8 @@ class SQLiteEpisodeRepository:
 
                     cursor.execute(
                         """
-                        INSERT OR REPLACE INTO episodes 
-                        (start_date, end_date, episode_type, severity, notes, 
+                        INSERT OR REPLACE INTO episodes
+                        (start_date, end_date, episode_type, severity, notes,
                          rater_id, labeled_at, duration_days)
                         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                     """,
@@ -215,7 +214,7 @@ class SQLiteEpisodeRepository:
 
             cursor.execute(
                 """
-                SELECT * FROM episodes 
+                SELECT * FROM episodes
                 WHERE start_date >= ? AND end_date <= ?
                 ORDER BY start_date
             """,
@@ -243,7 +242,7 @@ class SQLiteEpisodeRepository:
 
             cursor.execute(
                 """
-                SELECT * FROM episodes 
+                SELECT * FROM episodes
                 WHERE rater_id = ?
                 ORDER BY start_date
             """,

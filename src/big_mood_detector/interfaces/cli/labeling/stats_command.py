@@ -5,7 +5,6 @@ Display statistics about labeled episodes.
 """
 
 from collections import Counter
-from datetime import datetime
 from pathlib import Path
 
 import click
@@ -80,8 +79,6 @@ def label_stats_command(
 
     if format == "json":
         # JSON output
-        import json
-
         stats = {
             "total_episodes": total_episodes,
             "total_baselines": total_baselines,
