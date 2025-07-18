@@ -218,6 +218,50 @@ Based on peer-reviewed studies (research cohorts, not clinical trials):
 - **Not validated** for real-world clinical deployment
 - Results represent research potential, not clinical diagnostic capability
 
+## ⚙️ Configuration & Feature Flags
+
+### Environment Variables
+
+The application uses environment variables for configuration. Copy `.env.example` to `.env` and customize:
+
+```bash
+# Core Settings
+LOG_LEVEL=INFO                    # DEBUG, INFO, WARNING, ERROR
+ENVIRONMENT=production            # local, staging, production
+DATA_DIR=/data                    # Base directory for data storage
+
+# Model Configuration
+XGBOOST_MODEL_PATH=/model_weights/xgboost/converted
+PAT_DISABLE=0                     # Set to 1 to disable PAT model (if TensorFlow unavailable)
+
+# API Settings
+PORT=8000                         # API server port
+WORKERS=4                         # Number of Gunicorn workers
+TIMEOUT=120                       # Request timeout in seconds
+
+# Feature Flags
+ENABLE_ASYNC_UPLOAD=false         # Enable async file upload endpoints (default: false)
+```
+
+### Feature Flags
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `ENABLE_ASYNC_UPLOAD` | `false` | Enables `/api/v1/upload/*` endpoints for async file processing. Only enable if you have a background worker configured. |
+| `PAT_DISABLE` | `0` | Disables PAT transformer model loading. Useful when TensorFlow is not available or to reduce memory usage. |
+| `USE_PAT_MODEL` | `false` | Whether to use PAT model in ensemble predictions (requires TensorFlow). |
+
+### Docker Configuration
+
+When running with Docker, model weights are mounted at runtime for better caching:
+
+```yaml
+volumes:
+  - ./model_weights:/model_weights:ro  # Mount models at runtime
+environment:
+  - XGBOOST_MODEL_PATH=/model_weights/xgboost/converted
+```
+
 ## 🏗️ Architecture
 
 **Clean Architecture** with strict separation of concerns:
