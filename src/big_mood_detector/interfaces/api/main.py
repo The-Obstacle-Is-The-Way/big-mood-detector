@@ -11,6 +11,8 @@ from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 
 from big_mood_detector.interfaces.api.clinical_routes import router as clinical_router
+from big_mood_detector.interfaces.api.routes.labels import router as labels_router
+from big_mood_detector.interfaces.api.routes.predictions import router as predictions_router
 from big_mood_detector.interfaces.api.routes.upload import router as upload_router
 
 app = FastAPI(
@@ -20,8 +22,10 @@ app = FastAPI(
 )
 
 # Include routers
-app.include_router(clinical_router)
-app.include_router(upload_router)
+app.include_router(clinical_router, prefix="/api/v1/clinical", tags=["clinical"])
+app.include_router(labels_router, prefix="/labels", tags=["labels"])
+app.include_router(predictions_router, prefix="/predictions", tags=["predictions"])
+app.include_router(upload_router, prefix="/upload", tags=["upload"])
 
 
 @app.get("/health")
@@ -35,6 +39,12 @@ async def health_check() -> JSONResponse:
             "version": "0.1.0",
         },
     )
+
+
+@app.get("/healthz")
+async def healthz() -> dict[str, str]:
+    """Kubernetes-style health check endpoint."""
+    return {"status": "ok"}
 
 
 @app.get("/")
