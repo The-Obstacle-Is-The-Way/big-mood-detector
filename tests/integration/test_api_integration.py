@@ -27,44 +27,17 @@ class TestPredictionsAPI:
     def sample_features(self) -> dict[str, Any]:
         """Create sample feature payload."""
         return {
-            "features": {
-                "sleep_duration_hours": 7.5,
-                "sleep_efficiency": 0.85,
-                "sleep_onset_hour": 23.0,
-                "wake_time_hour": 6.5,
-                "sleep_midpoint_hour": 2.75,
-                "sleep_regularity_index": 85.0,
-                "social_jet_lag_hours": 0.5,
-                "weekday_weekend_difference": 0.75,
-                "total_episodes": 1,
-                "fragmentation_index": 0.1,
-                "wake_after_sleep_onset": 30.0,
-                "longest_sleep_episode": 7.0,
-                "short_sleep_percent": 0.0,
-                "long_sleep_percent": 0.0,
-                "heart_rate_mean": 65.0,
-                "heart_rate_std": 8.0,
-                "hrv_mean": 45.0,
-                "hrv_std": 12.0,
-                "resting_heart_rate": 58.0,
-                "activity_calories": 350.0,
-                "basal_calories": 1500.0,
-                "total_distance_km": 5.5,
-                "step_count": 8000,
-                "flights_climbed": 10,
-                "stand_hours": 12,
-                "exercise_minutes": 30,
-                "high_intensity_minutes": 10,
-                "activity_level_sedentary": 600,
-                "activity_level_light": 180,
-                "activity_level_moderate": 30,
-                "activity_level_vigorous": 10,
-                "correlation_sleep_activity": 0.3,
-                "phase_alignment_score": 0.8,
-                "disruption_index": 0.2,
-                "stability_score": 0.85,
-                "quality_score": 0.8
-            }
+            "sleep_duration": 7.5,
+            "sleep_efficiency": 0.85,
+            "sleep_timing_variance": 1.2,
+            "daily_steps": 8000,
+            "activity_variance": 2500.0,
+            "sedentary_hours": 14.5,
+            "interdaily_stability": 0.85,
+            "intradaily_variability": 0.65,
+            "relative_amplitude": 0.78,
+            "resting_hr": 65.0,
+            "hrv_rmssd": 45.0
         }
 
     def test_health_check(self, client: TestClient) -> None:
@@ -79,24 +52,26 @@ class TestPredictionsAPI:
         assert response.status_code == 200
         
         data = response.json()
-        assert "prediction" in data
-        assert "probability" in data
-        assert "model_version" in data
-        assert "features_used" in data
+        assert "depression_risk" in data
+        assert "hypomanic_risk" in data
+        assert "manic_risk" in data
+        assert "confidence" in data
+        assert "risk_level" in data
+        assert "interpretation" in data
         
         # Validate prediction values
-        assert data["prediction"] in ["stable", "at_risk", "unstable"]
-        assert 0 <= data["probability"] <= 1
-        assert isinstance(data["features_used"], list)
+        assert data["risk_level"] in ["low", "moderate", "high", "critical"]
+        assert 0 <= data["depression_risk"] <= 1
+        assert 0 <= data["hypomanic_risk"] <= 1
+        assert 0 <= data["manic_risk"] <= 1
+        assert 0 <= data["confidence"] <= 1
 
     def test_predict_xgboost_missing_features(self, client: TestClient) -> None:
         """Test XGBoost prediction with missing features."""
         incomplete_features = {
-            "features": {
-                "sleep_duration_hours": 7.5,
-                "sleep_efficiency": 0.85
-                # Missing many required features
-            }
+            "sleep_duration": 7.5,
+            "sleep_efficiency": 0.85
+            # Missing required features: sleep_timing_variance, daily_steps, activity_variance, sedentary_hours
         }
         response = client.post("/api/v1/predictions/predict", json=incomplete_features)
         assert response.status_code == 422
@@ -104,7 +79,7 @@ class TestPredictionsAPI:
     def test_predict_xgboost_invalid_values(self, client: TestClient, sample_features: dict) -> None:
         """Test XGBoost prediction with invalid feature values."""
         invalid_features = sample_features.copy()
-        invalid_features["features"]["sleep_efficiency"] = 1.5  # Invalid: > 1.0
+        invalid_features["sleep_efficiency"] = 1.5  # Invalid: > 1.0
         
         response = client.post("/api/v1/predictions/predict", json=invalid_features)
         assert response.status_code == 422
@@ -177,7 +152,7 @@ class TestLabelsAPI:
 
     def test_get_nonexistent_episode(self, client: TestClient) -> None:
         """Test getting an episode that doesn't exist."""
-        response = client.get("/labels/episodes/nonexistent-id")
+        response = client.get("/api/v1/labels/episodes/nonexistent-id")
         assert response.status_code == 404
 
     def test_delete_episode(self, client: TestClient, sample_episode: dict) -> None:
@@ -188,7 +163,7 @@ class TestLabelsAPI:
         created_id = create_response.json()["id"]
         
         # Delete episode
-        delete_response = client.delete(f"/labels/episodes/{created_id}")
+        delete_response = client.delete(f"/api/v1/labels/episodes/{created_id}")
         assert delete_response.status_code == 204
         
         # Verify it's gone
