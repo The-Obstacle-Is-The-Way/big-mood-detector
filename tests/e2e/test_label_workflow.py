@@ -190,7 +190,7 @@ class TestLabelWorkflowE2E:
                 "label",
                 "episode",
                 "--date-range",
-                "2024-04-10:2024-04-17",
+                "2024-04-10:2024-04-24",
                 "--mood",
                 "depressive",
                 "--severity",
@@ -201,6 +201,9 @@ class TestLabelWorkflowE2E:
                 str(temp_db),
             ],
         )
+        if result.exit_code != 0:
+            print(f"Error output: {result.output}")
+            print(f"Exception: {result.exception}")
         assert result.exit_code == 0
 
         # When: Check statistics
