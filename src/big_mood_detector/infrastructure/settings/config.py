@@ -31,7 +31,7 @@ class Settings(BaseSettings):
 
     # Paths
     DATA_DIR: Path = Path(os.environ.get("DATA_DIR", "data"))
-    MODEL_WEIGHTS_PATH: Path = Field(default_factory=lambda: Path(os.environ.get("DATA_DIR", "data")) / "model_weights/xgboost/converted")
+    MODEL_WEIGHTS_PATH: Path = Field(default_factory=lambda: Path("model_weights/xgboost/converted"))
     OUTPUT_DIR: Path = Field(default_factory=lambda: Path(os.environ.get("DATA_DIR", "data")) / "output")
     UPLOAD_DIR: Path = Field(default_factory=lambda: Path(os.environ.get("DATA_DIR", "data")) / "uploads")
     TEMP_DIR: Path = Field(default_factory=lambda: Path(os.environ.get("DATA_DIR", "data")) / "temp")

@@ -120,8 +120,7 @@ __pycache__/
 # Ignore any personal experiment results
 experiments/
 results/
-output/
-data/
+datasets/
 !converted_markdown/
 
 # Model outputs and fine-tuned weights
@@ -135,10 +134,12 @@ models/
 # Personal Health Data - CRITICAL SECURITY
 # =====================================
 # NEVER commit personal health data to version control
-apple_export/
+data/input/
+data/output/
+data/uploads/
+data/temp/
 personal_data/
 health_exports/
-health_auto_export/
 *.zip
 *.xml
 export.xml
