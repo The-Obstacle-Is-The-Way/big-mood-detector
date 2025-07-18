@@ -13,7 +13,8 @@ from fastapi import APIRouter, File, HTTPException, UploadFile
 from pydantic import BaseModel
 
 from big_mood_detector.application.use_cases.process_health_data_use_case import (
-    ProcessHealthDataUseCase,
+    MoodPredictionPipeline,
+    PipelineConfig,
 )
 from big_mood_detector.infrastructure.di.container import get_container
 from big_mood_detector.infrastructure.logging import get_module_logger
