@@ -198,29 +198,39 @@ class TestFeatureExtraction:
 
     @pytest.fixture
     def sample_health_data(self, tmp_path: Path) -> Path:
-        """Create sample health data file."""
-        # Create minimal valid JSON health data
-        data = {
-            "sleep_records": [
-                {
-                    "start_date": "2024-01-01T23:00:00",
-                    "end_date": "2024-01-02T07:00:00",
-                    "value": "InBed",
-                }
-            ],
-            "heart_rate_records": [{"date": "2024-01-02T06:00:00", "value": 65}],
-            "activity_records": [
-                {
-                    "date": "2024-01-02T12:00:00",
-                    "active_calories": 250,
-                    "step_count": 5000,
-                }
-            ],
-        }
-
-        file_path = tmp_path / "health_data.json"
+        """Create sample Apple Health XML export file."""
+        # Create minimal valid XML health data
+        xml_content = """<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE HealthData [
+<!ELEMENT HealthData (Record+)>
+<!ATTLIST HealthData
+  locale CDATA #IMPLIED>
+<!ELEMENT Record EMPTY>
+<!ATTLIST Record
+  type CDATA #REQUIRED
+  sourceName CDATA #REQUIRED
+  startDate CDATA #REQUIRED
+  endDate CDATA #REQUIRED
+  value CDATA #IMPLIED>
+]>
+<HealthData locale="en_US">
+  <Record type="HKCategoryTypeIdentifierSleepAnalysis" sourceName="Apple Watch" 
+          startDate="2024-01-01 23:00:00 -0500" endDate="2024-01-02 07:00:00 -0500" 
+          value="HKCategoryValueSleepAnalysisInBed"/>
+  <Record type="HKQuantityTypeIdentifierHeartRate" sourceName="Apple Watch" 
+          startDate="2024-01-02 06:00:00 -0500" endDate="2024-01-02 06:00:00 -0500" 
+          value="65"/>
+  <Record type="HKQuantityTypeIdentifierActiveEnergyBurned" sourceName="Apple Watch" 
+          startDate="2024-01-02 12:00:00 -0500" endDate="2024-01-02 12:00:00 -0500" 
+          value="250"/>
+  <Record type="HKQuantityTypeIdentifierStepCount" sourceName="Apple Watch" 
+          startDate="2024-01-02 12:00:00 -0500" endDate="2024-01-02 12:00:00 -0500" 
+          value="5000"/>
+</HealthData>
+"""
+        file_path = tmp_path / "export.xml"
         with open(file_path, "w") as f:
-            json.dump(data, f)
+            f.write(xml_content)
 
         return file_path
 
@@ -231,7 +241,7 @@ class TestFeatureExtraction:
         with open(sample_health_data, "rb") as f:
             response = client.post(
                 "/api/v1/features/extract",
-                files={"file": ("health_data.json", f, "application/json")},
+                files={"file": ("export.xml", f, "application/xml")},
             )
 
         assert response.status_code == 200

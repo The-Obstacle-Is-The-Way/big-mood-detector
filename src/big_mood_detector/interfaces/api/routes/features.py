@@ -19,7 +19,6 @@ from big_mood_detector.application.services.data_parsing_service import DataPars
 from big_mood_detector.domain.services.clinical_feature_extractor import (
     ClinicalFeatureExtractor,
 )
-from big_mood_detector.infrastructure.di.container import get_container, setup_dependencies
 from big_mood_detector.infrastructure.logging import get_module_logger
 
 logger = get_module_logger(__name__)
@@ -73,19 +72,47 @@ async def extract_features(file: UploadFile = File(...)) -> FeatureExtractionRes
             tmp_file.write(content)
             tmp_path = Path(tmp_file.name)
 
-        # Process the file
-        container = get_container()
+        # Process the file - currently only XML is supported for feature extraction
+        if file_ext == ".xml":
+            # Parse Apple Health XML export
+            parsing_service = DataParsingService()
+            parsed_data = parsing_service.parse_xml_export(tmp_path)
+        else:
+            # JSON support would require directory structure (Health Auto Export format)
+            # For now, only XML is supported for single file upload
+            raise HTTPException(
+                status_code=400,
+                detail="Currently only XML Apple Health exports are supported. "
+                       "For Health Auto Export JSON files, use the batch upload endpoint.",
+            )
         
-        # Parse the data
-        parsing_service: DataParsingService = container.resolve(DataParsingService)
-        parsed_data = parsing_service.parse_health_data(tmp_path)
+        # Determine date range from the data
+        from datetime import date as dt_date
+        all_dates = []
+        for record in parsed_data.sleep_records:
+            all_dates.append(record.start_date.date())
+            all_dates.append(record.end_date.date())
+        for record in parsed_data.activity_records:
+            all_dates.append(record.start_date.date())
+        for record in parsed_data.heart_rate_records:
+            all_dates.append(record.start_date.date())
+        
+        if not all_dates:
+            raise HTTPException(
+                status_code=400, detail="No data found in the uploaded file"
+            )
+        
+        start_date = min(all_dates)
+        end_date = max(all_dates)
         
         # Aggregate records
-        aggregation_pipeline: AggregationPipeline = container.resolve(AggregationPipeline)
-        daily_features = aggregation_pipeline.aggregate_daily(
+        aggregation_pipeline = AggregationPipeline()
+        daily_features_list = aggregation_pipeline.aggregate_daily_features(
             sleep_records=parsed_data.sleep_records,
             activity_records=parsed_data.activity_records,
-            heart_rate_records=parsed_data.heart_rate_records,
+            heart_records=parsed_data.heart_rate_records,
+            start_date=start_date,
+            end_date=end_date,
         )
         
         # Extract clinical features for the most recent day
@@ -99,7 +126,7 @@ async def extract_features(file: UploadFile = File(...)) -> FeatureExtractionRes
         latest_features = daily_features[latest_date]
         
         # Extract clinical features
-        clinical_extractor: ClinicalFeatureExtractor = container.resolve(ClinicalFeatureExtractor)
+        clinical_extractor = ClinicalFeatureExtractor()
         feature_set = clinical_extractor.extract_clinical_features(
             sleep_records=parsed_data.sleep_records,
             activity_records=parsed_data.activity_records,
