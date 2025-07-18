@@ -13,6 +13,7 @@ from big_mood_detector.domain.services.episode_labeler import EpisodeLabeler
 from big_mood_detector.infrastructure.logging import get_module_logger
 from big_mood_detector.interfaces.cli.utils import console
 
+from .import_command import label_import_command
 from .interactive import InteractiveSession
 from .stats_command import label_export_command, label_stats_command
 from .validators import ClinicalValidator, parse_date_range
@@ -326,3 +327,4 @@ def label_undo_command(db: Path | None) -> None:
 # Register additional commands
 label_group.add_command(label_stats_command)
 label_group.add_command(label_export_command)
+label_group.add_command(label_import_command)

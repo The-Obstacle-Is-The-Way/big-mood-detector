@@ -27,8 +27,17 @@ from big_mood_detector.interfaces.cli.utils import console
     default="table",
     help="Output format",
 )
+@click.option(
+    "--detailed",
+    is_flag=True,
+    help="Show detailed statistics",
+)
 def label_stats_command(
-    db: Path | None, rater: str | None, date_range: str | None, format: str
+    db: Path | None,
+    rater: str | None,
+    date_range: str | None,
+    format: str,
+    detailed: bool,
 ) -> None:
     """Display statistics about labeled episodes."""
     labeler = EpisodeLabeler()
@@ -121,6 +130,38 @@ def label_stats_command(
 
             console.print(table)
 
+        # Show detailed stats if requested
+        if detailed:
+            console.print("\n[bold cyan]Detailed Statistics[/bold cyan]")
+
+            # Episode duration stats
+            if labeler.episodes:
+                durations = []
+                for ep in labeler.episodes:
+                    if "duration_days" in ep:
+                        durations.append(ep["duration_days"])
+
+                if durations:
+                    avg_duration = sum(durations) / len(durations)
+                    console.print(
+                        f"[dim]Average episode duration: {avg_duration:.1f} days[/dim]"
+                    )
+                    console.print(f"[dim]Shortest episode: {min(durations)} days[/dim]")
+                    console.print(f"[dim]Longest episode: {max(durations)} days[/dim]")
+
+            # Severity distribution
+            if episode_types:
+                severities = [ep.get("severity", 0) for ep in labeler.episodes]
+                if severities:
+                    avg_severity = sum(severities) / len(severities)
+                    console.print(f"\n[dim]Average severity: {avg_severity:.1f}[/dim]")
+
+            # Inter-episode intervals
+            if len(labeler.episodes) > 1:
+                console.print(
+                    f"\n[dim]Inter-episode analysis available for {len(labeler.episodes)} episodes[/dim]"
+                )
+
 
 @click.command(name="export")
 @click.option(
@@ -138,7 +179,14 @@ def label_stats_command(
     default="csv",
     help="Export format",
 )
-def label_export_command(db: Path | None, output: Path, format: str) -> None:
+@click.option(
+    "--verbose",
+    is_flag=True,
+    help="Show detailed export information",
+)
+def label_export_command(
+    db: Path | None, output: Path, format: str, verbose: bool
+) -> None:
     """Export labeled episodes to file."""
     labeler = EpisodeLabeler()
 
@@ -155,8 +203,18 @@ def label_export_command(db: Path | None, output: Path, format: str) -> None:
         console.print("[yellow]No data to export[/yellow]")
         return
 
+    # Show verbose info if requested
+    if verbose:
+        console.print(f"[dim]Loading data from: {db or 'memory'}[/dim]")
+        console.print(
+            f"[dim]Found {len(labeler.episodes)} episodes and {len(labeler.baseline_periods)} baselines[/dim]"
+        )
+
     # Export to dataframe
     df = labeler.to_dataframe()
+
+    if verbose:
+        console.print(f"[dim]Converting to DataFrame with {len(df)} rows[/dim]")
 
     if format == "csv":
         df.to_csv(output, index=False)
@@ -164,3 +222,7 @@ def label_export_command(db: Path | None, output: Path, format: str) -> None:
         df.to_json(output, orient="records", indent=2)
 
     console.print(f"[green]✓ Exported to {output}[/green]")
+
+    if verbose:
+        console.print(f"[dim]Export format: {format.upper()}[/dim]")
+        console.print(f"[dim]File size: {output.stat().st_size} bytes[/dim]")

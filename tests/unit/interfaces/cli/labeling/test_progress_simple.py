@@ -4,9 +4,6 @@ Test Simple Progress Features for Label CLI
 Tests for basic progress indicators during labeling operations.
 """
 
-from pathlib import Path
-from unittest.mock import MagicMock, patch
-
 import pytest
 from click.testing import CliRunner
 
@@ -46,20 +43,20 @@ class TestSimpleProgress:
         """Test that export can show verbose output."""
         # Given: A database with episodes
         db_path = tmp_path / "test.db"
-        
+
         # Create test data
         from big_mood_detector.domain.services.episode_labeler import EpisodeLabeler
         from big_mood_detector.infrastructure.repositories.sqlite_episode_repository import (
             SQLiteEpisodeRepository,
         )
-        
+
         labeler = EpisodeLabeler()
         labeler.add_episode(
             date="2024-01-01",
             episode_type="depressive",
             severity=3,
         )
-        
+
         repo = SQLiteEpisodeRepository(db_path)
         repo.save_labeler(labeler)
 
@@ -84,9 +81,15 @@ class TestSimpleProgress:
 
     def test_stats_with_detailed_flag(self, runner, tmp_path):
         """Test that stats can show detailed output."""
-        # Given: A database
+        # Given: A database that exists (even if empty)
         db_path = tmp_path / "test.db"
-        
+        # Create empty database
+        from big_mood_detector.infrastructure.repositories.sqlite_episode_repository import (
+            SQLiteEpisodeRepository,
+        )
+
+        SQLiteEpisodeRepository(db_path)
+
         # When: Getting stats with detailed flag
         result = runner.invoke(
             cli,
@@ -100,10 +103,11 @@ class TestSimpleProgress:
         )
 
         # Then: Command should handle the flag
+        if result.exit_code != 0:
+            print(f"Error: {result.output}")
         assert result.exit_code == 0
 
-    @patch("big_mood_detector.interfaces.cli.utils.console")
-    def test_import_shows_count_messages(self, mock_console, runner, tmp_path):
+    def test_import_shows_count_messages(self, runner, tmp_path):
         """Test that import shows count of imported episodes."""
         # Given: A CSV file with episodes
         csv_file = tmp_path / "episodes.csv"
@@ -124,8 +128,12 @@ class TestSimpleProgress:
         )
 
         # Then: Should show import count
-        mock_console.print.assert_called()
-        
+        if result.exit_code != 0:
+            print(f"Import error: {result.output}")
+            print(f"Exception: {result.exception}")
+        assert result.exit_code == 0
+        assert "Imported 2 episodes" in result.output
+
     def test_quiet_mode_suppresses_output(self, runner):
         """Test that --quiet flag suppresses output."""
         # When: Running with quiet flag
