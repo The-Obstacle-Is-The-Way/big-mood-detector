@@ -559,18 +559,8 @@ class XGBoostPopulationTrainer(PopulationTrainer):
 
 
 else:
-    # Dummy class when torch not available
-    class PATPopulationTrainer(PopulationTrainer):
-        """PAT trainer stub when PyTorch not available."""
-        
-        def __init__(self, *args: Any, **kwargs: Any):
-            raise ImportError("PyTorch is required for PAT population training")
-            
-        def train(self, *args: Any, **kwargs: Any) -> dict[str, float]:
-            raise ImportError("PyTorch is required for PAT population training")
-            
-        def save_model(self, *args: Any, **kwargs: Any) -> Path:
-            raise ImportError("PyTorch is required for PAT population training")
+    # Don't create a stub class - just don't export it
+    PATPopulationTrainer = None  # type: ignore
 
 
 def create_population_trainer(

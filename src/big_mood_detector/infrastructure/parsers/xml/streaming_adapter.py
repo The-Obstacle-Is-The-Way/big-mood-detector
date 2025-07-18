@@ -11,6 +11,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+from dateutil import parser as date_parser
+
 from big_mood_detector.domain.entities.activity_record import ActivityRecord
 from big_mood_detector.domain.entities.heart_rate_record import HeartRateRecord
 from big_mood_detector.domain.entities.sleep_record import SleepRecord
@@ -80,25 +82,26 @@ class StreamingXMLParser:
                         # Apple Health uses startDate attribute
                         record_date_str = record_data.get("startDate", "")
                         if record_date_str:
-                            # Parse date (format: "2024-01-15 10:30:00 -0700")
+                            # Parse date with timezone awareness
                             try:
-                                record_date = datetime.strptime(
-                                    record_date_str[:10], "%Y-%m-%d"
-                                ).date()
+                                # Parse the full datetime string with timezone
+                                record_datetime = date_parser.parse(record_date_str)
+                                # Convert to UTC for consistent comparison
+                                record_date_utc = record_datetime.date()
                                 
                                 # Apply date filters
                                 if start_date:
                                     start = datetime.strptime(start_date, "%Y-%m-%d").date()
-                                    if record_date < start:
+                                    if record_date_utc < start:
                                         elem.clear()
                                         continue
                                         
                                 if end_date:
                                     end = datetime.strptime(end_date, "%Y-%m-%d").date()
-                                    if record_date > end:
+                                    if record_date_utc > end:
                                         elem.clear()
                                         continue
-                            except ValueError:
+                            except (ValueError, TypeError) as e:
                                 # Skip records with invalid dates
                                 elem.clear()
                                 continue
