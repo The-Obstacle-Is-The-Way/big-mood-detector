@@ -176,7 +176,9 @@ class ClinicalInterpreter:
         if config is None:
             # Try to use settings if available, otherwise fall back to environment variable
             try:
-                from big_mood_detector.infrastructure.settings.config import get_settings
+                from big_mood_detector.infrastructure.settings.config import (
+                    get_settings,
+                )
                 settings = get_settings()
                 # Check in the root config directory first, then in data directory
                 config_path = Path("config/clinical_thresholds.yaml")
@@ -186,7 +188,7 @@ class ClinicalInterpreter:
                 # Fallback for tests or when settings module is not available
                 import os
                 config_path = Path(os.environ.get("CLINICAL_CONFIG_PATH", "config/clinical_thresholds.yaml"))
-            
+
             if config_path.exists():
                 config = load_clinical_thresholds(config_path)
             else:

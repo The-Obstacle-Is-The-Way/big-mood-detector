@@ -88,20 +88,20 @@ class StreamingXMLParser:
                                 record_datetime = date_parser.parse(record_date_str)
                                 # Convert to UTC for consistent comparison
                                 record_date_utc = record_datetime.date()
-                                
+
                                 # Apply date filters
                                 if start_date:
                                     start = datetime.strptime(start_date, "%Y-%m-%d").date()
                                     if record_date_utc < start:
                                         elem.clear()
                                         continue
-                                        
+
                                 if end_date:
                                     end = datetime.strptime(end_date, "%Y-%m-%d").date()
                                     if record_date_utc > end:
                                         elem.clear()
                                         continue
-                            except (ValueError, TypeError) as e:
+                            except (ValueError, TypeError):
                                 # Skip records with invalid dates
                                 elem.clear()
                                 continue

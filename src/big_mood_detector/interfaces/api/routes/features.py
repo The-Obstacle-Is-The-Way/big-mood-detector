@@ -9,15 +9,11 @@ from pathlib import Path
 from tempfile import NamedTemporaryFile
 from typing import Any
 
-from fastapi import APIRouter, File, HTTPException, UploadFile, Depends
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 from pydantic import BaseModel
 
-from big_mood_detector.application.services.aggregation_pipeline import (
-    AggregationPipeline,
-)
-from big_mood_detector.application.services.data_parsing_service import DataParsingService
-from big_mood_detector.domain.services.clinical_feature_extractor import (
-    ClinicalFeatureExtractor,
+from big_mood_detector.application.use_cases.process_health_data_use_case import (
+    MoodPredictionPipeline,
 )
 from big_mood_detector.infrastructure.logging import get_module_logger
 from big_mood_detector.interfaces.api.dependencies import get_mood_pipeline
@@ -83,31 +79,32 @@ async def extract_features(
                 detail="Currently only XML Apple Health exports are supported. "
                        "Please upload an export.xml file from Apple Health.",
             )
-        
+
         # REAL feature extraction pipeline
         logger.info("Starting real feature extraction", filename=file.filename)
-        
+
         # 1. Parse the XML file using DataParsingService
-        from big_mood_detector.application.services.data_parsing_service import DataParsingService
+        from big_mood_detector.application.services.data_parsing_service import (
+            DataParsingService,
+        )
         parsing_service = DataParsingService()
         parsed_data = parsing_service.parse_xml_export(tmp_path)
-        
+
         logger.info(
             "Parsed health data",
             sleep_records=len(parsed_data.sleep_records),
             activity_records=len(parsed_data.activity_records),
             heart_records=len(parsed_data.heart_rate_records),
         )
-        
+
         # Check if we have data
         if not parsed_data.sleep_records:
             raise HTTPException(
                 status_code=422,
                 detail="No sleep data found in the uploaded file. Please ensure the export contains sleep records.",
             )
-        
+
         # 2. Determine date range from the data
-        from datetime import date as dt_date
         all_dates = []
         for sleep_record in parsed_data.sleep_records:
             all_dates.append(sleep_record.start_date.date())
@@ -115,25 +112,25 @@ async def extract_features(
             all_dates.append(activity_record.start_date.date())
         for hr_record in parsed_data.heart_rate_records:
             all_dates.append(hr_record.timestamp.date())
-        
+
         if not all_dates:
             raise HTTPException(
                 status_code=422,
                 detail="No valid dates found in the health data.",
             )
-        
+
         start_date = min(all_dates)
         end_date = max(all_dates)
-        
+
         logger.info(
             "Date range determined",
             start_date=str(start_date),
             end_date=str(end_date),
             days=(end_date - start_date).days + 1,
         )
-        
+
         # 3. Use injected MoodPredictionPipeline for feature extraction
-        
+
         # Extract features using the pipeline
         try:
             # Process the data and extract features
@@ -141,29 +138,29 @@ async def extract_features(
             import tempfile
             with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as tmp_output:
                 output_path = Path(tmp_output.name)
-            
+
             feature_df = pipeline.process_health_export(
                 export_path=tmp_path,
                 output_path=output_path,
                 start_date=start_date,
                 end_date=end_date,
             )
-            
+
             # Clean up temp file
             try:
                 output_path.unlink()
-            except:
+            except Exception:
                 pass
-            
+
             if feature_df.empty:
                 raise HTTPException(
                     status_code=422,
                     detail="Could not extract features from the data. Ensure you have at least 7 days of continuous data.",
                 )
-            
+
             # Get the latest features
             latest_features = feature_df.iloc[-1].to_dict()
-            
+
             # Return the raw 36-feature vector with proper naming
             # This matches the Seoul study exactly
             features = {
@@ -171,12 +168,12 @@ async def extract_features(
                 "sleep_percentage_mean": latest_features.get("sleep_percentage_MN", 0),
                 "sleep_percentage_std": latest_features.get("sleep_percentage_SD", 0),
                 "sleep_percentage_zscore": latest_features.get("sleep_percentage_Z", 0),
-                
+
                 # Sleep amplitude features (3)
                 "sleep_amplitude_mean": latest_features.get("sleep_amplitude_MN", 0),
                 "sleep_amplitude_std": latest_features.get("sleep_amplitude_SD", 0),
                 "sleep_amplitude_zscore": latest_features.get("sleep_amplitude_Z", 0),
-                
+
                 # Long sleep window features (12)
                 "long_sleep_num_mean": latest_features.get("long_num_MN", 0),
                 "long_sleep_num_std": latest_features.get("long_num_SD", 0),
@@ -190,7 +187,7 @@ async def extract_features(
                 "long_sleep_wt_mean": latest_features.get("long_WT_MN", 0),
                 "long_sleep_wt_std": latest_features.get("long_WT_SD", 0),
                 "long_sleep_wt_zscore": latest_features.get("long_WT_Z", 0),
-                
+
                 # Short sleep window features (12)
                 "short_sleep_num_mean": latest_features.get("short_num_MN", 0),
                 "short_sleep_num_std": latest_features.get("short_num_SD", 0),
@@ -204,7 +201,7 @@ async def extract_features(
                 "short_sleep_wt_mean": latest_features.get("short_WT_MN", 0),
                 "short_sleep_wt_std": latest_features.get("short_WT_SD", 0),
                 "short_sleep_wt_zscore": latest_features.get("short_WT_Z", 0),
-                
+
                 # Circadian features (6)
                 "circadian_amplitude_mean": latest_features.get("circadian_amplitude_MN", 0),
                 "circadian_amplitude_std": latest_features.get("circadian_amplitude_SD", 0),
@@ -213,15 +210,15 @@ async def extract_features(
                 "circadian_phase_std": latest_features.get("circadian_phase_SD", 0),
                 "circadian_phase_zscore": latest_features.get("circadian_phase_Z", 0),
             }
-            
+
             processing_time = time.time() - start_time
-            
+
             logger.info(
                 "Feature extraction completed",
                 features_extracted=len(features),
                 processing_time=processing_time,
             )
-            
+
         except HTTPException:
             raise
         except Exception as e:
@@ -230,8 +227,8 @@ async def extract_features(
                 status_code=500,
                 detail=f"Feature extraction failed: {str(e)}",
             ) from e
-        
-        
+
+
         # Build response
         response = FeatureExtractionResponse(
             features=features,
@@ -256,7 +253,7 @@ async def extract_features(
 
     except Exception as e:
         logger.error("Feature extraction failed", error=str(e), filename=file.filename)
-        raise HTTPException(status_code=500, detail=f"Feature extraction failed: {e}")
+        raise HTTPException(status_code=500, detail=f"Feature extraction failed: {e}") from e
     finally:
         # Clean up temporary file
         if "tmp_path" in locals() and tmp_path.exists():

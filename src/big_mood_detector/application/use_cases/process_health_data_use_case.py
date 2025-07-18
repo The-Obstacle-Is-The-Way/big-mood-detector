@@ -142,7 +142,9 @@ class MoodPredictionPipeline:
             # Initialize PAT model if available
             pat_model = None
             if PAT_AVAILABLE:
-                from big_mood_detector.infrastructure.ml_models.pat_model import PATModel
+                from big_mood_detector.infrastructure.ml_models.pat_model import (
+                    PATModel,
+                )
                 pat_model = PATModel()
             else:
                 logger.warning("PAT model not available - TensorFlow not installed")

@@ -28,7 +28,7 @@ class TestOpenAPIContract:
         response = client.get("/openapi.json")
         spec = response.json()
         paths = spec["paths"]
-        
+
         # Core endpoints that must always exist
         critical_endpoints = [
             "/health",
@@ -38,25 +38,25 @@ class TestOpenAPIContract:
             "/api/v1/clinical/thresholds",
             "/api/v1/labels/episodes",
         ]
-        
+
         for endpoint in critical_endpoints:
             assert endpoint in paths, f"Critical endpoint {endpoint} missing from OpenAPI spec"
 
     def test_upload_endpoints_conditional(self, client: TestClient):
         """Test that upload endpoints are only present when enabled."""
         import os
-        
+
         response = client.get("/openapi.json")
         spec = response.json()
         paths = spec["paths"]
-        
+
         upload_endpoints = [
             "/api/v1/upload/file",
             "/api/v1/upload/batch",
             "/api/v1/upload/status/{upload_id}",
             "/api/v1/upload/result/{upload_id}",
         ]
-        
+
         # Check based on environment variable
         if os.environ.get("ENABLE_ASYNC_UPLOAD", "false").lower() == "true":
             for endpoint in upload_endpoints:
@@ -70,7 +70,7 @@ class TestOpenAPIContract:
         response = client.get("/openapi.json")
         spec = response.json()
         paths = spec["paths"]
-        
+
         # Check specific methods
         assert "get" in paths.get("/health", {}), "Health check should support GET"
         assert "post" in paths.get("/api/v1/features/extract", {}), "Feature extract should support POST"
@@ -82,11 +82,11 @@ class TestOpenAPIContract:
         """Test that response schemas are properly defined."""
         response = client.get("/openapi.json")
         spec = response.json()
-        
+
         # Check that components/schemas exist
         assert "components" in spec
         assert "schemas" in spec["components"]
-        
+
         # Check for some key schemas
         schemas = spec["components"]["schemas"]
         important_schemas = [
@@ -95,7 +95,7 @@ class TestOpenAPIContract:
             "EpisodeResponse",
             "ClinicalInterpretationResponse",
         ]
-        
+
         for schema_name in important_schemas:
             assert schema_name in schemas, f"Schema {schema_name} missing from OpenAPI spec"
 
@@ -104,7 +104,7 @@ class TestOpenAPIContract:
         response = client.get("/openapi.json")
         spec = response.json()
         paths = spec["paths"]
-        
+
         # All API endpoints should start with /api/v1/
         api_paths = [p for p in paths if p.startswith("/api/")]
         for path in api_paths:

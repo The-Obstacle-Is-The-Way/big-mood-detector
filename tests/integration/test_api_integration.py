@@ -4,10 +4,10 @@ Integration tests for FastAPI endpoints.
 Tests the full API surface with TestClient to ensure proper wiring.
 """
 
-import json
+from collections.abc import Generator
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Any, Generator
+from typing import Any
 
 import pytest
 from fastapi.testclient import TestClient
@@ -227,7 +227,7 @@ class TestFeatureExtraction:
   value CDATA #IMPLIED>
 ]>
 <HealthData locale="en_US">\n"""
-        
+
         # Add 7 days of sleep data
         for day in range(7):
             date_str = f"2024-01-{day+1:02d}"
@@ -238,7 +238,7 @@ class TestFeatureExtraction:
           startDate="2024-01-{day+2:02d} 03:00:00 -0500" endDate="2024-01-{day+2:02d} 03:30:00 -0500" 
           value="HKCategoryValueSleepAnalysisAwake"/>
 """
-        
+
         # Add heart rate data
         for day in range(7):
             for hour in [6, 12, 18]:
@@ -246,7 +246,7 @@ class TestFeatureExtraction:
           startDate="2024-01-{day+1:02d} {hour:02d}:00:00 -0500" endDate="2024-01-{day+1:02d} {hour:02d}:00:00 -0500" 
           value="{65 + hour}"/>
 """
-        
+
         # Add activity data
         for day in range(7):
             xml_content += f"""  <Record type="HKQuantityTypeIdentifierActiveEnergyBurned" sourceName="Apple Watch" 
@@ -256,9 +256,9 @@ class TestFeatureExtraction:
           startDate="2024-01-{day+1:02d} 00:00:00 -0500" endDate="2024-01-{day+1:02d} 23:59:59 -0500" 
           value="{8000 + day * 1000}"/>
 """
-        
+
         xml_content += "</HealthData>"
-        
+
         file_path = tmp_path / "export.xml"
         with open(file_path, "w") as f:
             f.write(xml_content)

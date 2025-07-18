@@ -178,13 +178,14 @@ if TORCH_AVAILABLE:
 
 else:
     # Protocol stub when torch not available
-    from typing import Protocol, Iterable
-    
+    from collections.abc import Iterable
+    from typing import Protocol
+
     @runtime_checkable
-    class TaskHead(Protocol):
+    class TaskHead(Protocol):  # type: ignore[no-redef]
         """Protocol for TaskHead when torch is not available."""
         output_dim: int
-        
+
         def parameters(self) -> Iterable[Any]: ...
         def train(self, mode: bool = True) -> Any: ...
         def eval(self) -> Any: ...
@@ -441,19 +442,6 @@ if TORCH_AVAILABLE:
 
             logger.info(f"Saved model to {model_path}")
             return model_path
-
-
-else:
-    # Create a protocol for type checking when torch is not available
-    @runtime_checkable
-    class PATPopulationTrainer(Protocol):
-        """Protocol stub for PATPopulationTrainer when torch is not available."""
-        
-        def __init__(self, task_name: str = "depression", output_dir: Path = Path("models/population")) -> None:
-            ...
-        
-        def train(self, **kwargs: Any) -> dict[str, Any]:
-            ...
 
 
 class XGBoostPopulationTrainer(PopulationTrainer):

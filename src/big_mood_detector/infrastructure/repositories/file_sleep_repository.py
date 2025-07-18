@@ -15,8 +15,6 @@ from big_mood_detector.domain.repositories.sleep_repository import (
     SleepRepositoryInterface,
 )
 from big_mood_detector.domain.value_objects.time_period import TimePeriod
-import logging
-
 from big_mood_detector.infrastructure.logging import get_module_logger
 from big_mood_detector.infrastructure.repositories.models import StoredSleepRecord
 

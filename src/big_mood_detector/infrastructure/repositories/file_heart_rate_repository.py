@@ -19,8 +19,6 @@ from big_mood_detector.domain.repositories.heart_rate_repository import (
     HeartRateRepositoryInterface,
 )
 from big_mood_detector.domain.value_objects.time_period import TimePeriod
-import logging
-
 from big_mood_detector.infrastructure.logging import get_module_logger
 from big_mood_detector.infrastructure.repositories.models import StoredHeartRateRecord
 

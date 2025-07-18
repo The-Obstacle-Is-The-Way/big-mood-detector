@@ -3,7 +3,7 @@
 import logging
 import os
 from pathlib import Path
-from typing import Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from big_mood_detector.infrastructure.settings import Settings
@@ -47,13 +47,13 @@ def initialize_directories(settings: "Settings") -> None:
         settings.UPLOAD_DIR,
         settings.TEMP_DIR,
     ]
-    
+
     # Also ensure DATA_DIR exists
     ensure_directory(settings.DATA_DIR)
-    
+
     for directory in directories:
         ensure_directory(directory)
-    
+
     # Set appropriate permissions for upload directory
     if settings.UPLOAD_DIR.exists():
         try:
@@ -62,23 +62,23 @@ def initialize_directories(settings: "Settings") -> None:
             pass  # Ignore permission errors in Docker
 
 
-def validate_model_paths(settings: "Settings") -> Optional[str]:
+def validate_model_paths(settings: "Settings") -> str | None:
     """Validate that model paths exist and are accessible.
     
     Returns:
         Error message if validation fails, None if successful
     """
     errors = []
-    
+
     # Check model weights path
     if not settings.MODEL_WEIGHTS_PATH.exists():
         errors.append(f"Model weights path not found: {settings.MODEL_WEIGHTS_PATH}")
-    
+
     # Check for specific model files
     expected_models = ["depression_risk.json", "hypomanic_risk.json", "manic_risk.json"]
     for model_file in expected_models:
         model_path = settings.MODEL_WEIGHTS_PATH / model_file
         if not model_path.exists():
             errors.append(f"Model file not found: {model_path}")
-    
+
     return "\n".join(errors) if errors else None

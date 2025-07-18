@@ -85,7 +85,9 @@ class MoodPredictor:
         if model_dir is None:
             # Try to use settings if available, otherwise fall back to environment variable
             try:
-                from big_mood_detector.infrastructure.settings.config import get_settings
+                from big_mood_detector.infrastructure.settings.config import (
+                    get_settings,
+                )
                 settings = get_settings()
                 # Check in the root model_weights directory first, then in data directory
                 model_dir = Path("model_weights/xgboost/pretrained")
@@ -123,7 +125,7 @@ class MoodPredictor:
             # Try JSON format first (no warnings)
             json_path = converted_dir / json_models[mood_type]
             pkl_path = self.model_dir / pkl_models[mood_type]
-            
+
             if json_path.exists():
                 try:
                     self.models[mood_type] = xgb.Booster()
@@ -132,7 +134,7 @@ class MoodPredictor:
                     continue
                 except Exception as e:
                     print(f"Failed to load JSON model: {e}")
-            
+
             # Fall back to pickle format
             if pkl_path.exists():
                 try:

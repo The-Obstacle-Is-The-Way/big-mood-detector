@@ -27,7 +27,7 @@ class EpisodeCreateRequest(BaseModel):
     severity: int = Field(..., ge=1, le=10)
     notes: str = ""
     rater_id: str = "api_user"
-    
+
     @field_validator('end_date')
     @classmethod
     def validate_date_range(cls, v: date | None, info: Any) -> date | None:
@@ -306,7 +306,7 @@ async def delete_episode(episode_id: int, response: Response) -> None:
 
         # Save updated labeler
         repository.save_labeler(labeler)
-        
+
         # Return 204 No Content
 
     except HTTPException:

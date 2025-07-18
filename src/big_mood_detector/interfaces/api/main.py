@@ -5,11 +5,13 @@ This is intentionally minimal - full API development comes after
 core functionality is proven stable.
 """
 
+import os
 from typing import Any
 
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 
+from big_mood_detector.infrastructure.settings.config import get_settings
 from big_mood_detector.interfaces.api.clinical_routes import router as clinical_router
 from big_mood_detector.interfaces.api.routes.features import router as features_router
 from big_mood_detector.interfaces.api.routes.labels import router as labels_router
@@ -17,9 +19,6 @@ from big_mood_detector.interfaces.api.routes.predictions import (
     router as predictions_router,
 )
 from big_mood_detector.interfaces.api.routes.upload import router as upload_router
-from big_mood_detector.infrastructure.settings.config import get_settings
-
-import os
 
 app = FastAPI(
     title="Big Mood Detector",

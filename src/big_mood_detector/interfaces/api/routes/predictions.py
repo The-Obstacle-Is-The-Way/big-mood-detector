@@ -6,14 +6,13 @@ Direct mood prediction endpoints for extracted features.
 
 from typing import Any
 
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 
 # Note: Full ensemble prediction would use EnsembleConfig from process_health_data_use_case
 from big_mood_detector.domain.services.mood_predictor import MoodPredictor
 from big_mood_detector.interfaces.api.dependencies import (
     get_mood_predictor,
-    get_mood_pipeline,
 )
 
 router = APIRouter(prefix="/api/v1/predictions", tags=["predictions"])
@@ -39,7 +38,7 @@ class FeatureInput(BaseModel):
 
     # Heart rate features (optional)
     resting_hr: float | None = Field(None, ge=30, le=200)
-    hrv_rmssd: float | None = Field(None, ge=0)
+    hrv_rmssd: float | None = Field(None, ge=0, le=300)
 
 
 class PredictionResponse(BaseModel):

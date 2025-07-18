@@ -7,11 +7,11 @@ All commands are properly organized in the interfaces layer.
 
 import click
 
+from big_mood_detector.infrastructure.settings.config import get_settings
 from big_mood_detector.interfaces.cli.commands import predict_command, process_command
 from big_mood_detector.interfaces.cli.labeling import unified_label_group as label_group
 from big_mood_detector.interfaces.cli.server import serve_command
 from big_mood_detector.interfaces.cli.watch import watch_command
-from big_mood_detector.infrastructure.settings.config import get_settings
 
 
 @click.group()

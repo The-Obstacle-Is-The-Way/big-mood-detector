@@ -6,10 +6,10 @@ Provides singleton instances and dependency injection for performance.
 
 from functools import lru_cache
 
-from big_mood_detector.domain.services.mood_predictor import MoodPredictor
 from big_mood_detector.application.use_cases.process_health_data_use_case import (
     MoodPredictionPipeline,
 )
+from big_mood_detector.domain.services.mood_predictor import MoodPredictor
 
 
 @lru_cache(maxsize=1)

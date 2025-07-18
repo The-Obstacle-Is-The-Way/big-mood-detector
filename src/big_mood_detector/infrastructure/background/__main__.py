@@ -14,21 +14,21 @@ logger = logging.getLogger(__name__)
 def main() -> None:
     """Run the background worker."""
     logger.info("Starting background task worker...")
-    
+
     # Ensure directories exist
     settings = get_settings()
     settings.ensure_directories()
-    
+
     # Initialize task queue
     task_queue = TaskQueue()
-    
+
     # Initialize worker
     worker = TaskWorker(task_queue)
-    
+
     # Register tasks (if needed)
     # from big_mood_detector.infrastructure.background.tasks import register_health_processing_tasks
     # register_health_processing_tasks(worker)
-    
+
     # Start processing
     try:
         worker.run()
