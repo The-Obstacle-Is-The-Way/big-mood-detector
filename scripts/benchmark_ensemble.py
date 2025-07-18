@@ -18,7 +18,7 @@ from big_mood_detector.application.use_cases.predict_mood_ensemble_use_case impo
     EnsembleConfig,
     EnsembleOrchestrator,
 )
-from big_mood_detector.domain.entities.activity_record import ActivityRecord
+from big_mood_detector.domain.entities.activity_record import ActivityRecord, ActivityType
 from big_mood_detector.infrastructure.ml_models import PAT_AVAILABLE
 from big_mood_detector.infrastructure.ml_models.xgboost_models import XGBoostMoodPredictor
 

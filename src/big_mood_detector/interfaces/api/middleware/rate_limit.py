@@ -4,14 +4,20 @@ Rate limiting middleware for API endpoints.
 Protects expensive endpoints like ensemble predictions from abuse.
 """
 
+import os
 from functools import wraps
 from typing import Callable
 
 from fastapi import HTTPException, Request
 from fastapi.responses import Response
-from slowapi import Limiter, _rate_limit_exceeded_handler
-from slowapi.errors import RateLimitExceeded
-from slowapi.util import get_remote_address
+
+# Check if rate limiting is disabled
+DISABLE_RATE_LIMIT = os.getenv("DISABLE_RATE_LIMIT", "0") == "1"
+
+if not DISABLE_RATE_LIMIT:
+    from slowapi import Limiter, _rate_limit_exceeded_handler
+    from slowapi.errors import RateLimitExceeded
+    from slowapi.util import get_remote_address
 
 
 # Create limiter with custom key function
