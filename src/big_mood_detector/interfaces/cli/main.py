@@ -34,17 +34,33 @@ cli.add_command(label_group)
 
 
 @cli.command(name="train")
-@click.option("--model-type", type=click.Choice(["xgboost", "pat"]), default="xgboost", help="Model type")
+@click.option(
+    "--model-type",
+    type=click.Choice(["xgboost", "pat"]),
+    default="xgboost",
+    help="Model type",
+)
 @click.option("--user-id", required=True, help="User identifier for the personal model")
-@click.option("--data", type=click.Path(exists=True), required=True, help="Training data (CSV for xgboost or NPY for PAT)")
-@click.option("--labels", type=click.Path(exists=True), required=True, help="Ground truth labels (CSV or NPY)")
+@click.option(
+    "--data",
+    type=click.Path(exists=True),
+    required=True,
+    help="Training data (CSV for xgboost or NPY for PAT)",
+)
+@click.option(
+    "--labels",
+    type=click.Path(exists=True),
+    required=True,
+    help="Ground truth labels (CSV or NPY)",
+)
 def train_command(model_type: str, user_id: str, data: str, labels: str) -> None:
     """Train a personalized model using ``PersonalCalibrator``."""
+    import numpy as np
+    import pandas as pd
+
     from big_mood_detector.infrastructure.fine_tuning.personal_calibrator import (
         PersonalCalibrator,
     )
-    import pandas as pd
-    import numpy as np
 
     click.echo(f"Training {model_type} model for user {user_id}...")
 

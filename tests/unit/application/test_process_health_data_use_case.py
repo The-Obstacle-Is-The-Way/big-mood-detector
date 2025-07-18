@@ -35,8 +35,14 @@ class TestMoodPredictionPipeline:
         assert pipeline.config.include_pat_sequences is False
         assert pipeline.config.confidence_threshold == 0.7
 
-    def test_pipeline_with_custom_config(self):
+    @patch("big_mood_detector.infrastructure.ml_models.pat_model.PATModel")
+    def test_pipeline_with_custom_config(self, mock_pat_class):
         """Pipeline should accept custom configuration."""
+        # Mock PAT model to avoid loading real weights
+        mock_pat = Mock()
+        mock_pat.load_pretrained_weights.return_value = True
+        mock_pat_class.return_value = mock_pat
+
         config = PipelineConfig(
             min_days_required=14,
             include_pat_sequences=True,

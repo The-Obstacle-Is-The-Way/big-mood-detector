@@ -10,8 +10,8 @@ Design Patterns:
 - Pure Functions: All calculations are side-effect free
 """
 
-from typing import Any
 from datetime import datetime, timedelta
+from typing import Any
 
 import numpy as np
 

@@ -209,8 +209,14 @@ class TestPipelinePersonalCalibration:
             metadata.get("personal_calibration", {}).get("baseline_available") is True
         )
 
-    def test_ensemble_uses_personal_calibration(self):
+    @patch("big_mood_detector.infrastructure.ml_models.pat_model.PATModel")
+    def test_ensemble_uses_personal_calibration(self, mock_pat_class):
         """Test that ensemble predictions also use personal calibration."""
+        # Mock PAT model to avoid loading real weights
+        mock_pat = Mock()
+        mock_pat.load_pretrained_weights.return_value = True
+        mock_pat_class.return_value = mock_pat
+
         # Given a calibrator
         calibrator = PersonalCalibrator(user_id="test_user")
         calibrator.baseline = {

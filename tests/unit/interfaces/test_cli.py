@@ -1,24 +1,31 @@
 import sys
 import types
+from unittest.mock import patch
+
 import numpy as np
 import pandas as pd
 from click.testing import CliRunner
-from unittest.mock import patch
 
 # Stub out heavy PAT dependencies before importing the CLI
 pat_stub = types.ModuleType("pat_model")
-pat_stub.PATModel = object
+# Create a mock class instead of object
+class MockPATModel:
+    def __init__(self, **kwargs):
+        pass
+pat_stub.PATModel = MockPATModel
 pat_stub.PATFeatureExtractor = object
 sys.modules["big_mood_detector.infrastructure.ml_models.pat_model"] = pat_stub
 
-from big_mood_detector.main_cli import cli  # type: ignore
+from big_mood_detector.interfaces.cli.main import cli  # type: ignore # noqa: E402
 
 
 def _create_csv(path, col_name, data):
     pd.DataFrame({col_name: data}).to_csv(path, index=False)
 
 
-@patch("big_mood_detector.infrastructure.fine_tuning.personal_calibrator.PersonalCalibrator")
+@patch(
+    "big_mood_detector.infrastructure.fine_tuning.personal_calibrator.PersonalCalibrator"
+)
 def test_train_command_xgboost(mock_calibrator, tmp_path):
     features_file = tmp_path / "features.csv"
     labels_file = tmp_path / "labels.csv"
@@ -48,7 +55,9 @@ def test_train_command_xgboost(mock_calibrator, tmp_path):
     instance.save_model.assert_called_once()
 
 
-@patch("big_mood_detector.infrastructure.fine_tuning.personal_calibrator.PersonalCalibrator")
+@patch(
+    "big_mood_detector.infrastructure.fine_tuning.personal_calibrator.PersonalCalibrator"
+)
 def test_train_command_pat(mock_calibrator, tmp_path):
     seq_file = tmp_path / "seq.npy"
     labels_file = tmp_path / "labels.npy"
