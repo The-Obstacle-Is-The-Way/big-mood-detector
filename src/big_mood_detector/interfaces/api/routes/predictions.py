@@ -4,23 +4,20 @@ Prediction API Routes
 Direct mood prediction endpoints for extracted features.
 """
 
-from datetime import date
 from typing import Any
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
+# Note: Full ensemble prediction would use EnsembleConfig from process_health_data_use_case
 from big_mood_detector.domain.services.mood_predictor import MoodPredictor
-from big_mood_detector.application.use_cases.process_health_data_use_case import (
-    MoodPredictionPipeline,
-    EnsembleConfig
-)
 
 router = APIRouter(prefix="/api/v1/predictions", tags=["predictions"])
 
+
 class FeatureInput(BaseModel):
     """Input features for mood prediction."""
-    
+
     # Sleep features
     sleep_duration: float = Field(..., ge=0, le=24)
     sleep_efficiency: float = Field(..., ge=0, le=1)
@@ -43,6 +40,7 @@ class FeatureInput(BaseModel):
 
 class PredictionResponse(BaseModel):
     """Mood prediction response."""
+
     depression_risk: float = Field(..., ge=0, le=1)
     hypomanic_risk: float = Field(..., ge=0, le=1)
     manic_risk: float = Field(..., ge=0, le=1)
@@ -53,6 +51,7 @@ class PredictionResponse(BaseModel):
 
 class EnsemblePredictionResponse(BaseModel):
     """Enhanced prediction using ensemble models."""
+
     xgboost_prediction: dict[str, float]
     pat_prediction: dict[str, float] | None
     ensemble_prediction: dict[str, float]
@@ -95,26 +94,36 @@ async def predict_mood(features: FeatureInput) -> PredictionResponse:
 
         # Get prediction using MoodPredictor
         predictor = MoodPredictor()
-        
+
         # Convert dict to numpy array for the predict method
         import numpy as np
+
         # Fill missing features with zeros, pad to 36 features if needed
         feature_array = np.zeros(36)
         feature_names = [
-            "sleep_duration", "sleep_efficiency", "sleep_timing_variance",
-            "daily_steps", "activity_variance", "sedentary_hours",
-            "interdaily_stability", "intradaily_variability", "relative_amplitude",
-            "resting_hr", "hrv_rmssd"
+            "sleep_duration",
+            "sleep_efficiency",
+            "sleep_timing_variance",
+            "daily_steps",
+            "activity_variance",
+            "sedentary_hours",
+            "interdaily_stability",
+            "intradaily_variability",
+            "relative_amplitude",
+            "resting_hr",
+            "hrv_rmssd",
         ]
-        
-        for i, name in enumerate(feature_names[:len(feature_array)]):
+
+        for i, name in enumerate(feature_names[: len(feature_array)]):
             if name in feature_dict:
                 feature_array[i] = feature_dict[name]
-        
+
         prediction = predictor.predict(feature_array)
 
         # Determine risk level
-        max_risk = max(prediction.depression_risk, prediction.hypomanic_risk, prediction.manic_risk)
+        max_risk = max(
+            prediction.depression_risk, prediction.hypomanic_risk, prediction.manic_risk
+        )
         if max_risk < 0.3:
             risk_level = "low"
         elif max_risk < 0.6:
@@ -156,10 +165,8 @@ async def predict_mood_ensemble(features: FeatureInput) -> EnsemblePredictionRes
     """
     try:
         # Use pipeline with ensemble enabled
-        from big_mood_detector.application.use_cases.process_health_data_use_case import PipelineConfig
-        
-        config = PipelineConfig(include_pat_sequences=True, ensemble_config=EnsembleConfig())
-        pipeline = MoodPredictionPipeline(config=config)
+        # Note: For full ensemble prediction, we would use PipelineConfig and MoodPredictionPipeline
+        # Here we're demonstrating direct feature prediction
 
         # Convert features
         feature_dict = {
@@ -185,23 +192,24 @@ async def predict_mood_ensemble(features: FeatureInput) -> EnsemblePredictionRes
 
         # For demo purposes, create a mock ensemble result
         # In practice, this would use the full pipeline with real data
-        
+
         # Get base prediction
         predictor = MoodPredictor()
         import numpy as np
+
         feature_array = np.zeros(36)
         feature_names = list(feature_dict.keys())
-        for i, name in enumerate(feature_names[:len(feature_array)]):
+        for i, name in enumerate(feature_names[: len(feature_array)]):
             if name in feature_dict:
                 feature_array[i] = feature_dict[name]
-        
+
         base_prediction = predictor.predict(feature_array)
 
         # Generate clinical summary
         max_risk = max(
             base_prediction.depression_risk,
             base_prediction.hypomanic_risk,
-            base_prediction.manic_risk
+            base_prediction.manic_risk,
         )
 
         if max_risk > 0.7:
@@ -213,28 +221,31 @@ async def predict_mood_ensemble(features: FeatureInput) -> EnsemblePredictionRes
 
         recommendations = []
         if base_prediction.depression_risk > 0.5:
-            recommendations.extend([
-                "Consider mood monitoring",
-                "Maintain regular sleep schedule"
-            ])
+            recommendations.extend(
+                ["Consider mood monitoring", "Maintain regular sleep schedule"]
+            )
         if max_risk < 0.3:
-            recommendations.extend([
-                "Continue current habits",
-                "Regular sleep schedule"
-            ])
+            recommendations.extend(
+                ["Continue current habits", "Regular sleep schedule"]
+            )
 
         return EnsemblePredictionResponse(
             xgboost_prediction=base_prediction.to_dict(),
             pat_prediction=None,  # Would be populated if PAT model available
             ensemble_prediction=base_prediction.to_dict(),
             models_used=["xgboost"],
-            confidence_scores={"xgboost": base_prediction.confidence, "ensemble": base_prediction.confidence},
+            confidence_scores={
+                "xgboost": base_prediction.confidence,
+                "ensemble": base_prediction.confidence,
+            },
             clinical_summary=clinical_summary,
             recommendations=recommendations,
         )
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Ensemble prediction failed: {e}") from e
+        raise HTTPException(
+            status_code=500, detail=f"Ensemble prediction failed: {e}"
+        ) from e
 
 
 @router.get("/status")
