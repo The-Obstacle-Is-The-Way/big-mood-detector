@@ -153,7 +153,8 @@ async def list_episodes(
 ) -> list[EpisodeResponse]:
     """List mood episodes with optional filtering."""
     try:
-        labeler = repository.load_into_labeler()
+        labeler = EpisodeLabeler()
+        repository.load_into_labeler(labeler)
 
         episodes = labeler.episodes
 
@@ -191,7 +192,8 @@ async def list_baselines(
 ) -> list[BaselineResponse]:
     """List baseline periods with optional filtering."""
     try:
-        labeler = repository.load_into_labeler()
+        labeler = EpisodeLabeler()
+        repository.load_into_labeler(labeler)
 
         baselines = labeler.baseline_periods
 
@@ -222,10 +224,11 @@ async def list_baselines(
 async def get_label_stats() -> LabelStatsResponse:
     """Get statistics about labeled data."""
     try:
-        labeler = repository.load_into_labeler()
+        labeler = EpisodeLabeler()
+        repository.load_into_labeler(labeler)
 
         # Count episodes by type
-        episodes_by_type = {}
+        episodes_by_type: dict[str, int] = {}
         for episode in labeler.episodes:
             ep_type = episode["episode_type"]
             episodes_by_type[ep_type] = episodes_by_type.get(ep_type, 0) + 1
@@ -273,7 +276,8 @@ async def get_label_stats() -> LabelStatsResponse:
 async def delete_episode(episode_id: int) -> dict[str, str]:
     """Delete an episode by ID."""
     try:
-        labeler = repository.load_into_labeler()
+        labeler = EpisodeLabeler()
+        repository.load_into_labeler(labeler)
 
         if episode_id < 1 or episode_id > len(labeler.episodes):
             raise HTTPException(status_code=404, detail="Episode not found")
@@ -296,7 +300,8 @@ async def delete_episode(episode_id: int) -> dict[str, str]:
 async def export_labels() -> dict[str, Any]:
     """Export all labels in training-ready format."""
     try:
-        labeler = repository.load_into_labeler()
+        labeler = EpisodeLabeler()
+        repository.load_into_labeler(labeler)
         df = labeler.to_dataframe()
 
         # Convert to dict format
