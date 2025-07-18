@@ -36,8 +36,8 @@ Place your Apple Health export files in `data/input/apple_export/`:
 
 ```bash
 # Process Apple Health export
-mood-detector process data/input/apple_export/export.xml
-mood-detector predict data/input/apple_export/export.xml
+big-mood process data/input/apple_export/export.xml
+big-mood predict data/input/apple_export/export.xml
 ```
 
 ### 2. Health Auto Export
@@ -45,8 +45,8 @@ Place your JSON files from Health Auto Export app in `data/input/health_auto_exp
 
 ```bash
 # Process Health Auto Export data
-mood-detector process data/input/health_auto_export/
-mood-detector predict data/input/health_auto_export/
+big-mood process data/input/health_auto_export/
+big-mood predict data/input/health_auto_export/
 ```
 
 ### 3. API Upload
