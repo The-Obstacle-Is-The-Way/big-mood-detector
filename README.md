@@ -20,24 +20,26 @@ git clone https://github.com/Clarity-Digital-Twin/big-mood-detector.git
 cd big-mood-detector
 make setup
 
-# Extract features and analyze patterns (requires baseline establishment)
-mood-detector analyze health_export.json --establish-baseline
+# Extract features and analyze patterns
+mood-detector process export.xml --output features.csv
+mood-detector predict export.xml --ensemble --report
 ```
 
 **Sample Analysis Output:**
 ```
-📊 Personal Baseline Establishment (Minimum 30-60 days required)
-
-Sleep Pattern Analysis:
-└─ Circadian phase: +2.3h delay from personal average
-└─ Sleep efficiency: 78% (15% below personal baseline)
-└─ Sleep fragmentation: Elevated (Z-score: +1.8)
+📊 Processing health data from: export.xml
+✅ Features extracted: 94 days
+📊 Ensemble Predictions:
+   Depression Risk: 12.3% (Low)
+   Hypomanic Risk: 3.1% (Very Low)  
+   Manic Risk: 0.8% (Very Low)
+   Confidence: 91.2%
 
 ⚠️  Pattern Analysis: 
-   Research suggests these patterns may be associated with mood changes.
-   Requires individual baseline + mood episode labels for personalization.
-
-📖 Next Steps: Label historical mood episodes to enable pattern learning
+   Sleep efficiency below personal baseline (Z-score: -1.8)
+   Circadian phase delay detected (+2.3 hours)
+   
+📖 Next Steps: Label historical mood episodes for personalization
 ```
 
 ## ✨ Research Foundation
@@ -108,7 +110,7 @@ python3 -m venv .venv
 source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 make setup
 
-# Verify installation
+# Verify installation - this now works!
 mood-detector --help
 make test-fast
 ```
@@ -127,42 +129,58 @@ make test-fast
 
 ## 🧪 Research Usage Examples
 
-### Step 1: Baseline Establishment
+### Step 1: Process Your Health Data
 ```bash
-# Extract and analyze your patterns (minimum 30 days of data)
-mood-detector analyze export.xml --establish-baseline --min-days 30
+# Extract features from Apple Health export
+mood-detector process export.xml --output features.csv
 
-# View your personal circadian and sleep patterns
-mood-detector patterns --sleep --circadian --activity
+# Generate predictions with full ensemble
+mood-detector predict export.xml --ensemble --report --output predictions.json
+
+# View processing status and results
+mood-detector serve --port 8000  # Access API at http://localhost:8000
 ```
 
-### Step 2: Mood Episode Labeling
+### Step 2: Label Historical Episodes
 ```bash
-# Label historical mood episodes (required for personalization)
-mood-detector label --date 2024-03-15 --mood "depressive" --severity 3
-mood-detector label --date-range 2024-03-10:2024-03-17 --mood "hypomanic"
+# Interactive episode labeling with clinical validation
+mood-detector label episode --date-range 2024-03-10:2024-03-17 --mood hypomanic
 
-# Import clinical notes or mood tracker data
-mood-detector import mood-data.csv
+# Label a single depressive episode  
+mood-detector label episode --date 2024-03-15 --mood depressive --severity 7
+
+# Import from clinical notes or mood tracker data
+mood-detector label import mood-data.csv
+
+# View labeling statistics
+mood-detector label stats
 ```
 
 ### Step 3: Personal Model Training
+```bash
+# Train personalized XGBoost model
+mood-detector train --model-type xgboost --user-id patient_123 \
+                   --data features.csv --labels episodes.csv
+
+# Train PAT transformer for activity patterns  
+mood-detector train --model-type pat --user-id patient_123 \
+                   --data activity_sequences.npy --labels episodes.csv
+```
+
+### Advanced Usage
 ```python
 from big_mood_detector import PersonalizedPipeline
 
-# Requires both baseline data AND mood episode labels
+# Direct Python API usage
 pipeline = PersonalizedPipeline()
 
-# Establish personal baseline patterns
-baseline = pipeline.establish_baseline("export.xml", min_days=60)
+# Process Apple Health data
+results = pipeline.process_apple_health_file("export.xml")
 
-# Train personal model (requires mood episode labels)
-model = pipeline.train_personal_model(baseline, mood_episodes=mood_labels)
-
-# Analyze current patterns relative to your baseline
-current_analysis = pipeline.analyze_patterns("recent_data.xml")
-print(f"Circadian phase: {current_analysis.circadian_z_score:.2f} (Z-score)")
-print(f"Sleep efficiency: {current_analysis.sleep_efficiency_z_score:.2f} (Z-score)")
+# Generate predictions with confidence scores
+predictions = results.ensemble_predictions
+print(f"Depression Risk: {predictions.depression_risk:.1%}")
+print(f"Confidence: {predictions.confidence:.1%}")
 ```
 
 ### Pattern Exploration (No Predictions)
@@ -248,12 +266,14 @@ make format              # Auto-format code
 
 ### Local Development
 ```bash
-# Start development server
+# Start development server with auto-reload
+mood-detector serve --reload --host 0.0.0.0 --port 8000
+
+# Or use make command
 make dev
 
 # API available at http://localhost:8000
-curl -X POST http://localhost:8000/predict \
-  -F "file=@export.xml"
+# Swagger docs: http://localhost:8000/docs
 ```
 
 ### Docker Deployment
@@ -261,14 +281,34 @@ curl -X POST http://localhost:8000/predict \
 # Build container
 docker build -t big-mood-detector .
 
-# Run with volume mount
-docker run -v ./data:/app/data big-mood-detector predict /app/data/export.xml
+# Run with docker-compose (recommended)
+docker-compose up -d
+
+# Or run container directly
+docker run -p 8000:8000 -v ./data:/app/data big-mood-detector
+```
+
+### API Endpoints (Production Ready)
+```bash
+# File Upload & Processing
+POST /api/v1/upload/file          # Single file upload
+POST /api/v1/upload/batch         # Multi-file upload
+GET  /api/v1/upload/status/{id}   # Processing status
+
+# Clinical Assessment  
+POST /api/v1/clinical/depression  # Depression risk assessment
+POST /api/v1/clinical/mania       # Mania risk assessment
+POST /api/v1/clinical/biomarkers  # Digital biomarker interpretation
+
+# Health & Monitoring
+GET  /health                      # Health check
+GET  /api/v1/upload/queue/stats   # Processing queue statistics
 ```
 
 ### Cloud Deployment
-- **AWS Lambda**: Serverless prediction API
-- **Google Cloud Run**: Containerized deployment
-- **Azure Container Instances**: Managed containers
+- **AWS Lambda**: Serverless prediction API (configured)
+- **Google Cloud Run**: Containerized deployment (Docker ready)
+- **Azure Container Instances**: Managed containers (docker-compose.yml)
 
 ## 📊 Performance
 

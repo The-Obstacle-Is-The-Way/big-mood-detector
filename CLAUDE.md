@@ -66,25 +66,28 @@ Respect the strict boundaries defined by Clean Architecture:
 
 ```
 src/big_mood_detector/
-├── domain/                # Core business logic (pure Python, no external deps)
-│   ├── entities/          # SleepRecord, HeartRateRecord, ActivityRecord
-│   ├── services/          # SleepWindowAnalyzer, ActivitySequenceExtractor
-│   └── value_objects/     # Immutable: TimeRange, ClinicalThreshold
-├── application/           # Orchestration and use cases
-│   └── use_cases/         # ProcessHealthDataUseCase
-├── infrastructure/        # Data access, parsers, ML inference
-│   ├── parsers/           # XML (streaming) and JSON parsers
-│   ├── repositories/      # Data persistence
-│   └── ml/                # Model loading and inference
-└── interfaces/            # API and CLI entry points
-    ├── api/               # FastAPI routes
-    └── cli/               # Typer commands
+├── main.py                    # Multi-interface entry point (CLI/API/Future Web)
+├── domain/                    # Core business logic (pure Python, no external deps)
+│   ├── entities/              # SleepRecord, HeartRateRecord, ActivityRecord
+│   ├── services/              # SleepWindowAnalyzer, ActivitySequenceExtractor
+│   └── value_objects/         # Immutable: TimeRange, ClinicalThreshold
+├── application/               # Orchestration and use cases
+│   └── use_cases/             # ProcessHealthDataUseCase
+├── infrastructure/            # Data access, parsers, ML inference
+│   ├── parsers/               # XML (streaming) and JSON parsers
+│   ├── repositories/          # Data persistence
+│   ├── ml_models/             # Model loading and inference
+│   └── fine_tuning/           # Personal calibration pipeline
+└── interfaces/                # Multiple interface support
+    ├── cli/                   # Command-line interface (for testing)
+    ├── api/                   # REST API (for integrations)
+    └── web/                   # Future web UI interface
 ```
 
+* **Multi-Interface Design**: Single backend supports CLI (testing), API (integrations), future Web UI
+* **Clean Entry Point**: `main.py` routes to appropriate interface based on context
 * **Dependency Direction**: Interfaces → Application → Domain ← Infrastructure
-* **Repository Pattern**: Abstract data access in domain, implement in infrastructure
-* **Factory Pattern**: Parser creation based on file type
-* **Value Objects**: Immutable (frozen dataclasses) for thread safety
+* **Interface Separation**: CLI for testing, API for external use, Web UI for end users
 
 ## 🗃 Data Pipeline & ML Guidance
 
@@ -113,7 +116,7 @@ src/big_mood_detector/
    - PAT Transformer: Ensemble member
    - Threshold: Clinical cutoffs per DSM-5
 
-### Key Implementation Status
+## 🔍 Key Implementation Status
 
 ✅ **Completed**:
 - StreamingXMLParser (processes 520MB in 13s)
@@ -121,11 +124,20 @@ src/big_mood_detector/
 - SleepWindowAnalyzer (3.75h merging)
 - ActivitySequenceExtractor (minute-level)
 - Clinical feature extraction framework
+- **FULL CLI INTERFACE**: process, predict, label, serve, train, watch commands
+- **COMPLETE API**: FastAPI with file upload, background processing, clinical routes
+- **FINE-TUNING PIPELINE**: nhanes_processor, personal_calibrator, population_trainer
+- **BACKGROUND PROCESSING**: task_queue and worker system
+- **DOCKER DEPLOYMENT**: Dockerfile and docker-compose.yml
+- **MODEL INFRASTRUCTURE**: All XGBoost and PAT models loaded
 
 🚧 **In Progress**:
-- Circadian rhythm features (IS, IV, RA, L5/M10)
-- PAT calculation refinement
-- ML model integration
+- Configuration management (settings files vs hardcoded values)
+- Structured logging (replacing print statements)
+- Error handling improvements
+
+⚠️ **Critical Fix Needed**:
+- CLI entry point now fixed (main() function added)
 
 ## 🧪 Testing Philosophy
 
