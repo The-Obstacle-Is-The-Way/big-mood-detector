@@ -11,6 +11,7 @@ import click
 
 from big_mood_detector.domain.services.episode_labeler import EpisodeLabeler
 from big_mood_detector.infrastructure.logging import get_module_logger
+from big_mood_detector.interfaces.cli.utils import console
 
 from .interactive import InteractiveSession
 from .validators import ClinicalValidator, parse_date_range
@@ -77,6 +78,9 @@ def label_group(ctx: click.Context) -> None:
     "--output", type=click.Path(path_type=Path), help="Output file for labels (CSV)"
 )
 @click.option(
+    "--db", type=click.Path(path_type=Path), help="SQLite database for persistence"
+)
+@click.option(
     "--interactive/--no-interactive",
     default=True,
     help="Interactive prompts vs batch mode",
@@ -91,6 +95,7 @@ def label_episode_command(
     rater_id: str,
     notes: str | None,
     output: Path | None,
+    db: Path | None,
     interactive: bool,
     dry_run: bool,
 ) -> None:
@@ -99,6 +104,21 @@ def label_episode_command(
     # Initialize components
     labeler = EpisodeLabeler()
     validator = ClinicalValidator()
+    
+    # Load from database if specified
+    if db:
+        from big_mood_detector.infrastructure.repositories.sqlite_episode_repository import (
+            SQLiteEpisodeRepository,
+        )
+        
+        repo = SQLiteEpisodeRepository(db_path=db)
+        repo.load_into_labeler(labeler)
+        
+        if labeler.episodes or labeler.baseline_periods:
+            console.print(
+                f"[dim]Loaded {len(labeler.episodes)} episodes and "
+                f"{len(labeler.baseline_periods)} baselines from database[/dim]"
+            )
 
     # Handle interactive mode with predictions
     if interactive and predictions:
@@ -192,6 +212,16 @@ def label_episode_command(
             click.style(f"✓ Labeled {duration_days}-day {mood} episode", fg="green")
         )
 
+    # Save to database if specified
+    if db and not dry_run:
+        from big_mood_detector.infrastructure.repositories.sqlite_episode_repository import (
+            SQLiteEpisodeRepository,
+        )
+        
+        repo = SQLiteEpisodeRepository(db_path=db)
+        repo.save_labeler(labeler)
+        console.print(f"[dim]Saved to database: {db}[/dim]")
+    
     # Export to CSV if output specified
     if output:
         df = labeler.to_dataframe()
@@ -214,16 +244,29 @@ def label_episode_command(
 )
 @click.option("--notes", type=str, help="Notes about the baseline period")
 @click.option("--rater-id", type=str, default="default", help="Rater identifier")
+@click.option(
+    "--db", type=click.Path(path_type=Path), help="SQLite database for persistence"
+)
 @click.option("--dry-run", is_flag=True, help="Preview without saving")
 def label_baseline_command(
     start: datetime,
     end: datetime,
     notes: str | None,
     rater_id: str,
+    db: Path | None,
     dry_run: bool,
 ) -> None:
     """Mark stable baseline periods."""
     labeler = EpisodeLabeler()
+    
+    # Load from database if specified
+    if db:
+        from big_mood_detector.infrastructure.repositories.sqlite_episode_repository import (
+            SQLiteEpisodeRepository,
+        )
+        
+        repo = SQLiteEpisodeRepository(db_path=db)
+        repo.load_into_labeler(labeler)
 
     start_date = start.date()
     end_date = end.date()
@@ -239,14 +282,41 @@ def label_baseline_command(
 
     duration = (end_date - start_date).days + 1
     click.echo(click.style(f"✓ Marked baseline period ({duration} days)", fg="green"))
+    
+    # Save to database if specified
+    if db and not dry_run:
+        from big_mood_detector.infrastructure.repositories.sqlite_episode_repository import (
+            SQLiteEpisodeRepository,
+        )
+        
+        repo = SQLiteEpisodeRepository(db_path=db)
+        repo.save_labeler(labeler)
+        console.print(f"[dim]Saved to database: {db}[/dim]")
 
 
 @label_group.command(name="undo")
-def label_undo_command() -> None:
+@click.option(
+    "--db", type=click.Path(path_type=Path), help="SQLite database for persistence"
+)
+def label_undo_command(db: Path | None) -> None:
     """Undo the last label entry."""
     labeler = EpisodeLabeler()
+    
+    # Load from database if specified
+    if db:
+        from big_mood_detector.infrastructure.repositories.sqlite_episode_repository import (
+            SQLiteEpisodeRepository,
+        )
+        
+        repo = SQLiteEpisodeRepository(db_path=db)
+        repo.load_into_labeler(labeler)
 
     if labeler.undo_last():
         click.echo(click.style("✓ Undid last label", fg="green"))
+        
+        # Save to database if specified
+        if db:
+            repo.save_labeler(labeler)
+            console.print(f"[dim]Updated database: {db}[/dim]")
     else:
         click.echo(click.style("No labels to undo", fg="yellow"))
