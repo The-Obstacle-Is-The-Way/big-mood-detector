@@ -119,6 +119,14 @@ class DailyFeatures:
     circadian_phase_std: float
     circadian_phase_zscore: float
 
+    # Activity features (6) - Added for API exposure
+    daily_steps: float = 0.0
+    activity_variance: float = 0.0
+    sedentary_hours: float = 24.0
+    activity_fragmentation: float = 0.0
+    sedentary_bout_mean: float = 24.0
+    activity_intensity_ratio: float = 0.0
+
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for DataFrame creation."""
         return {
@@ -159,6 +167,13 @@ class DailyFeatures:
             "circadian_phase_MN": self.circadian_phase_mean,
             "circadian_phase_SD": self.circadian_phase_std,
             "circadian_phase_Z": self.circadian_phase_zscore,
+            # Activity features
+            "daily_steps": self.daily_steps,
+            "activity_variance": self.activity_variance,
+            "sedentary_hours": self.sedentary_hours,
+            "activity_fragmentation": self.activity_fragmentation,
+            "sedentary_bout_mean": self.sedentary_bout_mean,
+            "activity_intensity_ratio": self.activity_intensity_ratio,
         }
 
 
@@ -271,7 +286,12 @@ class AggregationPipeline:
                     day_activity, current_date
                 )
 
-            # 3. Circadian Rhythm Analysis
+            # 3. Activity Metrics
+            activity_metrics = self._calculate_activity_metrics(
+                activity_records, current_date
+            )
+            
+            # 4. Circadian Rhythm Analysis
             circadian_metrics = self._calculate_circadian_metrics(
                 activity_records, current_date
             )
@@ -552,6 +572,89 @@ class AggregationPipeline:
             List of dictionaries ready for DataFrame
         """
         return [f.to_dict() for f in features]
+
+    def _calculate_activity_metrics(
+        self,
+        activity_records: list[ActivityRecord],
+        target_date: date,
+    ) -> dict[str, float]:
+        """Calculate activity metrics for a date."""
+        # Filter activity records for the target date
+        day_activity = [
+            a for a in activity_records
+            if a.start_date.date() == target_date
+        ]
+        
+        if not day_activity:
+            # Return defaults when no activity data
+            return {
+                "daily_steps": 0.0,
+                "activity_variance": 0.0,
+                "sedentary_hours": 24.0,
+                "activity_fragmentation": 0.0,
+                "sedentary_bout_mean": 24.0,
+                "activity_intensity_ratio": 0.0,
+            }
+        
+        # Calculate total steps
+        from big_mood_detector.domain.entities.activity_record import ActivityType
+        step_records = [
+            r for r in day_activity 
+            if r.activity_type == ActivityType.STEP_COUNT
+        ]
+        total_steps = sum(r.value for r in step_records)
+        
+        # Calculate activity variance using hourly bins
+        hourly_activity = [0.0] * 24
+        for record in step_records:
+            hour = record.start_date.hour
+            hourly_activity[hour] += record.value / max(1, record.duration_hours)
+        
+        activity_variance = np.var(hourly_activity) if hourly_activity else 0.0
+        
+        # Calculate sedentary hours (hours with < 250 steps)
+        active_hours = sum(1 for h in hourly_activity if h >= 250)
+        sedentary_hours = 24 - active_hours
+        
+        # Simple fragmentation: transitions between active/sedentary
+        transitions = 0
+        for i in range(1, len(hourly_activity)):
+            if (hourly_activity[i-1] < 250) != (hourly_activity[i] < 250):
+                transitions += 1
+        activity_fragmentation = transitions / 23.0 if len(hourly_activity) > 1 else 0.0
+        
+        # Sedentary bout mean
+        sedentary_bouts = []
+        current_bout = 0
+        for h in hourly_activity:
+            if h < 250:
+                current_bout += 1
+            elif current_bout > 0:
+                sedentary_bouts.append(current_bout)
+                current_bout = 0
+        if current_bout > 0:
+            sedentary_bouts.append(current_bout)
+        
+        sedentary_bout_mean = (
+            sum(sedentary_bouts) / len(sedentary_bouts) 
+            if sedentary_bouts else 24.0
+        )
+        
+        # Activity intensity ratio (high activity hours / total active hours)
+        high_activity_hours = sum(1 for h in hourly_activity if h >= 1000)
+        activity_intensity_ratio = (
+            high_activity_hours / max(1, active_hours)
+            if active_hours > 0 else 0.0
+        )
+        
+        return {
+            "daily_steps": float(total_steps),
+            "activity_variance": float(activity_variance),
+            "sedentary_hours": float(sedentary_hours),
+            "activity_fragmentation": float(activity_fragmentation),
+            "sedentary_bout_mean": float(sedentary_bout_mean),
+            "activity_intensity_ratio": float(activity_intensity_ratio),
+        }
 
     def _calculate_circadian_metrics(
         self,
