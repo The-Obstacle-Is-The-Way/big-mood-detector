@@ -57,12 +57,10 @@ class Settings(BaseSettings):
     HYPOMANIC_THRESHOLD: float = Field(default=0.3, ge=0.0, le=1.0)
     MANIC_THRESHOLD: float = Field(default=0.3, ge=0.0, le=1.0)
 
-    @field_validator("MODEL_WEIGHTS_PATH", "OUTPUT_DIR", "UPLOAD_DIR", "TEMP_DIR")
-    @classmethod
-    def validate_paths(cls, v: Path) -> Path:
-        """Ensure directories exist."""
-        v.mkdir(parents=True, exist_ok=True)
-        return v
+    def ensure_directories(self) -> None:
+        """Create necessary directories. Call this after settings are loaded."""
+        from .utils import initialize_directories
+        initialize_directories(self)
 
     @computed_field
     def log_config(self) -> dict:

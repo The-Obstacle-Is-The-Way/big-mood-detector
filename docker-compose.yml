@@ -16,13 +16,13 @@ services:
       - DATA_DIR=/data
       - LABELS_DB_PATH=/data/labels.db
       - CLINICAL_CONFIG_PATH=/app/config/clinical_thresholds.yaml
-      - XGBOOST_MODEL_PATH=/app/model_weights/xgboost/pretrained
+      - XGBOOST_MODEL_PATH=/app/model_weights/xgboost/converted
     volumes:
-      # Mount local data for processing
-      - ./data:/data
+      # Named volume for data (with proper permissions)
+      - app-data:/data
+      # Mount local data for processing (optional)
       - ./apple_export:/data/apple_export:ro
       - ./health_auto_export:/data/health_auto_export:ro
-      - ./output:/data/output
       # Model weights (read-only)
       - ./model_weights:/app/model_weights:ro
       # Config files
@@ -125,6 +125,7 @@ networks:
     driver: bridge
 
 volumes:
+  app-data:
   postgres_data:
   redis_data:
   prometheus_data:

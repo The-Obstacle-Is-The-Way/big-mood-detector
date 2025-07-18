@@ -11,6 +11,7 @@ from big_mood_detector.interfaces.cli.commands import predict_command, process_c
 from big_mood_detector.interfaces.cli.labeling import unified_label_group as label_group
 from big_mood_detector.interfaces.cli.server import serve_command
 from big_mood_detector.interfaces.cli.watch import watch_command
+from big_mood_detector.infrastructure.settings.config import get_settings
 
 
 @click.group()
@@ -22,7 +23,9 @@ def cli() -> None:
     Analyze Apple Health data to detect patterns associated with
     mood episodes using validated ML models.
     """
-    pass
+    # Ensure directories exist when CLI starts
+    settings = get_settings()
+    settings.ensure_directories()
 
 
 # Register all commands

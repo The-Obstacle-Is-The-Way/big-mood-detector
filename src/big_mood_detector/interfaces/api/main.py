@@ -17,6 +17,7 @@ from big_mood_detector.interfaces.api.routes.predictions import (
     router as predictions_router,
 )
 from big_mood_detector.interfaces.api.routes.upload import router as upload_router
+from big_mood_detector.infrastructure.settings.config import get_settings
 
 import os
 
@@ -25,6 +26,13 @@ app = FastAPI(
     description="Clinical-grade mood episode detection from wearable data",
     version="0.1.0",
 )
+
+# Ensure directories exist on startup
+@app.on_event("startup")
+async def startup_event():
+    """Ensure required directories exist when the API starts."""
+    settings = get_settings()
+    settings.ensure_directories()
 
 # Include routers
 app.include_router(clinical_router)

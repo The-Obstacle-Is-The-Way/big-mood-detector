@@ -32,10 +32,11 @@ RUN pip install --no-cache-dir --upgrade pip setuptools wheel && \
 # Stage 2: Runtime image (smaller, secure)
 FROM python:3.11-slim-bookworm AS runtime
 
-# Security updates
-RUN apt-get update && apt-get upgrade -y && \
+# Install only required runtime dependencies
+RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     curl \
+    ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
 # Create non-root user

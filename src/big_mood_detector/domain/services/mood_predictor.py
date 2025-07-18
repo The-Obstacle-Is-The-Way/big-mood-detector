@@ -83,14 +83,22 @@ class MoodPredictor:
                       Defaults to model_weights/xgboost/pretrained
         """
         if model_dir is None:
-            # Default to pretrained models with descriptive names
-            # This aligns with infrastructure layer naming convention
-            model_path = os.environ.get("XGBOOST_MODEL_PATH", "model_weights/xgboost/pretrained")
-            if os.path.isabs(model_path):
-                model_dir = Path(model_path)
-            else:
-                base_path = Path(os.path.dirname(__file__)).parent.parent.parent.parent
-                model_dir = base_path / model_path
+            # Try to use settings if available, otherwise fall back to environment variable
+            try:
+                from big_mood_detector.infrastructure.settings.config import get_settings
+                settings = get_settings()
+                # Check in the root model_weights directory first, then in data directory
+                model_dir = Path("model_weights/xgboost/pretrained")
+                if not model_dir.exists():
+                    model_dir = settings.DATA_DIR / "model_weights" / "xgboost" / "pretrained"
+            except ImportError:
+                # Fallback for tests or when settings module is not available
+                model_path = os.environ.get("XGBOOST_MODEL_PATH", "model_weights/xgboost/pretrained")
+                if os.path.isabs(model_path):
+                    model_dir = Path(model_path)
+                else:
+                    base_path = Path(os.path.dirname(__file__)).parent.parent.parent.parent
+                    model_dir = base_path / model_path
 
         self.model_dir = Path(model_dir)
         self.models: dict[str, Any] = {}

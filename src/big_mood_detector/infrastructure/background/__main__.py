@@ -5,6 +5,7 @@ import sys
 
 from big_mood_detector.infrastructure.background.task_queue import TaskQueue
 from big_mood_detector.infrastructure.background.worker import TaskWorker
+from big_mood_detector.infrastructure.settings.config import get_settings
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -13,6 +14,10 @@ logger = logging.getLogger(__name__)
 def main() -> None:
     """Run the background worker."""
     logger.info("Starting background task worker...")
+    
+    # Ensure directories exist
+    settings = get_settings()
+    settings.ensure_directories()
     
     # Initialize task queue
     task_queue = TaskQueue()
@@ -26,7 +31,7 @@ def main() -> None:
     
     # Start processing
     try:
-        worker.start()
+        worker.run()
     except KeyboardInterrupt:
         logger.info("Worker interrupted, shutting down...")
         worker.stop()
