@@ -205,227 +205,227 @@ if TORCH_AVAILABLE:
         """PAT-specific population trainer."""
 
         def __init__(
-        self,
-        base_model_path: str = "weights/PAT-S_29k_weights.h5",
-        task_name: str = "depression",
-        output_dir: Path = Path("models/population"),
-    ):
-        """Initialize PAT trainer.
+            self,
+            base_model_path: str = "weights/PAT-S_29k_weights.h5",
+            task_name: str = "depression",
+            output_dir: Path = Path("models/population"),
+        ):
+            """Initialize PAT trainer.
 
-        Args:
-            base_model_path: Path to pre-trained PAT weights
-            task_name: Task name
-            output_dir: Output directory
-        """
-        super().__init__(task_name, output_dir)
-        self.base_model_path = base_model_path
+            Args:
+                base_model_path: Path to pre-trained PAT weights
+                task_name: Task name
+                output_dir: Output directory
+            """
+            super().__init__(task_name, output_dir)
+            self.base_model_path = base_model_path
 
-    def load_base_model(self) -> Any:
-        """Load pre-trained PAT encoder."""
-        return load_pat_model(self.base_model_path)
+        def load_base_model(self) -> Any:
+            """Load pre-trained PAT encoder."""
+            return load_pat_model(self.base_model_path)
 
-    def create_task_head(
+        def create_task_head(
         self,
         input_dim: int = 768,
         num_classes: int = 2,
         dropout: float = 0.2,
-    ) -> TaskHead:
-        """Create task-specific head.
+        ) -> TaskHead:
+            """Create task-specific head.
 
-        Args:
-            input_dim: Input dimension
-            num_classes: Number of classes
-            dropout: Dropout rate
+            Args:
+                input_dim: Input dimension
+                num_classes: Number of classes
+                dropout: Dropout rate
 
-        Returns:
-            Task head module
-        """
-        return TaskHead(
-            input_dim=input_dim,
-            num_classes=num_classes,
-            dropout=dropout,
-        )
+            Returns:
+                Task head module
+            """
+            return TaskHead(
+                input_dim=input_dim,
+                num_classes=num_classes,
+                dropout=dropout,
+            )
 
-    def fine_tune(
+        def fine_tune(
         self,
         **kwargs: Any,
-    ) -> dict[str, float]:
-        """Fine-tune PAT with task head.
+        ) -> dict[str, float]:
+            """Fine-tune PAT with task head.
 
-        Args:
-            sequences: Activity sequences (N, 60)
-            labels: Task labels
-            epochs: Training epochs
-            batch_size: Batch size
-            learning_rate: Learning rate
-            validation_split: Validation split ratio
+            Args:
+                sequences: Activity sequences (N, 60)
+                labels: Task labels
+                epochs: Training epochs
+                batch_size: Batch size
+                learning_rate: Learning rate
+                validation_split: Validation split ratio
 
-        Returns:
-            Training metrics
-        """
-        # Extract parameters from kwargs
-        sequences = kwargs["sequences"]
-        labels = kwargs["labels"]
-        epochs = kwargs.get("epochs", 10)
-        batch_size = kwargs.get("batch_size", 32)
-        learning_rate = kwargs.get("learning_rate", 1e-4)
-        validation_split = kwargs.get("validation_split", 0.2)
+            Returns:
+                Training metrics
+            """
+            # Extract parameters from kwargs
+            sequences = kwargs["sequences"]
+            labels = kwargs["labels"]
+            epochs = kwargs.get("epochs", 10)
+            batch_size = kwargs.get("batch_size", 32)
+            learning_rate = kwargs.get("learning_rate", 1e-4)
+            validation_split = kwargs.get("validation_split", 0.2)
 
-        logger.info(f"Fine-tuning PAT for {self.task_name}")
+            logger.info(f"Fine-tuning PAT for {self.task_name}")
 
-        # Load base model
-        encoder = self.load_base_model()
+            # Load base model
+            encoder = self.load_base_model()
 
-        # Encode sequences
-        logger.info("Encoding sequences with PAT")
-        embeddings = encoder.encode(sequences)
+            # Encode sequences
+            logger.info("Encoding sequences with PAT")
+            embeddings = encoder.encode(sequences)
 
-        # Create task head
-        num_classes = len(np.unique(labels))
-        # Ensure output_dim is an int, not Mock
-        input_dim = getattr(encoder, "output_dim", 768)
-        if hasattr(input_dim, "__class__") and "Mock" in str(input_dim.__class__):
-            input_dim = 768  # Default for PAT
+            # Create task head
+            num_classes = len(np.unique(labels))
+            # Ensure output_dim is an int, not Mock
+            input_dim = getattr(encoder, "output_dim", 768)
+            if hasattr(input_dim, "__class__") and "Mock" in str(input_dim.__class__):
+                input_dim = 768  # Default for PAT
 
-        task_head = self.create_task_head(
-            input_dim=input_dim,
-            num_classes=num_classes,
-        )
+            task_head = self.create_task_head(
+                input_dim=input_dim,
+                num_classes=num_classes,
+            )
 
-        # Convert to tensors
-        X = torch.FloatTensor(embeddings)
-        y = torch.LongTensor(labels)
+            # Convert to tensors
+            X = torch.FloatTensor(embeddings)
+            y = torch.LongTensor(labels)
 
-        # Split data
-        n_val = int(len(X) * validation_split)
-        X_train, X_val = X[:-n_val], X[-n_val:]
-        y_train, y_val = y[:-n_val], y[-n_val:]
+            # Split data
+            n_val = int(len(X) * validation_split)
+            X_train, X_val = X[:-n_val], X[-n_val:]
+            y_train, y_val = y[:-n_val], y[-n_val:]
 
-        # Training setup
-        optimizer = torch.optim.Adam(task_head.parameters(), lr=learning_rate)
-        criterion = nn.CrossEntropyLoss()
+            # Training setup
+            optimizer = torch.optim.Adam(task_head.parameters(), lr=learning_rate)
+            criterion = nn.CrossEntropyLoss()
 
-        # Training loop
-        task_head.train()
-        for epoch in range(epochs):
-            # Mini-batch training
-            for i in range(0, len(X_train), batch_size):
-                batch_X = X_train[i : i + batch_size]
-                batch_y = y_train[i : i + batch_size]
+            # Training loop
+            task_head.train()
+            for epoch in range(epochs):
+                # Mini-batch training
+                for i in range(0, len(X_train), batch_size):
+                    batch_X = X_train[i : i + batch_size]
+                    batch_y = y_train[i : i + batch_size]
 
-                optimizer.zero_grad()
-                outputs = task_head(batch_X)
-                loss = criterion(outputs, batch_y)
-                loss.backward()
-                optimizer.step()
+                    optimizer.zero_grad()
+                    outputs = task_head(batch_X)
+                    loss = criterion(outputs, batch_y)
+                    loss.backward()
+                    optimizer.step()
 
-            # Validation
+                # Validation
+                task_head.eval()
+                with torch.no_grad():
+                    val_outputs = task_head(X_val)
+                    val_loss = criterion(val_outputs, y_val)
+                    val_preds = val_outputs.argmax(dim=1)
+                    val_acc = (val_preds == y_val).float().mean()
+
+                task_head.train()
+
+                logger.info(
+                    f"Epoch {epoch+1}/{epochs}: "
+                    f"loss={loss:.4f}, val_loss={val_loss:.4f}, "
+                    f"val_acc={val_acc:.4f}"
+                )
+
+            # Final metrics
             task_head.eval()
             with torch.no_grad():
-                val_outputs = task_head(X_val)
-                val_loss = criterion(val_outputs, y_val)
-                val_preds = val_outputs.argmax(dim=1)
-                val_acc = (val_preds == y_val).float().mean()
+                final_outputs = task_head(X_val)
+                final_preds = final_outputs.argmax(dim=1)
+                final_probs = torch.softmax(final_outputs, dim=1)[:, 1].numpy()
 
-            task_head.train()
-
-            logger.info(
-                f"Epoch {epoch+1}/{epochs}: "
-                f"loss={loss:.4f}, val_loss={val_loss:.4f}, "
-                f"val_acc={val_acc:.4f}"
+            metrics = self.evaluate(
+                y_val.numpy(),
+                final_preds.numpy(),
+                final_probs,
             )
 
-        # Final metrics
-        task_head.eval()
-        with torch.no_grad():
-            final_outputs = task_head(X_val)
-            final_preds = final_outputs.argmax(dim=1)
-            final_probs = torch.softmax(final_outputs, dim=1)[:, 1].numpy()
+            metrics["final_loss"] = float(val_loss)
+            metrics["final_accuracy"] = float(val_acc)
+            metrics["epochs_completed"] = epochs
 
-        metrics = self.evaluate(
-            y_val.numpy(),
-            final_preds.numpy(),
-            final_probs,
-        )
+            # Save model
+            self.save_model(encoder, task_head, self.task_name, metrics)
 
-        metrics["final_loss"] = float(val_loss)
-        metrics["final_accuracy"] = float(val_acc)
-        metrics["epochs_completed"] = epochs
+            return metrics
 
-        # Save model
-        self.save_model(encoder, task_head, self.task_name, metrics)
+        def save_model(
+            self,
+            encoder: Any,
+            task_head: nn.Module,
+            task_name: str,
+            metrics: dict[str, float],
+        ) -> Path:
+            """Save fine-tuned model.
 
-        return metrics
+            Args:
+                encoder: PAT encoder
+                task_head: Task-specific head
+                task_name: Task name
+                metrics: Training metrics
 
-    def save_model(
-        self,
-        encoder: Any,
-        task_head: nn.Module,
-        task_name: str,
-        metrics: dict[str, float],
-    ) -> Path:
-        """Save fine-tuned model.
+            Returns:
+                Path to saved model
+            """
+            # Save PyTorch model
+            model_path = self.output_dir / f"pat_{task_name}.pt"
+            # Only save state dict for real models, not mocks
+            save_dict = {
+                "task_name": task_name,
+                "metrics": metrics,
+            }
 
-        Args:
-            encoder: PAT encoder
-            task_head: Task-specific head
-            task_name: Task name
-            metrics: Training metrics
+            if hasattr(task_head, "state_dict"):
+                try:
+                    state_dict = task_head.state_dict()
+                    # Check if it's a real state dict (not Mock)
+                    if not hasattr(state_dict, "__class__") or "Mock" not in str(
+                        state_dict.__class__
+                    ):
+                        save_dict["task_head_state_dict"] = state_dict
+                except Exception:
+                    # Mock object, skip state dict
+                    pass
 
-        Returns:
-            Path to saved model
-        """
-        # Save PyTorch model
-        model_path = self.output_dir / f"pat_{task_name}.pt"
-        # Only save state dict for real models, not mocks
-        save_dict = {
-            "task_name": task_name,
-            "metrics": metrics,
-        }
+            torch.save(save_dict, model_path)
 
-        if hasattr(task_head, "state_dict"):
-            try:
-                state_dict = task_head.state_dict()
-                # Check if it's a real state dict (not Mock)
-                if not hasattr(state_dict, "__class__") or "Mock" not in str(
-                    state_dict.__class__
-                ):
-                    save_dict["task_head_state_dict"] = state_dict
-            except Exception:
-                # Mock object, skip state dict
-                pass
+            # Save metadata
+            metadata_path = self.output_dir / f"pat_{task_name}_metadata.json"
 
-        torch.save(save_dict, model_path)
+            # Get output dim safely (handle mocks)
+            output_dim = getattr(task_head, "output_dim", 2)
+            if hasattr(output_dim, "__class__") and "Mock" in str(output_dim.__class__):
+                output_dim = 2  # Default binary classification
 
-        # Save metadata
-        metadata_path = self.output_dir / f"pat_{task_name}_metadata.json"
-
-        # Get output dim safely (handle mocks)
-        output_dim = getattr(task_head, "output_dim", 2)
-        if hasattr(output_dim, "__class__") and "Mock" in str(output_dim.__class__):
-            output_dim = 2  # Default binary classification
-
-        with open(metadata_path, "w") as f:
-            json.dump(
-                {
-                    "task_name": task_name,
-                    "base_model": self.base_model_path,
-                    "metrics": {
-                        k: (
-                            float(v)
-                            if isinstance(v, int | float | np.number)
-                            else str(v)
-                        )
-                        for k, v in metrics.items()
+            with open(metadata_path, "w") as f:
+                json.dump(
+                    {
+                        "task_name": task_name,
+                        "base_model": self.base_model_path,
+                        "metrics": {
+                            k: (
+                                float(v)
+                                if isinstance(v, int | float | np.number)
+                                else str(v)
+                            )
+                            for k, v in metrics.items()
+                        },
+                        "output_dim": output_dim,
                     },
-                    "output_dim": output_dim,
-                },
-                f,
-                indent=2,
-            )
+                    f,
+                    indent=2,
+                )
 
-        logger.info(f"Saved model to {model_path}")
-        return model_path
+            logger.info(f"Saved model to {model_path}")
+            return model_path
 
 
 class XGBoostPopulationTrainer(PopulationTrainer):
