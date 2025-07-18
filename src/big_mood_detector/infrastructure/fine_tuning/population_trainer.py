@@ -7,7 +7,7 @@ Trains task-specific heads on NHANES cohorts for population-level fine-tuning.
 import json
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import joblib  # type: ignore[import-untyped]
 import numpy as np
@@ -25,6 +25,14 @@ from sklearn.model_selection import TimeSeriesSplit
 from big_mood_detector.infrastructure.logging import get_module_logger
 
 logger = get_module_logger(__name__)
+
+# Export control based on torch availability
+if TYPE_CHECKING:
+    # Always export for type checking
+    __all__ = ["PopulationTrainer", "XGBoostPopulationTrainer", "PATPopulationTrainer", "create_population_trainer"]
+else:
+    # Only export what's available at runtime
+    __all__ = ["PopulationTrainer", "XGBoostPopulationTrainer", "create_population_trainer"]
 
 
 class PopulationTrainer(ABC):

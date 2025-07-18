@@ -58,6 +58,15 @@ def train_command(model_type: str, user_id: str, data: str, labels: str) -> None
     import numpy as np
     import pandas as pd
 
+    # Check if PAT is requested but not available
+    if model_type.lower() == "pat":
+        from big_mood_detector.infrastructure.ml_models import PAT_AVAILABLE
+        if not PAT_AVAILABLE:
+            raise click.BadParameter(
+                "PAT model requires PyTorch which is not installed. "
+                "Install with: pip install torch transformers"
+            )
+
     from big_mood_detector.infrastructure.fine_tuning.personal_calibrator import (
         PersonalCalibrator,
     )

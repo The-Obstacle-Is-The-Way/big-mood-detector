@@ -1,0 +1,65 @@
+# Auto detect text files and perform LF normalization
+* text=auto
+
+# Ensure shell scripts use LF
+*.sh text eol=lf
+docker/entrypoint.sh text eol=lf
+
+# Python files
+*.py text
+*.pyw text
+*.pyx text
+*.pyi text
+
+# Jupyter notebooks
+*.ipynb text eol=lf
+
+# Data files - treat as binary
+*.csv binary
+*.npy binary
+*.npz binary
+*.pkl binary
+*.pickle binary
+*.h5 binary
+*.hdf5 binary
+*.parquet binary
+
+# Documentation
+*.md text
+*.rst text
+*.txt text
+
+# Config files
+*.json text
+*.yaml text
+*.yml text
+*.toml text
+*.ini text
+.env* text
+
+# Web assets
+*.html text
+*.css text
+*.js text
+*.jsx text
+*.ts text
+*.tsx text
+
+# Images
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.svg text
+
+# Archives
+*.zip binary
+*.gz binary
+*.tar binary
+*.tgz binary
+
+# Executables
+*.exe binary
+*.dll binary
+*.so binary
+*.dylib binary

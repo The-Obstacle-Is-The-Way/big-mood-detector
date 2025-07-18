@@ -18,6 +18,8 @@ from big_mood_detector.interfaces.api.routes.predictions import (
 )
 from big_mood_detector.interfaces.api.routes.upload import router as upload_router
 
+import os
+
 app = FastAPI(
     title="Big Mood Detector",
     description="Clinical-grade mood episode detection from wearable data",
@@ -29,7 +31,10 @@ app.include_router(clinical_router)
 app.include_router(features_router)
 app.include_router(labels_router)
 app.include_router(predictions_router)
-app.include_router(upload_router)
+
+# Only include upload routes if worker is enabled
+if os.environ.get("ENABLE_ASYNC_UPLOAD", "false").lower() == "true":
+    app.include_router(upload_router)
 
 
 @app.get("/health")
