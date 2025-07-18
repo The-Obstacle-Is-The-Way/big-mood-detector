@@ -13,6 +13,8 @@ Design Patterns:
 from dataclasses import dataclass
 from datetime import date, datetime
 
+import numpy as np
+
 from big_mood_detector.domain.entities.activity_record import (
     ActivityRecord,
     ActivityType,
@@ -385,3 +387,51 @@ class ActivitySequenceExtractor:
                 current_duration = 0
 
         return max_duration
+
+    def extract_minute_sequence(
+        self, records: list[ActivityRecord], days: int = 7
+    ) -> np.ndarray:
+        """Convert activity records into a contiguous minute sequence.
+
+        The sequence always has ``days * 1,440`` values starting at midnight of
+        the earliest record. Each record's value is evenly distributed across the
+        minutes it spans. Overlapping records accumulate.
+
+        Args:
+            records: Activity records to process.
+            days: Number of days to include in the sequence.
+
+        Returns:
+            Array of shape ``(days * 1_440,)`` with minute activity values.
+        """
+
+        total_minutes = days * self.MINUTES_PER_DAY
+        values = np.zeros(total_minutes, dtype=np.float32)
+
+        if not records:
+            return values
+
+        # Sort records to determine start of sequence
+        sorted_records = sorted(records, key=lambda r: r.start_date)
+        start_midnight = datetime.combine(
+            sorted_records[0].start_date.date(), datetime.min.time()
+        )
+
+        for rec in sorted_records:
+            start_idx = int((rec.start_date - start_midnight).total_seconds() // 60)
+            end_idx = int((rec.end_date - start_midnight).total_seconds() // 60)
+
+            if start_idx >= total_minutes:
+                continue
+            if end_idx < 0:
+                continue
+
+            end_idx = max(start_idx, min(end_idx, total_minutes - 1))
+            duration = max(1, end_idx - start_idx + 1)
+            increment = rec.value / duration
+
+            for idx in range(start_idx, end_idx + 1):
+                if 0 <= idx < total_minutes:
+                    values[idx] += increment
+
+        return values

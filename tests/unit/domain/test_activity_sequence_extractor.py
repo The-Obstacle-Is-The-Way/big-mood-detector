@@ -5,11 +5,10 @@ Tests minute-level activity sequence extraction for PAT (Principal Activity Time
 calculation, critical for circadian rhythm analysis in bipolar disorder.
 """
 
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 
 import numpy as np
 import pytest
-
 from big_mood_detector.domain.entities.activity_record import (
     ActivityRecord,
     ActivityType,
@@ -38,6 +37,19 @@ class TestActivitySequenceExtractor:
             unit="steps",
         )
 
+    def _create_interval_record(
+        self, start: datetime, end: datetime, steps: int
+    ) -> ActivityRecord:
+        """Create record spanning a time interval."""
+        return ActivityRecord(
+            source_name="test",
+            start_date=start,
+            end_date=end,
+            activity_type=ActivityType.STEP_COUNT,
+            value=float(steps),
+            unit="steps",
+        )
+
     def test_empty_records_creates_zero_sequence(self, extractor):
         """Empty records should create all-zero sequence."""
         # Arrange
@@ -56,7 +68,8 @@ class TestActivitySequenceExtractor:
         """Single activity record should fill the correct minute slots."""
         # Arrange
         record = self._create_step_record(
-            datetime(2024, 1, 15, 14, 30), 1000  # 2:30 PM
+            datetime(2024, 1, 15, 14, 30),
+            1000,  # 2:30 PM
         )
 
         # Act
@@ -122,7 +135,8 @@ class TestActivitySequenceExtractor:
         for minute in range(0, 60, 10):
             records.append(
                 self._create_step_record(
-                    datetime(2024, 1, 15, 14, minute), 50  # Lower afternoon activity
+                    datetime(2024, 1, 15, 14, minute),
+                    50,  # Lower afternoon activity
                 )
             )
 
@@ -160,7 +174,8 @@ class TestActivitySequenceExtractor:
         for hour in range(6, 22):  # 6 AM to 10 PM
             records.append(
                 self._create_step_record(
-                    datetime(2024, 1, 15, hour, 0), 100  # Same activity each hour
+                    datetime(2024, 1, 15, hour, 0),
+                    100,  # Same activity each hour
                 )
             )
 
@@ -182,7 +197,8 @@ class TestActivitySequenceExtractor:
         for minute in range(60):
             records.append(
                 self._create_step_record(
-                    datetime(2024, 1, 15, 15, minute), 200  # 3 PM hour
+                    datetime(2024, 1, 15, 15, minute),
+                    200,  # 3 PM hour
                 )
             )
 
@@ -282,3 +298,40 @@ class TestActivitySequenceExtractor:
 
         # Assert
         assert alignment_score < 0.3  # Poor alignment
+
+    def test_extract_minute_sequence_basic(self, extractor):
+        """Extract sequence across multiple days."""
+        start = datetime(2024, 1, 15, 23, 50)
+        end = start + timedelta(minutes=20)
+        records = [self._create_interval_record(start, end, 200)]
+
+        seq = extractor.extract_minute_sequence(records, days=2)
+
+        assert len(seq) == 2880
+        # Value spreads over 21 minutes
+        assert pytest.approx(seq[23 * 60 + 50], abs=1e-3) == pytest.approx(
+            200 / 21, abs=1e-3
+        )
+        assert sum(seq) == pytest.approx(200, rel=1e-6)
+
+    def test_extract_minute_sequence_overlap(self, extractor):
+        """Overlapping records should accumulate."""
+        start = datetime(2024, 1, 15, 10, 0)
+        rec1 = self._create_interval_record(start, start + timedelta(minutes=2), 60)
+        rec2 = self._create_interval_record(
+            start + timedelta(minutes=1), start + timedelta(minutes=3), 60
+        )
+        seq = extractor.extract_minute_sequence([rec1, rec2], days=1)
+
+        # Minutes 10:00, 10:01, 10:02, 10:03
+        assert len(seq) == 1440
+        assert seq[10 * 60] > 0
+        # Overlap minute 10:01 should have sum of both increments
+        assert seq[10 * 60 + 1] > seq[10 * 60]
+        assert sum(seq) == pytest.approx(120, rel=1e-6)
+
+    def test_extract_minute_sequence_no_records(self, extractor):
+        """No records should yield zeros."""
+        seq = extractor.extract_minute_sequence([], days=3)
+        assert len(seq) == 4320
+        assert np.all(seq == 0)
