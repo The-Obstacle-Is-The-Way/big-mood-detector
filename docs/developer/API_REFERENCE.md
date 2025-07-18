@@ -186,6 +186,128 @@ Cancel a processing job.
 
 ---
 
+### Predictions
+
+#### `POST /api/v1/predictions/predict`
+Generate mood predictions from pre-computed features.
+
+**Request Body**
+```json
+{
+  "sleep_duration": 7.5,
+  "sleep_efficiency": 0.85,
+  "sleep_timing_variance": 30.0,
+  "daily_steps": 8000,
+  "activity_variance": 150.0,
+  "sedentary_hours": 8.0,
+  "interdaily_stability": 0.75,
+  "intradaily_variability": 0.45,
+  "relative_amplitude": 0.82,
+  "resting_hr": 65.0,
+  "hrv_rmssd": 35.0
+}
+```
+
+**Response**
+```json
+{
+  "depression_risk": 0.32,
+  "hypomanic_risk": 0.15,
+  "manic_risk": 0.08,
+  "confidence": 0.87,
+  "risk_level": "low",
+  "interpretation": "Low mood episode risk"
+}
+```
+
+#### `POST /api/v1/predictions/predict/ensemble`
+Generate ensemble predictions using both XGBoost and PAT models.
+
+**Note**: This endpoint requires TensorFlow to be installed for PAT model support. Without TensorFlow, it will return a 501 status code.
+
+**Request Body**
+Same as `/predict` endpoint.
+
+**Response**
+```json
+{
+  "xgboost_prediction": {
+    "depression_risk": 0.32,
+    "hypomanic_risk": 0.15,
+    "manic_risk": 0.08,
+    "confidence": 0.85
+  },
+  "pat_prediction": {
+    "depression_risk": 0.28,
+    "hypomanic_risk": 0.18,
+    "manic_risk": 0.06,
+    "confidence": 0.89
+  },
+  "ensemble_prediction": {
+    "depression_risk": 0.30,
+    "hypomanic_risk": 0.16,
+    "manic_risk": 0.07,
+    "confidence": 0.88
+  },
+  "models_used": ["xgboost", "pat_enhanced"],
+  "confidence_scores": {
+    "xgboost": 0.85,
+    "pat_enhanced": 0.89,
+    "ensemble": 0.88
+  },
+  "clinical_summary": "Low risk - maintain healthy lifestyle",
+  "recommendations": [
+    "Continue current habits",
+    "Maintain consistent sleep-wake schedule"
+  ]
+}
+```
+
+**Ensemble Weighting**
+- XGBoost: 60% weight
+- PAT: 40% weight
+
+**Performance Targets**
+- P99 latency < 200ms (with PAT)
+- P99 latency < 100ms (XGBoost only)
+
+#### `GET /api/v1/predictions/status`
+Check available prediction models and their status.
+
+**Response**
+```json
+{
+  "xgboost_available": true,
+  "pat_available": true,
+  "ensemble_available": true,
+  "models_loaded": ["depression", "hypomania", "mania"],
+  "model_info": {
+    "depression": {
+      "type": "XGBoost",
+      "version": "1.0.0",
+      "features": 36,
+      "trained_on": "Seoul National Hospital Dataset"
+    }
+  },
+  "pat_info": {
+    "model_size": "medium",
+    "patch_size": 18,
+    "num_patches": 560,
+    "embed_dim": 96,
+    "encoder_layers": 2,
+    "encoder_heads": 12,
+    "parameters": 1000000,
+    "is_loaded": true
+  },
+  "ensemble_config": {
+    "xgboost_weight": 0.6,
+    "pat_weight": 0.4
+  }
+}
+```
+
+---
+
 ### Results
 
 #### `GET /api/v1/results/{job_id}`

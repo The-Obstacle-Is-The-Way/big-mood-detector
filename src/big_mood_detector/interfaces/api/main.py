@@ -19,6 +19,7 @@ from big_mood_detector.interfaces.api.routes.predictions import (
     router as predictions_router,
 )
 from big_mood_detector.interfaces.api.routes.upload import router as upload_router
+from big_mood_detector.interfaces.api.middleware.rate_limit import setup_rate_limiting
 
 app = FastAPI(
     title="Big Mood Detector",
@@ -26,13 +27,20 @@ app = FastAPI(
     version="0.1.0",
 )
 
+# Set up rate limiting
+app = setup_rate_limiting(app)
+
 # Ensure directories exist on startup
 @app.on_event("startup")
 async def startup_event() -> None:
-    """Ensure required directories exist when the API starts."""
+    """Ensure required directories exist and preload models when the API starts."""
     import sys
     from big_mood_detector.infrastructure.logging import get_module_logger
     from big_mood_detector.infrastructure.settings.utils import validate_model_paths
+    from big_mood_detector.interfaces.api.dependencies import (
+        get_ensemble_orchestrator,
+        get_mood_predictor,
+    )
     
     logger = get_module_logger(__name__)
     settings = get_settings()
@@ -43,6 +51,28 @@ async def startup_event() -> None:
     if validation_error:
         logger.critical("Model weights validation failed", error=validation_error)
         sys.exit(1)
+    
+    # Preload models into memory (singleton cache)
+    logger.info("Preloading models...")
+    
+    # Preload basic predictor
+    predictor = get_mood_predictor()
+    logger.info(f"MoodPredictor loaded with {len(predictor.models)} models")
+    
+    # Preload ensemble orchestrator (includes PAT if available)
+    orchestrator = get_ensemble_orchestrator()
+    if orchestrator:
+        logger.info("Ensemble orchestrator loaded successfully")
+        if orchestrator.pat_model:
+            logger.info("PAT model loaded and available")
+        else:
+            logger.warning("PAT model not available - TensorFlow may not be installed")
+    else:
+        logger.warning("Failed to load ensemble orchestrator")
+    
+    # Store in app state for multi-worker scenarios
+    app.state.predictor = predictor
+    app.state.orchestrator = orchestrator
     
     logger.info("API startup complete", model_path=str(settings.MODEL_WEIGHTS_PATH))
 

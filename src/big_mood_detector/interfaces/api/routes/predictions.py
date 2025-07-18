@@ -12,11 +12,13 @@ from pydantic import BaseModel, Field
 from big_mood_detector.application.use_cases.predict_mood_ensemble_use_case import (
     EnsembleOrchestrator,
 )
+from big_mood_detector.core.feature_constants import API_TO_XGBOOST_MAPPING
 from big_mood_detector.domain.services.mood_predictor import MoodPredictor
 from big_mood_detector.interfaces.api.dependencies import (
     get_ensemble_orchestrator,
     get_mood_predictor,
 )
+from big_mood_detector.interfaces.api.middleware.rate_limit import rate_limit
 
 router = APIRouter(prefix="/api/v1/predictions", tags=["predictions"])
 
@@ -68,6 +70,7 @@ class EnsemblePredictionResponse(BaseModel):
 
 
 @router.post("/predict", response_model=PredictionResponse)
+@rate_limit("predict")
 async def predict_mood(
     features: FeatureInput,
     predictor: MoodPredictor = Depends(get_mood_predictor),
@@ -165,6 +168,7 @@ async def predict_mood(
 
 
 @router.post("/predict/ensemble", response_model=EnsemblePredictionResponse)
+@rate_limit("ensemble_predict")
 async def predict_mood_ensemble(
     features: FeatureInput,
     orchestrator: EnsembleOrchestrator | None = Depends(get_ensemble_orchestrator),
@@ -181,10 +185,18 @@ async def predict_mood_ensemble(
     """
     try:
         if orchestrator is None:
-            raise HTTPException(
-                status_code=503, 
-                detail="Ensemble models not available. Check server logs."
-            )
+            # Check if it's a TensorFlow issue
+            from big_mood_detector.infrastructure.ml_models import PAT_AVAILABLE
+            if not PAT_AVAILABLE:
+                raise HTTPException(
+                    status_code=501,
+                    detail="PAT model requires TensorFlow. Install with: pip install tensorflow>=2.14.0"
+                )
+            else:
+                raise HTTPException(
+                    status_code=503, 
+                    detail="Ensemble models not available. Check server logs."
+                )
 
         # Convert features to numpy array
         import numpy as np
@@ -192,24 +204,9 @@ async def predict_mood_ensemble(
         # Build feature array (36 features expected by XGBoost)
         feature_array = np.zeros(36, dtype=np.float32)
         
-        # Map features to array positions
-        feature_mapping = {
-            "sleep_duration": 0,
-            "sleep_efficiency": 1,
-            "sleep_timing_variance": 2,
-            "daily_steps": 3,
-            "activity_variance": 4,
-            "sedentary_hours": 5,
-            "interdaily_stability": 6,
-            "intradaily_variability": 7,
-            "relative_amplitude": 8,
-            "resting_hr": 9,
-            "hrv_rmssd": 10,
-        }
-        
-        # Fill in provided features
+        # Fill in provided features using proper mapping
         feature_dict = features.model_dump(exclude_none=True)
-        for name, idx in feature_mapping.items():
+        for name, idx in API_TO_XGBOOST_MAPPING.items():
             if name in feature_dict:
                 feature_array[idx] = feature_dict[name]
 
@@ -297,6 +294,7 @@ async def predict_mood_ensemble(
 
 
 @router.get("/status")
+@rate_limit("status")
 async def get_model_status(
     predictor: MoodPredictor = Depends(get_mood_predictor),
     orchestrator: EnsembleOrchestrator | None = Depends(get_ensemble_orchestrator),

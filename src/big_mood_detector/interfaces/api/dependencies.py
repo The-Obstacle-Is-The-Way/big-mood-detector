@@ -7,6 +7,8 @@ Provides singleton instances and dependency injection for performance.
 from functools import lru_cache
 from pathlib import Path
 
+from fastapi import Request
+
 from big_mood_detector.application.use_cases.process_health_data_use_case import (
     MoodPredictionPipeline,
 )
@@ -14,6 +16,7 @@ from big_mood_detector.application.use_cases.predict_mood_ensemble_use_case impo
     EnsembleConfig,
     EnsembleOrchestrator,
 )
+from big_mood_detector.core.paths import XGBOOST_PRETRAINED_DIR
 from big_mood_detector.domain.services.mood_predictor import MoodPredictor
 from big_mood_detector.infrastructure.ml_models import PAT_AVAILABLE
 from big_mood_detector.infrastructure.ml_models.xgboost_models import (
@@ -66,9 +69,8 @@ def get_ensemble_orchestrator() -> EnsembleOrchestrator | None:
 
     # Initialize XGBoost predictor
     xgboost_predictor = XGBoostMoodPredictor()
-    model_dir = Path("model_weights/xgboost/pretrained")
     
-    if not xgboost_predictor.load_models(model_dir):
+    if not xgboost_predictor.load_models(XGBOOST_PRETRAINED_DIR):
         logger.error("Failed to load XGBoost models")
         return None
 
@@ -99,3 +101,27 @@ def get_ensemble_orchestrator() -> EnsembleOrchestrator | None:
     )
 
     return orchestrator
+
+
+def get_mood_predictor_with_state(request: Request) -> MoodPredictor:
+    """
+    Get MoodPredictor from app state if available, otherwise create new.
+    
+    This is better for multi-worker deployments.
+    """
+    if hasattr(request.app.state, "predictor") and request.app.state.predictor:
+        return request.app.state.predictor
+    return get_mood_predictor()
+
+
+def get_ensemble_orchestrator_with_state(
+    request: Request,
+) -> EnsembleOrchestrator | None:
+    """
+    Get EnsembleOrchestrator from app state if available, otherwise create new.
+    
+    This is better for multi-worker deployments.
+    """
+    if hasattr(request.app.state, "orchestrator"):
+        return request.app.state.orchestrator
+    return get_ensemble_orchestrator()
