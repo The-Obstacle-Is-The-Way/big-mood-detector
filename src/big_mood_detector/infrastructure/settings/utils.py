@@ -3,7 +3,10 @@
 import logging
 import os
 from pathlib import Path
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from big_mood_detector.infrastructure.settings import Settings
 
 logger = logging.getLogger(__name__)
 
