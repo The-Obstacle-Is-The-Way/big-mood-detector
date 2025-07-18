@@ -212,13 +212,12 @@ class TestFeatureExtraction:
 
     @pytest.fixture
     def sample_health_data(self, tmp_path: Path) -> Path:
-        """Create sample Apple Health XML export file."""
-        # Create minimal valid XML health data
+        """Create sample Apple Health XML export file with realistic data."""
+        # Create XML with enough data for aggregation pipeline (7 days)
         xml_content = """<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE HealthData [
 <!ELEMENT HealthData (Record+)>
-<!ATTLIST HealthData
-  locale CDATA #IMPLIED>
+<!ATTLIST HealthData locale CDATA #IMPLIED>
 <!ELEMENT Record EMPTY>
 <!ATTLIST Record
   type CDATA #REQUIRED
@@ -227,21 +226,39 @@ class TestFeatureExtraction:
   endDate CDATA #REQUIRED
   value CDATA #IMPLIED>
 ]>
-<HealthData locale="en_US">
+<HealthData locale="en_US">\n"""
+        
+        # Add 7 days of sleep data
+        for day in range(7):
+            date_str = f"2024-01-{day+1:02d}"
+            xml_content += f"""  <Record type="HKCategoryTypeIdentifierSleepAnalysis" sourceName="Apple Watch" 
+          startDate="{date_str} 23:00:00 -0500" endDate="2024-01-{day+2:02d} 07:00:00 -0500" 
+          value="HKCategoryValueSleepAnalysisAsleepCore"/>
   <Record type="HKCategoryTypeIdentifierSleepAnalysis" sourceName="Apple Watch" 
-          startDate="2024-01-01 23:00:00 -0500" endDate="2024-01-02 07:00:00 -0500" 
-          value="HKCategoryValueSleepAnalysisInBed"/>
-  <Record type="HKQuantityTypeIdentifierHeartRate" sourceName="Apple Watch" 
-          startDate="2024-01-02 06:00:00 -0500" endDate="2024-01-02 06:00:00 -0500" 
-          value="65"/>
-  <Record type="HKQuantityTypeIdentifierActiveEnergyBurned" sourceName="Apple Watch" 
-          startDate="2024-01-02 12:00:00 -0500" endDate="2024-01-02 12:00:00 -0500" 
-          value="250"/>
-  <Record type="HKQuantityTypeIdentifierStepCount" sourceName="Apple Watch" 
-          startDate="2024-01-02 12:00:00 -0500" endDate="2024-01-02 12:00:00 -0500" 
-          value="5000"/>
-</HealthData>
+          startDate="2024-01-{day+2:02d} 03:00:00 -0500" endDate="2024-01-{day+2:02d} 03:30:00 -0500" 
+          value="HKCategoryValueSleepAnalysisAwake"/>
 """
+        
+        # Add heart rate data
+        for day in range(7):
+            for hour in [6, 12, 18]:
+                xml_content += f"""  <Record type="HKQuantityTypeIdentifierHeartRate" sourceName="Apple Watch" 
+          startDate="2024-01-{day+1:02d} {hour:02d}:00:00 -0500" endDate="2024-01-{day+1:02d} {hour:02d}:00:00 -0500" 
+          value="{65 + hour}"/>
+"""
+        
+        # Add activity data
+        for day in range(7):
+            xml_content += f"""  <Record type="HKQuantityTypeIdentifierActiveEnergyBurned" sourceName="Apple Watch" 
+          startDate="2024-01-{day+1:02d} 12:00:00 -0500" endDate="2024-01-{day+1:02d} 12:00:00 -0500" 
+          value="{250 + day * 50}"/>
+  <Record type="HKQuantityTypeIdentifierStepCount" sourceName="Apple Watch" 
+          startDate="2024-01-{day+1:02d} 00:00:00 -0500" endDate="2024-01-{day+1:02d} 23:59:59 -0500" 
+          value="{8000 + day * 1000}"/>
+"""
+        
+        xml_content += "</HealthData>"
+        
         file_path = tmp_path / "export.xml"
         with open(file_path, "w") as f:
             f.write(xml_content)
