@@ -1,0 +1,36 @@
+Big Mood Detector
+Copyright 2024 Big Mood Detector Contributors
+
+This product includes software developed by the Big Mood Detector Contributors.
+
+This software incorporates work from the following research projects:
+
+1. Seoul National University Hospital Study
+   - "Accurately predicting mood episodes in mood disorder patients using wearable sleep and circadian rhythm features"
+   - Published in npj Digital Medicine, 2024
+   - Model weights used under research license with required citation
+
+2. Dartmouth College PAT (Pretrained Actigraphy Transformer)
+   - "AI Foundation Models for Wearable Movement Data in Mental Health Research"
+   - Published 2024
+   - Model weights used under research license with required citation
+
+The following third-party software is bundled with this product:
+
+- XGBoost (Apache License 2.0)
+- TensorFlow (Apache License 2.0)
+- FastAPI (MIT License)
+- NumPy (BSD 3-Clause License)
+- Pandas (BSD 3-Clause License)
+- scikit-learn (BSD 3-Clause License)
+
+For a complete list of dependencies and their licenses, see LICENSES/README.md
+
+IMPORTANT: When using this software for research purposes, please cite:
+
+Lim et al., "Accurately predicting mood episodes in mood disorder patients 
+using wearable sleep and circadian rhythm features", 
+npj Digital Medicine, 2024
+
+Ruan et al., "AI Foundation Models for Wearable Movement Data 
+in Mental Health Research", 2024
