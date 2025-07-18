@@ -8,10 +8,15 @@ from click.testing import CliRunner
 
 # Stub out heavy PAT dependencies before importing the CLI
 pat_stub = types.ModuleType("pat_model")
+
+
 # Create a mock class instead of object
 class MockPATModel:
-    def __init__(self, **kwargs):
-        pass
+    def __init__(self, model_size="medium", **kwargs):
+        self.model_size = model_size
+        self.patch_size = 18 if model_size == "medium" else 12
+
+
 pat_stub.PATModel = MockPATModel
 pat_stub.PATFeatureExtractor = object
 sys.modules["big_mood_detector.infrastructure.ml_models.pat_model"] = pat_stub
