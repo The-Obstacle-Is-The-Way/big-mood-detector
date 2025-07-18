@@ -231,29 +231,29 @@ class TestFeatureExtraction:
         # Add 7 days of sleep data
         for day in range(7):
             date_str = f"2024-01-{day+1:02d}"
-            xml_content += f"""  <Record type="HKCategoryTypeIdentifierSleepAnalysis" sourceName="Apple Watch" 
-          startDate="{date_str} 23:00:00 -0500" endDate="2024-01-{day+2:02d} 07:00:00 -0500" 
+            xml_content += f"""  <Record type="HKCategoryTypeIdentifierSleepAnalysis" sourceName="Apple Watch"
+          startDate="{date_str} 23:00:00 -0500" endDate="2024-01-{day+2:02d} 07:00:00 -0500"
           value="HKCategoryValueSleepAnalysisAsleepCore"/>
-  <Record type="HKCategoryTypeIdentifierSleepAnalysis" sourceName="Apple Watch" 
-          startDate="2024-01-{day+2:02d} 03:00:00 -0500" endDate="2024-01-{day+2:02d} 03:30:00 -0500" 
+  <Record type="HKCategoryTypeIdentifierSleepAnalysis" sourceName="Apple Watch"
+          startDate="2024-01-{day+2:02d} 03:00:00 -0500" endDate="2024-01-{day+2:02d} 03:30:00 -0500"
           value="HKCategoryValueSleepAnalysisAwake"/>
 """
 
         # Add heart rate data
         for day in range(7):
             for hour in [6, 12, 18]:
-                xml_content += f"""  <Record type="HKQuantityTypeIdentifierHeartRate" sourceName="Apple Watch" 
-          startDate="2024-01-{day+1:02d} {hour:02d}:00:00 -0500" endDate="2024-01-{day+1:02d} {hour:02d}:00:00 -0500" 
+                xml_content += f"""  <Record type="HKQuantityTypeIdentifierHeartRate" sourceName="Apple Watch"
+          startDate="2024-01-{day+1:02d} {hour:02d}:00:00 -0500" endDate="2024-01-{day+1:02d} {hour:02d}:00:00 -0500"
           value="{65 + hour}"/>
 """
 
         # Add activity data
         for day in range(7):
-            xml_content += f"""  <Record type="HKQuantityTypeIdentifierActiveEnergyBurned" sourceName="Apple Watch" 
-          startDate="2024-01-{day+1:02d} 12:00:00 -0500" endDate="2024-01-{day+1:02d} 12:00:00 -0500" 
+            xml_content += f"""  <Record type="HKQuantityTypeIdentifierActiveEnergyBurned" sourceName="Apple Watch"
+          startDate="2024-01-{day+1:02d} 12:00:00 -0500" endDate="2024-01-{day+1:02d} 12:00:00 -0500"
           value="{250 + day * 50}"/>
-  <Record type="HKQuantityTypeIdentifierStepCount" sourceName="Apple Watch" 
-          startDate="2024-01-{day+1:02d} 00:00:00 -0500" endDate="2024-01-{day+1:02d} 23:59:59 -0500" 
+  <Record type="HKQuantityTypeIdentifierStepCount" sourceName="Apple Watch"
+          startDate="2024-01-{day+1:02d} 00:00:00 -0500" endDate="2024-01-{day+1:02d} 23:59:59 -0500"
           value="{8000 + day * 1000}"/>
 """
 

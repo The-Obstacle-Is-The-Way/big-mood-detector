@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 def ensure_directory(path: Path, mode: int = 0o755) -> None:
     """Ensure a directory exists with proper permissions.
-    
+
     Args:
         path: Directory path to create
         mode: Unix permissions mode (default: 755)
@@ -39,7 +39,7 @@ def ensure_directory(path: Path, mode: int = 0o755) -> None:
 
 def initialize_directories(settings: "Settings") -> None:
     """Initialize all required directories from settings.
-    
+
     This should be called at application startup, not during import.
     """
     directories = [
@@ -64,7 +64,7 @@ def initialize_directories(settings: "Settings") -> None:
 
 def validate_model_paths(settings: "Settings") -> str | None:
     """Validate that model paths exist and are accessible.
-    
+
     Returns:
         Error message if validation fails, None if successful
     """

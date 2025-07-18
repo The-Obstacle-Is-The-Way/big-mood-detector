@@ -15,21 +15,21 @@ def sample_xml_with_dates() -> str:
     """Create sample XML with various dates."""
     return """<?xml version="1.0" encoding="UTF-8"?>
 <HealthData>
-    <Record type="HKCategoryTypeIdentifierSleepAnalysis" 
-            startDate="2025-01-01 23:00:00 -0700" 
-            endDate="2025-01-02 07:00:00 -0700" 
+    <Record type="HKCategoryTypeIdentifierSleepAnalysis"
+            startDate="2025-01-01 23:00:00 -0700"
+            endDate="2025-01-02 07:00:00 -0700"
             value="HKCategoryValueSleepAnalysisInBed"/>
-    <Record type="HKCategoryTypeIdentifierSleepAnalysis" 
-            startDate="2025-05-15 22:30:00 -0700" 
-            endDate="2025-05-16 06:30:00 -0700" 
+    <Record type="HKCategoryTypeIdentifierSleepAnalysis"
+            startDate="2025-05-15 22:30:00 -0700"
+            endDate="2025-05-16 06:30:00 -0700"
             value="HKCategoryValueSleepAnalysisAsleep"/>
-    <Record type="HKCategoryTypeIdentifierSleepAnalysis" 
-            startDate="2025-06-01 23:15:00 -0700" 
-            endDate="2025-06-02 07:45:00 -0700" 
+    <Record type="HKCategoryTypeIdentifierSleepAnalysis"
+            startDate="2025-06-01 23:15:00 -0700"
+            endDate="2025-06-02 07:45:00 -0700"
             value="HKCategoryValueSleepAnalysisInBed"/>
-    <Record type="HKQuantityTypeIdentifierStepCount" 
-            startDate="2025-05-20 10:00:00 -0700" 
-            endDate="2025-05-20 10:05:00 -0700" 
+    <Record type="HKQuantityTypeIdentifierStepCount"
+            startDate="2025-05-20 10:00:00 -0700"
+            endDate="2025-05-20 10:05:00 -0700"
             value="250"/>
 </HealthData>"""
 
@@ -141,13 +141,13 @@ class TestStreamingXMLDateFilter:
         """Test that records with invalid dates are skipped."""
         xml_content = """<?xml version="1.0" encoding="UTF-8"?>
 <HealthData>
-    <Record type="HKCategoryTypeIdentifierSleepAnalysis" 
-            startDate="invalid-date-format" 
-            endDate="2025-01-02 07:00:00 -0700" 
+    <Record type="HKCategoryTypeIdentifierSleepAnalysis"
+            startDate="invalid-date-format"
+            endDate="2025-01-02 07:00:00 -0700"
             value="HKCategoryValueSleepAnalysisInBed"/>
-    <Record type="HKCategoryTypeIdentifierSleepAnalysis" 
-            startDate="2025-05-15 22:30:00 -0700" 
-            endDate="2025-05-16 06:30:00 -0700" 
+    <Record type="HKCategoryTypeIdentifierSleepAnalysis"
+            startDate="2025-05-15 22:30:00 -0700"
+            endDate="2025-05-16 06:30:00 -0700"
             value="HKCategoryValueSleepAnalysisAsleep"/>
 </HealthData>"""
 

@@ -16,10 +16,10 @@ from big_mood_detector.domain.services.mood_predictor import MoodPredictor
 def get_mood_predictor() -> MoodPredictor:
     """
     Get singleton MoodPredictor instance.
-    
+
     This ensures models are loaded only once at startup,
     not on every request.
-    
+
     Returns:
         Cached MoodPredictor instance
     """
@@ -30,10 +30,10 @@ def get_mood_predictor() -> MoodPredictor:
 def get_mood_pipeline() -> MoodPredictionPipeline:
     """
     Get singleton MoodPredictionPipeline instance.
-    
+
     This ensures the pipeline is created only once at startup,
     not on every request.
-    
+
     Returns:
         Cached MoodPredictionPipeline instance
     """
