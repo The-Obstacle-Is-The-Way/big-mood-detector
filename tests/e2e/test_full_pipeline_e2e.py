@@ -20,21 +20,21 @@ class TestFullPipeline:
         # Using list join to avoid whitespace issues
         xml_lines = [
             '<?xml version="1.0" encoding="UTF-8"?>',
-            '<!DOCTYPE HealthData [',
-            '<!ELEMENT HealthData (ExportDate, Record*)>',
-            '<!ATTLIST ExportDate value CDATA #REQUIRED>',
-            '<!ELEMENT Record EMPTY>',
-            '<!ATTLIST Record type CDATA #REQUIRED',
-            '    sourceName CDATA #REQUIRED',
-            '    unit CDATA #IMPLIED',
-            '    startDate CDATA #REQUIRED',
-            '    endDate CDATA #REQUIRED',
-            '    value CDATA #IMPLIED>',
-            ']>',
+            "<!DOCTYPE HealthData [",
+            "<!ELEMENT HealthData (ExportDate, Record*)>",
+            "<!ATTLIST ExportDate value CDATA #REQUIRED>",
+            "<!ELEMENT Record EMPTY>",
+            "<!ATTLIST Record type CDATA #REQUIRED",
+            "    sourceName CDATA #REQUIRED",
+            "    unit CDATA #IMPLIED",
+            "    startDate CDATA #REQUIRED",
+            "    endDate CDATA #REQUIRED",
+            "    value CDATA #IMPLIED>",
+            "]>",
             '<HealthData locale="en_US">',
             '  <ExportDate value="2024-01-15 10:00:00 -0800"/>',
-            '',
-            '  <!-- Sleep data for 7 days -->',
+            "",
+            "  <!-- Sleep data for 7 days -->",
             '  <Record type="HKCategoryTypeIdentifierSleepAnalysis" sourceName="Apple Watch"',
             '    startDate="2024-01-01 23:00:00 -0800" endDate="2024-01-02 07:00:00 -0800"',
             '    value="HKCategoryValueSleepAnalysisAsleepCore"/>',
@@ -56,17 +56,17 @@ class TestFullPipeline:
             '  <Record type="HKCategoryTypeIdentifierSleepAnalysis" sourceName="Apple Watch"',
             '    startDate="2024-01-07 23:45:00 -0800" endDate="2024-01-08 07:45:00 -0800"',
             '    value="HKCategoryValueSleepAnalysisAsleepCore"/>',
-            '',
-            '  <!-- Activity data (step counts) -->',
+            "",
+            "  <!-- Activity data (step counts) -->",
             '  <Record type="HKQuantityTypeIdentifierStepCount" sourceName="iPhone" unit="count"',
             '    startDate="2024-01-01 08:00:00 -0800" endDate="2024-01-01 09:00:00 -0800" value="500"/>',
             '  <Record type="HKQuantityTypeIdentifierStepCount" sourceName="iPhone" unit="count"',
             '    startDate="2024-01-01 12:00:00 -0800" endDate="2024-01-01 13:00:00 -0800" value="1000"/>',
             '  <Record type="HKQuantityTypeIdentifierStepCount" sourceName="iPhone" unit="count"',
             '    startDate="2024-01-01 18:00:00 -0800" endDate="2024-01-01 19:00:00 -0800" value="800"/>',
-            '</HealthData>',
+            "</HealthData>",
         ]
-        return '\n'.join(xml_lines)
+        return "\n".join(xml_lines)
 
     def test_predict_command_e2e(self, sample_xml_data, tmp_path):
         """Test full pipeline: XML → features → predictions."""
@@ -132,16 +132,16 @@ class TestFullPipeline:
         # Given: XML with only 2 days of data
         minimal_xml_lines = [
             '<?xml version="1.0" encoding="UTF-8"?>',
-            '<!DOCTYPE HealthData [',
-            '<!ELEMENT HealthData (ExportDate, Record*)>',
-            '<!ATTLIST ExportDate value CDATA #REQUIRED>',
-            '<!ELEMENT Record EMPTY>',
-            '<!ATTLIST Record type CDATA #REQUIRED',
-            '    sourceName CDATA #REQUIRED',
-            '    startDate CDATA #REQUIRED',
-            '    endDate CDATA #REQUIRED',
-            '    value CDATA #IMPLIED>',
-            ']>',
+            "<!DOCTYPE HealthData [",
+            "<!ELEMENT HealthData (ExportDate, Record*)>",
+            "<!ATTLIST ExportDate value CDATA #REQUIRED>",
+            "<!ELEMENT Record EMPTY>",
+            "<!ATTLIST Record type CDATA #REQUIRED",
+            "    sourceName CDATA #REQUIRED",
+            "    startDate CDATA #REQUIRED",
+            "    endDate CDATA #REQUIRED",
+            "    value CDATA #IMPLIED>",
+            "]>",
             '<HealthData locale="en_US">',
             '  <ExportDate value="2024-01-15 10:00:00 -0800"/>',
             '  <Record type="HKCategoryTypeIdentifierSleepAnalysis" sourceName="Apple Watch"',
@@ -150,9 +150,9 @@ class TestFullPipeline:
             '  <Record type="HKCategoryTypeIdentifierSleepAnalysis" sourceName="Apple Watch"',
             '    startDate="2024-01-02 23:00:00 -0800" endDate="2024-01-03 07:00:00 -0800"',
             '    value="HKCategoryValueSleepAnalysisAsleepCore"/>',
-            '</HealthData>',
+            "</HealthData>",
         ]
-        minimal_xml = '\n'.join(minimal_xml_lines)
+        minimal_xml = "\n".join(minimal_xml_lines)
 
         xml_file = tmp_path / "minimal.xml"
         xml_file.write_text(minimal_xml)
