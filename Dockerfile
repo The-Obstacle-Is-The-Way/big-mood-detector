@@ -1,6 +1,6 @@
 # Multi-stage build for optimized image size - 2025 best practices
 # Stage 1: Builder with all dependencies
-FROM python:3.11-slim-bookworm AS builder
+FROM python:3.12-slim-bookworm AS builder
 
 # Security: Run as non-root user
 RUN useradd -m -u 1000 appuser
@@ -30,7 +30,7 @@ RUN pip install --no-cache-dir --upgrade pip setuptools wheel && \
     pip install --no-cache-dir gunicorn
 
 # Stage 2: Runtime image (smaller, secure)
-FROM python:3.11-slim-bookworm AS runtime
+FROM python:3.12-slim-bookworm AS runtime
 
 # Install only required runtime dependencies
 RUN apt-get update && \

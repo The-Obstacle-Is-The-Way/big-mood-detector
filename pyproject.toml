@@ -13,13 +13,12 @@ description = "Clinical-grade bipolar mood detection backend using Apple HealthK
 authors = [{name = "The-Obstacle-Is-The-Way", email = "The-Obstacle-Is-The-Way@users.noreply.github.com"}]
 license = {text = "Apache-2.0"}
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.12"
 keywords = ["bipolar", "mood-detection", "healthkit", "clinical", "ai"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Healthcare Industry",
     "License :: OSI Approved :: Apache Software License",
-    "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Topic :: Scientific/Engineering :: Medical Science Apps.",
 ]
@@ -147,7 +146,7 @@ big-mood = "big_mood_detector.main:main"
 
 # Ruff Configuration (replaces flake8, isort, etc.)
 [tool.ruff]
-target-version = "py311"
+target-version = "py312"
 line-length = 88
 extend-exclude = ["reference_repos", "literature"]
 
@@ -172,7 +171,7 @@ ignore = [
 
 # Black Configuration
 [tool.black]
-target-version = ['py311']
+target-version = ['py312']
 line-length = 88
 include = '\.pyi?$'
 extend-exclude = '''
@@ -193,7 +192,7 @@ extend-exclude = '''
 
 # MyPy Configuration
 [tool.mypy]
-python_version = "3.11"
+python_version = "3.12"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true

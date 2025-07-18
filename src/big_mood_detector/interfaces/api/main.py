@@ -35,6 +35,7 @@ app = setup_rate_limiting(app)
 async def startup_event() -> None:
     """Ensure required directories exist and preload models when the API starts."""
     import sys
+    from big_mood_detector.core.security import validate_secrets
     from big_mood_detector.infrastructure.logging import get_module_logger
     from big_mood_detector.infrastructure.settings.utils import validate_model_paths
     from big_mood_detector.interfaces.api.dependencies import (
@@ -43,6 +44,10 @@ async def startup_event() -> None:
     )
     
     logger = get_module_logger(__name__)
+    
+    # Validate security settings first
+    validate_secrets()
+    
     settings = get_settings()
     settings.ensure_directories()
     
