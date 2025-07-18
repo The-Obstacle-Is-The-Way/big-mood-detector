@@ -22,10 +22,10 @@ app = FastAPI(
 )
 
 # Include routers
-app.include_router(clinical_router, prefix="/api/v1/clinical", tags=["clinical"])
-app.include_router(labels_router, prefix="/labels", tags=["labels"])
-app.include_router(predictions_router, prefix="/predictions", tags=["predictions"])
-app.include_router(upload_router, prefix="/upload", tags=["upload"])
+app.include_router(clinical_router)
+app.include_router(labels_router)
+app.include_router(predictions_router)
+app.include_router(upload_router)
 
 
 @app.get("/health")

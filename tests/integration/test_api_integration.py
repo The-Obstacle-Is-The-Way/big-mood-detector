@@ -75,7 +75,7 @@ class TestPredictionsAPI:
 
     def test_predict_xgboost_success(self, client: TestClient, sample_features: dict) -> None:
         """Test successful XGBoost prediction."""
-        response = client.post("/predictions/xgboost", json=sample_features)
+        response = client.post("/api/v1/predictions/predict", json=sample_features)
         assert response.status_code == 200
         
         data = response.json()
@@ -98,7 +98,7 @@ class TestPredictionsAPI:
                 # Missing many required features
             }
         }
-        response = client.post("/predictions/xgboost", json=incomplete_features)
+        response = client.post("/api/v1/predictions/predict", json=incomplete_features)
         assert response.status_code == 422
 
     def test_predict_xgboost_invalid_values(self, client: TestClient, sample_features: dict) -> None:
@@ -106,7 +106,7 @@ class TestPredictionsAPI:
         invalid_features = sample_features.copy()
         invalid_features["features"]["sleep_efficiency"] = 1.5  # Invalid: > 1.0
         
-        response = client.post("/predictions/xgboost", json=invalid_features)
+        response = client.post("/api/v1/predictions/predict", json=invalid_features)
         assert response.status_code == 422
 
 
@@ -133,7 +133,7 @@ class TestLabelsAPI:
 
     def test_create_episode_success(self, client: TestClient, sample_episode: dict) -> None:
         """Test successful episode creation."""
-        response = client.post("/labels/episodes", json=sample_episode)
+        response = client.post("/api/v1/labels/episodes", json=sample_episode)
         assert response.status_code == 201
         
         data = response.json()
@@ -143,19 +143,19 @@ class TestLabelsAPI:
 
     def test_list_episodes_empty(self, client: TestClient) -> None:
         """Test listing episodes when none exist."""
-        response = client.get("/labels/episodes")
+        response = client.get("/api/v1/labels/episodes")
         assert response.status_code == 200
         assert response.json() == []
 
     def test_create_and_list_episodes(self, client: TestClient, sample_episode: dict) -> None:
         """Test creating and then listing episodes."""
         # Create episode
-        create_response = client.post("/labels/episodes", json=sample_episode)
+        create_response = client.post("/api/v1/labels/episodes", json=sample_episode)
         assert create_response.status_code == 201
         created_id = create_response.json()["id"]
         
         # List episodes
-        list_response = client.get("/labels/episodes")
+        list_response = client.get("/api/v1/labels/episodes")
         assert list_response.status_code == 200
         episodes = list_response.json()
         assert len(episodes) >= 1
@@ -164,7 +164,7 @@ class TestLabelsAPI:
     def test_get_episode_by_id(self, client: TestClient, sample_episode: dict) -> None:
         """Test getting a specific episode by ID."""
         # Create episode
-        create_response = client.post("/labels/episodes", json=sample_episode)
+        create_response = client.post("/api/v1/labels/episodes", json=sample_episode)
         assert create_response.status_code == 201
         created_id = create_response.json()["id"]
         
@@ -183,7 +183,7 @@ class TestLabelsAPI:
     def test_delete_episode(self, client: TestClient, sample_episode: dict) -> None:
         """Test deleting an episode."""
         # Create episode
-        create_response = client.post("/labels/episodes", json=sample_episode)
+        create_response = client.post("/api/v1/labels/episodes", json=sample_episode)
         assert create_response.status_code == 201
         created_id = create_response.json()["id"]
         
