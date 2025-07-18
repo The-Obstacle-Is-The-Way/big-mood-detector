@@ -14,6 +14,10 @@ from big_mood_detector.interfaces.cli.labeling.commands import (
     label_episode_command,
     label_undo_command,
 )
+from big_mood_detector.interfaces.cli.labeling.stats_command import (
+    label_export_command,
+    label_stats_command,
+)
 from big_mood_detector.interfaces.cli.typer_bridge import typer_to_click
 
 
@@ -55,6 +59,8 @@ def unified_label_group(ctx: click.Context) -> None:
 unified_label_group.add_command(label_episode_command, name="episode")
 unified_label_group.add_command(label_baseline_command, name="baseline")
 unified_label_group.add_command(label_undo_command, name="undo")
+unified_label_group.add_command(label_stats_command, name="stats")
+unified_label_group.add_command(label_export_command, name="export")
 
 # Add new label management commands as a subgroup
 label_mgmt_click = typer_to_click(label_mgmt_app, name="manage")

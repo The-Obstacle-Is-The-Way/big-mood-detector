@@ -130,9 +130,7 @@ def create(
     category: str | None = typer.Option(
         None, "--category", "-c", help="Label category"
     ),
-    color: str | None = typer.Option(
-        None, "--color", help="Label color (hex format)"
-    ),
+    color: str | None = typer.Option(None, "--color", help="Label color (hex format)"),
 ) -> None:
     """
     Create a new label interactively or with arguments.
@@ -312,9 +310,7 @@ def update(
     description: str | None = typer.Option(
         None, "--description", "-d", help="New description"
     ),
-    category: str | None = typer.Option(
-        None, "--category", "-c", help="New category"
-    ),
+    category: str | None = typer.Option(None, "--category", "-c", help="New category"),
     color: str | None = typer.Option(None, "--color", help="New color (hex)"),
 ) -> None:
     """

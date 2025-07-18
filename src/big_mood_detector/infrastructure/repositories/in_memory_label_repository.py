@@ -5,7 +5,6 @@ Useful for testing and development. In production, this would be
 replaced with a database-backed implementation.
 """
 
-
 from big_mood_detector.domain.entities.label import Label
 from big_mood_detector.domain.repositories.label_repository import LabelRepository
 
