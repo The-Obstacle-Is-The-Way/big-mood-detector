@@ -56,6 +56,10 @@ COPY --chown=appuser:appuser config/ ./config/
 # Copy model weights (if available)
 COPY --chown=appuser:appuser model_weights/ ./model_weights/
 
+# Copy entrypoint script
+COPY --chown=appuser:appuser docker/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
 # Set environment variables
 ENV PATH="/app/.venv/bin:$PATH" \
     PYTHONUNBUFFERED=1 \
@@ -74,11 +78,11 @@ USER appuser
 # Expose port
 EXPOSE 8000
 
-# Use gunicorn for production
-CMD ["gunicorn", "big_mood_detector.interfaces.api.main:app", \
-     "--bind", "0.0.0.0:8000", \
-     "--workers", "4", \
-     "--worker-class", "uvicorn.workers.UvicornWorker", \
-     "--access-logfile", "-", \
-     "--error-logfile", "-", \
-     "--log-level", "info"]
+# Set up volume for data
+VOLUME /data
+
+# Set default data directory
+ENV DATA_DIR=/data
+
+# Use entrypoint for flexible execution
+ENTRYPOINT ["/entrypoint.sh"]

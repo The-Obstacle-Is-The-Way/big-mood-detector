@@ -1,5 +1,3 @@
-version: '3.9'
-
 services:
   # Main application
   app:
@@ -15,13 +13,20 @@ services:
       - ENVIRONMENT=production
       - DATABASE_URL=postgresql://postgres:postgres@db:5432/mood_detector
       - REDIS_URL=redis://redis:6379/0
+      - DATA_DIR=/data
+      - LABELS_DB_PATH=/data/labels.db
+      - CLINICAL_CONFIG_PATH=/app/config/clinical_thresholds.yaml
+      - XGBOOST_MODEL_PATH=/app/model_weights/xgboost/pretrained
     volumes:
       # Mount local data for processing
-      - ./apple_export:/app/apple_export:ro
-      - ./health_auto_export:/app/health_auto_export:ro
-      - ./output:/app/output
+      - ./data:/data
+      - ./apple_export:/data/apple_export:ro
+      - ./health_auto_export:/data/health_auto_export:ro
+      - ./output:/data/output
       # Model weights (read-only)
       - ./model_weights:/app/model_weights:ro
+      # Config files
+      - ./config:/app/config:ro
     depends_on:
       db:
         condition: service_healthy
@@ -38,6 +43,48 @@ services:
         reservations:
           cpus: '1'
           memory: 2G
+
+  # Background task worker
+  worker:
+    build:
+      context: .
+      target: runtime
+    image: big-mood-detector:latest
+    container_name: mood-detector-worker
+    command: ["worker"]
+    environment:
+      - LOG_LEVEL=INFO
+      - ENVIRONMENT=production
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/mood_detector
+      - REDIS_URL=redis://redis:6379/0
+      - DATA_DIR=/data
+      - LABELS_DB_PATH=/data/labels.db
+      - CLINICAL_CONFIG_PATH=/app/config/clinical_thresholds.yaml
+      - XGBOOST_MODEL_PATH=/app/model_weights/xgboost/pretrained
+    volumes:
+      # Same volumes as app for data access
+      - ./data:/data
+      - ./apple_export:/data/apple_export:ro
+      - ./health_auto_export:/data/health_auto_export:ro
+      - ./output:/data/output
+      - ./model_weights:/app/model_weights:ro
+      - ./config:/app/config:ro
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - mood-network
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 1G
 
   # PostgreSQL for data persistence
   db:

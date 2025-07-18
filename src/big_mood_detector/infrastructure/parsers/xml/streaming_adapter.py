@@ -7,6 +7,7 @@ Based on Simple-Apple-Health-XML-to-CSV approach.
 
 import xml.etree.ElementTree as ET
 from collections.abc import Generator
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
@@ -38,6 +39,8 @@ class StreamingXMLParser:
         self,
         file_path: str | Path,
         record_types: list[str] | None = None,
+        start_date: str | None = None,
+        end_date: str | None = None,
     ) -> Generator[dict[str, Any], None, None]:
         """
         Stream records from XML file using iterparse.
@@ -45,6 +48,8 @@ class StreamingXMLParser:
         Args:
             file_path: Path to the XML file
             record_types: Optional list of record types to filter
+            start_date: Optional start date (YYYY-MM-DD format) to filter records
+            end_date: Optional end date (YYYY-MM-DD format) to filter records
 
         Yields:
             Dictionary of record attributes
