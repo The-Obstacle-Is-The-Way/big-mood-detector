@@ -229,10 +229,18 @@ async def predict_mood_ensemble(features: FeatureInput) -> EnsemblePredictionRes
                 ["Continue current habits", "Regular sleep schedule"]
             )
 
+        # Extract only numeric values for predictions
+        xgb_pred = {
+            "depression_risk": base_prediction.depression_risk,
+            "hypomanic_risk": base_prediction.hypomanic_risk,
+            "manic_risk": base_prediction.manic_risk,
+            "confidence": base_prediction.confidence,
+        }
+        
         return EnsemblePredictionResponse(
-            xgboost_prediction=base_prediction.to_dict(),
+            xgboost_prediction=xgb_pred,
             pat_prediction=None,  # Would be populated if PAT model available
-            ensemble_prediction=base_prediction.to_dict(),
+            ensemble_prediction=xgb_pred,
             models_used=["xgboost"],
             confidence_scores={
                 "xgboost": base_prediction.confidence,

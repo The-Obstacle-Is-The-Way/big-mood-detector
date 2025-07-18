@@ -23,7 +23,7 @@ class EpisodeCreateRequest(BaseModel):
 
     start_date: date
     end_date: date | None = None
-    episode_type: str = Field(..., regex="^(depressive|hypomanic|manic|mixed)$")
+    episode_type: str = Field(..., pattern="^(depressive|hypomanic|manic|mixed)$")
     severity: int = Field(..., ge=1, le=10)
     notes: str = ""
     rater_id: str = "api_user"
@@ -74,7 +74,7 @@ class LabelStatsResponse(BaseModel):
 
 
 # Initialize repository
-repository = SQLiteEpisodeRepository()
+repository = SQLiteEpisodeRepository(db_path="labels.db")
 
 
 @router.post("/episodes", response_model=EpisodeResponse)
@@ -153,7 +153,7 @@ async def list_episodes(
 ) -> list[EpisodeResponse]:
     """List mood episodes with optional filtering."""
     try:
-        labeler = repository.load_labeler()
+        labeler = repository.load_into_labeler()
 
         episodes = labeler.episodes
 
@@ -191,7 +191,7 @@ async def list_baselines(
 ) -> list[BaselineResponse]:
     """List baseline periods with optional filtering."""
     try:
-        labeler = repository.load_labeler()
+        labeler = repository.load_into_labeler()
 
         baselines = labeler.baseline_periods
 
@@ -222,7 +222,7 @@ async def list_baselines(
 async def get_label_stats() -> LabelStatsResponse:
     """Get statistics about labeled data."""
     try:
-        labeler = repository.load_labeler()
+        labeler = repository.load_into_labeler()
 
         # Count episodes by type
         episodes_by_type = {}
@@ -273,7 +273,7 @@ async def get_label_stats() -> LabelStatsResponse:
 async def delete_episode(episode_id: int) -> dict[str, str]:
     """Delete an episode by ID."""
     try:
-        labeler = repository.load_labeler()
+        labeler = repository.load_into_labeler()
 
         if episode_id < 1 or episode_id > len(labeler.episodes):
             raise HTTPException(status_code=404, detail="Episode not found")
@@ -296,7 +296,7 @@ async def delete_episode(episode_id: int) -> dict[str, str]:
 async def export_labels() -> dict[str, Any]:
     """Export all labels in training-ready format."""
     try:
-        labeler = repository.load_labeler()
+        labeler = repository.load_into_labeler()
         df = labeler.to_dataframe()
 
         # Convert to dict format
