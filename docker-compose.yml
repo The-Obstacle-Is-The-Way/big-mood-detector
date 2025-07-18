@@ -11,7 +11,7 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - LOG_LEVEL=info
+      - LOG_LEVEL=INFO
       - ENVIRONMENT=production
       - DATABASE_URL=postgresql://postgres:postgres@db:5432/mood_detector
       - REDIS_URL=redis://redis:6379/0
