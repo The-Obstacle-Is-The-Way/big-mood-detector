@@ -74,8 +74,8 @@ def validate_model_paths(settings: "Settings") -> str | None:
     if not settings.MODEL_WEIGHTS_PATH.exists():
         errors.append(f"Model weights path not found: {settings.MODEL_WEIGHTS_PATH}")
 
-    # Check for specific model files
-    expected_models = ["depression_risk.json", "hypomanic_risk.json", "manic_risk.json"]
+    # Check for specific model files - using actual file names
+    expected_models = ["XGBoost_DE.json", "XGBoost_HME.json", "XGBoost_ME.json"]
     for model_file in expected_models:
         model_path = settings.MODEL_WEIGHTS_PATH / model_file
         if not model_path.exists():

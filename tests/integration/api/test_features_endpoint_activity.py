@@ -95,7 +95,6 @@ class TestFeatureExtractionAPIActivity:
             
         return zip_path
 
-    @pytest.mark.skip(reason="awaiting implementation - activity features not exposed in API")
     def test_extract_features_includes_activity(self, client, sample_health_export_json):
         """Test that feature extraction returns activity features."""
         # Read the zip file
@@ -109,6 +108,8 @@ class TestFeatureExtractionAPIActivity:
         )
         
         # Should succeed
+        if response.status_code != 200:
+            print(f"Response error: {response.json()}")
         assert response.status_code == 200
         data = response.json()
         
@@ -131,7 +132,6 @@ class TestFeatureExtractionAPIActivity:
         assert features["activity_variance"] > 0
         assert 0 <= features["sedentary_hours"] <= 24
 
-    @pytest.mark.skip(reason="awaiting implementation - activity features not exposed in API")
     def test_extract_features_activity_from_xml(self, client, tmp_path):
         """Test activity feature extraction from Apple Health XML export."""
         # Create a minimal XML export with activity data
@@ -183,7 +183,6 @@ class TestFeatureExtractionAPIActivity:
         assert "activity_variance" in features
         assert features["activity_variance"] > 0
 
-    @pytest.mark.skip(reason="awaiting implementation - activity features not exposed in API")
     def test_feature_schema_validation(self, client, sample_health_export_json):
         """Test that the API response schema includes all expected fields."""
         with open(sample_health_export_json, "rb") as f:
@@ -221,7 +220,6 @@ class TestFeatureExtractionAPIActivity:
         # Feature count should include activity features
         assert data["feature_count"] >= 42  # 36 Seoul + 6 activity
 
-    @pytest.mark.skip(reason="awaiting implementation - activity features not exposed in API")
     def test_missing_activity_data_defaults(self, client, tmp_path):
         """Test API response when activity data is missing."""
         # Create export with only sleep data
@@ -256,7 +254,6 @@ class TestFeatureExtractionAPIActivity:
         assert features["sedentary_hours"] == 24.0
         assert features["activity_fragmentation"] == 0
 
-    @pytest.mark.skip(reason="awaiting implementation - activity features not exposed in API")
     def test_backwards_compatibility(self, client, sample_health_export_json):
         """Test that existing features remain unchanged with activity additions."""
         with open(sample_health_export_json, "rb") as f:

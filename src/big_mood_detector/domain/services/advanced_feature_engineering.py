@@ -568,7 +568,7 @@ class AdvancedFeatureEngineer:
         """Return empty activity features."""
         return {
             "activity_fragmentation": 0,
-            "sedentary_bout_mean": 0,
-            "sedentary_bout_max": 0,
+            "sedentary_bout_mean": 1440,  # 24 hours in minutes when no activity data
+            "sedentary_bout_max": 1440,  # 24 hours in minutes when no activity data
             "activity_intensity_ratio": 0,
         }

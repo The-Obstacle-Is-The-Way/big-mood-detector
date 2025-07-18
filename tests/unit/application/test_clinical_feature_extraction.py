@@ -9,7 +9,7 @@ import pytest
 from datetime import date, datetime, timedelta
 
 from big_mood_detector.domain.entities.activity_record import ActivityRecord, ActivityType
-from big_mood_detector.domain.entities.sleep_record import SleepRecord
+from big_mood_detector.domain.entities.sleep_record import SleepRecord, SleepState
 from big_mood_detector.domain.entities.heart_rate_record import HeartRateRecord
 from big_mood_detector.domain.services.clinical_feature_extractor import (
     ClinicalFeatureExtractor,
@@ -86,88 +86,88 @@ class TestClinicalFeatureExtractorActivity:
                     source_name="Apple Watch",
                     start_date=datetime.combine(current_date, datetime.min.time()) + timedelta(hours=23),
                     end_date=datetime.combine(current_date + timedelta(days=1), datetime.min.time()) + timedelta(hours=7),
-                    is_main_sleep=True,
-                    duration_hours=8.0,
+                    state=SleepState.ASLEEP,
                 )
             )
             
         return records
 
-    @pytest.mark.skip(reason="awaiting implementation - activity features not exposed in API")
     def test_extract_activity_features(self, extractor, sample_activity_records, sample_sleep_records):
         """Test that activity features are extracted and non-null."""
-        # Extract features for today
+        # Extract features for the last date in our sample data
+        target_date = date.today() - timedelta(days=1)  # Yesterday since our data goes up to yesterday
         feature_set = extractor.extract_clinical_features(
             sleep_records=sample_sleep_records,
             activity_records=sample_activity_records,
             heart_records=[],
-            target_date=date.today(),
+            target_date=target_date,
         )
         
         # Verify feature set is returned
         assert isinstance(feature_set, ClinicalFeatureSet)
         
-        # Verify activity features are present and non-null
-        assert feature_set.total_steps is not None
-        assert feature_set.total_steps > 0
-        assert feature_set.activity_variance is not None
-        assert feature_set.activity_variance >= 0
-        assert feature_set.sedentary_hours is not None
-        assert feature_set.sedentary_hours >= 0
-        assert feature_set.activity_fragmentation is not None
-        assert feature_set.sedentary_bout_mean is not None
-        assert feature_set.activity_intensity_ratio is not None
+        # Verify activity features are present and non-null in seoul_features
+        assert feature_set.seoul_features.total_steps is not None
+        assert feature_set.seoul_features.total_steps > 0
+        assert feature_set.seoul_features.activity_variance is not None
+        assert feature_set.seoul_features.activity_variance >= 0
+        assert feature_set.seoul_features.sedentary_hours is not None
+        assert feature_set.seoul_features.sedentary_hours >= 0
+        assert feature_set.seoul_features.activity_fragmentation is not None
+        assert feature_set.seoul_features.sedentary_bout_mean is not None
+        assert feature_set.seoul_features.activity_intensity_ratio is not None
 
-    @pytest.mark.skip(reason="awaiting implementation - activity features not exposed in API")
     def test_activity_features_calculation(self, extractor, sample_activity_records, sample_sleep_records):
         """Test that activity features are calculated correctly."""
+        # Extract features for the last date in our sample data
+        target_date = date.today() - timedelta(days=1)
         feature_set = extractor.extract_clinical_features(
             sleep_records=sample_sleep_records,
             activity_records=sample_activity_records,
             heart_records=[],
-            target_date=date.today(),
+            target_date=target_date,
         )
         
         # Expected daily steps = 3000 + 5000 + 2000 = 10000
-        assert feature_set.total_steps == 10000
+        assert feature_set.seoul_features.total_steps == 10000
         
         # Activity variance should be > 0 given the varied activity pattern
-        assert feature_set.activity_variance > 0
+        assert feature_set.seoul_features.activity_variance > 0
         
         # Sedentary hours should be reasonable (not all 24 hours)
-        assert 0 <= feature_set.sedentary_hours < 24
+        assert 0 <= feature_set.seoul_features.sedentary_hours < 24
 
-    @pytest.mark.skip(reason="awaiting implementation - activity features not exposed in API")
     def test_missing_activity_data_handling(self, extractor, sample_sleep_records):
         """Test feature extraction with missing activity data."""
         # Extract features without activity records
+        target_date = date.today() - timedelta(days=1)
         feature_set = extractor.extract_clinical_features(
             sleep_records=sample_sleep_records,
             activity_records=[],
             heart_records=[],
-            target_date=date.today(),
+            target_date=target_date,
         )
         
         # Activity features should have sensible defaults
-        assert feature_set.total_steps == 0
-        assert feature_set.activity_variance == 0
-        assert feature_set.sedentary_hours == 24.0  # Assume full sedentary if no data
-        assert feature_set.activity_fragmentation == 0
-        assert feature_set.sedentary_bout_mean == 24.0
-        assert feature_set.activity_intensity_ratio == 0
+        assert feature_set.seoul_features.total_steps == 0
+        assert feature_set.seoul_features.activity_variance == 0
+        assert feature_set.seoul_features.sedentary_hours == 24.0  # Assume full sedentary if no data
+        assert feature_set.seoul_features.activity_fragmentation == 0
+        assert feature_set.seoul_features.sedentary_bout_mean == 1440  # 24 hours in minutes
+        assert feature_set.seoul_features.activity_intensity_ratio == 0
 
-    @pytest.mark.skip(reason="awaiting implementation - activity features not exposed in API")
     def test_activity_features_in_xgboost_vector(self, extractor, sample_activity_records, sample_sleep_records):
         """Test that activity features are included in XGBoost feature vector."""
+        target_date = date.today() - timedelta(days=1)
         feature_set = extractor.extract_clinical_features(
             sleep_records=sample_sleep_records,
             activity_records=sample_activity_records,
             heart_records=[],
-            target_date=date.today(),
+            target_date=target_date,
         )
         
-        # Get XGBoost feature vector
-        feature_vector = feature_set.to_xgboost_features()
+        # Get XGBoost feature vector from seoul_features
+        feature_vector = feature_set.seoul_features.to_xgboost_features()
         
         # Should have 36 features
         assert len(feature_vector) == 36
@@ -180,26 +180,26 @@ class TestClinicalFeatureExtractorActivity:
         # Specifically check total_steps (index 18)
         assert feature_vector[18] == 10000.0
 
-    @pytest.mark.skip(reason="awaiting implementation - activity features not exposed in API")  
     def test_circadian_features_with_activity(self, extractor, sample_activity_records, sample_sleep_records):
         """Test that circadian rhythm features use activity data."""
+        target_date = date.today() - timedelta(days=1)
         feature_set = extractor.extract_clinical_features(
             sleep_records=sample_sleep_records,
             activity_records=sample_activity_records,
             heart_records=[],
-            target_date=date.today(),
+            target_date=target_date,
         )
         
         # Circadian features should be calculated from activity
-        assert feature_set.interdaily_stability is not None
-        assert 0 <= feature_set.interdaily_stability <= 1
+        assert feature_set.seoul_features.interdaily_stability is not None
+        assert 0 <= feature_set.seoul_features.interdaily_stability <= 1
         
-        assert feature_set.intradaily_variability is not None
-        assert feature_set.intradaily_variability >= 0
+        assert feature_set.seoul_features.intradaily_variability is not None
+        assert feature_set.seoul_features.intradaily_variability >= 0
         
-        assert feature_set.relative_amplitude is not None
-        assert 0 <= feature_set.relative_amplitude <= 1
+        assert feature_set.seoul_features.relative_amplitude is not None
+        assert 0 <= feature_set.seoul_features.relative_amplitude <= 1
         
         # PAT (Principal Activity Time) should be calculated
-        assert feature_set.pat_hour is not None
-        assert 0 <= feature_set.pat_hour < 24
+        assert feature_set.seoul_features.pat_hour is not None
+        assert 0 <= feature_set.seoul_features.pat_hour < 24

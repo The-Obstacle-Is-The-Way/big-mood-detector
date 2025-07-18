@@ -298,6 +298,7 @@ async def predict_mood_ensemble(
 @router.get("/status")
 @rate_limit("status")
 async def get_model_status(
+    request: Request,
     predictor: MoodPredictor = Depends(get_mood_predictor),
     orchestrator: EnsembleOrchestrator | None = Depends(get_ensemble_orchestrator),
 ) -> dict[str, Any]:

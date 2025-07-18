@@ -303,6 +303,10 @@ class AggregationPipeline:
             daily_metrics = self.calculate_daily_metrics(
                 sleep_windows, activity_sequence, circadian_metrics, dlmo_result
             )
+            
+            # Add activity metrics to daily_metrics
+            if daily_metrics:
+                daily_metrics["activity"] = activity_metrics
 
             # 6. Update rolling windows
             if daily_metrics:
@@ -323,6 +327,7 @@ class AggregationPipeline:
                     daily_metrics,
                     sleep_metrics_window,
                     circadian_metrics_window,
+                    activity_metrics,  # Pass activity metrics
                 )
 
                 if features:
@@ -713,6 +718,7 @@ class AggregationPipeline:
         daily_metrics: dict[str, Any],
         sleep_window: list[dict[str, float]],
         circadian_window: list[dict[str, float]],
+        activity_metrics: dict[str, float],
     ) -> DailyFeatures | None:
         """Calculate features with mean, std, and z-scores."""
         if not daily_metrics or "sleep" not in daily_metrics:
@@ -809,4 +815,11 @@ class AggregationPipeline:
             circadian_phase_mean=circadian_features["circadian_phase_mean"],
             circadian_phase_std=circadian_features["circadian_phase_std"],
             circadian_phase_zscore=circadian_features["circadian_phase_zscore"],
+            # Activity
+            daily_steps=activity_metrics.get("daily_steps", 0.0),
+            activity_variance=activity_metrics.get("activity_variance", 0.0),
+            sedentary_hours=activity_metrics.get("sedentary_hours", 24.0),
+            activity_fragmentation=activity_metrics.get("activity_fragmentation", 0.0),
+            sedentary_bout_mean=activity_metrics.get("sedentary_bout_mean", 24.0),
+            activity_intensity_ratio=activity_metrics.get("activity_intensity_ratio", 0.0),
         )

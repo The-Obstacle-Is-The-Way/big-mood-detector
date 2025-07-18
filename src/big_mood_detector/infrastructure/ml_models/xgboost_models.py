@@ -89,7 +89,7 @@ class XGBoostModelLoader:
 
         Args:
             model_type: One of "depression", "hypomanic", or "manic"
-            model_path: Path to the pickled model file
+            model_path: Path to the model file (JSON or PKL)
 
         Returns:
             True if successful, False otherwise
@@ -99,9 +99,19 @@ class XGBoostModelLoader:
             return False
 
         try:
-            model = joblib.load(model_path)
-            self.models[model_type] = model
-            logger.info(f"Successfully loaded {model_type} model from {model_path}")
+            # Handle JSON format (preferred)
+            if model_path.suffix == ".json":
+                import xgboost as xgb
+                model = xgb.Booster()
+                model.load_model(str(model_path))
+                self.models[model_type] = model
+                logger.info(f"Successfully loaded {model_type} model from {model_path} (JSON format)")
+            # Handle PKL format (legacy)
+            else:
+                model = joblib.load(model_path)
+                self.models[model_type] = model
+                logger.info(f"Successfully loaded {model_type} model from {model_path} (PKL format)")
+            
             return True
 
         except Exception as e:
@@ -120,11 +130,11 @@ class XGBoostModelLoader:
         """
         results = {}
 
-        # Expected model files
+        # Expected model files - using actual JSON filenames
         model_files = {
-            "depression": "depression_model.pkl",
-            "hypomanic": "hypomanic_model.pkl",
-            "manic": "manic_model.pkl",
+            "depression": "XGBoost_DE.json",
+            "hypomanic": "XGBoost_HME.json", 
+            "manic": "XGBoost_ME.json",
         }
 
         for model_type, filename in model_files.items():

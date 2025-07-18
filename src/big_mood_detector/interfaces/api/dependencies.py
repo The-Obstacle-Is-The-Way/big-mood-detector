@@ -70,7 +70,11 @@ def get_ensemble_orchestrator() -> EnsembleOrchestrator | None:
     # Initialize XGBoost predictor
     xgboost_predictor = XGBoostMoodPredictor()
     
-    if not xgboost_predictor.load_models(XGBOOST_PRETRAINED_DIR):
+    # Use converted directory where JSON models actually exist
+    from big_mood_detector.core.paths import MODEL_WEIGHTS_DIR
+    xgboost_converted_dir = MODEL_WEIGHTS_DIR / "xgboost" / "converted"
+    
+    if not xgboost_predictor.load_models(xgboost_converted_dir):
         logger.error("Failed to load XGBoost models")
         return None
 

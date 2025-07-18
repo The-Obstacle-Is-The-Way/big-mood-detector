@@ -209,6 +209,14 @@ async def extract_features(
                 "circadian_phase_mean": latest_features.get("circadian_phase_MN", 0),
                 "circadian_phase_std": latest_features.get("circadian_phase_SD", 0),
                 "circadian_phase_zscore": latest_features.get("circadian_phase_Z", 0),
+                
+                # Activity features (6)
+                "daily_steps": latest_features.get("daily_steps", 0),
+                "activity_variance": latest_features.get("activity_variance", 0),
+                "sedentary_hours": latest_features.get("sedentary_hours", 24.0),
+                "activity_fragmentation": latest_features.get("activity_fragmentation", 0),
+                "sedentary_bout_mean": latest_features.get("sedentary_bout_mean", 24.0),
+                "activity_intensity_ratio": latest_features.get("activity_intensity_ratio", 0),
             }
 
             processing_time = time.time() - start_time

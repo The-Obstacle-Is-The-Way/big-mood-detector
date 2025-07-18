@@ -118,7 +118,6 @@ class TestEnsemblePipelineActivityFlow:
             return None
         return model
 
-    @pytest.mark.skip(reason="awaiting implementation - activity features not exposed in API")
     def test_direct_ensemble_with_activity(self, sample_records, xgboost_predictor, pat_model):
         """Test ensemble prediction with activity data via direct call."""
         # Extract clinical features
@@ -168,7 +167,6 @@ class TestEnsemblePipelineActivityFlow:
             assert "pat_enhanced" in result.models_used
             assert len(result.models_used) == 2
 
-    @pytest.mark.skip(reason="awaiting implementation - activity features not exposed in API")
     def test_pipeline_process_with_activity(self, sample_records, tmp_path):
         """Test full pipeline processing with activity data."""
         # Create pipeline
@@ -194,7 +192,6 @@ class TestEnsemblePipelineActivityFlow:
         if "models_used" in result.metadata:
             assert "xgboost" in result.metadata["models_used"]
 
-    @pytest.mark.skip(reason="awaiting implementation - activity features not exposed in API")
     def test_api_vs_direct_consistency(self, sample_records, xgboost_predictor, pat_model):
         """Test that API and direct calls produce consistent results."""
         from fastapi.testclient import TestClient
@@ -242,7 +239,6 @@ class TestEnsemblePipelineActivityFlow:
         
         assert abs(api_depression - direct_depression) < 0.01
 
-    @pytest.mark.skip(reason="awaiting implementation - activity features not exposed in API")
     def test_activity_improves_prediction_confidence(self, sample_records, xgboost_predictor):
         """Test that including activity data improves prediction confidence."""
         extractor = ClinicalFeatureExtractor()
