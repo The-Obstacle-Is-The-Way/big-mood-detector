@@ -34,13 +34,15 @@ def generate_test_data():
     records = []
     base_date = date.today()
     for hour in range(24 * 7):  # 7 days
+        start_time = datetime.combine(base_date, datetime.min.time()) + timedelta(hours=hour)
         records.append(
             ActivityRecord(
-                start_date=datetime.combine(base_date, datetime.min.time())
-                + timedelta(hours=hour),
-                activity_type="movement",
-                intensity=50 + 30 * np.sin(hour / 24 * 2 * np.pi),
-                duration_minutes=60.0,
+                source_name="benchmark_test",
+                start_date=start_time,
+                end_date=start_time + timedelta(hours=1),
+                activity_type=ActivityType.STEP_COUNT,
+                value=500 + 300 * np.sin(hour / 24 * 2 * np.pi),  # Simulated step count
+                unit="count",
             )
         )
     

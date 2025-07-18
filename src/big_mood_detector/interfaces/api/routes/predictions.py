@@ -6,7 +6,7 @@ Direct mood prediction endpoints for extracted features.
 
 from typing import Any
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel, Field
 
 from big_mood_detector.application.use_cases.predict_mood_ensemble_use_case import (
@@ -72,6 +72,7 @@ class EnsemblePredictionResponse(BaseModel):
 @router.post("/predict", response_model=PredictionResponse)
 @rate_limit("predict")
 async def predict_mood(
+    request: Request,
     features: FeatureInput,
     predictor: MoodPredictor = Depends(get_mood_predictor),
 ) -> PredictionResponse:
@@ -170,6 +171,7 @@ async def predict_mood(
 @router.post("/predict/ensemble", response_model=EnsemblePredictionResponse)
 @rate_limit("ensemble_predict")
 async def predict_mood_ensemble(
+    request: Request,
     features: FeatureInput,
     orchestrator: EnsembleOrchestrator | None = Depends(get_ensemble_orchestrator),
 ) -> EnsemblePredictionResponse:

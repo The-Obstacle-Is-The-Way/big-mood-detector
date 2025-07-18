@@ -42,7 +42,10 @@ def get_real_client_ip(request: Request) -> str:
 
 
 # Create the limiter
-limiter = Limiter(key_func=get_real_client_ip)
+if not DISABLE_RATE_LIMIT:
+    limiter = Limiter(key_func=get_real_client_ip)
+else:
+    limiter = None
 
 
 # Rate limit configurations for different endpoint types
@@ -76,6 +79,12 @@ def rate_limit(limit_key: str = "default") -> Callable:
         async def predict_ensemble(...):
             ...
     """
+    if DISABLE_RATE_LIMIT:
+        # Return a no-op decorator
+        def decorator(func: Callable) -> Callable:
+            return func
+        return decorator
+    
     limit = RATE_LIMITS.get(limit_key, RATE_LIMITS["default"])
     
     def decorator(func: Callable) -> Callable:
@@ -97,6 +106,10 @@ def setup_rate_limiting(app):
     
     Call this in main.py after creating the app.
     """
+    if DISABLE_RATE_LIMIT:
+        # No rate limiting in dev mode
+        return app
+    
     # Add exception handler
     app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
     
@@ -118,27 +131,28 @@ def setup_rate_limiting(app):
 
 
 # Custom rate limit exceeded response
-def custom_rate_limit_exceeded_handler(
-    request: Request, exc: RateLimitExceeded
-) -> Response:
-    """
-    Custom handler for rate limit exceeded errors.
-    
-    Returns more informative error messages.
-    """
-    response = {
-        "error": "rate_limit_exceeded",
-        "message": f"Rate limit exceeded: {exc.detail}",
-        "retry_after": request.state.view_rate_limit.get("reset", 60),
-    }
-    
-    return Response(
-        content=response,
-        status_code=429,
-        headers={
-            "Retry-After": str(request.state.view_rate_limit.get("reset", 60)),
-            "X-RateLimit-Limit": str(request.state.view_rate_limit.get("limit", 0)),
-            "X-RateLimit-Remaining": "0",
-            "X-RateLimit-Reset": str(request.state.view_rate_limit.get("reset", 0)),
-        },
-    )
+if not DISABLE_RATE_LIMIT:
+    def custom_rate_limit_exceeded_handler(
+        request: Request, exc: RateLimitExceeded
+    ) -> Response:
+        """
+        Custom handler for rate limit exceeded errors.
+        
+        Returns more informative error messages.
+        """
+        response = {
+            "error": "rate_limit_exceeded",
+            "message": f"Rate limit exceeded: {exc.detail}",
+            "retry_after": request.state.view_rate_limit.get("reset", 60),
+        }
+        
+        return Response(
+            content=response,
+            status_code=429,
+            headers={
+                "Retry-After": str(request.state.view_rate_limit.get("reset", 60)),
+                "X-RateLimit-Limit": str(request.state.view_rate_limit.get("limit", 0)),
+                "X-RateLimit-Remaining": "0",
+                "X-RateLimit-Reset": str(request.state.view_rate_limit.get("reset", 0)),
+            },
+        )
