@@ -92,6 +92,13 @@ def _patch_pat_model(monkeypatch):
 
     class MockPATModel:
         def __init__(self, model_size="medium", **kwargs):
+            # Validate model size
+            valid_sizes = {"small", "medium", "large"}
+            if model_size not in valid_sizes:
+                raise ValueError(
+                    f"Invalid model size: {model_size}. Must be one of {valid_sizes}"
+                )
+
             self.model_size = model_size
             self.embed_dim = 96
             self.depth = 6
@@ -111,10 +118,6 @@ def _patch_pat_model(monkeypatch):
                 self.patch_size = 9
                 self.encoder_num_heads = 12
                 self.encoder_num_layers = 4
-            else:
-                self.patch_size = 18
-                self.encoder_num_heads = 12
-                self.encoder_num_layers = 2
 
         def load_pretrained_weights(self, *args, **kwargs):
             self.is_loaded = True
