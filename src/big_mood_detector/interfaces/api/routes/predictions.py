@@ -236,7 +236,7 @@ async def predict_mood_ensemble(features: FeatureInput) -> EnsemblePredictionRes
             "manic_risk": base_prediction.manic_risk,
             "confidence": base_prediction.confidence,
         }
-        
+
         return EnsemblePredictionResponse(
             xgboost_prediction=xgb_pred,
             pat_prediction=None,  # Would be populated if PAT model available
