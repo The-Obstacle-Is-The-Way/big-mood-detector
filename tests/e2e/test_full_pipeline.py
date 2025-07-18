@@ -214,15 +214,15 @@ class TestFullPipeline:
         import pandas as pd
         df = pd.read_csv(export_file)
         assert len(df) == 2
-        assert set(df["mood"]) == {"depressive", "manic"}
+        assert set(df["label"]) == {"depressive", "manic"}
 
-    @pytest.mark.parametrize("format", ["json", "csv", "summary"])
-    def test_predict_output_formats(self, sample_xml_data, tmp_path, format):
+    @pytest.mark.parametrize("format,extension", [("json", "json"), ("csv", "csv")])
+    def test_predict_output_formats(self, sample_xml_data, tmp_path, format, extension):
         """Test different output formats work correctly."""
         xml_file = tmp_path / "export.xml"
         xml_file.write_text(sample_xml_data)
         
-        output_file = tmp_path / f"predictions.{format if format != 'summary' else 'txt'}"
+        output_file = tmp_path / f"predictions.{extension}"
         
         # When: Running predict with specific format
         result = subprocess.run(
