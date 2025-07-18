@@ -165,44 +165,54 @@ async def extract_features(file: UploadFile = File(...)) -> FeatureExtractionRes
             # Get the latest features
             latest_features = feature_df.iloc[-1].to_dict()
             
-            # Map DataFrame columns to API response format
+            # Return the raw 36-feature vector with proper naming
+            # This matches the Seoul study exactly
             features = {
-                "sleep_duration_hours": latest_features.get("sleep_percentage_MN", 0) * 24,
-                "sleep_efficiency": latest_features.get("sleep_percentage_MN", 0) * 2,  # Rough conversion
-                "sleep_onset_hour": 23.0,  # Would need more processing
-                "wake_time_hour": 7.0,  # Would need more processing
-                "sleep_midpoint_hour": 3.0,  # Would need more processing
-                "sleep_regularity_index": 85.0,  # Would need more processing
-                "social_jet_lag_hours": latest_features.get("sleep_percentage_SD", 0),
-                "weekday_weekend_difference": latest_features.get("sleep_amplitude_SD", 0),
-                "total_episodes": latest_features.get("long_num_MN", 0) + latest_features.get("short_num_MN", 0),
-                "fragmentation_index": latest_features.get("short_num_MN", 0) / 10.0,
-                "wake_after_sleep_onset": latest_features.get("short_len_MN", 0) * 60,
-                "longest_sleep_episode": latest_features.get("long_len_MN", 0),
-                "short_sleep_percent": latest_features.get("short_num_MN", 0) * 10,
-                "long_sleep_percent": latest_features.get("long_num_MN", 0) * 20,
-                "heart_rate_mean": 65.0,  # Not in current features
-                "heart_rate_std": 8.0,  # Not in current features
-                "hrv_mean": 45.0,  # Not in current features
-                "hrv_std": 12.0,  # Not in current features
-                "resting_heart_rate": 58.0,  # Not in current features
-                "activity_calories": 350.0,  # Not in current features
-                "basal_calories": 1500.0,  # Not in current features
-                "total_distance_km": 5.5,  # Not in current features
-                "step_count": 8000,  # Not in current features
-                "flights_climbed": 10,  # Not in current features
-                "stand_hours": 12,  # Not in current features
-                "exercise_minutes": 30,  # Not in current features
-                "high_intensity_minutes": 10,  # Not in current features
-                "activity_level_sedentary": 600,  # Not in current features
-                "activity_level_light": 180,  # Not in current features
-                "activity_level_moderate": 30,  # Not in current features
-                "activity_level_vigorous": 10,  # Not in current features
-                "correlation_sleep_activity": 0.3,  # Not in current features
-                "phase_alignment_score": latest_features.get("circadian_phase_MN", 0) / 24.0,
-                "disruption_index": latest_features.get("circadian_amplitude_SD", 0),
-                "stability_score": 1.0 - latest_features.get("circadian_amplitude_Z", 0) / 10.0,
-                "quality_score": 0.8,  # Composite score would need calculation
+                # Sleep percentage features (3)
+                "sleep_percentage_mean": latest_features.get("sleep_percentage_MN", 0),
+                "sleep_percentage_std": latest_features.get("sleep_percentage_SD", 0),
+                "sleep_percentage_zscore": latest_features.get("sleep_percentage_Z", 0),
+                
+                # Sleep amplitude features (3)
+                "sleep_amplitude_mean": latest_features.get("sleep_amplitude_MN", 0),
+                "sleep_amplitude_std": latest_features.get("sleep_amplitude_SD", 0),
+                "sleep_amplitude_zscore": latest_features.get("sleep_amplitude_Z", 0),
+                
+                # Long sleep window features (12)
+                "long_sleep_num_mean": latest_features.get("long_num_MN", 0),
+                "long_sleep_num_std": latest_features.get("long_num_SD", 0),
+                "long_sleep_num_zscore": latest_features.get("long_num_Z", 0),
+                "long_sleep_len_mean": latest_features.get("long_len_MN", 0),
+                "long_sleep_len_std": latest_features.get("long_len_SD", 0),
+                "long_sleep_len_zscore": latest_features.get("long_len_Z", 0),
+                "long_sleep_st_mean": latest_features.get("long_ST_MN", 0),
+                "long_sleep_st_std": latest_features.get("long_ST_SD", 0),
+                "long_sleep_st_zscore": latest_features.get("long_ST_Z", 0),
+                "long_sleep_wt_mean": latest_features.get("long_WT_MN", 0),
+                "long_sleep_wt_std": latest_features.get("long_WT_SD", 0),
+                "long_sleep_wt_zscore": latest_features.get("long_WT_Z", 0),
+                
+                # Short sleep window features (12)
+                "short_sleep_num_mean": latest_features.get("short_num_MN", 0),
+                "short_sleep_num_std": latest_features.get("short_num_SD", 0),
+                "short_sleep_num_zscore": latest_features.get("short_num_Z", 0),
+                "short_sleep_len_mean": latest_features.get("short_len_MN", 0),
+                "short_sleep_len_std": latest_features.get("short_len_SD", 0),
+                "short_sleep_len_zscore": latest_features.get("short_len_Z", 0),
+                "short_sleep_st_mean": latest_features.get("short_ST_MN", 0),
+                "short_sleep_st_std": latest_features.get("short_ST_SD", 0),
+                "short_sleep_st_zscore": latest_features.get("short_ST_Z", 0),
+                "short_sleep_wt_mean": latest_features.get("short_WT_MN", 0),
+                "short_sleep_wt_std": latest_features.get("short_WT_SD", 0),
+                "short_sleep_wt_zscore": latest_features.get("short_WT_Z", 0),
+                
+                # Circadian features (6)
+                "circadian_amplitude_mean": latest_features.get("circadian_amplitude_MN", 0),
+                "circadian_amplitude_std": latest_features.get("circadian_amplitude_SD", 0),
+                "circadian_amplitude_zscore": latest_features.get("circadian_amplitude_Z", 0),
+                "circadian_phase_mean": latest_features.get("circadian_phase_MN", 0),
+                "circadian_phase_std": latest_features.get("circadian_phase_SD", 0),
+                "circadian_phase_zscore": latest_features.get("circadian_phase_Z", 0),
             }
             
             processing_time = time.time() - start_time
