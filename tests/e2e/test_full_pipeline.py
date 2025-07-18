@@ -99,19 +99,25 @@ class TestFullPipeline:
         with open(output_file) as f:
             predictions = json.load(f)
         
-        assert "depression_risk" in predictions
-        assert "hypomanic_risk" in predictions
-        assert "manic_risk" in predictions
+        assert "summary" in predictions
+        assert "daily_predictions" in predictions
         assert "confidence" in predictions
-        assert "days_analyzed" in predictions
+        assert "metadata" in predictions
+        
+        # Check summary structure
+        summary = predictions["summary"]
+        assert "avg_depression_risk" in summary
+        assert "avg_hypomanic_risk" in summary
+        assert "avg_manic_risk" in summary
+        assert "days_analyzed" in summary
         
         # Risk values should be probabilities
-        assert 0.0 <= predictions["depression_risk"] <= 1.0
-        assert 0.0 <= predictions["hypomanic_risk"] <= 1.0
-        assert 0.0 <= predictions["manic_risk"] <= 1.0
+        assert 0.0 <= summary["avg_depression_risk"] <= 1.0
+        assert 0.0 <= summary["avg_hypomanic_risk"] <= 1.0
+        assert 0.0 <= summary["avg_manic_risk"] <= 1.0
         
         # Should analyze 7 days
-        assert predictions["days_analyzed"] == 7
+        assert summary["days_analyzed"] == 7
 
     def test_predict_with_insufficient_data(self, tmp_path):
         """Test pipeline handles insufficient data gracefully."""
@@ -208,7 +214,7 @@ class TestFullPipeline:
         import pandas as pd
         df = pd.read_csv(export_file)
         assert len(df) == 2
-        assert set(df["episode_type"]) == {"depressive", "manic"}
+        assert set(df["mood"]) == {"depressive", "manic"}
 
     @pytest.mark.parametrize("format", ["json", "csv", "summary"])
     def test_predict_output_formats(self, sample_xml_data, tmp_path, format):
