@@ -19,7 +19,7 @@ from big_mood_detector.application.services.data_parsing_service import DataPars
 from big_mood_detector.domain.services.clinical_feature_extractor import (
     ClinicalFeatureExtractor,
 )
-from big_mood_detector.infrastructure.di.container import get_container
+from big_mood_detector.infrastructure.di.container import get_container, setup_dependencies
 from big_mood_detector.infrastructure.logging import get_module_logger
 
 logger = get_module_logger(__name__)
