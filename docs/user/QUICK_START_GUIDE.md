@@ -1,0 +1,215 @@
+# 🚀 Big Mood Detector - Quick Start Guide
+
+This guide will help you get started with Big Mood Detector in 5 minutes.
+
+## 📋 Prerequisites
+
+- Python 3.11+
+- Apple Health data (either XML export or JSON from Health Auto Export app)
+- 8GB RAM minimum
+
+## 🛠️ Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/big-mood-detector.git
+cd big-mood-detector
+
+# Create virtual environment
+python3 -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+
+# Install the package
+pip install -e ".[dev,ml,monitoring]"
+```
+
+## 📊 Basic Usage - Process and Predict
+
+### Step 1: Process Your Health Data
+
+```bash
+# Process JSON data (from Health Auto Export app)
+python src/big_mood_detector/main.py process data/health_auto_export/
+
+# Process Apple Health XML export
+python src/big_mood_detector/main.py process data/apple_export/export.xml
+
+# Process with date range
+python src/big_mood_detector/main.py process data/health_auto_export/ \
+    --start-date 2024-01-01 \
+    --end-date 2024-03-31 \
+    -o features.json
+```
+
+### Step 2: Generate Mood Predictions
+
+```bash
+# Basic prediction
+python src/big_mood_detector/main.py predict data/health_auto_export/
+
+# Generate detailed report
+python src/big_mood_detector/main.py predict data/health_auto_export/ \
+    --report \
+    -o mood_report.txt
+
+# Use ensemble model (XGBoost + PAT)
+python src/big_mood_detector/main.py predict data/health_auto_export/ \
+    --ensemble \
+    -o predictions.json
+```
+
+## 📈 Example Output
+
+### Prediction Report Example
+```
+Big Mood Detector - Clinical Report
+Generated: 2025-07-18 10:30:00
+
+Period: 2024-01-01 to 2024-03-31
+Days analyzed: 90
+
+RISK SUMMARY:
+- Depression Risk: MODERATE (0.65)
+- Mania Risk: LOW (0.12)
+- Hypomania Risk: LOW (0.18)
+
+KEY FINDINGS:
+✓ Sleep duration: 6.2 hours average (below optimal 7-9 hours)
+✓ Sleep efficiency: 85% (normal)
+✓ Activity level: 5,800 steps/day (normal range)
+✓ Circadian rhythm: Mild phase delay detected
+
+CLINICAL FLAGS:
+⚠️ Decreased sleep duration trend over past 2 weeks
+⚠️ Increased sleep fragmentation (3+ awakenings/night)
+
+RECOMMENDATIONS:
+- Monitor sleep patterns closely
+- Consider sleep hygiene interventions
+- Follow up if symptoms worsen
+```
+
+## 🏷️ Label Your Episodes (Optional)
+
+Create ground truth labels for personalized model training:
+
+```bash
+# Label a depressive episode
+python src/big_mood_detector/main.py label episode \
+    --date-range 2024-01-15:2024-01-29 \
+    --mood depressive \
+    --severity moderate
+
+# Label baseline (stable) period
+python src/big_mood_detector/main.py label baseline \
+    --date-range 2024-02-01:2024-02-28
+
+# View your labels
+python src/big_mood_detector/main.py label stats
+```
+
+## 🎯 Train a Personalized Model
+
+Once you have labeled data:
+
+```bash
+# Prepare training data
+python src/big_mood_detector/main.py process data/health_auto_export/ \
+    -o training_features.csv
+
+# Train personalized XGBoost model
+python src/big_mood_detector/main.py train \
+    --model-type xgboost \
+    --user-id "user123" \
+    --data training_features.csv \
+    --labels my_labels.csv
+```
+
+## 🔄 Automatic Monitoring
+
+Watch a directory for new health data files:
+
+```bash
+# Start file watcher
+python src/big_mood_detector/main.py watch data/health_auto_export/
+
+# The watcher will:
+# - Detect new JSON/XML files
+# - Automatically process them
+# - Generate predictions
+# - Save results to data/output/
+```
+
+## 🌐 API Server
+
+Start the REST API for integrations:
+
+```bash
+# Start API server
+python src/big_mood_detector/main.py serve --port 8000
+
+# API will be available at http://localhost:8000
+# Documentation at http://localhost:8000/docs
+```
+
+### Example API Usage
+
+```bash
+# Upload and process file
+curl -X POST "http://localhost:8000/api/v1/upload/file" \
+  -F "file=@sleep_data.json"
+
+# Get predictions
+curl "http://localhost:8000/api/v1/results/latest"
+```
+
+## 📁 Data Formats
+
+### Health Auto Export JSON Format
+Place your JSON files in `data/health_auto_export/`:
+- `Sleep Analysis.json`
+- `Heart Rate.json`
+- `Step Count.json`
+- `Heart Rate Variability.json`
+
+### Apple Health XML Format
+Place your `export.xml` in `data/apple_export/`
+
+## 🚨 Clinical Thresholds
+
+The system uses validated thresholds from research:
+- **Depression**: PHQ-8 ≥ 10 equivalent
+- **Mania**: ASRM ≥ 6 equivalent
+- **Sleep Duration**: <3 hours (mania risk), >12 hours (depression risk)
+- **Activity**: <5,000 steps (depression), >15,000 steps (mania)
+
+## 🆘 Troubleshooting
+
+### "No data found" Error
+- Check your data is in the correct directory
+- Ensure JSON files have the expected names
+- For XML, ensure it's a valid Apple Health export
+
+### "Model not found" Error
+- Models are in `model_weights/xgboost/converted/`
+- Run `make setup` to download models
+
+### Memory Issues
+- The streaming parser handles large files efficiently
+- For very large exports, use date ranges to process in chunks
+
+## 📚 Next Steps
+
+- Read the [Clinical Documentation](../clinical/CLINICAL_DOSSIER.md) to understand the science
+- Check the [API Documentation](../developer/API_REFERENCE.md) for integration
+- See [Advanced Usage](./ADVANCED_USAGE.md) for complex workflows
+
+## 🤝 Getting Help
+
+- GitHub Issues: Report bugs or request features
+- Documentation: Full guides in the `docs/` directory
+- Clinical Questions: See clinical references in documentation
+
+---
+
+Remember: This tool provides risk assessments, not diagnoses. Always consult healthcare providers for clinical decisions.
