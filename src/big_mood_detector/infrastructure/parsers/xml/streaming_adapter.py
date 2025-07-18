@@ -75,6 +75,34 @@ class StreamingXMLParser:
                     # Extract all attributes
                     record_data = dict(elem.attrib)
 
+                    # Check date filtering if enabled
+                    if start_date or end_date:
+                        # Apple Health uses startDate attribute
+                        record_date_str = record_data.get("startDate", "")
+                        if record_date_str:
+                            # Parse date (format: "2024-01-15 10:30:00 -0700")
+                            try:
+                                record_date = datetime.strptime(
+                                    record_date_str[:10], "%Y-%m-%d"
+                                ).date()
+                                
+                                # Apply date filters
+                                if start_date:
+                                    start = datetime.strptime(start_date, "%Y-%m-%d").date()
+                                    if record_date < start:
+                                        elem.clear()
+                                        continue
+                                        
+                                if end_date:
+                                    end = datetime.strptime(end_date, "%Y-%m-%d").date()
+                                    if record_date > end:
+                                        elem.clear()
+                                        continue
+                            except ValueError:
+                                # Skip records with invalid dates
+                                elem.clear()
+                                continue
+
                     # Extract metadata entries (e.g., heart rate motion context)
                     for metadata in elem.findall("MetadataEntry"):
                         key = metadata.get("key")
@@ -97,6 +125,8 @@ class StreamingXMLParser:
         self,
         file_path: str | Path,
         entity_type: str = "all",
+        start_date: str | None = None,
+        end_date: str | None = None,
     ) -> Generator[SleepRecord | ActivityRecord | HeartRateRecord, None, None]:
         """
         Parse file and yield domain entities.
@@ -104,6 +134,8 @@ class StreamingXMLParser:
         Args:
             file_path: Path to the XML file
             entity_type: Type of entities to parse ('sleep', 'activity', 'heart', 'all')
+            start_date: Optional start date (YYYY-MM-DD format) to filter records
+            end_date: Optional end date (YYYY-MM-DD format) to filter records
 
         Yields:
             Domain entities
@@ -124,7 +156,7 @@ class StreamingXMLParser:
             types_to_parse = sleep_types + activity_types + heart_types
 
         # Stream through records
-        for record_dict in self.iter_records(file_path, types_to_parse):
+        for record_dict in self.iter_records(file_path, types_to_parse, start_date, end_date):
             record_type = record_dict.get("type")
 
             try:

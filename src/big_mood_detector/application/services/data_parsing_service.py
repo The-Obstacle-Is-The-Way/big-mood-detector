@@ -147,17 +147,18 @@ class DataParsingService:
         try:
             # Determine parser type
             if file_path.is_file() and file_path.suffix == ".xml":
-                parsed_data = self.parse_xml_export(file_path, progress_callback)
+                parsed_data = self.parse_xml_export(
+                    file_path, progress_callback, start_date, end_date
+                )
             elif file_path.is_dir():
                 parsed_data = self.parse_json_export(file_path, progress_callback)
+                # Filter JSON data by date range if specified
+                if start_date or end_date:
+                    parsed_data = self._filter_by_date_range(
+                        parsed_data, start_date, end_date
+                    )
             else:
                 raise ValueError(f"Unsupported file type: {file_path}")
-
-            # Filter by date range if specified
-            if start_date or end_date:
-                parsed_data = self._filter_by_date_range(
-                    parsed_data, start_date, end_date
-                )
 
             # Cache result
             if use_cache:
@@ -179,6 +180,8 @@ class DataParsingService:
         self,
         xml_path: Path,
         progress_callback: Callable[[str, float], None] | None = None,
+        start_date: date | None = None,
+        end_date: date | None = None,
     ) -> ParsedHealthData:
         """
         Parse Apple Health XML export.
@@ -186,6 +189,8 @@ class DataParsingService:
         Args:
             xml_path: Path to export.xml
             progress_callback: Optional progress callback
+            start_date: Optional start date for filtering
+            end_date: Optional end date for filtering
 
         Returns:
             ParsedHealthData with all records
@@ -194,11 +199,17 @@ class DataParsingService:
         activity_records = []
         heart_records = []
 
+        # Convert dates to string format for parser
+        start_date_str = start_date.strftime("%Y-%m-%d") if start_date else None
+        end_date_str = end_date.strftime("%Y-%m-%d") if end_date else None
+
         # Parse sleep records
         if progress_callback:
             progress_callback("Parsing sleep records", 0.0)
 
-        for entity in self._xml_parser.parse_file(xml_path, entity_type="sleep"):
+        for entity in self._xml_parser.parse_file(
+            xml_path, entity_type="sleep", start_date=start_date_str, end_date=end_date_str
+        ):
             if isinstance(entity, SleepRecord):
                 sleep_records.append(entity)
 
@@ -207,7 +218,9 @@ class DataParsingService:
             progress_callback("Parsing activity records", 0.0)
 
         # Parse activity records
-        for entity in self._xml_parser.parse_file(xml_path, entity_type="activity"):
+        for entity in self._xml_parser.parse_file(
+            xml_path, entity_type="activity", start_date=start_date_str, end_date=end_date_str
+        ):
             if isinstance(entity, ActivityRecord):
                 activity_records.append(entity)
 
@@ -216,7 +229,9 @@ class DataParsingService:
             progress_callback("Parsing heart rate records", 0.0)
 
         # Parse heart rate records
-        for entity in self._xml_parser.parse_file(xml_path, entity_type="heart"):
+        for entity in self._xml_parser.parse_file(
+            xml_path, entity_type="heart", start_date=start_date_str, end_date=end_date_str
+        ):
             if isinstance(entity, HeartRateRecord):
                 heart_records.append(entity)
 

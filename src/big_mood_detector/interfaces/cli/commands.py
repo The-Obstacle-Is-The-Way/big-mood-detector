@@ -323,7 +323,9 @@ def process_command(
         end_date_param: date | None = end_date.date() if end_date else None
 
         # Process health export
-        output_path = Path(output) if output else Path("output/features.csv")
+        import os
+        data_dir = os.environ.get("DATA_DIR", "data")
+        output_path = Path(output) if output else Path(data_dir) / "output" / "features.csv"
 
         # Ensure parent directory exists
         output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -460,7 +462,7 @@ def predict_command(
             report_path = (
                 Path(output).with_suffix(".txt")
                 if output
-                else Path("clinical_report.txt")
+                else Path(data_dir) / "output" / "clinical_report.txt"
             )
             generate_clinical_report(result, report_path)
             click.echo(f"✅ Clinical report saved to: {report_path}")

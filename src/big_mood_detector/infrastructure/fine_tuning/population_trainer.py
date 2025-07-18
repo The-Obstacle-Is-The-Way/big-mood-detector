@@ -12,8 +12,6 @@ from typing import Any
 import joblib  # type: ignore[import-untyped]
 import numpy as np
 import pandas as pd
-import torch
-import torch.nn as nn
 import xgboost as xgb
 from sklearn.metrics import (
     accuracy_score,
@@ -121,7 +119,17 @@ class PopulationTrainer(ABC):
         return metrics
 
 
-class TaskHead(nn.Module):
+try:
+    import torch
+    import torch.nn as nn
+    TORCH_AVAILABLE = True
+except ImportError:
+    TORCH_AVAILABLE = False
+    torch = None  # type: ignore
+    nn = None  # type: ignore
+
+
+class TaskHead:
     """Task-specific head for PAT model."""
 
     def __init__(
@@ -184,10 +192,11 @@ def load_pat_model(model_path: str) -> Any:
     return MockPATModel()
 
 
-class PATPopulationTrainer(PopulationTrainer):
-    """PAT-specific population trainer."""
+if TORCH_AVAILABLE:
+    class PATPopulationTrainer(PopulationTrainer):
+        """PAT-specific population trainer."""
 
-    def __init__(
+        def __init__(
         self,
         base_model_path: str = "weights/PAT-S_29k_weights.h5",
         task_name: str = "depression",
@@ -549,6 +558,21 @@ class XGBoostPopulationTrainer(PopulationTrainer):
         return self.incremental_train(features, labels, **kwargs)
 
 
+else:
+    # Dummy class when torch not available
+    class PATPopulationTrainer(PopulationTrainer):
+        """PAT trainer stub when PyTorch not available."""
+        
+        def __init__(self, *args: Any, **kwargs: Any):
+            raise ImportError("PyTorch is required for PAT population training")
+            
+        def train(self, *args: Any, **kwargs: Any) -> dict[str, float]:
+            raise ImportError("PyTorch is required for PAT population training")
+            
+        def save_model(self, *args: Any, **kwargs: Any) -> Path:
+            raise ImportError("PyTorch is required for PAT population training")
+
+
 def create_population_trainer(
     model_type: str,
     task_name: str = "depression",
@@ -568,6 +592,8 @@ def create_population_trainer(
         ValueError: If model type unknown
     """
     if model_type.lower() == "pat":
+        if not TORCH_AVAILABLE:
+            raise ImportError("PyTorch is required for PAT population training. Install with: pip install torch")
         return PATPopulationTrainer(task_name=task_name, **kwargs)
     elif model_type.lower() == "xgboost":
         return XGBoostPopulationTrainer(task_name=task_name, **kwargs)
