@@ -21,7 +21,7 @@
 
 ```bash
 # Clone repository
-git clone https://github.com/yourusername/big-mood-detector.git
+git clone https://github.com/Clarity-Digital-Twin/big-mood-detector.git
 cd big-mood-detector
 
 # Create virtual environment

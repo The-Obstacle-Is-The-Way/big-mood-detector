@@ -14,7 +14,7 @@ A production-ready system for detecting mood episodes in bipolar disorder using 
 
 ```bash
 # Install
-git clone https://github.com/yourusername/big-mood-detector.git
+git clone https://github.com/Clarity-Digital-Twin/big-mood-detector.git
 cd big-mood-detector
 pip install -e ".[dev,ml,monitoring]"
 

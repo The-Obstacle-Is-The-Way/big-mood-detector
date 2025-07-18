@@ -12,7 +12,7 @@ This guide will help you get started with Big Mood Detector in 5 minutes.
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/big-mood-detector.git
+git clone https://github.com/Clarity-Digital-Twin/big-mood-detector.git
 cd big-mood-detector
 
 # Create virtual environment
