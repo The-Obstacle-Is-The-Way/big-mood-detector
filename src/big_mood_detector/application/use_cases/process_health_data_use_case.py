@@ -126,7 +126,7 @@ class MoodPredictionPipeline:
         # Initialize ensemble orchestrator if PAT sequences are enabled
         self.ensemble_orchestrator = None
         if self.config.include_pat_sequences:
-            from big_mood_detector.infrastructure.ml_models.pat_model import PATModel
+            from big_mood_detector.infrastructure.ml_models import PAT_AVAILABLE
             from big_mood_detector.infrastructure.ml_models.xgboost_models import (
                 XGBoostMoodPredictor,
             )
@@ -139,8 +139,13 @@ class MoodPredictionPipeline:
             if self.xgboost_predictor.load_models(model_dir):
                 logger.info("XGBoost models loaded for ensemble")
 
-            # Initialize PAT model
-            pat_model: PATModel | None = PATModel()
+            # Initialize PAT model if available
+            pat_model = None
+            if PAT_AVAILABLE:
+                from big_mood_detector.infrastructure.ml_models.pat_model import PATModel
+                pat_model = PATModel()
+            else:
+                logger.warning("PAT model not available - TensorFlow not installed")
 
             # Try to load PAT weights
             if pat_model is not None:

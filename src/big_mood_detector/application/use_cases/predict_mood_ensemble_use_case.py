@@ -15,10 +15,13 @@ import numpy as np
 from big_mood_detector.domain.entities.activity_record import ActivityRecord
 from big_mood_detector.domain.services.mood_predictor import MoodPrediction
 from big_mood_detector.domain.services.pat_sequence_builder import PATSequenceBuilder
-from big_mood_detector.infrastructure.ml_models.pat_model import PATModel
+from big_mood_detector.infrastructure.ml_models import PAT_AVAILABLE
 from big_mood_detector.infrastructure.ml_models.xgboost_models import (
     XGBoostMoodPredictor,
 )
+
+if PAT_AVAILABLE:
+    from big_mood_detector.infrastructure.ml_models.pat_model import PATModel
 
 logger = logging.getLogger(__name__)
 
