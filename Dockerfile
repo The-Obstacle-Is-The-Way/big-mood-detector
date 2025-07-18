@@ -58,6 +58,11 @@ COPY --chown=appuser:appuser src/ ./src/
 # Copy model weights (required for predictions)
 COPY --chown=appuser:appuser model_weights/ ./model_weights/
 
+# Create symlinks for expected model names
+RUN ln -s /app/model_weights/xgboost/converted/XGBoost_DE.json /app/model_weights/xgboost/converted/depression_risk.json && \
+    ln -s /app/model_weights/xgboost/converted/XGBoost_HME.json /app/model_weights/xgboost/converted/hypomanic_risk.json && \
+    ln -s /app/model_weights/xgboost/converted/XGBoost_ME.json /app/model_weights/xgboost/converted/manic_risk.json
+
 # Copy entrypoint and healthcheck scripts
 COPY --chown=appuser:appuser docker/entrypoint.sh /entrypoint.sh
 COPY --chown=appuser:appuser docker/healthcheck.py /healthcheck.py

@@ -30,8 +30,21 @@ app = FastAPI(
 @app.on_event("startup")
 async def startup_event() -> None:
     """Ensure required directories exist when the API starts."""
+    import sys
+    from big_mood_detector.infrastructure.logging import get_module_logger
+    from big_mood_detector.infrastructure.settings.utils import validate_model_paths
+    
+    logger = get_module_logger(__name__)
     settings = get_settings()
     settings.ensure_directories()
+    
+    # Validate model weights exist
+    validation_error = validate_model_paths(settings)
+    if validation_error:
+        logger.critical("Model weights validation failed", error=validation_error)
+        sys.exit(1)
+    
+    logger.info("API startup complete", model_path=str(settings.MODEL_WEIGHTS_PATH))
 
 # Include routers
 app.include_router(clinical_router)
