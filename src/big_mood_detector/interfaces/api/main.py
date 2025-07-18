@@ -20,6 +20,7 @@ from big_mood_detector.interfaces.api.routes.predictions import (
 )
 from big_mood_detector.interfaces.api.routes.upload import router as upload_router
 from big_mood_detector.interfaces.api.middleware.rate_limit import setup_rate_limiting
+from big_mood_detector.interfaces.api.middleware.metrics import setup_metrics, update_model_status
 
 app = FastAPI(
     title="Big Mood Detector",
@@ -27,8 +28,9 @@ app = FastAPI(
     version="0.1.0",
 )
 
-# Set up rate limiting
+# Set up middleware
 app = setup_rate_limiting(app)
+app = setup_metrics(app)
 
 # Ensure directories exist on startup
 @app.on_event("startup")
@@ -64,16 +66,25 @@ async def startup_event() -> None:
     predictor = get_mood_predictor()
     logger.info(f"MoodPredictor loaded with {len(predictor.models)} models")
     
+    # Update metrics
+    for model_name in predictor.models:
+        update_model_status(f"xgboost_{model_name}", True)
+    
     # Preload ensemble orchestrator (includes PAT if available)
     orchestrator = get_ensemble_orchestrator()
     if orchestrator:
         logger.info("Ensemble orchestrator loaded successfully")
+        update_model_status("ensemble", True)
+        
         if orchestrator.pat_model:
             logger.info("PAT model loaded and available")
+            update_model_status("pat", True)
         else:
             logger.warning("PAT model not available - TensorFlow may not be installed")
+            update_model_status("pat", False)
     else:
         logger.warning("Failed to load ensemble orchestrator")
+        update_model_status("ensemble", False)
     
     # Store in app state for multi-worker scenarios
     app.state.predictor = predictor
