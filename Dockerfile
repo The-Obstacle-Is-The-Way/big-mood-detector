@@ -17,6 +17,7 @@ WORKDIR /app
 
 # Copy dependency files first (better caching)
 COPY pyproject.toml ./
+COPY README.md ./
 COPY src/ ./src/
 
 # Create virtual environment and install dependencies
@@ -48,7 +49,6 @@ WORKDIR /app
 
 # Copy application code
 COPY --chown=appuser:appuser src/ ./src/
-COPY --chown=appuser:appuser pyproject.toml ./
 
 # Copy model weights (if available)
 COPY --chown=appuser:appuser model_weights/ ./model_weights/

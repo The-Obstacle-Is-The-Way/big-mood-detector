@@ -32,8 +32,6 @@ htmlcov/
 
 # Documentation
 docs/_build/
-*.md
-README.md
 CLAUDE.md
 
 # Data (too large, mount as volumes)
@@ -57,5 +55,4 @@ env.example
 # Development scripts
 scripts/
 Makefile
-pyproject.toml
 pytest.ini
