@@ -12,7 +12,9 @@ from fastapi.responses import JSONResponse
 
 from big_mood_detector.interfaces.api.clinical_routes import router as clinical_router
 from big_mood_detector.interfaces.api.routes.labels import router as labels_router
-from big_mood_detector.interfaces.api.routes.predictions import router as predictions_router
+from big_mood_detector.interfaces.api.routes.predictions import (
+    router as predictions_router,
+)
 from big_mood_detector.interfaces.api.routes.upload import router as upload_router
 
 app = FastAPI(
