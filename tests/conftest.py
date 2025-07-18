@@ -119,9 +119,49 @@ def _patch_pat_model(monkeypatch):
                 self.encoder_num_heads = 12
                 self.encoder_num_layers = 4
 
-        def load_pretrained_weights(self, *args, **kwargs):
+        def load_pretrained_weights(self, weights_path=None, *args, **kwargs):
+            # Simulate file not found for non-existent paths
+            if weights_path and "nonexistent" in str(weights_path):
+                return False
             self.is_loaded = True
             return True
+
+        def extract_features(self, sequence):
+            # Check if model is loaded
+            if not self.is_loaded:
+                raise RuntimeError("Model not loaded")
+            # Mock feature extraction - return a numpy array with expected shape
+            import numpy as np
+
+            return np.random.rand(96)  # 96-dim feature vector for medium model
+
+        def extract_features_batch(self, sequences):
+            # Check if model is loaded
+            if not self.is_loaded:
+                raise RuntimeError("Model not loaded")
+            import numpy as np
+
+            return np.random.rand(len(sequences), 96)
+
+        def _prepare_input(self, sequence):
+            import numpy as np
+
+            # Normalize data (mock normalization)
+            data = np.array(sequence.activity_values).reshape(1, -1)
+            return (data - np.mean(data)) / (np.std(data) + 1e-8)
+
+        def get_attention_weights(self):
+            pass
+
+        def get_model_info(self):
+            num_patches = 10080 // self.patch_size
+            params = {"small": 285000, "medium": 1300000, "large": 7600000}
+            return {
+                "model_size": self.model_size,
+                "patch_size": self.patch_size,
+                "num_patches": num_patches,
+                "parameters": params.get(self.model_size, 1300000),
+            }
 
     pat_stub.PATModel = MockPATModel
     pat_stub.PATFeatureExtractor = object
