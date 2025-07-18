@@ -225,10 +225,10 @@ if TORCH_AVAILABLE:
             return load_pat_model(self.base_model_path)
 
         def create_task_head(
-        self,
-        input_dim: int = 768,
-        num_classes: int = 2,
-        dropout: float = 0.2,
+            self,
+            input_dim: int = 768,
+            num_classes: int = 2,
+            dropout: float = 0.2,
         ) -> TaskHead:
             """Create task-specific head.
 
@@ -247,8 +247,8 @@ if TORCH_AVAILABLE:
             )
 
         def fine_tune(
-        self,
-        **kwargs: Any,
+            self,
+            **kwargs: Any,
         ) -> dict[str, float]:
             """Fine-tune PAT with task head.
 
@@ -428,6 +428,19 @@ if TORCH_AVAILABLE:
             return model_path
 
 
+else:
+    # Create a protocol for type checking when torch is not available
+    @runtime_checkable
+    class PATPopulationTrainer(Protocol):
+        """Protocol stub for PATPopulationTrainer when torch is not available."""
+        
+        def __init__(self, task_name: str = "depression", output_dir: Path = Path("models/population")) -> None:
+            ...
+        
+        def train(self, **kwargs: Any) -> dict[str, Any]:
+            ...
+
+
 class XGBoostPopulationTrainer(PopulationTrainer):
     """XGBoost-specific population trainer."""
 
@@ -564,19 +577,6 @@ class XGBoostPopulationTrainer(PopulationTrainer):
         labels = kwargs["labels"]
         self.validate_features(features)
         return self.incremental_train(features, labels, **kwargs)
-
-
-else:
-    # Create a protocol for type checking when torch is not available
-    @runtime_checkable
-    class PATPopulationTrainer(Protocol):
-        """Protocol stub for PATPopulationTrainer when torch is not available."""
-        
-        def __init__(self, task_name: str = "depression", output_dir: Path = Path("models/population")) -> None:
-            ...
-        
-        def train(self, **kwargs: Any) -> dict[str, Any]:
-            ...
 
 
 def create_population_trainer(
