@@ -55,6 +55,9 @@ COPY --chown=appuser:appuser config/ ./config/
 # Copy application code
 COPY --chown=appuser:appuser src/ ./src/
 
+# Copy model weights (required for predictions)
+COPY --chown=appuser:appuser model_weights/ ./model_weights/
+
 # Copy entrypoint and healthcheck scripts
 COPY --chown=appuser:appuser docker/entrypoint.sh /entrypoint.sh
 COPY --chown=appuser:appuser docker/healthcheck.py /healthcheck.py
@@ -78,11 +81,12 @@ USER appuser
 # Expose port
 EXPOSE 8000
 
-# Set up volume for data
+# Set up volume for data (user uploads/outputs)
 VOLUME /data
 
-# Set default data directory
-ENV DATA_DIR=/data
+# Set default data directory to /app (where model weights are)
+# User data will still go to /data if explicitly mounted
+ENV DATA_DIR=/app
 
 # Use entrypoint for flexible execution
 ENTRYPOINT ["/entrypoint.sh"]
