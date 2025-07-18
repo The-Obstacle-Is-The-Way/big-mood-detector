@@ -12,8 +12,8 @@ Big Mood Detector is licensed under the Apache License, Version 2.0.
 
 This project uses several third-party components. For detailed information about their licenses, see:
 
-- [Third-Party Licenses](https://github.com/yourusername/big-mood-detector/tree/main/LICENSES) - Complete list of dependencies
-- [NOTICE](https://github.com/yourusername/big-mood-detector/blob/main/NOTICE) - Required attributions
+- [Third-Party Licenses](https://github.com/Clarity-Digital-Twin/big-mood-detector/tree/main/LICENSES) - Complete list of dependencies
+- [NOTICE](https://github.com/Clarity-Digital-Twin/big-mood-detector/blob/main/NOTICE) - Required attributions
 
 ## Model Citations
 

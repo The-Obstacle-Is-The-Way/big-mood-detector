@@ -1,9 +1,9 @@
 site_name: Big Mood Detector
 site_description: Clinical-grade mood episode detection from wearable data
 site_author: Big Mood Detector Contributors
-site_url: https://github.com/yourusername/big-mood-detector
-repo_url: https://github.com/yourusername/big-mood-detector
-repo_name: big-mood-detector
+site_url: https://clarity-digital-twin.github.io/big-mood-detector
+repo_url: https://github.com/Clarity-Digital-Twin/big-mood-detector
+repo_name: Clarity-Digital-Twin/big-mood-detector
 copyright: Copyright &copy; 2024 Big Mood Detector Contributors
 
 # Theme configuration
@@ -59,10 +59,6 @@ plugins:
   - mkdocstrings:
       handlers:
         python:
-          import:
-            - https://docs.python.org/3/objects.inv
-            - https://numpy.org/doc/stable/objects.inv
-            - https://pandas.pydata.org/docs/objects.inv
           selection:
             docstring_style: google
           rendering:
@@ -132,7 +128,7 @@ extra_javascript:
 extra:
   social:
     - icon: fontawesome/brands/github
-      link: https://github.com/yourusername/big-mood-detector
+      link: https://github.com/Clarity-Digital-Twin/big-mood-detector
     - icon: fontawesome/brands/python
       link: https://pypi.org/project/big-mood-detector/
   
