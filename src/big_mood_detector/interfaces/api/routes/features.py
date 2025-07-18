@@ -116,14 +116,14 @@ async def extract_features(file: UploadFile = File(...)) -> FeatureExtractionRes
         )
         
         # Extract clinical features for the most recent day
-        if not daily_features:
+        if not daily_features_list:
             raise HTTPException(
-                status_code=400, detail="No data found in the uploaded file"
+                status_code=400, detail="No daily features could be extracted"
             )
         
-        # Get the most recent date with data
-        latest_date = max(daily_features.keys())
-        latest_features = daily_features[latest_date]
+        # Get the most recent daily features
+        latest_features = daily_features_list[-1]  # List is chronological
+        latest_date = latest_features.date
         
         # Extract clinical features
         clinical_extractor = ClinicalFeatureExtractor()
