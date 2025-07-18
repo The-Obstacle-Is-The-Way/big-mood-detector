@@ -198,6 +198,7 @@ Desktop.ini
 # =====================================
 # External repositories for reference - don't track in main repo
 reference_repos/
+uploads/
 
 nhanes/PAXMIN_H.xpt
 docs/assets/backup/
