@@ -94,6 +94,9 @@ def _patch_pat_model(monkeypatch):
         def __init__(self, model_size="medium", **kwargs):
             self.model_size = model_size
             self.patch_size = 18 if model_size == "medium" else 12
+            self.embed_dim = 96
+            self.depth = 6
+            self.num_heads = 4
 
         def load_pretrained_weights(self, *args, **kwargs):
             return True
