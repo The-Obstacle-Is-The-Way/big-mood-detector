@@ -17,11 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-      - uses: anthropics/claude-code-action@latest
+      - uses: anthropics/claude-code-action@v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           model: "claude-opus-4-20250514"
-          test_command: "make test"
-          lint_command: "make lint"
-          type_check_command: "make type-check"
-          format_command: "make format"
