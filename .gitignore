@@ -102,6 +102,7 @@ temp/
 
 # Test coverage and cache files
 .coverage
+.coverage.*
 *.coverage
 htmlcov/
 .mypy_cache/

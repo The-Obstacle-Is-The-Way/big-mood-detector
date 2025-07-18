@@ -51,8 +51,7 @@ class FileSleepRepository(SleepRepositoryInterface):
             temp_path.write_text(json.dumps(data, indent=2, default=str))
             temp_path.replace(file_path)
 
-            if logger.isEnabledFor(logging.DEBUG):
-                logger.debug("record_saved", record_id=stored.id)
+            logger.debug("record_saved", record_id=stored.id)
 
     async def save_batch(self, sleep_records: list[SleepRecord]) -> None:
         """Persist multiple sleep records efficiently."""
@@ -140,8 +139,7 @@ class FileSleepRepository(SleepRepositoryInterface):
                     if period.contains(record.start_date):
                         file_path.unlink()
                         deleted_count += 1
-                        if logger.isEnabledFor(logging.DEBUG):
-                            logger.debug("record_deleted", record_id=stored.id)
+                        logger.debug("record_deleted", record_id=stored.id)
                 except Exception as e:
                     logger.error(
                         "failed_to_process_record_file",

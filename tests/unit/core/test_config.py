@@ -36,8 +36,8 @@ class TestSettings:
 
         # Paths
         assert settings.MODEL_WEIGHTS_PATH == Path("model_weights/xgboost/converted")
-        assert settings.OUTPUT_DIR == Path("output")
-        assert settings.UPLOAD_DIR == Path("uploads")
+        assert settings.OUTPUT_DIR == Path("data/output")
+        assert settings.UPLOAD_DIR == Path("data/uploads")
 
         # File processing
         assert settings.MAX_FILE_SIZE == 100 * 1024 * 1024  # 100MB
@@ -92,12 +92,20 @@ class TestSettings:
             assert not test_upload.exists()
 
             # Create settings with custom paths
-            Settings(
+            settings = Settings(
                 OUTPUT_DIR=test_output,
                 UPLOAD_DIR=test_upload,
             )
 
-            # Paths should be created
+            # Paths shouldn't be created automatically
+            assert not test_output.exists()
+            assert not test_upload.exists()
+            
+            # Now ensure directories
+            from big_mood_detector.infrastructure.settings.utils import initialize_directories
+            initialize_directories(settings)
+            
+            # Now paths should exist
             assert test_output.exists()
             assert test_upload.exists()
 
