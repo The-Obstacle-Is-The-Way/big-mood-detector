@@ -224,14 +224,13 @@ class TestFeatureExtraction:
 
         return file_path
 
-    @pytest.mark.skip(reason="Feature extraction endpoint not yet implemented")
     def test_extract_features_from_file(
         self, client: TestClient, sample_health_data: Path
     ) -> None:
         """Test extracting features from uploaded file."""
         with open(sample_health_data, "rb") as f:
             response = client.post(
-                "/features/extract",
+                "/api/v1/features/extract",
                 files={"file": ("health_data.json", f, "application/json")},
             )
 

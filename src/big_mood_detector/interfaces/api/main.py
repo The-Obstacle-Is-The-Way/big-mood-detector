@@ -11,6 +11,7 @@ from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 
 from big_mood_detector.interfaces.api.clinical_routes import router as clinical_router
+from big_mood_detector.interfaces.api.routes.features import router as features_router
 from big_mood_detector.interfaces.api.routes.labels import router as labels_router
 from big_mood_detector.interfaces.api.routes.predictions import (
     router as predictions_router,
@@ -25,6 +26,7 @@ app = FastAPI(
 
 # Include routers
 app.include_router(clinical_router)
+app.include_router(features_router)
 app.include_router(labels_router)
 app.include_router(predictions_router)
 app.include_router(upload_router)
