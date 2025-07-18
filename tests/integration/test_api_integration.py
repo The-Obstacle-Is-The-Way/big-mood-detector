@@ -169,7 +169,7 @@ class TestLabelsAPI:
         created_id = create_response.json()["id"]
         
         # Get episode
-        get_response = client.get(f"/labels/episodes/{created_id}")
+        get_response = client.get(f"/api/v1/labels/episodes/{created_id}")
         assert get_response.status_code == 200
         episode = get_response.json()
         assert episode["id"] == created_id
@@ -192,7 +192,7 @@ class TestLabelsAPI:
         assert delete_response.status_code == 204
         
         # Verify it's gone
-        get_response = client.get(f"/labels/episodes/{created_id}")
+        get_response = client.get(f"/api/v1/labels/episodes/{created_id}")
         assert get_response.status_code == 404
 
     def test_invalid_episode_type(self, client: TestClient, sample_episode: dict) -> None:
