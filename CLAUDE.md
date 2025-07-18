@@ -185,7 +185,7 @@ Avoid loading:
 - Check tests for usage examples
 - Read docstrings (comprehensive)
 - Look at similar features
-- Check research papers in `literature/`
+- Check research papers in `docs/literature/`
 - Review closed PRs for patterns
 
 ---

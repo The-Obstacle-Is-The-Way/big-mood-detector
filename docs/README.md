@@ -36,6 +36,13 @@ Welcome to the comprehensive documentation for Big Mood Detector - a clinical-gr
 
 Records of completed features, validations, and implementation decisions.
 
+### 📚 [Literature](./literature/)
+**Research papers and clinical references**
+
+- **[Clinical References to Read](./literature/clinical_references_to_read.md)** - Curated bibliography
+- **[Converted Papers](./literature/converted_markdown/)** - Key papers in markdown format
+- **[Original PDFs](./literature/pdf/)** - Original research papers
+
 ### 🗄️ [Archive](./archive/)
 **Historical documentation**
 
@@ -56,6 +63,7 @@ Outdated or superseded documentation kept for reference.
 ### For Clinicians
 1. Review [Clinical Dossier](./clinical/CLINICAL_DOSSIER.md)
 2. Understand validation in [Clinical Requirements](./clinical/CLINICAL_REQUIREMENTS_DOCUMENT.md)
+3. Browse [Research Literature](./literature/)
 
 ## 📖 Documentation Standards
 
