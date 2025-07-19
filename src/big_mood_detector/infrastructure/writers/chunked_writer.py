@@ -134,11 +134,11 @@ class ChunkedWriter:
         
         logger.info(f"Combined {len(chunk_files)} chunks into {self.output_path}")
     
-    def __enter__(self):
+    def __enter__(self) -> "ChunkedWriter":
         """Context manager entry."""
         return self
     
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> None:
         """Context manager exit - ensure finalization."""
         self.finalize()
 
@@ -158,7 +158,7 @@ class StreamingFeatureWriter(ChunkedWriter):
     ):
         """Initialize with smaller default chunk for features."""
         super().__init__(output_path, format, chunk_size)
-        self.dates_seen = set()
+        self.dates_seen: set[str] = set()
     
     def write_features(self, date: str, features: dict[str, float]) -> None:
         """

@@ -200,8 +200,8 @@ class FastStreamingXMLParser:
             Domain entities
         """
         # Convert dates for filtering
-        start_dt = datetime.strptime(start_date, "%Y-%m-%d").date() if start_date else None
-        end_dt = datetime.strptime(end_date, "%Y-%m-%d").date() if end_date else None
+        start_dt = datetime.strptime(start_date, "%Y-%m-%d") if start_date else None
+        end_dt = datetime.strptime(end_date, "%Y-%m-%d") if end_date else None
         
         # Determine which types to parse (using sets for O(1) lookup)
         if entity_type == "sleep":
@@ -304,8 +304,8 @@ class FastStreamingXMLParser:
         }
         
         # Convert dates
-        start_dt = datetime.strptime(start_date, "%Y-%m-%d").date() if start_date else None
-        end_dt = datetime.strptime(end_date, "%Y-%m-%d").date() if end_date else None
+        start_dt = datetime.strptime(start_date, "%Y-%m-%d") if start_date else None
+        end_dt = datetime.strptime(end_date, "%Y-%m-%d") if end_date else None
         
         # Just count without converting to entities
         for record_dict in self.iter_records(file_path, self.all_types, start_dt, end_dt):

@@ -96,7 +96,7 @@ class DataParsingService:
 
     def __init__(
         self,
-        xml_parser: StreamingXMLParser | None = None,
+        xml_parser: StreamingXMLParser | FastStreamingXMLParser | None = None,
         sleep_parser: SleepJSONParser | None = None,
         activity_parser: ActivityJSONParser | None = None,
     ):
@@ -112,7 +112,7 @@ class DataParsingService:
         if HAS_FAST_PARSER and xml_parser is None:
             self._xml_parser = FastStreamingXMLParser()
         else:
-            self._xml_parser = xml_parser or StreamingXMLParser()
+            self._xml_parser: StreamingXMLParser | FastStreamingXMLParser = xml_parser or StreamingXMLParser()
         self._sleep_parser = sleep_parser or SleepJSONParser()
         self._activity_parser = activity_parser or ActivityJSONParser()
 

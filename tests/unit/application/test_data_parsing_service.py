@@ -108,8 +108,10 @@ class TestDataParsingService:
                 with patch.object(Path, "glob") as mock_glob:
                     # Mock finding JSON files
                     mock_glob.side_effect = [
-                        [Path("Sleep.json")],  # Sleep files
-                        [Path("Step_Count.json")],  # Activity files
+                        [Path("Sleep.json")],  # Sleep files for *[Ss]leep*.json
+                        [Path("Sleep.json")],  # Sleep files for [Ss]leep*.json
+                        [Path("Step_Count.json")],  # Activity files for *[Ss]tep*.json
+                        [Path("Step_Count.json")],  # Activity files for [Ss]tep*.json
                     ]
                     mock_sleep_parser.parse_file.return_value = []
                     mock_activity_parser.parse_file.return_value = []
