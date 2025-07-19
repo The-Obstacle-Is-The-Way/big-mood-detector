@@ -24,7 +24,7 @@ class TestAPIStartup:
         env["DISABLE_RATE_LIMIT"] = "1"
 
         process = subprocess.Popen(
-            ["python", "src/big_mood_detector/main.py", "serve", "--port", "8002"],
+            ["python3", "src/big_mood_detector/main.py", "serve", "--port", "8002"],
             env=env,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,  # Capture both stdout and stderr

@@ -11,7 +11,6 @@ Design Patterns:
 """
 
 from dataclasses import dataclass
-from typing import Any
 
 
 @dataclass
@@ -35,7 +34,7 @@ class PredictionInterpreter:
     clinical insights, following evidence-based interpretation guidelines.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the prediction interpreter."""
         # Clinical thresholds based on research
         self.thresholds = {
@@ -102,11 +101,11 @@ class PredictionInterpreter:
 
         # Find the highest score
         max_score = max(depression, mania, hypomania)
-        
+
         # Default to euthymic if all scores are very low
         if max_score < 0.2:
             return "Euthymic (Stable)", "low"
-        
+
         # Determine primary condition
         if depression == max_score:
             if depression >= self.thresholds["severe"]:
@@ -117,7 +116,7 @@ class PredictionInterpreter:
                 return "Mild Depressive Episode", "moderate"
             else:
                 return "Subclinical Depression", "low"
-        
+
         elif mania == max_score:
             if mania >= self.thresholds["severe"]:
                 return "Manic Episode", "high"
@@ -125,7 +124,7 @@ class PredictionInterpreter:
                 return "Hypomanic Episode with Manic Features", "high"
             else:
                 return "Subclinical Mania", "moderate"
-        
+
         else:  # hypomania
             if hypomania >= self.thresholds["moderate"]:
                 return "Hypomanic Episode", "moderate"
@@ -133,8 +132,6 @@ class PredictionInterpreter:
                 return "Mild Hypomanic Episode", "low"
             else:
                 return "Subclinical Hypomania", "low"
-
-        return "Unspecified Mood Episode", "moderate"
 
     def _calculate_confidence(self, ml_predictions: dict[str, float]) -> float:
         """Calculate confidence based on prediction strength and clarity."""
@@ -145,7 +142,7 @@ class PredictionInterpreter:
             ml_predictions.get("hypomania", 0.0),
         ]
         scores.sort(reverse=True)
-        
+
         # Confidence is high when there's clear separation
         if scores[0] > 0.7 and scores[1] < 0.3:
             return 0.9
@@ -167,19 +164,26 @@ class PredictionInterpreter:
     ) -> list[str]:
         """Generate clinical notes based on predictions."""
         notes = []
-        
+
         depression = ml_predictions.get("depression", 0.0)
         mania = ml_predictions.get("mania", 0.0)
         hypomania = ml_predictions.get("hypomania", 0.0)
-        
+
+        # Mixed episode notes
+        if "Mixed" in primary_diagnosis:
+            notes.append("Mixed mood episode detected - simultaneous depressive and manic symptoms")
+            notes.append("High risk state requiring immediate intervention")
+            notes.append("Meets DSM-5 criteria for mixed features specifier")
+            return notes
+
         # Euthymic/stable state notes
         if "Euthymic" in primary_diagnosis:
             notes.append("Patient shows stable mood indicators")
             notes.append("All mood scores within normal range")
             return notes
-            
+
         # Primary condition notes
-        if "Depression" in primary_diagnosis:
+        if "Depressive" in primary_diagnosis or "Depression" in primary_diagnosis:
             notes.append(
                 f"Patient shows strong indicators of depression (score: {depression:.2f})"
             )
@@ -187,7 +191,7 @@ class PredictionInterpreter:
                 notes.append("Severity level suggests significant functional impairment")
             if depression > 0.7:
                 notes.append("Meets DSM-5 criteria for major depressive episode")
-        
+
         elif "Manic" in primary_diagnosis:
             notes.append(
                 f"Patient exhibits manic symptoms (score: {mania:.2f})"
@@ -195,27 +199,27 @@ class PredictionInterpreter:
             if mania > 0.7:
                 notes.append("High risk of impulsive behavior and poor judgment")
                 notes.append("Consistent with DSM-5 criteria for manic episode")
-        
+
         elif "Hypomanic" in primary_diagnosis:
             notes.append(
-                f"Patient shows hypomanic features (score: {hypomania:.2f})"
+                f"Patient shows hypomania symptoms (score: {hypomania:.2f})"
             )
             notes.append("Monitor for potential escalation to mania")
             if hypomania > 0.6:
                 notes.append("Meets DSM-5 criteria for hypomanic episode")
-        
+
         # Secondary risk notes
         if depression > 0.3 and "Depression" not in primary_diagnosis:
             notes.append(f"Secondary depression risk detected ({depression:.2f})")
-        
+
         if (mania > 0.3 or hypomania > 0.3) and "Manic" not in primary_diagnosis:
             notes.append("Elevated mood symptoms present as secondary feature")
-        
+
         # Mixed features
         if depression > 0.5 and (mania > 0.3 or hypomania > 0.3):
             notes.append("Mixed features present - increased suicide risk")
             notes.append("Mixed episode per DSM-5 criteria - requires urgent care")
-        
+
         return notes
 
     def _generate_recommendations(
@@ -223,7 +227,7 @@ class PredictionInterpreter:
     ) -> list[str]:
         """Generate clinical recommendations based on diagnosis."""
         recommendations = []
-        
+
         # Critical risk recommendations
         if risk_level == "critical":
             recommendations.append("Emergency psychiatric evaluation required")
@@ -233,7 +237,7 @@ class PredictionInterpreter:
         elif risk_level == "high":
             recommendations.append("Urgent psychiatric evaluation recommended")
             recommendations.append("Consider immediate safety assessment")
-            
+
             if "Depression" in primary_diagnosis:
                 recommendations.append("Assess suicide risk")
                 recommendations.append("Consider antidepressant therapy adjustment")
@@ -244,33 +248,35 @@ class PredictionInterpreter:
             elif "Mixed" in primary_diagnosis:
                 recommendations.append("Emergency psychiatric consultation needed")
                 recommendations.append("Consider hospitalization for safety")
-        
+
         # Moderate risk recommendations
         elif risk_level == "moderate":
             recommendations.append("Schedule psychiatric follow-up within 1-2 weeks")
             recommendations.append("Monitor symptom progression daily")
-            
+
             if "Depression" in primary_diagnosis:
                 recommendations.append("Consider psychotherapy referral")
                 recommendations.append("Encourage behavioral activation")
             elif "Hypomanic" in primary_diagnosis:
                 recommendations.append("Maintain regular sleep schedule")
                 recommendations.append("Avoid stimulants and alcohol")
-        
+
         # Low risk recommendations
         else:
             recommendations.append("Continue current monitoring schedule")
             recommendations.append("Maintain healthy lifestyle habits")
-        
+
         # General recommendations
         recommendations.append("Ensure medication adherence if prescribed")
         recommendations.append("Track mood changes using daily logs")
-        
+
         return recommendations
 
     def _determine_monitoring_frequency(self, risk_level: str) -> str:
         """Determine appropriate monitoring frequency based on risk."""
-        if risk_level == "high":
+        if risk_level == "critical":
+            return "daily"
+        elif risk_level == "high":
             return "daily"
         elif risk_level == "moderate":
             return "weekly"
@@ -284,12 +290,12 @@ class PredictionInterpreter:
         depression = ml_predictions.get("depression", 0.0)
         mania = ml_predictions.get("mania", 0.0)
         hypomania = ml_predictions.get("hypomania", 0.0)
-        
+
         # Calculate additional risk factors
         mixed_risk = min(depression, max(mania, hypomania)) * 2
         rapid_cycling_risk = (abs(depression - mania) < 0.3 and max(depression, mania) > 0.5)
         psychosis_risk = mania * 0.7 if mania > 0.7 else 0.0
-        
+
         return {
             "mixed_features": min(mixed_risk, 1.0),
             "rapid_cycling": 0.7 if rapid_cycling_risk else 0.2,
