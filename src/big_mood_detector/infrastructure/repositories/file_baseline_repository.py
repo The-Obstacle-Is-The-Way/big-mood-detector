@@ -116,7 +116,8 @@ class FileBaselineRepository(BaselineRepositoryInterface):
             return []
 
         with open(history_file) as f:
-            return json.load(f)
+            data: list[dict] = json.load(f)
+            return data
 
     def _baseline_to_dict(self, baseline: UserBaseline) -> dict:
         """Convert UserBaseline to dictionary for JSON storage."""

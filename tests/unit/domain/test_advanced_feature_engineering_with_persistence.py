@@ -124,7 +124,7 @@ class TestAdvancedFeatureEngineeringWithPersistence:
         )
 
         # Extract features
-        features = engineer.extract_advanced_features(
+        engineer.extract_advanced_features(
             current_date=target_date,
             historical_sleep=sleep_data,
             historical_activity=activity_data,

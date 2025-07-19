@@ -232,12 +232,30 @@ class ClinicalFeatureExtractor:
     mood disorder detection pipeline.
     """
 
-    def __init__(self) -> None:
-        """Initialize with all required domain services."""
+    def __init__(
+        self, 
+        baseline_repository: Any = None,  # BaselineRepositoryInterface
+        user_id: str | None = None,
+    ) -> None:
+        """Initialize with all required domain services.
+        
+        Args:
+            baseline_repository: Optional repository for baseline persistence
+            user_id: Optional user ID for personal calibration
+        """
+        self.baseline_repository = baseline_repository
+        self.user_id = user_id
+        
         self.sleep_window_analyzer = SleepWindowAnalyzer()
         self.activity_sequence_extractor = ActivitySequenceExtractor()
         self.dlmo_calculator = DLMOCalculator()
-        self.advanced_feature_engineer = AdvancedFeatureEngineer()
+        
+        # Pass calibration params to advanced feature engineer
+        self.advanced_feature_engineer = AdvancedFeatureEngineer(
+            baseline_repository=baseline_repository,
+            user_id=user_id,
+        )
+        
         self.pat_sequence_builder = PATSequenceBuilder(self.activity_sequence_extractor)
 
     def extract_seoul_features(
@@ -539,3 +557,8 @@ class ClinicalFeatureExtractor:
         # Find minimum
         min_record = min(date_records, key=lambda r: r.value)
         return min_record.timestamp.hour + min_record.timestamp.minute / 60.0
+
+    def persist_baselines(self) -> None:
+        """Persist current baselines to repository if configured."""
+        if self.advanced_feature_engineer:
+            self.advanced_feature_engineer.persist_baselines()

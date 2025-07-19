@@ -15,7 +15,7 @@ from datetime import date, datetime
 class UserBaseline:
     """
     Value object representing a user's baseline measurements.
-    
+
     Baselines are statistical summaries of a user's typical patterns,
     used for Z-score normalization in mood prediction.
     """
@@ -33,7 +33,7 @@ class UserBaseline:
 class BaselineRepositoryInterface(ABC):
     """
     Repository interface for persisting user baselines.
-    
+
     Following Interface Segregation Principle - minimal interface
     with only essential operations for baseline storage and retrieval.
     """
@@ -42,7 +42,7 @@ class BaselineRepositoryInterface(ABC):
     def save_baseline(self, baseline: UserBaseline) -> None:
         """
         Save or update a user's baseline.
-        
+
         Args:
             baseline: The baseline data to persist
         """
@@ -52,10 +52,10 @@ class BaselineRepositoryInterface(ABC):
     def get_baseline(self, user_id: str) -> UserBaseline | None:
         """
         Retrieve the most recent baseline for a user.
-        
+
         Args:
             user_id: The user identifier
-            
+
         Returns:
             The most recent baseline or None if not found
         """
@@ -67,11 +67,11 @@ class BaselineRepositoryInterface(ABC):
     ) -> list[UserBaseline]:
         """
         Get historical baselines for trend analysis.
-        
+
         Args:
             user_id: The user identifier
             limit: Maximum number of baselines to return
-            
+
         Returns:
             List of baselines ordered by date (oldest first)
         """

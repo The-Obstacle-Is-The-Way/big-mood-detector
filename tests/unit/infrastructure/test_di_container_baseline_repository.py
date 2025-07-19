@@ -85,7 +85,7 @@ class TestDIContainerBaselineRepository:
         di_module._container = None
         di_module.get_container.cache_clear()
 
-        container = setup_dependencies(mock_settings)
+        setup_dependencies(mock_settings)
 
         # Resolve AdvancedFeatureEngineer
 
