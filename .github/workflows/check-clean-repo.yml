@@ -1,0 +1,47 @@
+name: Check Clean Repository
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  check-clean:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.12'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e ".[dev]"
+    
+    - name: Run tests
+      run: |
+        pytest -m "not slow and not large" --exitfirst
+    
+    - name: Check for stray directories
+      run: |
+        # Check that no health data directories exist in root
+        if [ -e apple_export ] || [ -e health_auto_export ]; then
+          echo "❌ ERROR: Stray health data directories found in root!"
+          echo "These should only exist in data/input/"
+          ls -la apple_export health_auto_export 2>/dev/null || true
+          exit 1
+        fi
+        
+        # Check that no output files are in root
+        if ls *_predictions.csv *_clinical_report.txt *.summary.json 2>/dev/null; then
+          echo "❌ ERROR: Output files found in root!"
+          echo "All outputs should be in data/output/"
+          exit 1
+        fi
+        
+        echo "✅ Repository is clean - no stray files or directories"

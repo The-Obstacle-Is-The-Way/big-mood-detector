@@ -28,7 +28,7 @@ class TestStreamingLargeFiles:
     @pytest.fixture
     def xml_data_path(self, project_root):
         """Path to XML data from Apple Health export."""
-        return project_root / "apple_export"
+        return project_root / "data" / "input" / "apple_export"
 
     def test_stream_large_export_xml(self, xml_data_path):
         """Test streaming through large export.xml file."""

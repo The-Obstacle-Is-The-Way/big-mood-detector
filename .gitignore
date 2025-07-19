@@ -144,6 +144,10 @@ models/
 # Personal Health Data - CRITICAL SECURITY
 # =====================================
 # NEVER commit personal health data to version control
+
+# Prevent root-level health data directories
+/apple_export/
+/health_auto_export/
 data/input/
 data/output/
 data/uploads/

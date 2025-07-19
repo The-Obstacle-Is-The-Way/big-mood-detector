@@ -92,7 +92,7 @@ def validate_json_parsing():
     """Test JSON parsing."""
     print_section("2. JSON PARSING VALIDATION")
 
-    json_dir = Path("health_auto_export")
+    json_dir = Path("data/input/health_auto_export")
     if not json_dir.exists():
         print(f"❌ JSON directory not found: {json_dir}")
         return
@@ -273,7 +273,7 @@ def validate_full_pipeline():
     pipeline = MoodPredictionPipeline()
 
     # Try with JSON data first (smaller, faster)
-    json_dir = Path("health_auto_export")
+    json_dir = Path("data/input/health_auto_export")
     output_file = Path("output/validation_features.csv")
 
     print(f"\nProcessing JSON data from: {json_dir}")

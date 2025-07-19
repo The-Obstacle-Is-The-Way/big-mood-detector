@@ -5,9 +5,20 @@ from .heart_rate_parser import HeartRateParser
 from .sleep_parser import SleepParser
 from .streaming_adapter import StreamingXMLParser
 
-__all__ = [
-    "SleepParser",
-    "ActivityParser",
-    "HeartRateParser",
-    "StreamingXMLParser",
-]
+# Try to import fast parser
+try:
+    from .fast_streaming_parser import FastStreamingXMLParser
+    __all__ = [
+        "SleepParser",
+        "ActivityParser",
+        "HeartRateParser",
+        "StreamingXMLParser",
+        "FastStreamingXMLParser",
+    ]
+except ImportError:
+    __all__ = [
+        "SleepParser",
+        "ActivityParser",
+        "HeartRateParser",
+        "StreamingXMLParser",
+    ]

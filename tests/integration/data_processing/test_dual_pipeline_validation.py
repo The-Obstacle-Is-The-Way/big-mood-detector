@@ -40,12 +40,12 @@ class TestDualPipelineValidation:
     @pytest.fixture
     def json_data_path(self, project_root):
         """Path to JSON data from Health Auto Export."""
-        return project_root / "health_auto_export"
+        return project_root / "data" / "input" / "health_auto_export"
 
     @pytest.fixture
     def xml_data_path(self, project_root):
         """Path to XML data from Apple Health export."""
-        return project_root / "apple_export"
+        return project_root / "data" / "input" / "apple_export"
 
     def test_xml_pipeline_smoke_test(self, xml_data_path):
         """Basic test that XML parsing works with real export.xml."""

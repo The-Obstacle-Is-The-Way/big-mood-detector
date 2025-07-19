@@ -72,6 +72,12 @@ def validate_input_path(input_path: Path) -> None:
             click.echo(
                 "   Processing may take 10+ minutes. Consider using smaller date ranges."
             )
+            click.echo(
+                "   Note: The app uses memory-efficient streaming for XML files."
+            )
+            click.echo(
+                "   If CLI times out, try running directly: python3 src/big_mood_detector/main.py process <file>"
+            )
 
 
 def validate_date_range(start_date: datetime | None, end_date: datetime | None) -> None:
@@ -299,12 +305,16 @@ def generate_clinical_report(result: PipelineResult, output_path: Path) -> None:
     help="End date for analysis (YYYY-MM-DD)",
 )
 @click.option("--verbose", "-v", is_flag=True, help="Enable verbose output")
+@click.option("--progress", is_flag=True, help="Show progress bar for large files")
+@click.option("--max-records", type=int, help="Maximum records to process (for testing)")
 def process_command(
     input_path: str,
     output: str | None,
     start_date: datetime | None,
     end_date: datetime | None,
     verbose: bool,
+    progress: bool,
+    max_records: int | None,
 ) -> None:
     """Process health data to extract features for mood prediction."""
     try:
@@ -314,6 +324,19 @@ def process_command(
         validate_date_range(start_date, end_date)
 
         click.echo(f"Processing health data from: {input_path}")
+        
+        # Create progress callback if requested
+        progress_callback = None
+        if progress:
+            try:
+                from tqdm import tqdm
+                pbar = tqdm(total=100, desc="Processing", unit="%")
+                def progress_callback(message: str, progress: float) -> None:
+                    pbar.set_description(message)
+                    pbar.update(int(progress * 100) - pbar.n)
+            except ImportError:
+                click.echo("Warning: tqdm not installed, progress bar disabled")
+                progress = False
 
         # Initialize pipeline
         pipeline = MoodPredictionPipeline()
@@ -324,7 +347,7 @@ def process_command(
 
         # Process health export
         import os
-        data_dir = os.environ.get("DATA_DIR", "data")
+        data_dir = os.environ.get("BIGMOOD_DATA_DIR", os.environ.get("DATA_DIR", "data"))
         output_path = Path(output) if output else Path(data_dir) / "output" / "features.csv"
 
         # Ensure parent directory exists
@@ -459,10 +482,12 @@ def predict_command(
 
         # Generate clinical report if requested
         if report:
+            import os
+            data_dir = os.environ.get("BIGMOOD_DATA_DIR", os.environ.get("DATA_DIR", "data"))
             report_path = (
                 Path(output).with_suffix(".txt")
                 if output
-                else Path(input_path).parent / "output" / "clinical_report.txt"
+                else Path(data_dir) / "output" / "clinical_report.txt"
             )
             generate_clinical_report(result, report_path)
             click.echo(f"✅ Clinical report saved to: {report_path}")

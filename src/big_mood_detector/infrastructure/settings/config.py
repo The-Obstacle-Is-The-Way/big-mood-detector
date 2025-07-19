@@ -30,11 +30,12 @@ class Settings(BaseSettings):
     ENVIRONMENT: Literal["local", "staging", "production"] = "local"
 
     # Paths
-    DATA_DIR: Path = Path(os.environ.get("DATA_DIR", "data"))
+    # Support both DATA_DIR and BIGMOOD_DATA_DIR for flexibility
+    DATA_DIR: Path = Path(os.environ.get("BIGMOOD_DATA_DIR", os.environ.get("DATA_DIR", "data")))
     MODEL_WEIGHTS_PATH: Path = Field(default_factory=lambda: Path("model_weights/xgboost/converted"))
-    OUTPUT_DIR: Path = Field(default_factory=lambda: Path(os.environ.get("DATA_DIR", "data")) / "output")
-    UPLOAD_DIR: Path = Field(default_factory=lambda: Path(os.environ.get("DATA_DIR", "data")) / "uploads")
-    TEMP_DIR: Path = Field(default_factory=lambda: Path(os.environ.get("DATA_DIR", "data")) / "temp")
+    OUTPUT_DIR: Path = Field(default_factory=lambda: Path(os.environ.get("BIGMOOD_DATA_DIR", os.environ.get("DATA_DIR", "data"))) / "output")
+    UPLOAD_DIR: Path = Field(default_factory=lambda: Path(os.environ.get("BIGMOOD_DATA_DIR", os.environ.get("DATA_DIR", "data"))) / "uploads")
+    TEMP_DIR: Path = Field(default_factory=lambda: Path(os.environ.get("BIGMOOD_DATA_DIR", os.environ.get("DATA_DIR", "data"))) / "temp")
 
     # File Processing
     MAX_FILE_SIZE: int = 100 * 1024 * 1024  # 100MB
