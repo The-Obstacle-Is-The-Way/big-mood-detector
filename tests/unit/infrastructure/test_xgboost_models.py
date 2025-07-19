@@ -130,40 +130,15 @@ class TestXGBoostModels:
         with pytest.raises(RuntimeError, match="Models not loaded"):
             loader.predict(features)
 
-    def test_predict_with_loaded_models(self):
+    def test_predict_with_loaded_models(self, dummy_xgboost_models):
         """Test making predictions with loaded models."""
         from big_mood_detector.infrastructure.ml_models.xgboost_models import (
             XGBoostModelLoader,
         )
 
         loader = XGBoostModelLoader()
-        
-        # Manually set up mock models - following Eugene Yan's advice
-        # We're testing the prediction logic, not the actual models
-        mock_models = {
-            "depression": MagicMock(
-                predict_proba=MagicMock(return_value=np.array([[0.3, 0.7]]))  # 70% risk
-            ),
-            "hypomanic": MagicMock(
-                predict_proba=MagicMock(return_value=np.array([[0.8, 0.2]]))  # 20% risk
-            ),
-            "manic": MagicMock(
-                predict_proba=MagicMock(return_value=np.array([[0.9, 0.1]]))  # 10% risk
-            ),
-        }
-        
-        # For XGBoost JSON models, we need to mock the predict method differently
-        for model_type, mock_model in mock_models.items():
-            mock_booster = MagicMock()
-            # XGBoost Booster.predict returns raw probabilities
-            if model_type == "depression":
-                mock_booster.predict.return_value = np.array([0.7])
-            elif model_type == "hypomanic":
-                mock_booster.predict.return_value = np.array([0.2])
-            else:  # manic
-                mock_booster.predict.return_value = np.array([0.1])
-            loader.models[model_type] = mock_booster
-        
+        # Use fixture models - clean and reusable
+        loader.models = dummy_xgboost_models
         loader.is_loaded = True
 
         # Make prediction
@@ -210,34 +185,21 @@ class TestXGBoostModels:
         assert len(feature_array) == 36
         assert all(feature_array[i] == i for i in range(36))
 
-    def test_batch_prediction(self):
+    def test_batch_prediction(self, dummy_booster):
         """Test making predictions on multiple samples."""
         from big_mood_detector.infrastructure.ml_models.xgboost_models import (
             XGBoostModelLoader,
         )
 
         loader = XGBoostModelLoader()
-        
-        # Create XGBoost-style mock models that return raw probabilities
         batch_size = 5
         
-        # Mock depression model predictions
-        depression_mock = MagicMock()
-        depression_mock.predict.return_value = np.array([0.7, 0.6, 0.8, 0.5, 0.9])
-        
-        # Mock hypomanic model predictions  
-        hypomanic_mock = MagicMock()
-        hypomanic_mock.predict.return_value = np.array([0.2, 0.3, 0.1, 0.4, 0.15])
-        
-        # Mock manic model predictions
-        manic_mock = MagicMock()
-        manic_mock.predict.return_value = np.array([0.1, 0.15, 0.05, 0.2, 0.08])
-        
-        # Set up the mocked models
+        # Create models with different probabilities for testing
+        from tests.conftest import DummyBooster
         loader.models = {
-            "depression": depression_mock,
-            "hypomanic": hypomanic_mock,
-            "manic": manic_mock
+            "depression": DummyBooster(probability=0.8),  # For third sample test
+            "hypomanic": DummyBooster(probability=0.1),
+            "manic": DummyBooster(probability=0.05),
         }
         loader.is_loaded = True
 
@@ -268,7 +230,7 @@ class TestXGBoostModels:
 class TestXGBoostMoodPredictor:
     """Test the domain service implementation."""
 
-    def test_mood_predictor_implementation(self):
+    def test_mood_predictor_implementation(self, dummy_xgboost_models):
         """Test that XGBoostMoodPredictor implements the domain interface."""
         from big_mood_detector.infrastructure.ml_models.xgboost_models import (
             XGBoostMoodPredictor,
@@ -277,16 +239,8 @@ class TestXGBoostMoodPredictor:
         # Create predictor
         predictor = XGBoostMoodPredictor()
         
-        # Manually set up mock models to test behavior
-        # Following Eugene Yan's advice - test the interface, not the models
-        mock_models = {
-            "depression": MagicMock(predict=MagicMock(return_value=np.array([0.7]))),
-            "hypomanic": MagicMock(predict=MagicMock(return_value=np.array([0.2]))),
-            "manic": MagicMock(predict=MagicMock(return_value=np.array([0.1])))
-        }
-        
-        # Inject the mocked models
-        predictor.model_loader.models = mock_models
+        # Inject fixture models cleanly
+        predictor.model_loader.models = dummy_xgboost_models
         predictor.model_loader.is_loaded = True
 
         # Test prediction
