@@ -96,7 +96,7 @@ def get_ensemble_orchestrator() -> EnsembleOrchestrator | None:
         logger.warning("PAT not available - TensorFlow not installed")
 
     # Create ensemble orchestrator
-    config = EnsembleConfig()
+    config = EnsembleConfig.from_settings()
     orchestrator = EnsembleOrchestrator(
         xgboost_predictor=xgboost_predictor,
         pat_model=pat_model,

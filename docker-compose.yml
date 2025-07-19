@@ -13,6 +13,7 @@ services:
       - ENVIRONMENT=production
       - DATABASE_URL=postgresql://postgres:postgres@db:5432/mood_detector
       - REDIS_URL=redis://redis:6379/0
+      - BIGMOOD_DATA_DIR=/data
       - DATA_DIR=/data
       - LABELS_DB_PATH=/data/labels.db
       - CLINICAL_CONFIG_PATH=/app/config/clinical_thresholds.yaml
@@ -20,9 +21,9 @@ services:
     volumes:
       # Named volume for data (with proper permissions)
       - app-data:/data
-      # Mount local data for processing (optional)
-      - ./apple_export:/data/apple_export:ro
-      - ./health_auto_export:/data/health_auto_export:ro
+      # Mount local data for processing (using new structure)
+      - ./data/input:/data/input:ro
+      - ./data/output:/data/output
       # Model weights mounted at runtime (read-only)
       - ./model_weights:/model_weights:ro
       # Config files

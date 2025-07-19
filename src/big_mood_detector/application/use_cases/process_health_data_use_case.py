@@ -161,7 +161,7 @@ class MoodPredictionPipeline:
                 self.ensemble_orchestrator = EnsembleOrchestrator(
                     xgboost_predictor=self.xgboost_predictor,
                     pat_model=pat_model,
-                    config=self.config.ensemble_config or EnsembleConfig(),
+                    config=self.config.ensemble_config or EnsembleConfig.from_settings(),
                 )
 
         # Data parsing service (extracted)

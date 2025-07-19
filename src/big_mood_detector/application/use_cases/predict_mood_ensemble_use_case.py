@@ -21,6 +21,7 @@ from big_mood_detector.infrastructure.ml_models import PAT_AVAILABLE
 from big_mood_detector.infrastructure.ml_models.xgboost_models import (
     XGBoostMoodPredictor,
 )
+from big_mood_detector.infrastructure.settings.config import get_settings
 
 if TYPE_CHECKING or PAT_AVAILABLE:
     from big_mood_detector.infrastructure.ml_models.pat_model import PATModel
@@ -49,6 +50,17 @@ class EnsembleConfig:
     # Confidence thresholds
     min_confidence_threshold: float = 0.7
     fallback_to_single_model: bool = True
+    
+    @classmethod
+    def from_settings(cls) -> "EnsembleConfig":
+        """Create config from application settings."""
+        settings = get_settings()
+        return cls(
+            xgboost_weight=settings.ENSEMBLE_XGBOOST_WEIGHT,
+            pat_weight=settings.ENSEMBLE_PAT_WEIGHT,
+            pat_timeout=settings.ENSEMBLE_PAT_TIMEOUT,
+            xgboost_timeout=settings.ENSEMBLE_XGBOOST_TIMEOUT,
+        )
 
 
 @dataclass
@@ -98,7 +110,7 @@ class EnsembleOrchestrator:
         self.xgboost_predictor = xgboost_predictor
         self.pat_model = pat_model
         self.pat_builder = PATSequenceBuilder() if pat_model else None
-        self.config = config or EnsembleConfig()
+        self.config = config or EnsembleConfig.from_settings()
         self.personal_calibrator = personal_calibrator
 
         # Thread pool for parallel execution

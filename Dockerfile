@@ -89,9 +89,10 @@ EXPOSE 8000
 # Set up volume for data (user uploads/outputs)
 VOLUME /data
 
-# Set default data directory to /app (where model weights are)
-# User data will still go to /data if explicitly mounted
-ENV DATA_DIR=/app
+# Set default data directory to /data for volume mounts
+# This ensures all user data goes to the mounted volume
+ENV BIGMOOD_DATA_DIR=/data
+ENV DATA_DIR=/data
 
 # Use entrypoint for flexible execution
 ENTRYPOINT ["/entrypoint.sh"]
