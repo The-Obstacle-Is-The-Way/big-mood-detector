@@ -324,7 +324,7 @@ def process_command(
         validate_date_range(start_date, end_date)
 
         click.echo(f"Processing health data from: {input_path}")
-        
+
         # Create progress callback if requested
         progress_callback = None
         if progress:

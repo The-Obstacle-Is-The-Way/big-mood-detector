@@ -50,9 +50,9 @@ class EnsembleConfig:
     # Confidence thresholds
     min_confidence_threshold: float = 0.7
     fallback_to_single_model: bool = True
-    
+
     @classmethod
-    def from_settings(cls) -> "EnsembleConfig":
+    def from_settings(cls) -> EnsembleConfig:
         """Create config from application settings."""
         settings = get_settings()
         return cls(

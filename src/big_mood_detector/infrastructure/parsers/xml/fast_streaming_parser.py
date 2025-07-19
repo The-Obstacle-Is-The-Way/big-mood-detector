@@ -52,12 +52,12 @@ class FastStreamingXMLParser:
         self.sleep_parser = SleepParser()
         self.activity_parser = ActivityParser()
         self.heart_parser = HeartRateParser()
-        
+
         # Record type mappings for faster lookup
         self.sleep_types = {"HKCategoryTypeIdentifierSleepAnalysis"}
         self.activity_types = set(self.activity_parser.supported_activity_types)
         self.heart_types = set(self.heart_parser.supported_heart_types)
-        
+
         # All supported types for 'all' mode
         self.all_types = self.sleep_types | self.activity_types | self.heart_types
 
@@ -82,7 +82,7 @@ class FastStreamingXMLParser:
                 if date_str:
                     try:
                         record_date = date_parser.parse(date_str).date()
-                        
+
                         if start_date and record_date < start_date:
                             elem.clear()
                             if HAS_LXML:
@@ -90,7 +90,7 @@ class FastStreamingXMLParser:
                                 while elem.getprevious() is not None:
                                     del elem.getparent()[0]
                             continue
-                            
+
                         if end_date and record_date > end_date:
                             elem.clear()
                             if HAS_LXML:
@@ -99,20 +99,20 @@ class FastStreamingXMLParser:
                             continue
                     except (ValueError, TypeError):
                         pass
-            
+
             # Process the element
             result = func(elem, *args, **kwargs)
             if result is not None:
                 yield result
-            
+
             # Clear the element to free memory
             elem.clear()
-            
+
             if HAS_LXML:
                 # Also eliminate now-empty references from the tree
                 while elem.getprevious() is not None:
                     del elem.getparent()[0]
-        
+
         del context
 
     def iter_records(
@@ -137,10 +137,10 @@ class FastStreamingXMLParser:
         file_path = Path(file_path)
         if not file_path.exists():
             raise ValueError(f"File not found: {file_path}")
-        
+
         # Log parser being used
         logger.info(f"Parsing XML with {'lxml' if HAS_LXML else 'stdlib'} parser")
-        
+
         try:
             # Create iterator context - only parse Record elements
             context = etree.iterparse(
@@ -148,27 +148,27 @@ class FastStreamingXMLParser:
                 events=("end",),
                 tag="Record"
             )
-            
+
             def process_element(elem: Any) -> dict[str, Any] | None:
                 """Process a single element and return its data."""
                 record_type = elem.get("type")
-                
+
                 # Filter by record types if specified
                 if record_types and record_type not in record_types:
                     return None
-                
+
                 # Extract all attributes
                 record_data = dict(elem.attrib)
-                
+
                 # Extract metadata entries (e.g., heart rate motion context)
                 for metadata in elem.findall("MetadataEntry"):
                     key = metadata.get("key")
                     value = metadata.get("value")
                     if key == "HKMetadataKeyHeartRateMotionContext" and value is not None:
                         record_data["motionContext"] = value
-                
+
                 return record_data
-            
+
             # Use fast_iter for memory-efficient processing
             yield from self.fast_iter(
                 context,
@@ -176,7 +176,7 @@ class FastStreamingXMLParser:
                 start_date,
                 end_date
             )
-            
+
         except etree.ParseError as e:
             raise ValueError(f"XML parsing error: {str(e)}") from e
 
@@ -202,7 +202,7 @@ class FastStreamingXMLParser:
         # Convert dates for filtering
         start_dt = datetime.strptime(start_date, "%Y-%m-%d") if start_date else None
         end_dt = datetime.strptime(end_date, "%Y-%m-%d") if end_date else None
-        
+
         # Determine which types to parse (using sets for O(1) lookup)
         if entity_type == "sleep":
             types_to_parse = self.sleep_types
@@ -212,19 +212,19 @@ class FastStreamingXMLParser:
             types_to_parse = self.heart_types
         else:  # 'all'
             types_to_parse = self.all_types
-        
+
         # Count records for progress
         record_count = 0
-        
+
         # Stream through records
         for record_dict in self.iter_records(file_path, types_to_parse, start_dt, end_dt):
             record_type = record_dict.get("type")
             record_count += 1
-            
+
             # Log progress every 10k records
             if record_count % 10000 == 0:
                 logger.info(f"Processed {record_count:,} records...")
-            
+
             try:
                 # Convert to appropriate entity based on type
                 if record_type in self.sleep_types:
@@ -232,23 +232,23 @@ class FastStreamingXMLParser:
                     elem = self._dict_to_element(record_dict)
                     sleep_entities = self.sleep_parser.parse_to_entities(elem)
                     yield from sleep_entities
-                    
+
                 elif record_type in self.activity_types:
                     elem = self._dict_to_element(record_dict)
                     activity_entities = self.activity_parser.parse_to_entities(elem)
                     yield from activity_entities
-                    
+
                 elif record_type in self.heart_types:
                     elem = self._dict_to_element(record_dict)
                     heart_entities = self.heart_parser.parse_to_entities(elem)
                     yield from heart_entities
-                    
+
             except (ValueError, KeyError) as e:
                 # Log but skip records that can't be converted
                 if record_count % 1000 == 0:  # Don't spam logs
                     logger.debug(f"Skipping record: {e}")
                 continue
-        
+
         logger.info(f"Completed parsing {record_count:,} records")
 
     def parse_file_in_batches(
@@ -273,14 +273,14 @@ class FastStreamingXMLParser:
             List of domain entities
         """
         batch = []
-        
+
         for entity in self.parse_file(file_path, entity_type, start_date, end_date):
             batch.append(entity)
-            
+
             if len(batch) >= batch_size:
                 yield batch
                 batch = []
-        
+
         # Yield remaining entities
         if batch:
             yield batch
@@ -302,23 +302,23 @@ class FastStreamingXMLParser:
             "heart": 0,
             "total": 0
         }
-        
+
         # Convert dates
         start_dt = datetime.strptime(start_date, "%Y-%m-%d") if start_date else None
         end_dt = datetime.strptime(end_date, "%Y-%m-%d") if end_date else None
-        
+
         # Just count without converting to entities
         for record_dict in self.iter_records(file_path, self.all_types, start_dt, end_dt):
             record_type = record_dict.get("type")
             counts["total"] += 1
-            
+
             if record_type in self.sleep_types:
                 counts["sleep"] += 1
             elif record_type in self.activity_types:
                 counts["activity"] += 1
             elif record_type in self.heart_types:
                 counts["heart"] += 1
-        
+
         return counts
 
     def _dict_to_element(self, record_dict: dict[str, Any]) -> Any:
@@ -326,11 +326,11 @@ class FastStreamingXMLParser:
         # Always use stdlib ElementTree for compatibility with entity parsers
         # The individual parsers (SleepParser, ActivityParser, etc.) expect stdlib Elements
         import xml.etree.ElementTree as ET
-        
+
         # Create a minimal HealthData root with one Record
         root = ET.Element("HealthData")
         record = ET.SubElement(root, "Record")
-        
+
         # Set attributes
         for key, value in record_dict.items():
             if key == "motionContext":
@@ -340,5 +340,5 @@ class FastStreamingXMLParser:
                 meta_elem.set("value", value)
             else:
                 record.set(key, str(value))
-        
+
         return root

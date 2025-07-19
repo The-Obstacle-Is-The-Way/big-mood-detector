@@ -21,7 +21,7 @@ class ChunkedWriter:
     Useful for processing very large XML files where keeping
     all records in memory would be problematic.
     """
-    
+
     def __init__(
         self,
         output_path: Path,
@@ -42,51 +42,51 @@ class ChunkedWriter:
         self.chunk_buffer: list[dict[str, Any]] = []
         self.chunks_written = 0
         self.first_chunk = True
-        
+
         # Ensure output directory exists
         self.output_path.parent.mkdir(parents=True, exist_ok=True)
-        
+
         # For parquet, we'll write to temporary files and combine
         if self.format == "parquet":
             self.temp_dir = self.output_path.parent / f".{self.output_path.stem}_chunks"
             self.temp_dir.mkdir(exist_ok=True)
-    
+
     def write_record(self, record: dict[str, Any]) -> None:
         """Add a record to the buffer and write if chunk is full."""
         self.chunk_buffer.append(record)
-        
+
         if len(self.chunk_buffer) >= self.chunk_size:
             self._write_chunk()
-    
+
     def write_records(self, records: list[dict[str, Any]]) -> None:
         """Write multiple records, handling chunking."""
         for record in records:
             self.write_record(record)
-    
+
     def _write_chunk(self) -> None:
         """Write current chunk to disk."""
         if not self.chunk_buffer:
             return
-        
+
         df = pd.DataFrame(self.chunk_buffer)
-        
+
         if self.format == "csv":
             # For CSV, append to existing file
             mode = "w" if self.first_chunk else "a"
             header = self.first_chunk
             df.to_csv(self.output_path, mode=mode, header=header, index=False)
-            
+
         elif self.format == "parquet":
             # For parquet, write to temporary chunk file
             chunk_path = self.temp_dir / f"chunk_{self.chunks_written:06d}.parquet"
             df.to_parquet(chunk_path, index=False)
-        
+
         logger.info(f"Wrote chunk {self.chunks_written} with {len(df)} records")
-        
+
         self.chunks_written += 1
         self.first_chunk = False
         self.chunk_buffer = []
-    
+
     def finalize(self) -> Path:
         """
         Write any remaining records and finalize output.
@@ -97,47 +97,47 @@ class ChunkedWriter:
         # Write remaining records
         if self.chunk_buffer:
             self._write_chunk()
-        
+
         if self.format == "parquet" and self.chunks_written > 0:
             # Combine all parquet chunks
             self._combine_parquet_chunks()
-        
+
         logger.info(f"Finalized output: {self.output_path}")
         logger.info(f"Total chunks written: {self.chunks_written}")
-        
+
         return self.output_path
-    
+
     def _combine_parquet_chunks(self) -> None:
         """Combine temporary parquet chunks into final file."""
         import pyarrow.parquet as pq  # type: ignore[import-untyped]
-        
+
         chunk_files = sorted(self.temp_dir.glob("chunk_*.parquet"))
-        
+
         if not chunk_files:
             logger.warning("No parquet chunks to combine")
             return
-        
+
         # Read and combine all chunks
         tables = []
         for chunk_file in chunk_files:
             table = pq.read_table(chunk_file)
             tables.append(table)
-        
+
         # Write combined table
         combined_table = pq.concat_tables(tables)
         pq.write_table(combined_table, self.output_path)
-        
+
         # Clean up temporary files
         for chunk_file in chunk_files:
             chunk_file.unlink()
         self.temp_dir.rmdir()
-        
+
         logger.info(f"Combined {len(chunk_files)} chunks into {self.output_path}")
-    
+
     def __enter__(self) -> "ChunkedWriter":
         """Context manager entry."""
         return self
-    
+
     def __exit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> None:
         """Context manager exit - ensure finalization."""
         self.finalize()
@@ -149,7 +149,7 @@ class StreamingFeatureWriter(ChunkedWriter):
     
     Converts domain entities to feature dictionaries on the fly.
     """
-    
+
     def __init__(
         self,
         output_path: Path,
@@ -159,7 +159,7 @@ class StreamingFeatureWriter(ChunkedWriter):
         """Initialize with smaller default chunk for features."""
         super().__init__(output_path, format, chunk_size)
         self.dates_seen: set[str] = set()
-    
+
     def write_features(self, date: str, features: dict[str, float]) -> None:
         """
         Write a day's features.
@@ -172,7 +172,7 @@ class StreamingFeatureWriter(ChunkedWriter):
             record = {"date": date, **features}
             self.write_record(record)
             self.dates_seen.add(date)
-    
+
     def write_clinical_features(self, clinical_features: Any) -> None:
         """
         Write clinical features from domain object.
