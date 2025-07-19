@@ -401,8 +401,13 @@ class AdvancedFeatureEngineer:
         self._update_individual_baseline(
             "activity", activity.total_steps if activity else 0
         )
-        self._update_individual_baseline("hr", heart.avg_resting_hr if heart else 0)
-        self._update_individual_baseline("hrv", heart.avg_hrv_sdnn if heart else 0)
+        
+        # SAFETY: Only update HR/HRV baselines with real data, not defaults
+        # Default HR=70, HRV=50 would skew athlete baselines incorrectly
+        if heart and heart.avg_resting_hr != 70.0:  # Skip default value
+            self._update_individual_baseline("hr", heart.avg_resting_hr)
+        if heart and heart.avg_hrv_sdnn != 50.0:  # Skip default value
+            self._update_individual_baseline("hrv", heart.avg_hrv_sdnn)
 
         # Calculate Z-scores
         sleep_z = self._calculate_zscore(

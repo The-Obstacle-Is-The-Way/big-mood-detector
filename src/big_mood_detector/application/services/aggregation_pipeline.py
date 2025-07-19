@@ -319,6 +319,11 @@ class AggregationPipeline:
                 if "sleep" in daily_metrics:
                     accurate_hours = self._get_actual_sleep_duration(sleep_records, current_date)
                     daily_metrics["sleep"]["sleep_duration_hours"] = accurate_hours
+                    
+                    # SAFETY: Delete sleep_percentage to prevent accidental misuse
+                    # Any code trying to use it will raise KeyError, forcing proper fix
+                    if "sleep_percentage" in daily_metrics["sleep"]:
+                        del daily_metrics["sleep"]["sleep_percentage"]
 
             # 6. Update rolling windows
             if daily_metrics:

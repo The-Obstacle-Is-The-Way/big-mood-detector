@@ -8,6 +8,7 @@ Following KISS principle - perfect for MVP with hundreds of users.
 import json
 from datetime import date, datetime
 from pathlib import Path
+import filelock
 
 from big_mood_detector.domain.repositories.baseline_repository_interface import (
     BaselineRepositoryInterface,
@@ -38,25 +39,31 @@ class FileBaselineRepository(BaselineRepositoryInterface):
         logger.info("file_baseline_repository_initialized", path=str(self.base_path))
 
     def save_baseline(self, baseline: UserBaseline) -> None:
-        """Save or update a user's baseline."""
+        """Save or update a user's baseline with file locking for thread safety."""
         user_dir = self.base_path / baseline.user_id
         user_dir.mkdir(exist_ok=True)
 
         history_file = user_dir / "baseline_history.json"
+        lock_file = user_dir / "baseline_history.lock"
 
-        # Load existing history
-        history = self._load_history(history_file)
+        # Use file lock to prevent concurrent writes (important for pytest-xdist)
+        with filelock.FileLock(lock_file, timeout=10):
+            # Load existing history
+            history = self._load_history(history_file)
 
-        # Add new baseline
-        baseline_dict = self._baseline_to_dict(baseline)
-        history.append(baseline_dict)
+            # Add new baseline
+            baseline_dict = self._baseline_to_dict(baseline)
+            history.append(baseline_dict)
 
-        # Keep only last 10 baselines
-        history = history[-10:]
+            # Keep only last 10 baselines
+            history = history[-10:]
 
-        # Save updated history
-        with open(history_file, 'w') as f:
-            json.dump(history, f, indent=2)
+            # Save updated history atomically
+            temp_file = history_file.with_suffix('.tmp')
+            with open(temp_file, 'w') as f:
+                json.dump(history, f, indent=2)
+            # Atomic rename
+            temp_file.replace(history_file)
 
         logger.info(
             "baseline_saved",
