@@ -204,7 +204,7 @@ class DataParsingService:
         end_date: date | None = None,
     ) -> ParsedHealthData:
         """
-        Parse Apple Health XML export.
+        Parse Apple Health XML export efficiently with single-pass parsing.
 
         Args:
             xml_path: Path to export.xml
@@ -223,40 +223,23 @@ class DataParsingService:
         start_date_str = start_date.strftime("%Y-%m-%d") if start_date else None
         end_date_str = end_date.strftime("%Y-%m-%d") if end_date else None
 
-        # Parse sleep records
         if progress_callback:
-            progress_callback("Parsing sleep records", 0.0)
+            progress_callback("Parsing all records (single pass)", 0.0)
 
+        # Single-pass parsing: parse all entity types in one iteration
+        # This is 3x faster than the previous approach that made 3 separate passes
         for entity in self._xml_parser.parse_file(
-            xml_path, entity_type="sleep", start_date=start_date_str, end_date=end_date_str
+            xml_path, entity_type="all", start_date=start_date_str, end_date=end_date_str
         ):
             if isinstance(entity, SleepRecord):
                 sleep_records.append(entity)
-
-        if progress_callback:
-            progress_callback("Parsing sleep records", 1.0)
-            progress_callback("Parsing activity records", 0.0)
-
-        # Parse activity records
-        for entity in self._xml_parser.parse_file(
-            xml_path, entity_type="activity", start_date=start_date_str, end_date=end_date_str
-        ):
-            if isinstance(entity, ActivityRecord):
+            elif isinstance(entity, ActivityRecord):
                 activity_records.append(entity)
-
-        if progress_callback:
-            progress_callback("Parsing activity records", 1.0)
-            progress_callback("Parsing heart rate records", 0.0)
-
-        # Parse heart rate records
-        for entity in self._xml_parser.parse_file(
-            xml_path, entity_type="heart", start_date=start_date_str, end_date=end_date_str
-        ):
-            if isinstance(entity, HeartRateRecord):
+            elif isinstance(entity, HeartRateRecord):
                 heart_records.append(entity)
 
         if progress_callback:
-            progress_callback("Parsing heart rate records", 1.0)
+            progress_callback("Parsing complete", 1.0)
 
         return ParsedHealthData(
             sleep_records=sleep_records,

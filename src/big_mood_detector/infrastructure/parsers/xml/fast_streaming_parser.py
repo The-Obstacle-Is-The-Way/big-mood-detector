@@ -323,23 +323,19 @@ class FastStreamingXMLParser:
 
     def _dict_to_element(self, record_dict: dict[str, Any]) -> Any:
         """Convert record dictionary to minimal XML element for parser compatibility."""
+        # Always use stdlib ElementTree for compatibility with entity parsers
+        # The individual parsers (SleepParser, ActivityParser, etc.) expect stdlib Elements
+        import xml.etree.ElementTree as ET
+        
         # Create a minimal HealthData root with one Record
-        if HAS_LXML:
-            root = etree.Element("HealthData")
-            record = etree.SubElement(root, "Record")
-        else:
-            import xml.etree.ElementTree as ET
-            root = ET.Element("HealthData")
-            record = ET.SubElement(root, "Record")
+        root = ET.Element("HealthData")
+        record = ET.SubElement(root, "Record")
         
         # Set attributes
         for key, value in record_dict.items():
             if key == "motionContext":
                 # Recreate metadata entry for heart rate motion context
-                if HAS_LXML:
-                    meta_elem = etree.SubElement(record, "MetadataEntry")
-                else:
-                    meta_elem = ET.SubElement(record, "MetadataEntry")
+                meta_elem = ET.SubElement(record, "MetadataEntry")
                 meta_elem.set("key", "HKMetadataKeyHeartRateMotionContext")
                 meta_elem.set("value", value)
             else:
