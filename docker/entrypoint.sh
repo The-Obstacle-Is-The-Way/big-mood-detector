@@ -23,13 +23,13 @@ fi
 
 # Check if first argument is a known command
 case "$1" in
-    mood-detector|python|bash|sh)
+    python|bash|sh)
         # Execute the command directly
         exec "$@"
         ;;
     process|predict|label|serve|train|watch)
-        # These are mood-detector subcommands
-        exec mood-detector "$@"
+        # These are big-mood-detector subcommands - use Python module
+        exec python -m big_mood_detector.main "$@"
         ;;
     worker)
         # Start the background worker
