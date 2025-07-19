@@ -118,7 +118,7 @@ def setup_rate_limiting(app: Any) -> None:
     app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
     # Add middleware to set rate limit headers
-    @app.middleware("http")
+    @app.middleware("http")  # type: ignore[misc]
     async def add_rate_limit_headers(request: Request, call_next: Any) -> Any:
         response = await call_next(request)
 

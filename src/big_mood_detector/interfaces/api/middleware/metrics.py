@@ -148,12 +148,12 @@ def setup_metrics(app: Any) -> Any:
     Set up metrics collection for the FastAPI app.
     """
     # Add middleware
-    @app.middleware("http")
+    @app.middleware("http")  # type: ignore[misc]
     async def add_metrics_middleware(request: Request, call_next: Callable) -> Response:
         return await metrics_middleware(request, call_next)
 
     # Add metrics endpoint
-    @app.get("/metrics", include_in_schema=False)
+    @app.get("/metrics", include_in_schema=False)  # type: ignore[misc]
     async def get_metrics(request: Request) -> PlainTextResponse:
         return await metrics_endpoint(request)
 
