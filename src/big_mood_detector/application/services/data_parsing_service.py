@@ -110,9 +110,9 @@ class DataParsingService:
         """
         # Use fast parser if available (20x faster with lxml)
         if HAS_FAST_PARSER and xml_parser is None:
-            self._xml_parser = FastStreamingXMLParser()
+            self._xml_parser: StreamingXMLParser | FastStreamingXMLParser = FastStreamingXMLParser()
         else:
-            self._xml_parser: StreamingXMLParser | FastStreamingXMLParser = xml_parser or StreamingXMLParser()
+            self._xml_parser = xml_parser or StreamingXMLParser()
         self._sleep_parser = sleep_parser or SleepJSONParser()
         self._activity_parser = activity_parser or ActivityJSONParser()
 
