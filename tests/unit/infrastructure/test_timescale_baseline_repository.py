@@ -10,6 +10,8 @@ Following best practices for testing repositories:
 import pytest
 from datetime import date, datetime
 from pathlib import Path
+import time
+import shutil
 
 from big_mood_detector.infrastructure.di.container import setup_dependencies
 from big_mood_detector.domain.repositories.baseline_repository_interface import (
@@ -46,42 +48,48 @@ class BaselineRepositoryContract:
         )
     
     def test_save_and_retrieve_baseline(self):
-        """Core contract: save baseline and retrieve it"""
-        repo = self.get_repository()
+        """Test basic save and retrieve operations"""
+        repository = self.get_repository()
         baseline = self.get_sample_baseline()
         
         # Save baseline
-        repo.save_baseline(baseline)
+        repository.save_baseline(baseline)
         
         # Retrieve baseline
-        retrieved = repo.get_baseline(baseline.user_id)
+        retrieved = repository.get_baseline(baseline.user_id)
         
+        # Verify values
         assert retrieved is not None
         assert retrieved.user_id == baseline.user_id
+        assert retrieved.baseline_date == baseline.baseline_date
         assert retrieved.sleep_mean == baseline.sleep_mean
+        assert retrieved.sleep_std == baseline.sleep_std
         assert retrieved.activity_mean == baseline.activity_mean
+        assert retrieved.activity_std == baseline.activity_std
+        assert retrieved.circadian_phase == baseline.circadian_phase
+        assert retrieved.data_points == baseline.data_points
     
     def test_get_nonexistent_baseline_returns_none(self):
-        """Contract: missing baselines return None"""
-        repo = self.get_repository()
+        """Test retrieving non-existent baseline returns None"""
+        repository = self.get_repository()
         
-        result = repo.get_baseline("nonexistent_user")
+        result = repository.get_baseline("nonexistent_user")
         
         assert result is None
     
     def test_get_baseline_history_empty_for_new_user(self):
-        """Contract: new users have empty history"""
-        repo = self.get_repository()
+        """Test history returns empty list for new user"""
+        repository = self.get_repository()
         
-        history = repo.get_baseline_history("new_user")
+        history = repository.get_baseline_history("new_user")
         
         assert history == []
     
     def test_get_baseline_history_returns_chronological_order(self):
-        """Contract: history is returned oldest first"""
-        repo = self.get_repository()
+        """Test baseline history is returned in chronological order (oldest first)"""
+        repository = self.get_repository()
         
-        # Create separate baseline objects with different dates
+        # Create baselines with different dates
         baseline1 = UserBaseline(
             user_id="history_test_user",
             baseline_date=date(2024, 1, 1),
@@ -106,67 +114,218 @@ class BaselineRepositoryContract:
             data_points=30
         )
         
-        # Save in reverse chronological order
-        repo.save_baseline(baseline2)
-        repo.save_baseline(baseline1)
+        # Save in reverse chronological order to test sorting
+        repository.save_baseline(baseline2)
+        repository.save_baseline(baseline1)
         
-        # Retrieve history
-        history = repo.get_baseline_history(baseline1.user_id)
+        # Get history
+        history = repository.get_baseline_history("history_test_user")
         
-        assert len(history) >= 2
-        # Should be oldest first
+        # Should be in chronological order (oldest first)
+        assert len(history) == 2
         assert history[0].baseline_date <= history[1].baseline_date
 
 
 class TestFileBaselineRepository(BaselineRepositoryContract):
     """Test FileBaselineRepository against the contract"""
     
-    @pytest.fixture
-    def temp_dir(self, tmp_path):
-        return tmp_path
-    
     def get_repository(self) -> BaselineRepositoryInterface:
-        # Use real FileBaselineRepository - no mocking!
         return FileBaselineRepository(base_path=Path("./temp_test_baselines"))
 
 
+@pytest.mark.integration
 class TestTimescaleBaselineRepository(BaselineRepositoryContract):
-    """Test TimescaleBaselineRepository against the contract"""
+    """Test TimescaleBaselineRepository against the contract using TestContainers"""
     
-    @pytest.fixture(autouse=True)
-    def setup_test_container(self):
-        """Set up test database using Testcontainers"""
-        # This would use a real PostgreSQL container with TimescaleDB
-        # No mocking - test against real database behavior!
-        pytest.skip("Requires Docker setup - implement when ready for integration tests")
+    @pytest.fixture(scope="class")
+    def postgres_container(self):
+        """Set up PostgreSQL container with TimescaleDB extension"""
+        try:
+            from testcontainers.postgres import PostgresContainer
+        except ImportError:
+            pytest.skip("testcontainers not available - run: pip install testcontainers")
+        
+        # Use TimescaleDB image which includes PostgreSQL + TimescaleDB extension
+        container = PostgresContainer(
+            image="timescale/timescaledb:latest-pg16",
+            username="test_user",
+            password="test_password",
+            dbname="test_baselines"
+        )
+        
+        container.start()
+        
+        # Wait for container to be ready
+        time.sleep(2)
+        
+        yield container
+        
+        container.stop()
     
-    def get_repository(self) -> BaselineRepositoryInterface:
+    @pytest.fixture
+    def repository(self, postgres_container):
+        """Create TimescaleBaselineRepository with test container"""
         from big_mood_detector.infrastructure.repositories.timescale_baseline_repository import (
             TimescaleBaselineRepository
         )
         
-        # Real TimescaleDB connection - configured for testing speed
-        return TimescaleBaselineRepository(
-            connection_string="postgresql://test:test@localhost:54321/test_baselines",
-            enable_feast_sync=False  # Disable for pure repository tests
+        connection_string = postgres_container.get_connection_url()
+        
+        # Create repository (this will initialize tables)
+        repo = TimescaleBaselineRepository(
+            connection_string=connection_string,
+            enable_feast_sync=False  # Disable Feast for pure repository tests
         )
+        
+        return repo
+    
+    def get_repository(self) -> BaselineRepositoryInterface:
+        """Required by contract - will be overridden by pytest fixture"""
+        # This method won't be called directly in pytest,
+        # but we need it for the contract interface
+        raise NotImplementedError("Use repository fixture instead")
+    
+    def test_save_and_retrieve_baseline(self, repository):
+        """Test basic save and retrieve operations with real TimescaleDB"""
+        baseline = self.get_sample_baseline()
+        
+        # Save baseline
+        repository.save_baseline(baseline)
+        
+        # Retrieve baseline
+        retrieved = repository.get_baseline(baseline.user_id)
+        
+        # Verify values
+        assert retrieved is not None
+        assert retrieved.user_id == baseline.user_id
+        assert retrieved.baseline_date == baseline.baseline_date
+        assert retrieved.sleep_mean == baseline.sleep_mean
+        assert retrieved.sleep_std == baseline.sleep_std
+        assert retrieved.activity_mean == baseline.activity_mean
+        assert retrieved.activity_std == baseline.activity_std
+        assert retrieved.circadian_phase == baseline.circadian_phase
+        assert retrieved.data_points == baseline.data_points
+    
+    def test_get_nonexistent_baseline_returns_none(self, repository):
+        """Test retrieving non-existent baseline returns None"""
+        result = repository.get_baseline("nonexistent_user")
+        assert result is None
+    
+    def test_get_baseline_history_empty_for_new_user(self, repository):
+        """Test history returns empty list for new user"""
+        history = repository.get_baseline_history("new_user")
+        assert history == []
+    
+    def test_get_baseline_history_returns_chronological_order(self, repository):
+        """Test baseline history is returned in chronological order"""
+        # Create baselines with different dates
+        baseline1 = UserBaseline(
+            user_id="history_test_user_ts",
+            baseline_date=date(2024, 1, 1),
+            sleep_mean=7.0,
+            sleep_std=1.0,
+            activity_mean=7500.0,
+            activity_std=1800.0,
+            circadian_phase=21.5,
+            last_updated=datetime(2024, 1, 1, 10, 0),
+            data_points=28
+        )
+        
+        baseline2 = UserBaseline(
+            user_id="history_test_user_ts",
+            baseline_date=date(2024, 1, 15),
+            sleep_mean=7.5,
+            sleep_std=1.2,
+            activity_mean=8000.0,
+            activity_std=2000.0,
+            circadian_phase=22.0,
+            last_updated=datetime(2024, 1, 15, 10, 0),
+            data_points=30
+        )
+        
+        # Save in reverse chronological order to test sorting
+        repository.save_baseline(baseline2)
+        repository.save_baseline(baseline1)
+        
+        # Get history
+        history = repository.get_baseline_history("history_test_user_ts")
+        
+        # Should be in chronological order (oldest first)
+        assert len(history) == 2
+        assert history[0].baseline_date <= history[1].baseline_date
+    
+    def test_hypertable_functionality(self, repository):
+        """Test TimescaleDB-specific hypertable functionality"""
+        baseline = self.get_sample_baseline()
+        
+        # Save multiple baselines for different dates
+        for day_offset in range(5):
+            baseline_copy = UserBaseline(
+                user_id=f"hypertable_user_{day_offset}",
+                baseline_date=date(2024, 1, 1 + day_offset),
+                sleep_mean=7.0 + day_offset * 0.1,
+                sleep_std=1.0,
+                activity_mean=8000.0,
+                activity_std=2000.0,
+                circadian_phase=22.0,
+                last_updated=datetime(2024, 1, 1 + day_offset, 10, 0),
+                data_points=30
+            )
+            repository.save_baseline(baseline_copy)
+        
+        # Verify we can retrieve different users' baselines
+        for day_offset in range(5):
+            user_id = f"hypertable_user_{day_offset}"
+            retrieved = repository.get_baseline(user_id)
+            assert retrieved is not None
+            assert retrieved.user_id == user_id
+            assert abs(retrieved.sleep_mean - (7.0 + day_offset * 0.1)) < 0.001
 
 
+@pytest.mark.integration
 class TestBaselineRepositoryIntegration:
     """
     Integration tests that verify real implementations work correctly.
     These run slower but provide crucial confidence.
     """
     
-    def test_file_and_timescale_repos_are_interchangeable(self):
+    @pytest.fixture(scope="class")
+    def postgres_container(self):
+        """Set up PostgreSQL container with TimescaleDB extension"""
+        try:
+            from testcontainers.postgres import PostgresContainer
+        except ImportError:
+            pytest.skip("testcontainers not available - run: pip install testcontainers")
+        
+        container = PostgresContainer(
+            image="timescale/timescaledb:latest-pg16",
+            username="test_user", 
+            password="test_password",
+            dbname="test_baselines"
+        )
+        
+        container.start()
+        time.sleep(2)  # Wait for startup
+        
+        yield container
+        
+        container.stop()
+    
+    def test_file_and_timescale_repos_are_interchangeable(self, postgres_container):
         """
         Integration test: Both implementations should behave identically
         for the same operations.
         """
-        pytest.skip("Run only when both implementations are ready")
+        from big_mood_detector.infrastructure.repositories.timescale_baseline_repository import (
+            TimescaleBaselineRepository
+        )
         
-        file_repo = FileBaselineRepository(Path("./test_data"))
-        # timescale_repo = TimescaleBaselineRepository(test_connection_string)
+        # Set up both repositories
+        file_repo = FileBaselineRepository(Path("./test_interop_data"))
+        timescale_repo = TimescaleBaselineRepository(
+            connection_string=postgres_container.get_connection_url(),
+            enable_feast_sync=False
+        )
         
         baseline = UserBaseline(
             user_id="interop_test_user",
@@ -182,11 +341,17 @@ class TestBaselineRepositoryIntegration:
         
         # Both should handle the same data identically
         file_repo.save_baseline(baseline)
-        # timescale_repo.save_baseline(baseline)
+        timescale_repo.save_baseline(baseline)
         
         file_result = file_repo.get_baseline(baseline.user_id)
-        # timescale_result = timescale_repo.get_baseline(baseline.user_id)
+        timescale_result = timescale_repo.get_baseline(baseline.user_id)
         
         # Results should be equivalent (allowing for minor serialization differences)
-        assert file_result.user_id == baseline.user_id
-        # assert timescale_result.user_id == baseline.user_id 
+        assert file_result.user_id == timescale_result.user_id
+        assert file_result.baseline_date == timescale_result.baseline_date
+        assert abs(file_result.sleep_mean - timescale_result.sleep_mean) < 0.001
+        assert abs(file_result.sleep_std - timescale_result.sleep_std) < 0.001
+        assert abs(file_result.activity_mean - timescale_result.activity_mean) < 0.001
+        assert abs(file_result.activity_std - timescale_result.activity_std) < 0.001
+        assert abs(file_result.circadian_phase - timescale_result.circadian_phase) < 0.001
+        assert file_result.data_points == timescale_result.data_points 
