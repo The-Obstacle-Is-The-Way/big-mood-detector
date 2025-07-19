@@ -61,15 +61,17 @@ def sample_heart_records():
 
 def test_pipeline_returns_clinical_feature_set(sample_sleep_records, sample_activity_records, sample_heart_records):
     """Test that aggregation pipeline returns ClinicalFeatureSet instead of DailyFeatures."""
-    target = date(2024, 1, 15)  # Middle of our test data range
+    # Use a range to ensure we get results
+    start_date = date(2024, 1, 10)
+    end_date = date(2024, 1, 20)
     
     pipeline = AggregationPipeline()
     result_list = pipeline.aggregate_daily_features(
         sleep_records=sample_sleep_records,
         activity_records=sample_activity_records,
         heart_records=sample_heart_records,
-        start_date=target,
-        end_date=target,
+        start_date=start_date,
+        end_date=end_date,
     )
     
     # --- RED assertions (fail until we merge data models) ---
