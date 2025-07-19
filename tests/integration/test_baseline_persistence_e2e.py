@@ -182,6 +182,12 @@ class TestBaselinePersistenceE2E:
         print(f"  Activity: {baseline_week1.activity_mean:.0f} ± {baseline_week1.activity_std:.0f}")
         print(f"  Heart Rate: {baseline_week1.heart_rate_mean:.0f} ± {baseline_week1.heart_rate_std:.0f}")
         
+        # THE BUG: Sleep should be ~7.5h, not ~4.9h!
+        assert baseline_week1.sleep_mean > 7.0, (
+            f"Sleep baseline should be ~7.5h, not {baseline_week1.sleep_mean:.1f}h! "
+            "This is the aggregation_pipeline bug!"
+        )
+        
         # APP RESTART - Create new pipeline instance
         print("\n🔄 APP RESTARTS - New pipeline instance created...")
         del pipeline1  # Simulate app shutdown

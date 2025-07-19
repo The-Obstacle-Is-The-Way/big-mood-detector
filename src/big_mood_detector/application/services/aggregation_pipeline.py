@@ -778,8 +778,9 @@ class AggregationPipeline:
         # Create SeoulXGBoostFeatures with all aggregated features
         seoul_features = SeoulXGBoostFeatures(
             date=current_date,
-            # Sleep duration metrics (these need to be calculated from daily data)
-            sleep_duration_hours=daily_metrics["sleep"]["sleep_percentage"] * 24,
+            # Sleep duration metrics - FIX: Use SleepAggregator for accurate duration
+            # OLD BUG: sleep_duration_hours=daily_metrics["sleep"]["sleep_percentage"] * 24,
+            sleep_duration_hours=self._get_actual_sleep_duration(sleep_records, current_date),
             sleep_efficiency=0.9,  # Default for now, should be calculated
             sleep_onset_hour=21.0,  # Default for now
             wake_time_hour=7.0,  # Default for now
