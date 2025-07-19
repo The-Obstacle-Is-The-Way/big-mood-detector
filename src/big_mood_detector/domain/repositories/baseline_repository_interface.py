@@ -9,7 +9,6 @@ belongs in the domain layer and implementations will be in infrastructure.
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import date, datetime
-from typing import Optional
 
 
 @dataclass(frozen=True)
@@ -38,7 +37,7 @@ class BaselineRepositoryInterface(ABC):
     Following Interface Segregation Principle - minimal interface
     with only essential operations for baseline storage and retrieval.
     """
-    
+
     @abstractmethod
     def save_baseline(self, baseline: UserBaseline) -> None:
         """
@@ -48,9 +47,9 @@ class BaselineRepositoryInterface(ABC):
             baseline: The baseline data to persist
         """
         pass
-    
+
     @abstractmethod
-    def get_baseline(self, user_id: str) -> Optional[UserBaseline]:
+    def get_baseline(self, user_id: str) -> UserBaseline | None:
         """
         Retrieve the most recent baseline for a user.
         
@@ -61,7 +60,7 @@ class BaselineRepositoryInterface(ABC):
             The most recent baseline or None if not found
         """
         pass
-    
+
     @abstractmethod
     def get_baseline_history(
         self, user_id: str, limit: int = 10

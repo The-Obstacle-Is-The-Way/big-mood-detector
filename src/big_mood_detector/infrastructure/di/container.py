@@ -588,6 +588,9 @@ def setup_dependencies(settings: Any) -> Container:
     from big_mood_detector.domain.repositories.activity_repository import (
         ActivityRepositoryInterface,
     )
+    from big_mood_detector.domain.repositories.baseline_repository_interface import (
+        BaselineRepositoryInterface,
+    )
     from big_mood_detector.domain.repositories.heart_rate_repository import (
         HeartRateRepositoryInterface,
     )
@@ -597,17 +600,14 @@ def setup_dependencies(settings: Any) -> Container:
     from big_mood_detector.infrastructure.repositories.file_activity_repository import (
         FileActivityRepository,
     )
+    from big_mood_detector.infrastructure.repositories.file_baseline_repository import (
+        FileBaselineRepository,
+    )
     from big_mood_detector.infrastructure.repositories.file_heart_rate_repository import (
         FileHeartRateRepository,
     )
     from big_mood_detector.infrastructure.repositories.file_sleep_repository import (
         FileSleepRepository,
-    )
-    from big_mood_detector.infrastructure.repositories.file_baseline_repository import (
-        FileBaselineRepository,
-    )
-    from big_mood_detector.domain.repositories.baseline_repository_interface import (
-        BaselineRepositoryInterface,
     )
 
     # Repository data directory from settings

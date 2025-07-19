@@ -23,12 +23,12 @@ from big_mood_detector.domain.services.sleep_aggregator import DailySleepSummary
 
 class TestAdvancedFeatureEngineeringWithPersistence:
     """Test baseline persistence integration with feature extraction."""
-    
+
     @pytest.fixture
     def mock_baseline_repository(self):
         """Create a mock baseline repository."""
         return Mock(spec=BaselineRepositoryInterface)
-    
+
     @pytest.fixture
     def feature_engineer_with_persistence(self, mock_baseline_repository):
         """Create feature engineer with baseline repository injected."""
@@ -38,20 +38,20 @@ class TestAdvancedFeatureEngineeringWithPersistence:
             user_id="test_user_123"
         )
         return engineer
-    
+
     @pytest.fixture
     def sample_data(self):
         """Create sample health data for testing."""
         base_date = date(2024, 1, 15)
-        
+
         # 30 days of data for baseline calculation
         sleep_data = []
         activity_data = []
         heart_data = []
-        
+
         for i in range(30):
             current_date = base_date - timedelta(days=29-i)
-            
+
             sleep_data.append(
                 DailySleepSummary(
                     date=current_date,
@@ -68,7 +68,7 @@ class TestAdvancedFeatureEngineeringWithPersistence:
                     ),
                 )
             )
-            
+
             activity_data.append(
                 DailyActivitySummary(
                     date=current_date,
@@ -85,7 +85,7 @@ class TestAdvancedFeatureEngineeringWithPersistence:
                     latest_activity=time(21, 0),
                 )
             )
-            
+
             heart_data.append(
                 DailyHeartSummary(
                     date=current_date,
@@ -103,26 +103,26 @@ class TestAdvancedFeatureEngineeringWithPersistence:
                     evening_hr=68.0,
                 )
             )
-        
+
         return sleep_data, activity_data, heart_data
-    
+
     def test_baseline_persistence_on_feature_extraction(
         self, mock_baseline_repository, sample_data
     ):
         """Test that baselines are persisted when features are extracted."""
         sleep_data, activity_data, heart_data = sample_data
         target_date = date(2024, 1, 15)
-        
+
         # Configure mock to return None when loading baseline (first time user)
         mock_baseline_repository.get_baseline.return_value = None
-        
+
         # Create feature engineer after configuring mock
         engineer = AdvancedFeatureEngineer(
             config={},
             baseline_repository=mock_baseline_repository,
             user_id="test_user_123"
         )
-        
+
         # Extract features
         features = engineer.extract_advanced_features(
             current_date=target_date,
@@ -131,33 +131,33 @@ class TestAdvancedFeatureEngineeringWithPersistence:
             historical_heart=heart_data,
             lookback_days=30,
         )
-        
+
         # Persist baselines after feature extraction
         engineer.persist_baselines()
-        
+
         # Verify baseline was saved
         assert mock_baseline_repository.save_baseline.called
-        
+
         # Check the saved baseline
         saved_baseline = mock_baseline_repository.save_baseline.call_args[0][0]
         assert isinstance(saved_baseline, UserBaseline)
         assert saved_baseline.user_id == "test_user_123"
         # Note: baseline_date uses date.today() in the implementation
         assert saved_baseline.baseline_date == date.today()
-        
+
         # Verify baseline statistics are reasonable
         # After processing 30 days, mean should be reasonable
         assert saved_baseline.sleep_mean >= 0  # At least non-negative
         assert saved_baseline.activity_mean >= 0  # At least non-negative
         assert saved_baseline.data_points >= 1  # At least one data point
-    
+
     def test_baseline_loading_for_zscore_calculation(
         self, mock_baseline_repository, sample_data
     ):
         """Test that existing baselines are loaded for Z-score calculation."""
         sleep_data, activity_data, heart_data = sample_data
         target_date = date(2024, 2, 15)  # One month later
-        
+
         # Mock an existing baseline
         existing_baseline = UserBaseline(
             user_id="test_user_123",
@@ -171,14 +171,14 @@ class TestAdvancedFeatureEngineeringWithPersistence:
             data_points=30,
         )
         mock_baseline_repository.get_baseline.return_value = existing_baseline
-        
+
         # Create feature engineer after configuring mock
         engineer = AdvancedFeatureEngineer(
             config={},
             baseline_repository=mock_baseline_repository,
             user_id="test_user_123"
         )
-        
+
         # Extract features - should use loaded baseline for Z-scores
         features = engineer.extract_advanced_features(
             current_date=target_date,
@@ -187,14 +187,14 @@ class TestAdvancedFeatureEngineeringWithPersistence:
             historical_heart=heart_data[-7:],
             lookback_days=7,
         )
-        
+
         # Verify baseline was loaded
         mock_baseline_repository.get_baseline.assert_called_with("test_user_123")
-        
+
         # Z-scores should be calculated using loaded baseline
         # (This assumes we modify the feature engineer to use repository baselines)
         assert features is not None
-    
+
     def test_persist_baselines_method(
         self, mock_baseline_repository
     ):
@@ -205,16 +205,16 @@ class TestAdvancedFeatureEngineeringWithPersistence:
             baseline_repository=mock_baseline_repository,
             user_id="test_user_123"
         )
-        
+
         # Add some baseline data
         engineer._update_individual_baseline("sleep", 7.5)
         engineer._update_individual_baseline("activity", 8500)
-        
+
         # Test that we can explicitly persist current baselines
         engineer.persist_baselines()
-        
+
         # Should save the current baseline state
         assert mock_baseline_repository.save_baseline.called
-        
+
         saved_baseline = mock_baseline_repository.save_baseline.call_args[0][0]
         assert saved_baseline.user_id == "test_user_123"

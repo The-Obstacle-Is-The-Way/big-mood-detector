@@ -5,9 +5,7 @@ Simple file-based implementation for baseline storage.
 Following YAGNI principle - start simple, refactor when needed.
 """
 
-import json
 from datetime import date, datetime
-from pathlib import Path
 
 import pytest
 
@@ -18,14 +16,14 @@ from big_mood_detector.domain.repositories.baseline_repository_interface import 
 
 class TestFileBaselineRepository:
     """Test file-based baseline repository implementation."""
-    
+
     @pytest.fixture
     def temp_baseline_dir(self, tmp_path):
         """Create a temporary directory for baseline storage."""
         baseline_dir = tmp_path / "baselines"
         baseline_dir.mkdir()
         return baseline_dir
-    
+
     @pytest.fixture
     def repository(self, temp_baseline_dir):
         """Create repository instance."""
@@ -33,7 +31,7 @@ class TestFileBaselineRepository:
             FileBaselineRepository,
         )
         return FileBaselineRepository(temp_baseline_dir)
-    
+
     def test_save_and_retrieve_baseline(self, repository):
         """Test saving and retrieving a baseline."""
         # Given a baseline
@@ -48,22 +46,22 @@ class TestFileBaselineRepository:
             last_updated=datetime(2024, 1, 15, 12, 0),
             data_points=30,
         )
-        
+
         # When we save it
         repository.save_baseline(baseline)
-        
+
         # Then we can retrieve it
         retrieved = repository.get_baseline("user123")
         assert retrieved is not None
         assert retrieved.user_id == baseline.user_id
         assert retrieved.sleep_mean == baseline.sleep_mean
         assert retrieved.activity_mean == baseline.activity_mean
-    
+
     def test_get_nonexistent_baseline(self, repository):
         """Test retrieving baseline for user with no data."""
         result = repository.get_baseline("nonexistent")
         assert result is None
-    
+
     def test_update_baseline(self, repository):
         """Test updating an existing baseline."""
         # Given an initial baseline
@@ -79,7 +77,7 @@ class TestFileBaselineRepository:
             data_points=30,
         )
         repository.save_baseline(baseline1)
-        
+
         # When we save a new baseline for the same user
         baseline2 = UserBaseline(
             user_id="user123",
@@ -93,12 +91,12 @@ class TestFileBaselineRepository:
             data_points=30,
         )
         repository.save_baseline(baseline2)
-        
+
         # Then we get the most recent one
         retrieved = repository.get_baseline("user123")
         assert retrieved.baseline_date == date(2024, 1, 15)
         assert retrieved.sleep_mean == 7.5
-    
+
     def test_get_baseline_history(self, repository):
         """Test retrieving baseline history."""
         # Given multiple baselines
@@ -116,20 +114,20 @@ class TestFileBaselineRepository:
                 data_points=30,
             )
             repository.save_baseline(baseline)
-        
+
         # When we get history
         history = repository.get_baseline_history("user123", limit=2)
-        
+
         # Then we get the most recent ones
         assert len(history) == 2
         assert history[0].baseline_date == date(2024, 1, 15)
         assert history[1].baseline_date == date(2024, 2, 1)
-    
+
     def test_empty_history(self, repository):
         """Test getting history for user with no baselines."""
         history = repository.get_baseline_history("nonexistent")
         assert history == []
-    
+
     def test_multiple_users(self, repository):
         """Test storing baselines for multiple users."""
         # Given baselines for different users
@@ -155,14 +153,14 @@ class TestFileBaselineRepository:
             last_updated=datetime(2024, 1, 15, 12, 0),
             data_points=30,
         )
-        
+
         # When we save them
         repository.save_baseline(baseline1)
         repository.save_baseline(baseline2)
-        
+
         # Then each user has their own baseline
         user1_baseline = repository.get_baseline("user1")
         user2_baseline = repository.get_baseline("user2")
-        
+
         assert user1_baseline.sleep_mean == 7.5
         assert user2_baseline.sleep_mean == 8.0
