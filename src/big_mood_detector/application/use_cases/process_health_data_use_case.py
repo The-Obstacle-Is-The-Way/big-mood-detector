@@ -106,6 +106,8 @@ class MoodPredictionPipeline:
         sparse_handler: SparseDataHandler | None = None,
         data_parsing_service: DataParsingService | None = None,
         aggregation_pipeline: AggregationPipeline | None = None,
+        baseline_repository: Any | None = None,  # NEW: Accept baseline repository
+        di_container: Any | None = None,  # NEW: Accept DI container
     ):
         """
         Initialize with domain services.
@@ -120,20 +122,32 @@ class MoodPredictionPipeline:
         self.sparse_handler = sparse_handler or SparseDataHandler()
         
         # Create ClinicalFeatureExtractor with personal calibration support
-        baseline_repository = None
+        # Use injected baseline repository or get from DI container or create default
         if self.config.enable_personal_calibration and self.config.user_id:
-            from big_mood_detector.infrastructure.repositories.file_baseline_repository import (
-                FileBaselineRepository,
-            )
-            from pathlib import Path
-            
-            # Create baseline repository for personal calibration
-            baselines_dir = Path("data/baselines")
-            baselines_dir.mkdir(parents=True, exist_ok=True)
-            baseline_repository = FileBaselineRepository(baselines_dir)
+            if baseline_repository:
+                # Use explicitly provided repository
+                self.baseline_repository = baseline_repository
+            elif di_container:
+                # Get from DI container
+                from big_mood_detector.domain.repositories.baseline_repository_interface import (
+                    BaselineRepositoryInterface,
+                )
+                self.baseline_repository = di_container.resolve(BaselineRepositoryInterface)
+            else:
+                # Fallback to creating FileBaselineRepository for backward compatibility
+                from big_mood_detector.infrastructure.repositories.file_baseline_repository import (
+                    FileBaselineRepository,
+                )
+                from pathlib import Path
+                
+                baselines_dir = Path("data/baselines")
+                baselines_dir.mkdir(parents=True, exist_ok=True)
+                self.baseline_repository = FileBaselineRepository(baselines_dir)
+        else:
+            self.baseline_repository = None
         
         self.clinical_extractor = ClinicalFeatureExtractor(
-            baseline_repository=baseline_repository,
+            baseline_repository=self.baseline_repository,
             user_id=self.config.user_id if self.config.enable_personal_calibration else None,
         )
         

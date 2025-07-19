@@ -26,8 +26,18 @@ class UserBaseline:
     activity_mean: float
     activity_std: float
     circadian_phase: float
-    last_updated: datetime
-    data_points: int  # Number of days used in calculation
+    # Heart rate baselines (NEW)
+    heart_rate_mean: float = 70.0  # Default resting HR
+    heart_rate_std: float = 10.0
+    hrv_mean: float = 50.0  # Default HRV
+    hrv_std: float = 15.0
+    last_updated: datetime = None  # Will be set in __post_init__
+    data_points: int = 30  # Number of days used in calculation
+    
+    def __post_init__(self):
+        """Set default values for datetime fields."""
+        if self.last_updated is None:
+            object.__setattr__(self, 'last_updated', datetime.now())
 
 
 class BaselineRepositoryInterface(ABC):

@@ -133,6 +133,10 @@ class FileBaselineRepository(BaselineRepositoryInterface):
             "activity_mean": baseline.activity_mean,
             "activity_std": baseline.activity_std,
             "circadian_phase": baseline.circadian_phase,
+            "heart_rate_mean": baseline.heart_rate_mean,
+            "heart_rate_std": baseline.heart_rate_std,
+            "hrv_mean": baseline.hrv_mean,
+            "hrv_std": baseline.hrv_std,
             "last_updated": baseline.last_updated.isoformat(),
             "data_points": baseline.data_points,
         }
@@ -147,6 +151,11 @@ class FileBaselineRepository(BaselineRepositoryInterface):
             activity_mean=data["activity_mean"],
             activity_std=data["activity_std"],
             circadian_phase=data["circadian_phase"],
+            # Use get() with defaults for backward compatibility
+            heart_rate_mean=data.get("heart_rate_mean", 70.0),
+            heart_rate_std=data.get("heart_rate_std", 10.0),
+            hrv_mean=data.get("hrv_mean", 50.0),
+            hrv_std=data.get("hrv_std", 15.0),
             last_updated=datetime.fromisoformat(data["last_updated"]),
             data_points=data["data_points"],
         )
