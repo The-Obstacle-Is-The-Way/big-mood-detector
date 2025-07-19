@@ -274,9 +274,7 @@ class PredictionInterpreter:
 
     def _determine_monitoring_frequency(self, risk_level: str) -> str:
         """Determine appropriate monitoring frequency based on risk."""
-        if risk_level == "critical":
-            return "daily"
-        elif risk_level == "high":
+        if risk_level in {"critical", "high"}:
             return "daily"
         elif risk_level == "moderate":
             return "weekly"

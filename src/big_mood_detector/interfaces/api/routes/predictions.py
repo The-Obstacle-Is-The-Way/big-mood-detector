@@ -10,12 +10,16 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel, Field
 
 from big_mood_detector.application.services.prediction_interpreter import (
+    ClinicalInterpretation,
     PredictionInterpreter,
 )
 from big_mood_detector.application.use_cases.predict_mood_ensemble_use_case import (
     EnsembleOrchestrator,
 )
-from big_mood_detector.core.feature_constants import API_TO_XGBOOST_MAPPING
+from big_mood_detector.core.feature_constants import (
+    API_TO_XGBOOST_MAPPING,
+    XGBOOST_FEATURE_NAMES,
+)
 from big_mood_detector.domain.services.mood_predictor import MoodPredictor
 from big_mood_detector.interfaces.api.dependencies import (
     get_ensemble_orchestrator,
@@ -24,6 +28,12 @@ from big_mood_detector.interfaces.api.dependencies import (
 from big_mood_detector.interfaces.api.middleware.rate_limit import rate_limit
 
 router = APIRouter(prefix="/api/v1/predictions", tags=["predictions"])
+
+
+def _get_clinical_interpretation(ml_predictions: dict[str, float]) -> ClinicalInterpretation:
+    """Helper to get clinical interpretation from ML predictions."""
+    interpreter = PredictionInterpreter()
+    return interpreter.interpret(ml_predictions)
 
 
 class FeatureInput(BaseModel):
@@ -224,13 +234,12 @@ async def predict_mood_ensemble(
         )
 
         # Use PredictionInterpreter for clinical insights
-        interpreter = PredictionInterpreter()
         ml_predictions = {
             "depression": ensemble_result.ensemble_prediction.depression_risk,
             "mania": ensemble_result.ensemble_prediction.manic_risk,
             "hypomania": ensemble_result.ensemble_prediction.hypomanic_risk,
         }
-        interpretation = interpreter.interpret(ml_predictions)
+        interpretation = _get_clinical_interpretation(ml_predictions)
 
         # Generate clinical summary from interpretation
         clinical_summary = f"{interpretation.primary_diagnosis} - {interpretation.risk_level} risk"
@@ -368,7 +377,15 @@ async def get_clinical_interpretation(
         feature_dict = features.model_dump()
 
         # Map to XGBoost feature order
-        xgboost_features = [0.0] * 36  # Initialize all 36 features
+        xgboost_features = [0.0] * len(XGBOOST_FEATURE_NAMES)  # Initialize all features dynamically
+
+        # Validate feature mapping in debug mode
+        import os
+        if os.getenv("DEBUG_FEATURES", "0") == "1":
+            for api_name in API_TO_XGBOOST_MAPPING:
+                if api_name not in feature_dict:
+                    raise ValueError(f"Missing expected API feature: {api_name}")
+
         for api_name, xgb_index in API_TO_XGBOOST_MAPPING.items():
             value = feature_dict.get(api_name, 0.0)
             if value is not None:
@@ -400,9 +417,8 @@ async def get_clinical_interpretation(
                 "hypomania": prediction.hypomanic_risk,
             }
 
-        # Initialize interpreter and get clinical interpretation
-        interpreter = PredictionInterpreter()
-        interpretation = interpreter.interpret(ml_predictions)
+        # Get clinical interpretation
+        interpretation = _get_clinical_interpretation(ml_predictions)
 
         return ClinicalInterpretationResponse(
             primary_diagnosis=interpretation.primary_diagnosis,

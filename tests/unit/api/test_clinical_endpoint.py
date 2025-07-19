@@ -136,3 +136,91 @@ class TestClinicalEndpoint:
 
         # Assert
         assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+
+    def test_clinical_endpoint_mixed_episode(self, app_client):
+        """Test clinical endpoint with mixed episode scenario."""
+        # Arrange - Override mock to return mixed episode values
+        mock_predictor = MagicMock()
+        mock_predictor.predict.return_value = MoodPrediction(
+            depression_risk=0.65,  # High depression
+            hypomanic_risk=0.20,
+            manic_risk=0.45,  # Also elevated mania
+            confidence=0.75,
+        )
+
+        from big_mood_detector.interfaces.api.dependencies import get_mood_predictor
+        from big_mood_detector.interfaces.api.main import app
+
+        app.dependency_overrides[get_mood_predictor] = lambda: mock_predictor
+
+        payload = {
+            "sleep_duration": 4.5,  # Very short sleep
+            "sleep_efficiency": 0.65,
+            "sleep_timing_variance": 2.5,  # High variance
+            "daily_steps": 15000,  # High activity
+            "activity_variance": 0.8,
+            "sedentary_hours": 4.0,  # Low sedentary
+        }
+
+        # Act
+        response = app_client.post("/api/v1/predictions/clinical", json=payload)
+
+        # Assert
+        assert response.status_code == status.HTTP_200_OK
+        data = response.json()
+
+        # Verify mixed episode detection
+        assert "Mixed" in data["primary_diagnosis"]
+        assert data["risk_level"] == "critical"
+        assert data["monitoring_frequency"] == "daily"
+
+        # Verify high-risk recommendations
+        assert any("emergency" in r.lower() or "crisis" in r.lower()
+                  for r in data["recommendations"])
+
+        # Verify secondary risks are elevated
+        assert data["secondary_risks"]["mixed_features"] > 0.5
+        assert data["secondary_risks"]["suicide"] > 0.3
+
+    @pytest.mark.parametrize("depression,mania,hypomania,expected_diagnosis,expected_risk", [
+        (0.85, 0.10, 0.05, "Severe Depressive Episode", "high"),
+        (0.10, 0.85, 0.15, "Manic Episode", "high"),
+        (0.15, 0.10, 0.75, "Hypomanic Episode", "moderate"),
+        (0.15, 0.10, 0.15, "Euthymic (Stable)", "low"),
+        (0.55, 0.50, 0.20, "Mixed Episode", "critical"),
+    ])
+    def test_clinical_endpoint_various_scenarios(
+        self, app_client, depression, mania, hypomania, expected_diagnosis, expected_risk
+    ):
+        """Test clinical endpoint with various mood scenarios."""
+        # Arrange - Create mock with specific values
+        mock_predictor = MagicMock()
+        mock_predictor.predict.return_value = MoodPrediction(
+            depression_risk=depression,
+            hypomanic_risk=hypomania,
+            manic_risk=mania,
+            confidence=0.80,
+        )
+
+        from big_mood_detector.interfaces.api.dependencies import get_mood_predictor
+        from big_mood_detector.interfaces.api.main import app
+
+        app.dependency_overrides[get_mood_predictor] = lambda: mock_predictor
+
+        payload = {
+            "sleep_duration": 7.0,
+            "sleep_efficiency": 0.85,
+            "sleep_timing_variance": 0.5,
+            "daily_steps": 10000,
+            "activity_variance": 0.2,
+            "sedentary_hours": 6.0,
+        }
+
+        # Act
+        response = app_client.post("/api/v1/predictions/clinical", json=payload)
+
+        # Assert
+        assert response.status_code == status.HTTP_200_OK
+        data = response.json()
+        assert data["primary_diagnosis"] == expected_diagnosis
+        assert data["risk_level"] == expected_risk

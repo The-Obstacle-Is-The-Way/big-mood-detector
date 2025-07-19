@@ -6,6 +6,7 @@ Ensures API server can start with existing model files.
 
 import os
 import subprocess
+import sys
 import time
 from pathlib import Path
 
@@ -24,7 +25,7 @@ class TestAPIStartup:
         env["DISABLE_RATE_LIMIT"] = "1"
 
         process = subprocess.Popen(
-            ["python3", "src/big_mood_detector/main.py", "serve", "--port", "8002"],
+            [sys.executable, "src/big_mood_detector/main.py", "serve", "--port", "8002"],
             env=env,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,  # Capture both stdout and stderr
