@@ -10,7 +10,6 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel, Field
 
 from big_mood_detector.application.services.prediction_interpreter import (
-    ClinicalInterpretation,
     PredictionInterpreter,
 )
 from big_mood_detector.application.use_cases.predict_mood_ensemble_use_case import (
@@ -232,10 +231,10 @@ async def predict_mood_ensemble(
             "hypomania": ensemble_result.ensemble_prediction.hypomanic_risk,
         }
         interpretation = interpreter.interpret(ml_predictions)
-        
+
         # Generate clinical summary from interpretation
         clinical_summary = f"{interpretation.primary_diagnosis} - {interpretation.risk_level} risk"
-        
+
         # Use interpreter recommendations (limit to top 5 for API response)
         recommendations = interpretation.recommendations[:5]
 
@@ -323,23 +322,23 @@ async def get_model_status(
 
 class ClinicalInterpretationResponse(BaseModel):
     """Clinical interpretation of mood predictions."""
-    
+
     # Core clinical assessment
     primary_diagnosis: str
     risk_level: str
     confidence: float
-    
+
     # Detailed clinical insights
     clinical_notes: list[str]
     recommendations: list[str]
-    
+
     # Secondary risk assessment
     secondary_risks: dict[str, float]
     monitoring_frequency: str
-    
+
     # Original predictions
     ml_predictions: dict[str, float]
-    
+
     # Metadata
     interpretation_version: str = "1.0"
     dsm5_compliant: bool = True
@@ -355,29 +354,30 @@ async def get_clinical_interpretation(
 ) -> ClinicalInterpretationResponse:
     """
     Get clinical interpretation of mood predictions.
-    
+
     This endpoint provides:
     - DSM-5 compliant diagnoses
     - Risk stratification
     - Clinical recommendations
     - Monitoring frequency guidance
-    
+
     The interpretation follows evidence-based guidelines from the Seoul study.
     """
     try:
         # Convert input features to array format
         feature_dict = features.model_dump()
-        
+
         # Map to XGBoost feature order
-        xgboost_features = []
-        for xgb_name in API_TO_XGBOOST_MAPPING.values():
-            value = feature_dict.get(xgb_name, 0.0)
-            xgboost_features.append(value)
-        
+        xgboost_features = [0.0] * 36  # Initialize all 36 features
+        for api_name, xgb_index in API_TO_XGBOOST_MAPPING.items():
+            value = feature_dict.get(api_name, 0.0)
+            if value is not None:
+                xgboost_features[xgb_index] = float(value)
+
         # Get prediction (ensemble if available, XGBoost otherwise)
         import numpy as np
         feature_array = np.array(xgboost_features, dtype=np.float32)
-        
+
         if orchestrator and orchestrator.xgboost_predictor.is_loaded:
             # Use ensemble prediction
             ensemble_result = orchestrator.predict(
@@ -385,7 +385,7 @@ async def get_clinical_interpretation(
                 activity_records=None,  # No activity data from direct API
                 prediction_date=None,
             )
-            
+
             ml_predictions = {
                 "depression": ensemble_result.ensemble_prediction.depression_risk,
                 "mania": ensemble_result.ensemble_prediction.manic_risk,
@@ -399,11 +399,11 @@ async def get_clinical_interpretation(
                 "mania": prediction.manic_risk,
                 "hypomania": prediction.hypomanic_risk,
             }
-        
+
         # Initialize interpreter and get clinical interpretation
         interpreter = PredictionInterpreter()
         interpretation = interpreter.interpret(ml_predictions)
-        
+
         return ClinicalInterpretationResponse(
             primary_diagnosis=interpretation.primary_diagnosis,
             risk_level=interpretation.risk_level,
@@ -414,7 +414,7 @@ async def get_clinical_interpretation(
             monitoring_frequency=interpretation.monitoring_frequency,
             ml_predictions=ml_predictions,
         )
-        
+
     except Exception as e:
         raise HTTPException(
             status_code=500, detail=f"Clinical interpretation failed: {e}"
