@@ -554,6 +554,12 @@ def setup_dependencies(settings: Any) -> Container:
     container.register_singleton(SparseDataHandler)
     container.register_singleton(ClinicalFeatureExtractor)
 
+    # Register feature engineering orchestrator
+    from big_mood_detector.domain.services.feature_engineering_orchestrator import (
+        FeatureEngineeringOrchestrator,
+    )
+    container.register_singleton(FeatureEngineeringOrchestrator)
+
     # Register application services
     from big_mood_detector.application.services.aggregation_pipeline import (
         AggregationPipeline,

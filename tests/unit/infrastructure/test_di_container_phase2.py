@@ -246,3 +246,25 @@ class TestDIContainerPhase2:
 
         assert assessment is not None
         assert assessment.primary_diagnosis == "depressive_episode"
+
+    def test_register_feature_engineering_orchestrator(self, container):
+        """Test registering FeatureEngineeringOrchestrator."""
+        from big_mood_detector.domain.services.feature_engineering_orchestrator import (
+            FeatureEngineeringOrchestrator,
+        )
+
+        # Should not be registered by default
+        with pytest.raises(DependencyNotFoundError):
+            container.resolve(FeatureEngineeringOrchestrator)
+
+        # Register the orchestrator
+        container.register_singleton(FeatureEngineeringOrchestrator)
+
+        # Should resolve successfully
+        orchestrator = container.resolve(FeatureEngineeringOrchestrator)
+        assert orchestrator is not None
+        assert isinstance(orchestrator, FeatureEngineeringOrchestrator)
+
+        # Should be singleton
+        orchestrator2 = container.resolve(FeatureEngineeringOrchestrator)
+        assert orchestrator is orchestrator2
