@@ -100,8 +100,12 @@ class FileBaselineRepository(BaselineRepositoryInterface):
 
         history = self._load_history(history_file)
 
-        # Convert to UserBaseline objects and return most recent ones
-        baselines = [self._dict_to_baseline(d) for d in history[-limit:]]
+        # Convert to UserBaseline objects
+        baselines = [self._dict_to_baseline(d) for d in history]
+        
+        # Sort by baseline_date chronologically (oldest first) and limit
+        baselines.sort(key=lambda b: b.baseline_date)
+        baselines = baselines[-limit:] if limit else baselines
 
         logger.debug(
             "baseline_history_retrieved",

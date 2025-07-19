@@ -192,6 +192,11 @@ test_output/
 *_features.csv
 clinical_report.txt
 
+# Test baseline files - temporary test data
+temp_test_baselines/
+*_test_baselines/
+baseline_history.json
+
 # Upload directories from API testing
 uploads/
 upload_temp/
