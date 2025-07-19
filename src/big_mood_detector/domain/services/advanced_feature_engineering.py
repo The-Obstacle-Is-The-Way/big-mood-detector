@@ -9,6 +9,9 @@ from datetime import date, datetime, timedelta
 from typing import Any
 
 import numpy as np
+from structlog import get_logger
+
+logger = get_logger()
 
 from big_mood_detector.domain.services.activity_aggregator import DailyActivitySummary
 from big_mood_detector.domain.services.activity_feature_calculator import (
@@ -386,9 +389,15 @@ class AdvancedFeatureEngineer:
     ) -> dict[str, float]:
         """Calculate individual normalized features (Z-scores)."""
         # Update baselines
-        self._update_individual_baseline(
-            "sleep", sleep.total_sleep_hours if sleep else 0
+        sleep_hours = sleep.total_sleep_hours if sleep else 0
+        logger.debug(
+            "baseline_update_called",
+            sleep_hours=sleep_hours,
+            has_sleep=sleep is not None,
+            user_id=self.user_id,
+            date=str(current_date),
         )
+        self._update_individual_baseline("sleep", sleep_hours)
         self._update_individual_baseline(
             "activity", activity.total_steps if activity else 0
         )
@@ -522,6 +531,15 @@ class AdvancedFeatureEngineer:
 
     def _update_individual_baseline(self, metric: str, value: float) -> None:
         """Update individual baseline statistics using incremental update."""
+        # Debug logging for sleep baseline
+        if metric == "sleep":
+            logger.debug(
+                "updating_sleep_baseline",
+                value=value,
+                metric=metric,
+                user_id=self.user_id,
+            )
+            
         if metric not in self.individual_baselines:
             self.individual_baselines[metric] = {
                 "values": [], 

@@ -151,18 +151,23 @@ class TestBaselinePersistenceE2E:
             baseline_repository=baseline_repository
         )
         
-        # Create 7 days of data
+        # Create 7 days of data, plus one extra day of sleep for proper coverage
         week1_sleep = []
         week1_activity = []
         week1_heart = []
         
-        for day_offset in range(7):
+        # Create sleep for nights 0-6 (which will cover days 1-7 with our assignment logic)
+        for day_offset in range(8):  # Extra day to ensure last day has sleep
             target_date = date(2024, 1, 1) + timedelta(days=day_offset)
             week1_sleep.extend(self.create_sleep_records(target_date, 1, user_sleep_avg))
+        
+        # Create activity/heart for days 1-7
+        for day_offset in range(7):
+            target_date = date(2024, 1, 1) + timedelta(days=day_offset)
             week1_activity.extend(self.create_activity_records(target_date, 1, user_steps_avg))
             week1_heart.extend(self.create_heart_records(target_date, 1, user_resting_hr))
         
-        # Process all week 1 data at once
+        # Process all week 1 data
         result = pipeline1.process_health_data(
             sleep_records=week1_sleep,
             activity_records=week1_activity,
@@ -200,14 +205,19 @@ class TestBaselinePersistenceE2E:
         # Week 2: Continue tracking with new pipeline
         print("\n🏃‍♀️ WEEK 2: Jane continues tracking...")
         
-        # Create week 2 data
+        # Create week 2 data with extra sleep day
         week2_sleep = []
         week2_activity = []
         week2_heart = []
         
-        for day_offset in range(7):
+        # Create sleep for nights 7-14 (extra day for coverage)
+        for day_offset in range(8):
             target_date = date(2024, 1, 8) + timedelta(days=day_offset)
             week2_sleep.extend(self.create_sleep_records(target_date, 1, user_sleep_avg))
+        
+        # Create activity/heart for days 8-14
+        for day_offset in range(7):
+            target_date = date(2024, 1, 8) + timedelta(days=day_offset)
             week2_activity.extend(self.create_activity_records(target_date, 1, user_steps_avg))
             week2_heart.extend(self.create_heart_records(target_date, 1, user_resting_hr))
         

@@ -30,6 +30,7 @@ from big_mood_detector.domain.services.clinical_feature_extractor import (
     SeoulXGBoostFeatures,
 )
 from big_mood_detector.domain.services.dlmo_calculator import DLMOCalculator
+from big_mood_detector.domain.services.sleep_aggregator import SleepAggregator
 from big_mood_detector.domain.services.sleep_window_analyzer import SleepWindowAnalyzer
 
 
@@ -213,6 +214,7 @@ class AggregationPipeline:
         """
         self.config = config or AggregationConfig()
         self.sleep_analyzer = sleep_analyzer or SleepWindowAnalyzer()
+        self.sleep_aggregator = SleepAggregator()  # For accurate sleep duration
         self.activity_extractor = activity_extractor or ActivitySequenceExtractor()
         self.circadian_analyzer = circadian_analyzer or CircadianRhythmAnalyzer()
         self.dlmo_calculator = dlmo_calculator or DLMOCalculator()
@@ -311,6 +313,12 @@ class AggregationPipeline:
             # Add activity metrics to daily_metrics
             if daily_metrics:
                 daily_metrics["activity"] = activity_metrics
+                
+                # FIX: Add accurate sleep duration to daily_metrics
+                # This overwrites the bogus sleep_percentage * 24 calculation
+                if "sleep" in daily_metrics:
+                    accurate_hours = self._get_actual_sleep_duration(sleep_records, current_date)
+                    daily_metrics["sleep"]["sleep_duration_hours"] = accurate_hours
 
             # 6. Update rolling windows
             if daily_metrics:
@@ -332,6 +340,7 @@ class AggregationPipeline:
                     sleep_metrics_window,
                     circadian_metrics_window,
                     activity_metrics,  # Pass activity metrics
+                    sleep_records,  # Pass sleep records for duration fix
                 )
 
                 if features:
@@ -413,6 +422,7 @@ class AggregationPipeline:
                 w.total_duration_hours for w in short_windows
             ),  # Simplified
             "short_wt": sum(sum(w.gap_hours) for w in short_windows),
+            # NOTE: sleep_duration_hours will be added later using SleepAggregator
         }
 
     def calculate_statistics(
@@ -723,6 +733,7 @@ class AggregationPipeline:
         sleep_window: list[dict[str, float]],
         circadian_window: list[dict[str, float]],
         activity_metrics: dict[str, float],
+        sleep_records: list[SleepRecord],
     ) -> ClinicalFeatureSet | None:
         """Calculate features with mean, std, and z-scores."""
         if not daily_metrics or "sleep" not in daily_metrics:
@@ -778,8 +789,7 @@ class AggregationPipeline:
         # Create SeoulXGBoostFeatures with all aggregated features
         seoul_features = SeoulXGBoostFeatures(
             date=current_date,
-            # Sleep duration metrics - FIX: Use SleepAggregator for accurate duration
-            # OLD BUG: sleep_duration_hours=daily_metrics["sleep"]["sleep_percentage"] * 24,
+            # Sleep duration metrics - FIXED: Use SleepAggregator for accurate duration
             sleep_duration_hours=self._get_actual_sleep_duration(sleep_records, current_date),
             sleep_efficiency=0.9,  # Default for now, should be calculated
             sleep_onset_hour=21.0,  # Default for now
@@ -850,3 +860,31 @@ class AggregationPipeline:
             sedentary_bout_mean=activity_metrics.get("sedentary_bout_mean", 24.0),
             activity_intensity_ratio=activity_metrics.get("activity_intensity_ratio", 0.0),
         )
+    
+    def _get_actual_sleep_duration(
+        self,
+        sleep_records: list[SleepRecord],
+        target_date: date,
+    ) -> float:
+        """
+        Get actual sleep duration for a date using SleepAggregator.
+        
+        This fixes the bug where we were using sleep_percentage * 24,
+        which only counted sleep windows and missed fragmented sleep.
+        
+        Args:
+            sleep_records: All sleep records
+            target_date: Date to get sleep duration for
+        
+        Returns:
+            Total sleep hours for the date
+        """
+        # Use SleepAggregator to get accurate total sleep
+        summaries = self.sleep_aggregator.aggregate_daily(sleep_records)
+        
+        # Get the summary for the target date
+        if target_date in summaries:
+            return summaries[target_date].total_sleep_hours
+        
+        # Default to 0 if no sleep data
+        return 0.0

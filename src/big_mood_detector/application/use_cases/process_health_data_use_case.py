@@ -483,10 +483,6 @@ class MoodPredictionPipeline:
                     include_pat_sequence=self.config.include_pat_sequences,
                 )
                 features[current_date] = feature_set
-                
-                # Persist baselines if personal calibration is enabled
-                if self.config.enable_personal_calibration and self.config.user_id:
-                    self.clinical_extractor.persist_baselines()
                     
             except Exception as e:
                 # Log error but continue processing other dates
@@ -499,6 +495,10 @@ class MoodPredictionPipeline:
                 features[current_date] = None
 
             current_date += timedelta(days=1)
+        
+        # Persist baselines ONCE after processing all dates
+        if self.config.enable_personal_calibration and self.config.user_id and features:
+            self.clinical_extractor.persist_baselines()
 
         return features
 
