@@ -9,9 +9,8 @@ from typing import Any
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel, Field
 
-from big_mood_detector.application.services.prediction_interpreter import (
-    ClinicalInterpretation,
-    PredictionInterpreter,
+from big_mood_detector.application.services.clinical_helpers import (
+    get_clinical_interpretation as interpret_predictions,
 )
 from big_mood_detector.application.use_cases.predict_mood_ensemble_use_case import (
     EnsembleOrchestrator,
@@ -28,12 +27,6 @@ from big_mood_detector.interfaces.api.dependencies import (
 from big_mood_detector.interfaces.api.middleware.rate_limit import rate_limit
 
 router = APIRouter(prefix="/api/v1/predictions", tags=["predictions"])
-
-
-def _get_clinical_interpretation(ml_predictions: dict[str, float]) -> ClinicalInterpretation:
-    """Helper to get clinical interpretation from ML predictions."""
-    interpreter = PredictionInterpreter()
-    return interpreter.interpret(ml_predictions)
 
 
 class FeatureInput(BaseModel):
@@ -239,7 +232,7 @@ async def predict_mood_ensemble(
             "mania": ensemble_result.ensemble_prediction.manic_risk,
             "hypomania": ensemble_result.ensemble_prediction.hypomanic_risk,
         }
-        interpretation = _get_clinical_interpretation(ml_predictions)
+        interpretation = interpret_predictions(ml_predictions)
 
         # Generate clinical summary from interpretation
         clinical_summary = f"{interpretation.primary_diagnosis} - {interpretation.risk_level} risk"
@@ -418,7 +411,7 @@ async def get_clinical_interpretation(
             }
 
         # Get clinical interpretation
-        interpretation = _get_clinical_interpretation(ml_predictions)
+        interpretation = interpret_predictions(ml_predictions)
 
         return ClinicalInterpretationResponse(
             primary_diagnosis=interpretation.primary_diagnosis,
