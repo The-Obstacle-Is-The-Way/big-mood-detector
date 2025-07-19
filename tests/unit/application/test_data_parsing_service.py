@@ -287,6 +287,6 @@ class TestDataParsingService:
                         xml_path, use_cache=True
                     )
 
-            # Parser should only be called once (3 times for sleep, activity, heart)
-            assert mock_parser.parse_file.call_count == 3
+            # Parser should only be called once (single-pass parsing)
+            assert mock_parser.parse_file.call_count == 1
             assert result1 == result2

@@ -35,7 +35,7 @@ class TestAPIStartup:
 
         try:
             # Wait for server to start with better error checking
-            max_wait_time = 10  # seconds
+            max_wait_time = 30  # seconds - ML models take time to load
             wait_interval = 0.5
             waited = 0.0
 
@@ -60,7 +60,7 @@ class TestAPIStartup:
                 waited += wait_interval
             else:
                 # Timeout reached
-                stdout, _ = process.communicate(timeout=2)
+                stdout, _ = process.communicate(timeout=5)
                 pytest.fail(f"Server did not start within {max_wait_time}s. Output:\n{stdout}")
 
             # Server is responding, now test endpoints

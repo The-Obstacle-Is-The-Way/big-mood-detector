@@ -35,7 +35,7 @@ class TestSettings:
         assert settings.ENVIRONMENT == "local"
 
         # Paths
-        assert settings.MODEL_WEIGHTS_PATH == Path("data/model_weights/xgboost/converted")
+        assert settings.MODEL_WEIGHTS_PATH == Path("model_weights/xgboost/converted")
         assert settings.OUTPUT_DIR == Path("data/output")
         assert settings.UPLOAD_DIR == Path("data/uploads")
 
