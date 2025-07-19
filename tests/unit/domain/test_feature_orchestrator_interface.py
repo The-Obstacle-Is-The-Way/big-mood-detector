@@ -12,9 +12,9 @@ import pytest
 
 from big_mood_detector.domain.services.activity_aggregator import DailyActivitySummary
 from big_mood_detector.domain.services.feature_types import (
-    UnifiedFeatureSet,
-    FeatureValidationResult,
     CompletenessReport,
+    FeatureValidationResult,
+    UnifiedFeatureSet,
 )
 from big_mood_detector.domain.services.heart_rate_aggregator import DailyHeartSummary
 from big_mood_detector.domain.services.sleep_aggregator import DailySleepSummary
@@ -25,10 +25,10 @@ class TestFeatureOrchestratorInterface:
 
     def test_feature_orchestrator_protocol_definition(self):
         """Test that we can define a protocol for feature orchestration."""
-        
+
         class FeatureOrchestratorProtocol(Protocol):
             """Protocol defining the interface for feature orchestration."""
-            
+
             def extract_features_for_date(
                 self,
                 target_date: date,
@@ -39,13 +39,13 @@ class TestFeatureOrchestratorInterface:
             ) -> UnifiedFeatureSet:
                 """Extract features for a specific date."""
                 ...
-            
+
             def validate_features(
                 self, features: UnifiedFeatureSet
             ) -> FeatureValidationResult:
                 """Validate extracted features."""
                 ...
-            
+
             def generate_completeness_report(
                 self,
                 sleep_data: list[DailySleepSummary],
@@ -54,17 +54,16 @@ class TestFeatureOrchestratorInterface:
             ) -> CompletenessReport:
                 """Generate data completeness report."""
                 ...
-        
+
         # Protocol should be defined without errors
         assert FeatureOrchestratorProtocol is not None
 
     def test_feature_extraction_interface(self):
         """Test the feature extraction interface."""
-        from abc import ABC, abstractmethod
-        
+
         class FeatureExtractorInterface(ABC):
             """Interface for feature extraction."""
-            
+
             @abstractmethod
             def extract_features_for_date(
                 self,
@@ -76,7 +75,7 @@ class TestFeatureOrchestratorInterface:
             ) -> UnifiedFeatureSet:
                 """Extract features for a specific date."""
                 pass
-            
+
             @abstractmethod
             def extract_features_batch(
                 self,
@@ -89,28 +88,27 @@ class TestFeatureOrchestratorInterface:
             ) -> list[UnifiedFeatureSet]:
                 """Extract features for a date range."""
                 pass
-        
+
         # Interface should be defined without errors
         assert FeatureExtractorInterface is not None
-        
+
         # Should not be able to instantiate abstract class
         with pytest.raises(TypeError):
             FeatureExtractorInterface()
 
     def test_feature_validator_interface(self):
         """Test the feature validation interface."""
-        from abc import ABC, abstractmethod
-        
+
         class FeatureValidatorInterface(ABC):
             """Interface for feature validation."""
-            
+
             @abstractmethod
             def validate_features(
                 self, features: UnifiedFeatureSet
             ) -> FeatureValidationResult:
                 """Validate feature quality and completeness."""
                 pass
-            
+
             @abstractmethod
             def generate_completeness_report(
                 self,
@@ -120,38 +118,35 @@ class TestFeatureOrchestratorInterface:
             ) -> CompletenessReport:
                 """Generate data completeness report."""
                 pass
-        
+
         # Interface should be defined without errors
         assert FeatureValidatorInterface is not None
 
     def test_feature_exporter_interface(self):
         """Test the feature export interface."""
-        from abc import ABC, abstractmethod
         from typing import Any
-        
+
         class FeatureExporterInterface(ABC):
             """Interface for feature export functionality."""
-            
+
             @abstractmethod
             def export_features_to_dict(
                 self, feature_sets: list[UnifiedFeatureSet]
             ) -> list[dict[str, Any]]:
                 """Export features to dictionary format."""
                 pass
-            
+
             @abstractmethod
             def get_feature_importance(self) -> dict[str, float]:
                 """Get feature importance scores."""
                 pass
-        
+
         # Interface should be defined without errors
         assert FeatureExporterInterface is not None
 
     def test_orchestrator_implements_all_interfaces(self):
         """Test that orchestrator can implement all interfaces."""
-        from abc import ABC, abstractmethod
-        from typing import Any
-        
+
         # Define all interfaces
         class FeatureExtractorInterface(ABC):
             @abstractmethod
@@ -164,14 +159,14 @@ class TestFeatureOrchestratorInterface:
                 lookback_days: int = 30,
             ) -> UnifiedFeatureSet:
                 pass
-        
+
         class FeatureValidatorInterface(ABC):
             @abstractmethod
             def validate_features(
                 self, features: UnifiedFeatureSet
             ) -> FeatureValidationResult:
                 pass
-        
+
         # Mock implementation
         class MockOrchestrator(FeatureExtractorInterface, FeatureValidatorInterface):
             def extract_features_for_date(
@@ -183,15 +178,15 @@ class TestFeatureOrchestratorInterface:
                 lookback_days: int = 30,
             ) -> UnifiedFeatureSet:
                 # Mock implementation
-                from big_mood_detector.domain.services.feature_engineering_orchestrator import (
-                    UnifiedFeatureSet,
-                    SleepFeatureSet,
-                    CircadianFeatureSet,
+                from big_mood_detector.domain.services.feature_types import (
                     ActivityFeatureSet,
-                    TemporalFeatureSet,
+                    CircadianFeatureSet,
                     ClinicalFeatureSet,
+                    SleepFeatureSet,
+                    TemporalFeatureSet,
+                    UnifiedFeatureSet,
                 )
-                
+
                 return UnifiedFeatureSet(
                     date=target_date,
                     sleep_features=SleepFeatureSet(
@@ -243,7 +238,7 @@ class TestFeatureOrchestratorInterface:
                         mood_risk_score=0.3,
                     ),
                 )
-            
+
             def validate_features(
                 self, features: UnifiedFeatureSet
             ) -> FeatureValidationResult:
@@ -254,11 +249,12 @@ class TestFeatureOrchestratorInterface:
                     quality_score=0.95,
                     warnings=[],
                 )
-        
+
         # Should be able to instantiate
         orchestrator = MockOrchestrator()
         assert orchestrator is not None
-        
+
         # Should implement both interfaces
         assert isinstance(orchestrator, FeatureExtractorInterface)
         assert isinstance(orchestrator, FeatureValidatorInterface)
+

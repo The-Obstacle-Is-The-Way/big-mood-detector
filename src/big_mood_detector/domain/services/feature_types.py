@@ -7,7 +7,6 @@ Following Single Responsibility Principle - these are just data containers.
 
 from dataclasses import dataclass
 from datetime import date
-from typing import Any
 
 
 @dataclass(frozen=True)
@@ -119,3 +118,4 @@ class AnomalyResult:
     has_anomalies: bool
     anomaly_domains: list[str]
     severity: float  # 0-1, higher is more severe
+
