@@ -172,6 +172,16 @@ class TestBaselinePersistencePipeline:
         assert 6.5 < baseline.sleep_mean < 7.5, f"Sleep baseline {baseline.sleep_mean} should be ~7.2"
         assert 10000 < baseline.activity_mean < 14000, f"Activity baseline {baseline.activity_mean} should be ~12000"
         
+        # REGRESSION TEST: Ensure sleep calculations are reasonable
+        # This guards against the sleep_percentage * 24 bug
+        for feature in features_week1:
+            if hasattr(feature, 'seoul_features'):
+                sleep_hours = feature.seoul_features.sleep_duration_hours
+                assert 4.0 <= sleep_hours <= 12.0, (
+                    f"Sleep duration {sleep_hours}h is outside reasonable range [4,12]. "
+                    "This may indicate the sleep_percentage * 24 bug has returned!"
+                )
+        
         # Week 2: Process more data - baselines should improve
         week2_sleep, week2_activity, week2_hr = self.generate_realistic_data(
             date(2024, 1, 8), 7, user_pattern
@@ -192,6 +202,14 @@ class TestBaselinePersistencePipeline:
         baseline_week2 = baseline_repository.get_baseline("test_athlete_123")
         assert baseline_week2 is not None
         assert baseline_week2.data_points > baseline.data_points, "More data points after week 2"
+        
+        # REGRESSION TEST: Week 2 sleep calculations
+        for feature in features_week2:
+            if hasattr(feature, 'seoul_features'):
+                sleep_hours = feature.seoul_features.sleep_duration_hours
+                assert 4.0 <= sleep_hours <= 12.0, (
+                    f"Week 2: Sleep duration {sleep_hours}h is outside reasonable range"
+                )
         
         # Week 3: Final week - predictions should be most personalized
         week3_sleep, week3_activity, week3_hr = self.generate_realistic_data(

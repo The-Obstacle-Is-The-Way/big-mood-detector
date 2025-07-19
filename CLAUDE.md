@@ -73,6 +73,24 @@ Interfaces (CLI/API) → Application (Use Cases) → Domain (Business Logic) ←
 - Model paths: Configured in settings
 - Clinical thresholds: Based on research papers
 
+## Critical Bug Fixes
+
+### Sleep Duration Calculation (Fixed)
+**Problem:** Sleep duration was incorrectly calculated as `sleep_percentage * 24`, which only counted merged sleep windows and missed fragmented sleep periods.
+
+**Solution:** Use `SleepAggregator.aggregate_daily()` for accurate total sleep calculation. The fix is in `aggregation_pipeline.py`:
+```python
+# CORRECT: Use SleepAggregator for accurate duration
+accurate_hours = self._get_actual_sleep_duration(sleep_records, current_date)
+
+# WRONG: DO NOT use sleep_percentage * 24
+# This only counts merged windows, missing fragmented sleep
+```
+
+**Impact:** Sleep baselines now correctly show ~7.5 hours instead of 2-5 hours for typical users.
+
+**CI Guard:** Run `scripts/check_no_sleep_percentage.sh` to prevent regression.
+
 ## Testing Requirements
 
 **Before committing:**
@@ -133,6 +151,37 @@ Interfaces (CLI/API) → Application (Use Cases) → Domain (Business Logic) ←
 3. Use batch processing
 4. Consider caching (Redis)
 5. Optimize hot paths only
+
+### Enable Personal Calibration
+Personal baselines improve prediction accuracy by adapting to individual patterns:
+
+```python
+# In your pipeline configuration
+from big_mood_detector.infrastructure.repositories.file_baseline_repository import FileBaselineRepository
+
+# Create baseline repository
+baseline_repo = FileBaselineRepository(Path("data/baselines"))
+
+# Pass to pipeline
+pipeline = MoodPredictionPipeline(
+    baseline_repository=baseline_repo,
+    user_id="unique_user_123"  # Per-user baselines
+)
+
+# Process data - baselines auto-update
+features = pipeline.process_health_data(...)
+```
+
+**What gets calibrated:**
+- Sleep duration baseline (individual's normal)
+- Activity levels (steps, exercise patterns)
+- Heart rate & HRV baselines
+- Circadian phase (DLMO estimate)
+
+**Benefits:**
+- Athletes won't trigger false positives from low HR
+- Night owls get accurate predictions despite late sleep
+- Detects deviations from YOUR normal, not population average
 
 ## Debugging Tips
 

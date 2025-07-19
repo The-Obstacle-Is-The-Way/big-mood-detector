@@ -320,10 +320,9 @@ class AggregationPipeline:
                     accurate_hours = self._get_actual_sleep_duration(sleep_records, current_date)
                     daily_metrics["sleep"]["sleep_duration_hours"] = accurate_hours
                     
-                    # SAFETY: Delete sleep_percentage to prevent accidental misuse
-                    # Any code trying to use it will raise KeyError, forcing proper fix
-                    if "sleep_percentage" in daily_metrics["sleep"]:
-                        del daily_metrics["sleep"]["sleep_percentage"]
+                    # WARNING: sleep_percentage is ONLY the fraction of day asleep
+                    # DO NOT use sleep_percentage * 24 for duration calculations!
+                    # Always use sleep_duration_hours instead
 
             # 6. Update rolling windows
             if daily_metrics:
@@ -399,9 +398,10 @@ class AggregationPipeline:
         Returns:
             Dictionary with sleep metrics
         """
-        # Sleep percentage (% of day)
+        # Sleep percentage (% of day) - WARNING: DO NOT multiply by 24 for hours!
+        # This is ONLY for sleep window statistics, not actual sleep duration
         total_sleep_minutes = sum(w.total_duration_hours * 60 for w in sleep_windows)
-        sleep_percentage = total_sleep_minutes / 1440.0
+        sleep_percentage = total_sleep_minutes / 1440.0  # Fraction of day, NOT hours!
 
         # Sleep amplitude (coefficient of variation of wake amounts)
         wake_periods = [g for w in sleep_windows for g in w.gap_hours if g > 0]

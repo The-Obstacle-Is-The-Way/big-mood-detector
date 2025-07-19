@@ -61,13 +61,14 @@ class TestSleepDurationRegression:
                 unit="bpm",
             )
             
-            # Process through pipeline
+            # Process through pipeline with min_window_size=1 to get immediate results
             features = pipeline.aggregate_daily_features(
                 sleep_records=[sleep_record],
                 activity_records=[activity_record],
                 heart_records=[heart_record],
                 start_date=date(2024, 1, 1),
                 end_date=date(2024, 1, 1),
+                min_window_size=1,  # Allow single-day results for regression testing
             )
             
             # Check that sleep duration is reasonable
@@ -133,13 +134,14 @@ class TestSleepDurationRegression:
                 )
             )
         
-        # Process the week
+        # Process the week with min_window_size=3 for more realistic testing
         features = pipeline.aggregate_daily_features(
             sleep_records=sleep_records,
             activity_records=activity_records,
             heart_records=heart_records,
             start_date=date(2024, 1, 1),
             end_date=date(2024, 1, 7),
+            min_window_size=3,  # Need 3 days minimum for statistics
         )
         
         # Check each day's sleep

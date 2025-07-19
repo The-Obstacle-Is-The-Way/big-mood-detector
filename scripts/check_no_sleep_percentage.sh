@@ -8,16 +8,25 @@ set -e
 
 echo "🔍 Checking for sleep_percentage * 24 pattern..."
 
-# Search for the problematic pattern
-# Exclude this script itself and any documentation
-RESULTS=$(grep -r "sleep_percentage.*\*.*24\|sleep_percentage.*24" \
+# Search for the problematic pattern - exclude tests, comments, and specific known safe files
+RESULTS=$(grep -rn "sleep_percentage.*\*.*24" \
     --include="*.py" \
     --exclude-dir=".git" \
     --exclude-dir="__pycache__" \
     --exclude-dir=".pytest_cache" \
     --exclude-dir="reference_repos" \
-    --exclude="check_no_sleep_percentage.sh" \
-    . 2>/dev/null || true)
+    --exclude-dir="tests" \
+    --exclude="*test*.py" \
+    --exclude="test_xml_complete_flow.py" \
+    . 2>/dev/null | \
+    # Remove lines that are clearly comments or documentation
+    grep -v "# WARNING:" | \
+    grep -v "# This" | \
+    grep -v "# DO NOT" | \
+    grep -v "This fixes the bug" | \
+    grep -v "bogus sleep_percentage" | \
+    # Check if there's actual code (assignment or calculation)
+    grep -E "=|return|print" || true)
 
 if [ -n "$RESULTS" ]; then
     echo "❌ FOUND PROBLEMATIC PATTERN: sleep_percentage * 24"

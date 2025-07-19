@@ -321,6 +321,14 @@ class TestBaselinePersistenceE2E:
         assert baseline1.activity_mean < baseline2.activity_mean, "Night owl less active"
         assert baseline1.heart_rate_mean > baseline2.heart_rate_mean, "Runner has lower HR"
         
+        # REGRESSION TEST: Ensure sleep baselines are reasonable
+        assert 4.0 <= baseline1.sleep_mean <= 12.0, (
+            f"Night owl sleep baseline {baseline1.sleep_mean}h outside reasonable range"
+        )
+        assert 4.0 <= baseline2.sleep_mean <= 12.0, (
+            f"Early bird sleep baseline {baseline2.sleep_mean}h outside reasonable range"
+        )
+        
         print(f"\n👥 PERSONALIZATION WORKS!")
         print(f"Night Owl: {baseline1.sleep_mean:.1f}h sleep, {baseline1.activity_mean:.0f} steps")
         print(f"Early Bird: {baseline2.sleep_mean:.1f}h sleep, {baseline2.activity_mean:.0f} steps")
