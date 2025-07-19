@@ -24,7 +24,6 @@ import pandas as pd
 
 from big_mood_detector.application.services.aggregation_pipeline import (
     AggregationPipeline,
-    DailyFeatures,
 )
 from big_mood_detector.application.services.data_parsing_service import (
     DataParsingService,
@@ -367,21 +366,21 @@ class MoodPredictionPipeline:
             overall_summary = {
                 "avg_depression_risk": float(
                     np.mean(
-                        [p["depression_risk"] for p in all_predictions]  # type: ignore[arg-type]
+                        [p["depression_risk"] for p in all_predictions]
                     )
                 ),
                 "avg_hypomanic_risk": float(
                     np.mean(
-                        [p["hypomanic_risk"] for p in all_predictions]  # type: ignore[arg-type]
+                        [p["hypomanic_risk"] for p in all_predictions]
                     )
                 ),
                 "avg_manic_risk": float(
-                    np.mean([p["manic_risk"] for p in all_predictions])  # type: ignore[arg-type]
+                    np.mean([p["manic_risk"] for p in all_predictions])
                 ),
                 "days_analyzed": len(daily_predictions),
             }
             confidence_score = float(
-                np.mean([p["confidence"] for p in all_predictions])  # type: ignore[arg-type]
+                np.mean([p["confidence"] for p in all_predictions])
             )
             if np.isnan(confidence_score):
                 confidence_score = 0.0
@@ -544,6 +543,66 @@ class MoodPredictionPipeline:
 
             json.dump(summary_data, f, indent=2, default=str)
 
+    def process_parsed_health_data(
+        self,
+        parsed_data: dict[str, Any] | Any,  # Can be dict or ParsedHealthData
+        output_path: Path,
+        start_date: date | None = None,
+        end_date: date | None = None,
+    ) -> pd.DataFrame:
+        """
+        Process already-parsed health data.
+
+        Args:
+            parsed_data: Already parsed health data (dict or ParsedHealthData)
+            output_path: Where to save the 36 features CSV
+            start_date: Optional start date filter
+            end_date: Optional end date filter
+
+        Returns:
+            DataFrame with 36 features per day
+        """
+        # Extract records from parsed data
+        records: dict[str, list[Any]]
+        if hasattr(parsed_data, 'sleep_records'):
+            # It's a ParsedHealthData object
+            from big_mood_detector.application.services.data_parsing_service import (
+                ParsedHealthData,
+            )
+            if isinstance(parsed_data, ParsedHealthData):
+                records = {
+                    "sleep": parsed_data.sleep_records,
+                    "activity": parsed_data.activity_records,
+                    "heart_rate": parsed_data.heart_rate_records,
+                }
+            else:
+                # Fallback - should not happen
+                records = {"sleep": [], "activity": [], "heart_rate": []}
+        else:
+            # It's a dict
+            records = {
+                "sleep": parsed_data.get("sleep_records", []),
+                "activity": parsed_data.get("activity_records", []),
+                "heart_rate": parsed_data.get("heart_rate_records", []),
+            }
+
+        # Validate parsed data - validator now handles both types
+        validation_result = self.data_parsing_service.validate_parsed_data(parsed_data)
+        if not validation_result.is_valid:
+            logger.warning(
+                "data_validation_failed",
+                warnings=validation_result.warnings,
+                warning_count=len(validation_result.warnings),
+            )
+
+        # Get data summary for analysis
+        self.data_parsing_service.get_data_summary(
+            parsed_data if isinstance(parsed_data, dict) else self.data_parsing_service._format_result(parsed_data)
+        )
+
+        # Continue with existing processing logic
+        return self._process_parsed_data_internal(records, output_path, start_date, end_date)
+
     def process_health_export(
         self,
         export_path: Path,
@@ -571,7 +630,7 @@ class MoodPredictionPipeline:
             continue_on_error=True,
         )
 
-        # Convert to old format for compatibility
+        # Extract records from parsed data
         records = {
             "sleep": parsed_data.get("sleep_records", []),
             "activity": parsed_data.get("activity_records", []),
@@ -587,11 +646,17 @@ class MoodPredictionPipeline:
                 warning_count=len(validation_result.warnings),
             )
 
-        # Get data summary for analysis
-        self.data_parsing_service.get_data_summary(
-            parsed_data
-        )  # Available for future use
+        # Continue with existing processing logic
+        return self._process_parsed_data_internal(records, output_path, start_date, end_date)
 
+    def _process_parsed_data_internal(
+        self,
+        records: dict[str, list],
+        output_path: Path,
+        start_date: date | None = None,
+        end_date: date | None = None,
+    ) -> pd.DataFrame:
+        """Internal method to process parsed records."""
         # First, analyze data density and quality
         sleep_dates = [r.start_date.date() for r in records.get("sleep", [])]
         activity_dates = [r.start_date.date() for r in records.get("activity", [])]
@@ -666,7 +731,7 @@ class MoodPredictionPipeline:
         records: dict[str, list],
         start_date: date | None,
         end_date: date | None,
-    ) -> list[DailyFeatures]:
+    ) -> list[ClinicalFeatureSet]:
         """
         Extract 36 features for each day using the aggregation pipeline.
 

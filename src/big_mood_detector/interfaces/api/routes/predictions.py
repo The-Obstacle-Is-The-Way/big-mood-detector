@@ -179,7 +179,7 @@ async def predict_mood_ensemble(
     Generate ensemble mood prediction using all available models.
 
     Combines XGBoost and PAT Transformer predictions for increased accuracy.
-    
+
     NOTE: For PAT predictions, this endpoint requires activity sequence data,
     which is not provided through this simple feature interface. For full
     ensemble predictions with PAT, use the file upload endpoints which process
@@ -196,7 +196,7 @@ async def predict_mood_ensemble(
                 )
             else:
                 raise HTTPException(
-                    status_code=503, 
+                    status_code=503,
                     detail="Ensemble models not available. Check server logs."
                 )
 
@@ -205,7 +205,7 @@ async def predict_mood_ensemble(
 
         # Build feature array (36 features expected by XGBoost)
         feature_array = np.zeros(36, dtype=np.float32)
-        
+
         # Fill in provided features using proper mapping
         feature_dict = features.model_dump(exclude_none=True)
         for name, idx in API_TO_XGBOOST_MAPPING.items():

@@ -85,13 +85,13 @@ def expected_sleep_data():
 
 class DummyBooster:
     """Lightweight XGBoost Booster mock for unit tests.
-    
+
     Following Eugene Yan's advice: mock at the API boundary,
     not at the algorithm boundary.
     """
     def __init__(self, probability=0.42):
         self.probability = probability
-    
+
     def predict(self, X, **kwargs):
         """Mock predict method returning consistent probabilities."""
         import numpy as np
@@ -100,6 +100,17 @@ class DummyBooster:
             return np.array([self.probability])
         else:
             return np.full((X.shape[0],), self.probability)
+
+    def predict_proba(self, X, **kwargs):
+        """Mock predict_proba for sklearn compatibility."""
+        import numpy as np
+        # Return probability array with shape (n_samples, 2)
+        # First column is 1-probability, second is probability
+        if len(X.shape) == 1:
+            X = X.reshape(1, -1)
+        n_samples = X.shape[0]
+        neg_prob = 1 - self.probability
+        return np.array([[neg_prob, self.probability]] * n_samples)
 
 
 @pytest.fixture

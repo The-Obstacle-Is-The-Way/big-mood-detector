@@ -16,6 +16,7 @@ from big_mood_detector.application.use_cases.process_health_data_use_case import
     MoodPredictionPipeline,
 )
 from big_mood_detector.infrastructure.logging import get_module_logger
+from big_mood_detector.infrastructure.settings import get_settings
 from big_mood_detector.interfaces.api.dependencies import get_mood_pipeline
 
 logger = get_module_logger(__name__)
@@ -59,10 +60,10 @@ async def extract_features(
         raise HTTPException(status_code=400, detail="No filename provided")
 
     file_ext = Path(file.filename).suffix.lower()
-    if file_ext not in [".json", ".xml"]:
+    if file_ext not in [".json", ".xml", ".zip"]:
         raise HTTPException(
             status_code=400,
-            detail="Unsupported file format. Please upload JSON or XML file.",
+            detail="Unsupported file format. Please upload JSON, XML, or ZIP file.",
         )
 
     # Save uploaded file temporarily
@@ -72,33 +73,72 @@ async def extract_features(
             tmp_file.write(content)
             tmp_path = Path(tmp_file.name)
 
-        # Process the file - currently only XML is supported for feature extraction
-        if file_ext != ".xml":
-            raise HTTPException(
-                status_code=400,
-                detail="Currently only XML Apple Health exports are supported. "
-                       "Please upload an export.xml file from Apple Health.",
-            )
-
-        # REAL feature extraction pipeline
-        logger.info("Starting real feature extraction", filename=file.filename)
-
-        # 1. Parse the XML file using DataParsingService
+        # Parse the file using DataParsingService
         from big_mood_detector.application.services.data_parsing_service import (
             DataParsingService,
         )
         parsing_service = DataParsingService()
-        parsed_data = parsing_service.parse_xml_export(tmp_path)
+
+        logger.info("Starting feature extraction", filename=file.filename, file_type=file_ext)
+
+        # Handle different file types
+        if file_ext == ".zip":
+            # Extract and process ZIP file
+            import zipfile
+            try:
+                with zipfile.ZipFile(tmp_path, 'r') as zf:
+                    # Check if ZIP contains JSON files
+                    json_files = [f for f in zf.namelist() if f.endswith('.json')]
+
+                    if not json_files:
+                        raise HTTPException(
+                            status_code=400,
+                            detail="No JSON files found in ZIP archive."
+                        )
+
+                # Parse JSON files from ZIP
+                parsed_health_data = parsing_service.parse_json_zip(tmp_path)
+                # Convert to dict format
+                parsed_data = parsing_service._format_result(parsed_health_data)
+
+            except zipfile.BadZipFile:
+                raise HTTPException(
+                    status_code=400,
+                    detail="Invalid ZIP file."
+                ) from None
+
+        elif file_ext == ".xml":
+            # Process XML file
+            parsed_health_data = parsing_service.parse_xml_export(tmp_path)
+            # Convert to dict format
+            parsed_data = parsing_service._format_result(parsed_health_data)
+
+        else:
+            # Single JSON file - create a clean directory for it
+            import shutil
+            json_dir = tmp_path.parent / "json_files"
+            json_dir.mkdir(exist_ok=True)
+
+            # Copy with original filename
+            shutil.copy2(tmp_path, json_dir / file.filename)
+
+            # Parse the directory
+            parsed_health_data = parsing_service.parse_json_export(json_dir)
+            # Convert to dict format for consistency
+            parsed_data = parsing_service._format_result(parsed_health_data)
+
+            # Clean up
+            shutil.rmtree(json_dir)
 
         logger.info(
             "Parsed health data",
-            sleep_records=len(parsed_data.sleep_records),
-            activity_records=len(parsed_data.activity_records),
-            heart_records=len(parsed_data.heart_rate_records),
+            sleep_records=len(parsed_data.get("sleep_records", [])),
+            activity_records=len(parsed_data.get("activity_records", [])),
+            heart_records=len(parsed_data.get("heart_rate_records", [])),
         )
 
         # Check if we have data
-        if not parsed_data.sleep_records:
+        if not parsed_data.get("sleep_records", []):
             raise HTTPException(
                 status_code=422,
                 detail="No sleep data found in the uploaded file. Please ensure the export contains sleep records.",
@@ -106,11 +146,11 @@ async def extract_features(
 
         # 2. Determine date range from the data
         all_dates = []
-        for sleep_record in parsed_data.sleep_records:
+        for sleep_record in parsed_data.get("sleep_records", []):
             all_dates.append(sleep_record.start_date.date())
-        for activity_record in parsed_data.activity_records:
+        for activity_record in parsed_data.get("activity_records", []):
             all_dates.append(activity_record.start_date.date())
-        for hr_record in parsed_data.heart_rate_records:
+        for hr_record in parsed_data.get("heart_rate_records", []):
             all_dates.append(hr_record.timestamp.date())
 
         if not all_dates:
@@ -139,8 +179,8 @@ async def extract_features(
             with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as tmp_output:
                 output_path = Path(tmp_output.name)
 
-            feature_df = pipeline.process_health_export(
-                export_path=tmp_path,
+            feature_df = pipeline.process_parsed_health_data(
+                parsed_data=parsed_data,
                 output_path=output_path,
                 start_date=start_date,
                 end_date=end_date,
@@ -153,9 +193,10 @@ async def extract_features(
                 pass
 
             if feature_df.empty:
+                settings = get_settings()
                 raise HTTPException(
                     status_code=422,
-                    detail="Could not extract features from the data. Ensure you have at least 7 days of continuous data.",
+                    detail=f"Could not extract features from the data. Ensure you have at least {settings.MIN_OBSERVATION_DAYS} days of continuous data.",
                 )
 
             # Get the latest features
@@ -209,7 +250,7 @@ async def extract_features(
                 "circadian_phase_mean": latest_features.get("circadian_phase_MN", 0),
                 "circadian_phase_std": latest_features.get("circadian_phase_SD", 0),
                 "circadian_phase_zscore": latest_features.get("circadian_phase_Z", 0),
-                
+
                 # Activity features (6)
                 "daily_steps": latest_features.get("daily_steps", 0),
                 "activity_variance": latest_features.get("activity_variance", 0),
@@ -244,7 +285,16 @@ async def extract_features(
                 "filename": file.filename,
                 "file_size_bytes": len(content),
                 "file_type": file_ext[1:],  # Remove the dot
-                "note": "MVP implementation - returns sample features",
+                "date_range": {
+                    "start": str(start_date),
+                    "end": str(end_date),
+                    "days": (end_date - start_date).days + 1
+                },
+                "records_processed": {
+                    "sleep": len(parsed_data.get("sleep_records", [])),
+                    "activity": len(parsed_data.get("activity_records", [])),
+                    "heart_rate": len(parsed_data.get("heart_rate_records", []))
+                },
             },
             processing_time_seconds=processing_time,
             feature_count=len(features),

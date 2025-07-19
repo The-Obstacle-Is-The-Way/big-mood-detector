@@ -13,14 +13,17 @@ from fastapi.responses import JSONResponse
 
 from big_mood_detector.infrastructure.settings.config import get_settings
 from big_mood_detector.interfaces.api.clinical_routes import router as clinical_router
+from big_mood_detector.interfaces.api.middleware.metrics import (
+    setup_metrics,
+    update_model_status,
+)
+from big_mood_detector.interfaces.api.middleware.rate_limit import setup_rate_limiting
 from big_mood_detector.interfaces.api.routes.features import router as features_router
 from big_mood_detector.interfaces.api.routes.labels import router as labels_router
 from big_mood_detector.interfaces.api.routes.predictions import (
     router as predictions_router,
 )
 from big_mood_detector.interfaces.api.routes.upload import router as upload_router
-from big_mood_detector.interfaces.api.middleware.rate_limit import setup_rate_limiting
-from big_mood_detector.interfaces.api.middleware.metrics import setup_metrics, update_model_status
 
 app = FastAPI(
     title="Big Mood Detector",
@@ -29,7 +32,7 @@ app = FastAPI(
 )
 
 # Set up middleware
-app = setup_rate_limiting(app)
+setup_rate_limiting(app)
 app = setup_metrics(app)
 
 # Ensure directories exist on startup
@@ -37,6 +40,7 @@ app = setup_metrics(app)
 async def startup_event() -> None:
     """Ensure required directories exist and preload models when the API starts."""
     import sys
+
     from big_mood_detector.core.security import validate_secrets
     from big_mood_detector.infrastructure.logging import get_module_logger
     from big_mood_detector.infrastructure.settings.utils import validate_model_paths
@@ -44,38 +48,38 @@ async def startup_event() -> None:
         get_ensemble_orchestrator,
         get_mood_predictor,
     )
-    
+
     logger = get_module_logger(__name__)
-    
+
     # Validate security settings first
     validate_secrets()
-    
+
     settings = get_settings()
     settings.ensure_directories()
-    
+
     # Validate model weights exist
     validation_error = validate_model_paths(settings)
     if validation_error:
         logger.critical("Model weights validation failed", error=validation_error)
         sys.exit(1)
-    
+
     # Preload models into memory (singleton cache)
     logger.info("Preloading models...")
-    
+
     # Preload basic predictor
     predictor = get_mood_predictor()
     logger.info(f"MoodPredictor loaded with {len(predictor.models)} models")
-    
+
     # Update metrics
     for model_name in predictor.models:
         update_model_status(f"xgboost_{model_name}", True)
-    
+
     # Preload ensemble orchestrator (includes PAT if available)
     orchestrator = get_ensemble_orchestrator()
     if orchestrator:
         logger.info("Ensemble orchestrator loaded successfully")
         update_model_status("ensemble", True)
-        
+
         if orchestrator.pat_model:
             logger.info("PAT model loaded and available")
             update_model_status("pat", True)
@@ -85,11 +89,11 @@ async def startup_event() -> None:
     else:
         logger.warning("Failed to load ensemble orchestrator")
         update_model_status("ensemble", False)
-    
+
     # Store in app state for multi-worker scenarios
     app.state.predictor = predictor
     app.state.orchestrator = orchestrator
-    
+
     logger.info("API startup complete", model_path=str(settings.MODEL_WEIGHTS_PATH))
 
 # Include routers

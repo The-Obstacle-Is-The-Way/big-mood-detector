@@ -5,12 +5,15 @@ Tests that ClinicalFeatureExtractor properly extracts activity features
 from health data, ensuring they're available for API exposure.
 """
 
-import pytest
 from datetime import date, datetime, timedelta
 
-from big_mood_detector.domain.entities.activity_record import ActivityRecord, ActivityType
+import pytest
+
+from big_mood_detector.domain.entities.activity_record import (
+    ActivityRecord,
+    ActivityType,
+)
 from big_mood_detector.domain.entities.sleep_record import SleepRecord, SleepState
-from big_mood_detector.domain.entities.heart_rate_record import HeartRateRecord
 from big_mood_detector.domain.services.clinical_feature_extractor import (
     ClinicalFeatureExtractor,
     ClinicalFeatureSet,
@@ -30,11 +33,11 @@ class TestClinicalFeatureExtractorActivity:
         """Generate sample activity records for testing."""
         records = []
         base_date = date.today() - timedelta(days=7)
-        
+
         # Generate 7 days of step count data
         for day in range(7):
             current_date = base_date + timedelta(days=day)
-            
+
             # Morning walk
             records.append(
                 ActivityRecord(
@@ -46,7 +49,7 @@ class TestClinicalFeatureExtractorActivity:
                     unit="count",
                 )
             )
-            
+
             # Afternoon activity
             records.append(
                 ActivityRecord(
@@ -58,7 +61,7 @@ class TestClinicalFeatureExtractorActivity:
                     unit="count",
                 )
             )
-            
+
             # Evening walk
             records.append(
                 ActivityRecord(
@@ -70,7 +73,7 @@ class TestClinicalFeatureExtractorActivity:
                     unit="count",
                 )
             )
-            
+
         return records
 
     @pytest.fixture
@@ -78,7 +81,7 @@ class TestClinicalFeatureExtractorActivity:
         """Generate sample sleep records."""
         records = []
         base_date = date.today() - timedelta(days=7)
-        
+
         for day in range(7):
             current_date = base_date + timedelta(days=day)
             records.append(
@@ -89,7 +92,7 @@ class TestClinicalFeatureExtractorActivity:
                     state=SleepState.ASLEEP,
                 )
             )
-            
+
         return records
 
     def test_extract_activity_features(self, extractor, sample_activity_records, sample_sleep_records):
@@ -102,10 +105,10 @@ class TestClinicalFeatureExtractorActivity:
             heart_records=[],
             target_date=target_date,
         )
-        
+
         # Verify feature set is returned
         assert isinstance(feature_set, ClinicalFeatureSet)
-        
+
         # Verify activity features are present and non-null in seoul_features
         assert feature_set.seoul_features.total_steps is not None
         assert feature_set.seoul_features.total_steps > 0
@@ -127,13 +130,13 @@ class TestClinicalFeatureExtractorActivity:
             heart_records=[],
             target_date=target_date,
         )
-        
+
         # Expected daily steps = 3000 + 5000 + 2000 = 10000
         assert feature_set.seoul_features.total_steps == 10000
-        
+
         # Activity variance should be > 0 given the varied activity pattern
         assert feature_set.seoul_features.activity_variance > 0
-        
+
         # Sedentary hours should be reasonable (not all 24 hours)
         assert 0 <= feature_set.seoul_features.sedentary_hours < 24
 
@@ -147,7 +150,7 @@ class TestClinicalFeatureExtractorActivity:
             heart_records=[],
             target_date=target_date,
         )
-        
+
         # Activity features should have sensible defaults
         assert feature_set.seoul_features.total_steps == 0
         assert feature_set.seoul_features.activity_variance == 0
@@ -165,18 +168,18 @@ class TestClinicalFeatureExtractorActivity:
             heart_records=[],
             target_date=target_date,
         )
-        
+
         # Get XGBoost feature vector from seoul_features
         feature_vector = feature_set.seoul_features.to_xgboost_features()
-        
+
         # Should have 36 features
         assert len(feature_vector) == 36
-        
+
         # Activity features are at indices 18-23 in the Seoul study format
         # Check that they're not all zeros
         activity_features = feature_vector[18:24]
         assert not all(f == 0 for f in activity_features)
-        
+
         # Specifically check total_steps (index 18)
         assert feature_vector[18] == 10000.0
 
@@ -189,17 +192,17 @@ class TestClinicalFeatureExtractorActivity:
             heart_records=[],
             target_date=target_date,
         )
-        
+
         # Circadian features should be calculated from activity
         assert feature_set.seoul_features.interdaily_stability is not None
         assert 0 <= feature_set.seoul_features.interdaily_stability <= 1
-        
+
         assert feature_set.seoul_features.intradaily_variability is not None
         assert feature_set.seoul_features.intradaily_variability >= 0
-        
+
         assert feature_set.seoul_features.relative_amplitude is not None
         assert 0 <= feature_set.seoul_features.relative_amplitude <= 1
-        
+
         # PAT (Principal Activity Time) should be calculated
         assert feature_set.seoul_features.pat_hour is not None
         assert 0 <= feature_set.seoul_features.pat_hour < 24

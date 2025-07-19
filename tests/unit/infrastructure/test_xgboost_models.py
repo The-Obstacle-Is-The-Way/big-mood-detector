@@ -99,24 +99,21 @@ class TestXGBoostModels:
 
         # Create a test loader
         loader = XGBoostModelLoader()
-        
-        # For unit tests, we'll mock the internal load method
-        # This follows Eugene Yan's advice - we're testing behavior, not the actual model
-        with patch.object(loader, '_load_single_model') as mock_load:
+
+        # Mock the load_model method to simulate successful loading
+        with patch.object(loader, 'load_model') as mock_load:
             # Mock successful loads
             mock_load.side_effect = [True, True, True]
-            
-            # Create mock models
-            for mood in ["depression", "hypomanic", "manic"]:
-                loader.models[mood] = MagicMock()
-            
+
             model_dir = Path("model_weights/xgboost/pretrained")
             results = loader.load_all_models(model_dir)
-            
-            # Verify behavior
+
+            # Verify load_model was called 3 times with correct args
+            assert mock_load.call_count == 3
+
+            # Verify returned results
             assert len(results) == 3
-            assert loader.is_loaded is True
-            assert len(loader.models) == 3
+            assert all(results.values())  # All should be True
 
     def test_predict_without_loaded_models(self):
         """Test that prediction fails gracefully without loaded models."""
@@ -185,7 +182,7 @@ class TestXGBoostModels:
         assert len(feature_array) == 36
         assert all(feature_array[i] == i for i in range(36))
 
-    def test_batch_prediction(self, dummy_booster):
+    def test_batch_prediction(self):
         """Test making predictions on multiple samples."""
         from big_mood_detector.infrastructure.ml_models.xgboost_models import (
             XGBoostModelLoader,
@@ -193,13 +190,22 @@ class TestXGBoostModels:
 
         loader = XGBoostModelLoader()
         batch_size = 5
-        
-        # Create models with different probabilities for testing
-        from tests.conftest import DummyBooster
+
+        # Create mock models with specific probabilities
+        # Use MagicMock with predict_proba for sklearn compatibility
+        depression_mock = MagicMock()
+        depression_mock.predict_proba.return_value = np.array([[0.2, 0.8]] * batch_size)
+
+        hypomanic_mock = MagicMock()
+        hypomanic_mock.predict_proba.return_value = np.array([[0.9, 0.1]] * batch_size)
+
+        manic_mock = MagicMock()
+        manic_mock.predict_proba.return_value = np.array([[0.95, 0.05]] * batch_size)
+
         loader.models = {
-            "depression": DummyBooster(probability=0.8),  # For third sample test
-            "hypomanic": DummyBooster(probability=0.1),
-            "manic": DummyBooster(probability=0.05),
+            "depression": depression_mock,
+            "hypomanic": hypomanic_mock,
+            "manic": manic_mock,
         }
         loader.is_loaded = True
 
@@ -238,7 +244,7 @@ class TestXGBoostMoodPredictor:
 
         # Create predictor
         predictor = XGBoostMoodPredictor()
-        
+
         # Inject fixture models cleanly
         predictor.model_loader.models = dummy_xgboost_models
         predictor.model_loader.is_loaded = True

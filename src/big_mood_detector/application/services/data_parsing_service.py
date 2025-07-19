@@ -150,6 +150,13 @@ class DataParsingService:
                 parsed_data = self.parse_xml_export(
                     file_path, progress_callback, start_date, end_date
                 )
+            elif file_path.is_file() and file_path.suffix == ".zip":
+                parsed_data = self.parse_json_zip(file_path, progress_callback)
+                # Filter JSON data by date range if specified
+                if start_date or end_date:
+                    parsed_data = self._filter_by_date_range(
+                        parsed_data, start_date, end_date
+                    )
             elif file_path.is_dir():
                 parsed_data = self.parse_json_export(file_path, progress_callback)
                 # Filter JSON data by date range if specified
@@ -266,7 +273,7 @@ class DataParsingService:
         if progress_callback:
             progress_callback("Parsing sleep files", 0.0)
 
-        sleep_files = list(json_dir.glob("*[Ss]leep*.json"))
+        sleep_files = list(set(list(json_dir.glob("*[Ss]leep*.json")) + list(json_dir.glob("[Ss]leep*.json"))))
         for i, file in enumerate(sleep_files):
             sleep_data = self._sleep_parser.parse_file(str(file))
             sleep_records.extend(sleep_data)
@@ -279,7 +286,7 @@ class DataParsingService:
         if progress_callback:
             progress_callback("Parsing activity files", 0.0)
 
-        activity_files = list(json_dir.glob("*[Ss]tep*.json"))
+        activity_files = list(set(list(json_dir.glob("*[Ss]tep*.json")) + list(json_dir.glob("[Ss]tep*.json"))))
         for i, file in enumerate(activity_files):
             activity_data = self._activity_parser.parse_file(str(file))
             activity_records.extend(activity_data)
@@ -292,6 +299,93 @@ class DataParsingService:
             sleep_records=sleep_records,
             activity_records=activity_records,
             heart_rate_records=[],  # JSON export doesn't include heart rate
+        )
+
+    def parse_json_zip(
+        self,
+        zip_path: Path,
+        progress_callback: Callable[[str, float], None] | None = None,
+    ) -> ParsedHealthData:
+        """
+        Parse Health Auto Export JSON files from a ZIP archive.
+
+        Args:
+            zip_path: Path to ZIP file containing JSON exports
+            progress_callback: Optional progress callback
+
+        Returns:
+            ParsedHealthData with all records
+        """
+        import tempfile
+        import zipfile
+
+        sleep_records = []
+        activity_records = []
+        heart_rate_records: list[HeartRateRecord] = []
+
+        with zipfile.ZipFile(zip_path, 'r') as zf:
+            # Check if this is an Apple Health XML export or JSON export
+            xml_files = [f for f in zf.namelist() if f.endswith('.xml')]
+            json_files = [f for f in zf.namelist() if f.endswith('.json')]
+
+            if xml_files and any('export.xml' in f for f in xml_files):
+                # This is an Apple Health XML export ZIP
+                # Extract and parse the XML file
+                for xml_file in xml_files:
+                    if 'export.xml' in xml_file:
+                        with tempfile.NamedTemporaryFile(mode='wb', suffix='.xml', delete=False) as tmp:
+                            tmp.write(zf.read(xml_file))
+                            tmp_path = Path(tmp.name)
+
+                        # Parse as XML export
+                        parsed_data = self.parse_xml_export(tmp_path, progress_callback)
+                        tmp_path.unlink()  # Clean up
+
+                        return parsed_data
+
+            elif json_files:
+                # This is a Health Auto Export JSON ZIP
+                # Process each JSON file
+                for i, filename in enumerate(json_files):
+                    if progress_callback:
+                        progress = i / len(json_files) if json_files else 0
+                        progress_callback(f"Processing {filename}", progress)
+
+                    # Read JSON content
+                    json_content = zf.read(filename)
+
+                    # Parse based on filename
+                    if 'sleep' in filename.lower():
+                        # Write to temp file for parser
+                        with tempfile.NamedTemporaryFile(mode='wb', suffix='.json', delete=False) as tmp:
+                            tmp.write(json_content)
+                            tmp_path = Path(tmp.name)
+
+                        sleep_data = self._sleep_parser.parse_file(tmp_path)
+                        sleep_records.extend(sleep_data)
+                        Path(tmp_path).unlink()  # Clean up temp file
+
+                    elif 'step' in filename.lower() or 'activity' in filename.lower() or 'count' in filename.lower():
+                        # Write to temp file for parser
+                        with tempfile.NamedTemporaryFile(mode='wb', suffix='.json', delete=False) as tmp:
+                            tmp.write(json_content)
+                            tmp_path = Path(tmp.name)
+
+                        activity_data = self._activity_parser.parse_file(tmp_path)
+                        activity_records.extend(activity_data)
+                        Path(tmp_path).unlink()  # Clean up temp file
+
+                if progress_callback:
+                    progress_callback("Processing complete", 1.0)
+
+            else:
+                # No supported files found
+                raise ValueError("ZIP file does not contain supported health data (no export.xml or JSON files found)")
+
+        return ParsedHealthData(
+            sleep_records=sleep_records,
+            activity_records=activity_records,
+            heart_rate_records=heart_rate_records,
         )
 
     def filter_records_by_date_range(
@@ -323,16 +417,20 @@ class DataParsingService:
 
         return filtered
 
-    def validate_parsed_data(self, data: dict[str, list]) -> DataValidationResult:
+    def validate_parsed_data(self, data: dict[str, list] | ParsedHealthData) -> DataValidationResult:
         """
         Validate parsed health data.
 
         Args:
-            data: Dictionary with parsed records
+            data: Dictionary with parsed records or ParsedHealthData object
 
         Returns:
             Validation result with counts and warnings
         """
+        # Convert ParsedHealthData to dict if needed
+        if isinstance(data, ParsedHealthData):
+            data = self._format_result(data)
+
         sleep_records = data.get("sleep_records", [])
         activity_records = data.get("activity_records", [])
         heart_records = data.get("heart_rate_records", [])

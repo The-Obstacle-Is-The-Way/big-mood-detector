@@ -130,9 +130,25 @@ class SleepJSONParser:
             if not start_str or not end_str:
                 return None
 
-            # Parse ISO format dates
-            start_date = datetime.fromisoformat(start_str.replace("Z", "+00:00"))
-            end_date = datetime.fromisoformat(end_str.replace("Z", "+00:00"))
+            # Parse dates - handle both ISO and simple formats
+            try:
+                # Try ISO format first
+                start_date = datetime.fromisoformat(start_str.replace("Z", "+00:00"))
+                end_date = datetime.fromisoformat(end_str.replace("Z", "+00:00"))
+            except ValueError:
+                # Fall back to simple format "YYYY-MM-DD HH:MM:SS"
+                try:
+                    start_date = datetime.strptime(start_str, "%Y-%m-%d %H:%M:%S")
+                    end_date = datetime.strptime(end_str, "%Y-%m-%d %H:%M:%S")
+                except ValueError:
+                    # Last resort - use dateutil if available
+                    try:
+                        from dateutil import parser
+                        start_date = parser.parse(start_str)
+                        end_date = parser.parse(end_str)
+                    except ImportError:
+                        # dateutil not available, re-raise original error
+                        raise ValueError(f"Cannot parse date: {start_str}") from None
 
             # Map value to state
             value = entry.get("value", "").upper()
@@ -434,9 +450,25 @@ class ActivityJSONParser:
             if not start_str or not end_str:
                 return None
 
-            # Parse ISO format dates
-            start_date = datetime.fromisoformat(start_str.replace("Z", "+00:00"))
-            end_date = datetime.fromisoformat(end_str.replace("Z", "+00:00"))
+            # Parse dates - handle both ISO and simple formats
+            try:
+                # Try ISO format first
+                start_date = datetime.fromisoformat(start_str.replace("Z", "+00:00"))
+                end_date = datetime.fromisoformat(end_str.replace("Z", "+00:00"))
+            except ValueError:
+                # Fall back to simple format "YYYY-MM-DD HH:MM:SS"
+                try:
+                    start_date = datetime.strptime(start_str, "%Y-%m-%d %H:%M:%S")
+                    end_date = datetime.strptime(end_str, "%Y-%m-%d %H:%M:%S")
+                except ValueError:
+                    # Last resort - use dateutil if available
+                    try:
+                        from dateutil import parser
+                        start_date = parser.parse(start_str)
+                        end_date = parser.parse(end_str)
+                    except ImportError:
+                        # dateutil not available, re-raise original error
+                        raise ValueError(f"Cannot parse date: {start_str}") from None
 
             # Determine activity type (default to step count)
             unit = entry.get("unit", "count").lower()

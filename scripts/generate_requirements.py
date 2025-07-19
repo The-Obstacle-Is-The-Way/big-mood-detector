@@ -29,11 +29,11 @@ def main():
     """Generate all requirements files."""
     print("Installing pip-tools...")
     run_command([sys.executable, "-m", "pip", "install", "pip-tools"])
-    
+
     # Change to project root
     import os
     os.chdir(PROJECT_ROOT)
-    
+
     print("\nGenerating requirements.txt (base dependencies)...")
     run_command([
         sys.executable, "-m", "piptools", "compile",
@@ -41,7 +41,7 @@ def main():
         "--output-file=requirements.txt",
         "pyproject.toml"
     ])
-    
+
     print("\nGenerating requirements-ml.txt (with ML dependencies)...")
     run_command([
         sys.executable, "-m", "piptools", "compile",
@@ -50,7 +50,7 @@ def main():
         "--output-file=requirements-ml.txt",
         "pyproject.toml"
     ])
-    
+
     print("\nGenerating requirements-dev.txt (with dev dependencies)...")
     run_command([
         sys.executable, "-m", "piptools", "compile",
@@ -59,7 +59,7 @@ def main():
         "--output-file=requirements-dev.txt",
         "pyproject.toml"
     ])
-    
+
     print("\n✅ All requirements files generated!")
     print("\nTo update dependencies:")
     print("  1. Update pyproject.toml")

@@ -111,7 +111,7 @@ class XGBoostModelLoader:
                 model = joblib.load(model_path)
                 self.models[model_type] = model
                 logger.info(f"Successfully loaded {model_type} model from {model_path} (PKL format)")
-            
+
             return True
 
         except Exception as e:
@@ -133,7 +133,7 @@ class XGBoostModelLoader:
         # Expected model files - using actual JSON filenames
         model_files = {
             "depression": "XGBoost_DE.json",
-            "hypomanic": "XGBoost_HME.json", 
+            "hypomanic": "XGBoost_HME.json",
             "manic": "XGBoost_ME.json",
         }
 

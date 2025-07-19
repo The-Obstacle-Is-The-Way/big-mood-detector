@@ -57,6 +57,9 @@ class Settings(BaseSettings):
     HYPOMANIC_THRESHOLD: float = Field(default=0.3, ge=0.0, le=1.0)
     MANIC_THRESHOLD: float = Field(default=0.3, ge=0.0, le=1.0)
 
+    # Data Quality Requirements
+    MIN_OBSERVATION_DAYS: int = Field(default=7, ge=1, description="Minimum days of data required for feature extraction")
+
     def ensure_directories(self) -> None:
         """Create necessary directories. Call this after settings are loaded."""
         from .utils import initialize_directories

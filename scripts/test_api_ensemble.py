@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Test the API ensemble endpoint."""
 
+
 import requests
-import json
 
 # Test data
 test_features = {
@@ -45,13 +45,13 @@ if response.status_code == 200:
     result = response.json()
     print("✓ Ensemble prediction successful!")
     print(f"\nModels used: {', '.join(result['models_used'])}")
-    print(f"\nEnsemble prediction:")
+    print("\nEnsemble prediction:")
     print(f"  Depression risk: {result['ensemble_prediction']['depression_risk']:.1%}")
     print(f"  Hypomanic risk: {result['ensemble_prediction']['hypomanic_risk']:.1%}")
     print(f"  Manic risk: {result['ensemble_prediction']['manic_risk']:.1%}")
     print(f"  Confidence: {result['ensemble_prediction']['confidence']:.1%}")
     print(f"\nClinical summary: {result['clinical_summary']}")
-    print(f"Recommendations:")
+    print("Recommendations:")
     for rec in result['recommendations']:
         print(f"  - {rec}")
 else:

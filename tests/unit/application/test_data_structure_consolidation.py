@@ -1,13 +1,20 @@
 """Test data structure consolidation from DailyFeatures to ClinicalFeatureSet."""
 
-import pytest
 from datetime import date, datetime, timedelta
 
-from big_mood_detector.application.services.aggregation_pipeline import AggregationPipeline
-from big_mood_detector.domain.services.clinical_feature_extractor import ClinicalFeatureSet
+import pytest
+
+from big_mood_detector.application.services.aggregation_pipeline import (
+    AggregationPipeline,
+)
+from big_mood_detector.domain.entities.activity_record import (
+    ActivityRecord,
+    ActivityType,
+)
 from big_mood_detector.domain.entities.sleep_record import SleepRecord, SleepState
-from big_mood_detector.domain.entities.activity_record import ActivityRecord, ActivityType
-from big_mood_detector.domain.entities.heart_rate_record import HeartRateRecord, HeartMetricType, MotionContext
+from big_mood_detector.domain.services.clinical_feature_extractor import (
+    ClinicalFeatureSet,
+)
 
 
 @pytest.fixture
@@ -15,7 +22,7 @@ def sample_sleep_records():
     """Create sample sleep records."""
     records = []
     base_date = datetime(2024, 1, 1, 23, 0)
-    
+
     for i in range(30):  # 30 days to ensure sufficient history
         start = base_date + timedelta(days=i)
         end = start + timedelta(hours=8)
@@ -26,7 +33,7 @@ def sample_sleep_records():
             state=SleepState.ASLEEP,
         )
         records.append(record)
-    
+
     return records
 
 
@@ -35,7 +42,7 @@ def sample_activity_records():
     """Create sample activity records."""
     records = []
     base_date = datetime(2024, 1, 1, 8, 0)
-    
+
     for i in range(30):
         for hour in range(24):  # Full day of hourly data
             record_date = base_date + timedelta(days=i, hours=hour)
@@ -49,7 +56,7 @@ def sample_activity_records():
                 unit="count",
             )
             records.append(record)
-    
+
     return records
 
 
@@ -64,7 +71,7 @@ def test_pipeline_returns_clinical_feature_set(sample_sleep_records, sample_acti
     # Use a range to ensure we get results
     start_date = date(2024, 1, 10)
     end_date = date(2024, 1, 20)
-    
+
     pipeline = AggregationPipeline()
     result_list = pipeline.aggregate_daily_features(
         sleep_records=sample_sleep_records,
@@ -73,16 +80,16 @@ def test_pipeline_returns_clinical_feature_set(sample_sleep_records, sample_acti
         start_date=start_date,
         end_date=end_date,
     )
-    
+
     # --- RED assertions (fail until we merge data models) ---
     assert result_list, "Pipeline returned no daily features"
     daily = result_list[0]
-    
+
     # First assertion: Should return ClinicalFeatureSet, not DailyFeatures
     assert isinstance(
         daily, ClinicalFeatureSet
     ), f"Expected ClinicalFeatureSet, got {type(daily)}"
-    
+
     # Second assertion: Activity stats must be top-level, not nested
     # Currently they exist on DailyFeatures but we want them flattened on ClinicalFeatureSet
     for field in ("total_steps", "activity_variance", "sedentary_hours"):

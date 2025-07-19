@@ -6,7 +6,6 @@ TDD for file upload functionality in the API.
 
 import io
 import json
-import os
 from unittest.mock import patch
 
 import pytest
@@ -21,13 +20,13 @@ class TestUploadEndpoints:
         """Create test client."""
         # Enable async upload for tests
         monkeypatch.setenv("ENABLE_ASYNC_UPLOAD", "true")
-        
+
         # Need to reimport to pick up env var
         import importlib
         import sys
         if "big_mood_detector.interfaces.api.main" in sys.modules:
             importlib.reload(sys.modules["big_mood_detector.interfaces.api.main"])
-        
+
         from big_mood_detector.interfaces.api.main import app
 
         return TestClient(app)

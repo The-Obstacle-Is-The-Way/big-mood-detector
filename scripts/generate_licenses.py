@@ -13,23 +13,23 @@ from pathlib import Path
 
 def generate_license_report():
     """Generate license report using pip-licenses."""
-    
+
     # Ensure we're in the right directory
     project_root = Path(__file__).parent.parent
     licenses_dir = project_root / "LICENSES"
-    
+
     print("Generating license report...")
-    
+
     # Install pip-licenses if not present
     try:
-        import piplicenses
+        import piplicenses  # noqa: F401
     except ImportError:
         print("Installing pip-licenses...")
         subprocess.run([sys.executable, "-m", "pip", "install", "pip-licenses"], check=True)
-    
+
     # Generate markdown report
     output_file = licenses_dir / "python-dependencies.md"
-    
+
     cmd = [
         sys.executable, "-m", "piplicenses",
         "--format=markdown",
@@ -37,12 +37,12 @@ def generate_license_report():
         "--with-description",
         "--output-file", str(output_file)
     ]
-    
+
     result = subprocess.run(cmd, capture_output=True, text=True)
-    
+
     if result.returncode == 0:
         print(f"License report generated: {output_file}")
-        
+
         # Add header to the file
         content = output_file.read_text()
         header = """# Python Dependencies License Report
@@ -54,9 +54,9 @@ Last generated: {}
 ---
 
 """.format(subprocess.run(["date"], capture_output=True, text=True).stdout.strip())
-        
+
         output_file.write_text(header + content)
-        
+
         # Also generate a CSV for easier processing
         csv_file = licenses_dir / "python-dependencies.csv"
         subprocess.run([
@@ -66,7 +66,7 @@ Last generated: {}
             "--output-file", str(csv_file)
         ])
         print(f"CSV report generated: {csv_file}")
-        
+
     else:
         print(f"Error generating report: {result.stderr}")
         sys.exit(1)
@@ -74,19 +74,19 @@ Last generated: {}
 
 def check_license_compatibility():
     """Check for license compatibility issues."""
-    
+
     # Known problematic licenses for Apache 2.0
     incompatible = ["GPL", "AGPL", "LGPL"]  # Simplified check
-    
+
     project_root = Path(__file__).parent.parent
     csv_file = project_root / "LICENSES" / "python-dependencies.csv"
-    
+
     if not csv_file.exists():
         print("No CSV file found. Run generate_license_report first.")
         return
-    
+
     print("\nChecking license compatibility...")
-    
+
     issues = []
     with open(csv_file) as f:
         import csv
@@ -94,11 +94,11 @@ def check_license_compatibility():
         for row in reader:
             license_name = row.get("License", "")
             package = row.get("Name", "")
-            
+
             for incomp in incompatible:
                 if incomp in license_name and "LGPL with exceptions" not in license_name:
                     issues.append(f"{package}: {license_name}")
-    
+
     if issues:
         print("⚠️  Potential license compatibility issues:")
         for issue in issues:
@@ -109,13 +109,13 @@ def check_license_compatibility():
 
 def create_attribution_file():
     """Create attribution file for binary distributions."""
-    
+
     project_root = Path(__file__).parent.parent
     attribution_file = project_root / "LICENSES" / "ATTRIBUTION.txt"
-    
+
     content = """Big Mood Detector - Third Party Attributions
 
-This file contains attributions for third-party software included in 
+This file contains attributions for third-party software included in
 Big Mood Detector binary distributions.
 
 ================================================================================
@@ -174,7 +174,7 @@ Big Mood Detector binary distributions.
 
 For complete license texts, see the individual LICENSE files in this directory.
 """
-    
+
     attribution_file.write_text(content)
     print(f"\nAttribution file created: {attribution_file}")
 
@@ -183,7 +183,7 @@ if __name__ == "__main__":
     generate_license_report()
     check_license_compatibility()
     create_attribution_file()
-    
+
     print("\n✅ License documentation complete!")
     print("Remember to:")
     print("1. Review the generated reports for accuracy")

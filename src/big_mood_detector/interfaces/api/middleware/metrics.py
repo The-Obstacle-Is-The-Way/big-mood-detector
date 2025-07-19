@@ -5,12 +5,12 @@ Tracks API performance and model predictions.
 """
 
 import time
-from typing import Callable
+from collections.abc import Callable
+from typing import Any
 
-from prometheus_client import Counter, Histogram, Gauge, generate_latest
 from fastapi import Request, Response
 from fastapi.responses import PlainTextResponse
-
+from prometheus_client import Counter, Gauge, Histogram, generate_latest
 
 # Metrics definitions
 REQUEST_COUNT = Counter(
@@ -63,38 +63,39 @@ async def metrics_middleware(request: Request, call_next: Callable) -> Response:
     """
     # Skip metrics endpoint itself
     if request.url.path == "/metrics":
-        return await call_next(request)
-    
+        response = await call_next(request)
+        return cast(Response, response)
+
     # Start timer
     start_time = time.time()
-    
+
     # Process request
     response = await call_next(request)
-    
+
     # Record metrics
     duration = time.time() - start_time
-    
+
     # Get endpoint without parameters
     endpoint = request.url.path
-    
+
     REQUEST_COUNT.labels(
         method=request.method,
         endpoint=endpoint,
         status_code=response.status_code
     ).inc()
-    
+
     REQUEST_DURATION.labels(
         method=request.method,
         endpoint=endpoint
     ).observe(duration)
-    
+
     return response
 
 
-def track_prediction(model_type: str, prediction_type: str, latency: float):
+def track_prediction(model_type: str, prediction_type: str, latency: float) -> None:
     """
     Track a prediction event.
-    
+
     Args:
         model_type: "xgboost", "pat", or "ensemble"
         prediction_type: "depression", "hypomanic", or "manic"
@@ -104,27 +105,27 @@ def track_prediction(model_type: str, prediction_type: str, latency: float):
         model_type=model_type,
         prediction_type=prediction_type
     ).inc()
-    
+
     PREDICTION_LATENCY.labels(
         model_type=model_type
     ).observe(latency)
 
 
-def track_ensemble_request(pat_available: bool):
+def track_ensemble_request(pat_available: bool) -> None:
     """Track ensemble prediction request."""
     ENSEMBLE_REQUESTS.labels(
         pat_available=str(pat_available).lower()
     ).inc()
 
 
-def track_risk_values(depression: float, hypomanic: float, manic: float):
+def track_risk_values(depression: float, hypomanic: float, manic: float) -> None:
     """Track risk prediction values for distribution analysis."""
     RISK_PREDICTIONS.labels(risk_type="depression").observe(depression)
     RISK_PREDICTIONS.labels(risk_type="hypomanic").observe(hypomanic)
     RISK_PREDICTIONS.labels(risk_type="manic").observe(manic)
 
 
-def update_model_status(model_name: str, loaded: bool):
+def update_model_status(model_name: str, loaded: bool) -> None:
     """Update model load status."""
     MODEL_LOAD_STATUS.labels(model_name=model_name).set(1 if loaded else 0)
 
@@ -132,7 +133,7 @@ def update_model_status(model_name: str, loaded: bool):
 async def metrics_endpoint(request: Request) -> PlainTextResponse:
     """
     Prometheus metrics endpoint.
-    
+
     Returns metrics in Prometheus text format.
     """
     metrics = generate_latest()
@@ -142,18 +143,18 @@ async def metrics_endpoint(request: Request) -> PlainTextResponse:
     )
 
 
-def setup_metrics(app):
+def setup_metrics(app: Any) -> Any:
     """
     Set up metrics collection for the FastAPI app.
     """
     # Add middleware
     @app.middleware("http")
-    async def add_metrics_middleware(request: Request, call_next):
+    async def add_metrics_middleware(request: Request, call_next: Callable) -> Response:
         return await metrics_middleware(request, call_next)
-    
+
     # Add metrics endpoint
     @app.get("/metrics", include_in_schema=False)
-    async def get_metrics(request: Request):
+    async def get_metrics(request: Request) -> PlainTextResponse:
         return await metrics_endpoint(request)
-    
+
     return app

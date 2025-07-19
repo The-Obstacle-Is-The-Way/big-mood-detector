@@ -180,11 +180,11 @@ class InteractiveSession:
         ]
 
         console.print("\n[bold]What was the mood state on this day?[/bold]")
-        for choice in choices:
-            console.print(f"  {choice}")
+        for choice_text in choices:
+            console.print(f"  {choice_text}")
 
         # Use regular click prompt instead of IntPrompt which has issues with choices
-        choice = click.prompt("Choice", type=click.IntRange(1, 6))
+        choice: int = click.prompt("Choice", type=click.IntRange(1, 6))
 
         mood_map = {
             1: "depressive",
