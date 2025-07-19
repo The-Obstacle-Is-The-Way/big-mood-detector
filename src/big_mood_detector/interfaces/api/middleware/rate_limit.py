@@ -121,9 +121,11 @@ def setup_rate_limiting(app):
         # Add rate limit headers if they exist
         if hasattr(request.state, "view_rate_limit"):
             limit_info = request.state.view_rate_limit
-            response.headers["X-RateLimit-Limit"] = str(limit_info["limit"])
-            response.headers["X-RateLimit-Remaining"] = str(limit_info["remaining"])
-            response.headers["X-RateLimit-Reset"] = str(limit_info["reset"])
+            # Check if limit_info is a dict (not a tuple)
+            if isinstance(limit_info, dict):
+                response.headers["X-RateLimit-Limit"] = str(limit_info.get("limit", ""))
+                response.headers["X-RateLimit-Remaining"] = str(limit_info.get("remaining", ""))
+                response.headers["X-RateLimit-Reset"] = str(limit_info.get("reset", ""))
         
         return response
     
@@ -140,19 +142,24 @@ if not DISABLE_RATE_LIMIT:
         
         Returns more informative error messages.
         """
+        # Safely get rate limit info
+        limit_info = getattr(request.state, "view_rate_limit", {})
+        if not isinstance(limit_info, dict):
+            limit_info = {}
+            
         response = {
             "error": "rate_limit_exceeded",
             "message": f"Rate limit exceeded: {exc.detail}",
-            "retry_after": request.state.view_rate_limit.get("reset", 60),
+            "retry_after": limit_info.get("reset", 60),
         }
         
         return Response(
             content=response,
             status_code=429,
             headers={
-                "Retry-After": str(request.state.view_rate_limit.get("reset", 60)),
-                "X-RateLimit-Limit": str(request.state.view_rate_limit.get("limit", 0)),
+                "Retry-After": str(limit_info.get("reset", 60)),
+                "X-RateLimit-Limit": str(limit_info.get("limit", 0)),
                 "X-RateLimit-Remaining": "0",
-                "X-RateLimit-Reset": str(request.state.view_rate_limit.get("reset", 0)),
+                "X-RateLimit-Reset": str(limit_info.get("reset", 0)),
             },
         )

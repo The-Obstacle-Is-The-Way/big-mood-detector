@@ -21,6 +21,7 @@ Design Principles:
 
 from dataclasses import dataclass, field
 from datetime import date, timedelta
+from typing import Any
 
 import numpy as np
 
@@ -173,6 +174,15 @@ class ClinicalFeatureSet:
     date: date
     seoul_features: SeoulXGBoostFeatures
     pat_sequence: PATSequence | None = None
+    
+    # Activity features - DIRECT ATTRIBUTES for API exposure
+    # These extend the original Seoul study features
+    total_steps: float = 0.0
+    activity_variance: float = 0.0
+    sedentary_hours: float = 24.0
+    activity_fragmentation: float = 0.0
+    sedentary_bout_mean: float = 24.0
+    activity_intensity_ratio: float = 0.0
 
     # Clinical indicators
     is_clinically_significant: bool = False
@@ -182,6 +192,34 @@ class ClinicalFeatureSet:
     depression_risk_score: float | None = None
     mania_risk_score: float | None = None
     hypomania_risk_score: float | None = None
+    
+    def to_dict(self) -> dict[str, Any]:
+        """Convert to dictionary for DataFrame creation."""
+        from typing import Any
+        
+        result = {
+            "date": self.date,
+            # Direct activity features
+            "total_steps": self.total_steps,
+            "activity_variance": self.activity_variance,
+            "sedentary_hours": self.sedentary_hours,
+            "activity_fragmentation": self.activity_fragmentation,
+            "sedentary_bout_mean": self.sedentary_bout_mean,
+            "activity_intensity_ratio": self.activity_intensity_ratio,
+        }
+        
+        # Add Seoul features if available
+        if self.seoul_features:
+            seoul_dict = {
+                "sleep_duration_hours": self.seoul_features.sleep_duration_hours,
+                "sleep_efficiency": self.seoul_features.sleep_efficiency,
+                "sleep_onset_hour": self.seoul_features.sleep_onset_hour,
+                "wake_time_hour": self.seoul_features.wake_time_hour,
+                # Add more as needed for DataFrame export
+            }
+            result.update(seoul_dict)
+            
+        return result
 
 
 class ClinicalFeatureExtractor:

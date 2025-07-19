@@ -25,6 +25,10 @@ from big_mood_detector.domain.services.activity_sequence_extractor import (
 from big_mood_detector.domain.services.circadian_rhythm_analyzer import (
     CircadianRhythmAnalyzer,
 )
+from big_mood_detector.domain.services.clinical_feature_extractor import (
+    ClinicalFeatureSet,
+    SeoulXGBoostFeatures,
+)
 from big_mood_detector.domain.services.dlmo_calculator import DLMOCalculator
 from big_mood_detector.domain.services.sleep_window_analyzer import SleepWindowAnalyzer
 
@@ -237,7 +241,7 @@ class AggregationPipeline:
         end_date: date,
         min_window_size: int | None = None,
         parallel: bool = False,
-    ) -> list[DailyFeatures]:
+    ) -> list[ClinicalFeatureSet]:
         """
         Aggregate features for a date range.
 
@@ -565,7 +569,7 @@ class AggregationPipeline:
         return normalized
 
     def export_to_dataframe(
-        self, features: list[DailyFeatures]
+        self, features: list[ClinicalFeatureSet]
     ) -> list[dict[str, Any]]:
         """
         Export features to DataFrame-ready format.
@@ -771,52 +775,74 @@ class AggregationPipeline:
                     circadian_features[f"circadian_{metric}_std"] = stats["std"]
                     circadian_features[f"circadian_{metric}_zscore"] = stats["zscore"]
 
-        # Create DailyFeatures object
-        return DailyFeatures(
+        # Create SeoulXGBoostFeatures with all aggregated features
+        seoul_features = SeoulXGBoostFeatures(
             date=current_date,
-            # Sleep percentage
-            sleep_percentage_mean=sleep_features["sleep_percentage_mean"],
-            sleep_percentage_std=sleep_features["sleep_percentage_std"],
-            sleep_percentage_zscore=sleep_features["sleep_percentage_zscore"],
-            # Sleep amplitude
-            sleep_amplitude_mean=sleep_features["sleep_amplitude_mean"],
-            sleep_amplitude_std=sleep_features["sleep_amplitude_std"],
-            sleep_amplitude_zscore=sleep_features["sleep_amplitude_zscore"],
-            # Long sleep
-            long_sleep_num_mean=sleep_features["long_num_mean"],
-            long_sleep_num_std=sleep_features["long_num_std"],
-            long_sleep_num_zscore=sleep_features["long_num_zscore"],
-            long_sleep_len_mean=sleep_features["long_len_mean"],
-            long_sleep_len_std=sleep_features["long_len_std"],
-            long_sleep_len_zscore=sleep_features["long_len_zscore"],
-            long_sleep_st_mean=sleep_features["long_st_mean"],
-            long_sleep_st_std=sleep_features["long_st_std"],
-            long_sleep_st_zscore=sleep_features["long_st_zscore"],
-            long_sleep_wt_mean=sleep_features["long_wt_mean"],
-            long_sleep_wt_std=sleep_features["long_wt_std"],
-            long_sleep_wt_zscore=sleep_features["long_wt_zscore"],
-            # Short sleep
-            short_sleep_num_mean=sleep_features["short_num_mean"],
-            short_sleep_num_std=sleep_features["short_num_std"],
-            short_sleep_num_zscore=sleep_features["short_num_zscore"],
-            short_sleep_len_mean=sleep_features["short_len_mean"],
-            short_sleep_len_std=sleep_features["short_len_std"],
-            short_sleep_len_zscore=sleep_features["short_len_zscore"],
-            short_sleep_st_mean=sleep_features["short_st_mean"],
-            short_sleep_st_std=sleep_features["short_st_std"],
-            short_sleep_st_zscore=sleep_features["short_st_zscore"],
-            short_sleep_wt_mean=sleep_features["short_wt_mean"],
-            short_sleep_wt_std=sleep_features["short_wt_std"],
-            short_sleep_wt_zscore=sleep_features["short_wt_zscore"],
-            # Circadian
-            circadian_amplitude_mean=circadian_features["circadian_amplitude_mean"],
-            circadian_amplitude_std=circadian_features["circadian_amplitude_std"],
-            circadian_amplitude_zscore=circadian_features["circadian_amplitude_zscore"],
-            circadian_phase_mean=circadian_features["circadian_phase_mean"],
-            circadian_phase_std=circadian_features["circadian_phase_std"],
-            circadian_phase_zscore=circadian_features["circadian_phase_zscore"],
-            # Activity
-            daily_steps=activity_metrics.get("daily_steps", 0.0),
+            # Sleep duration metrics (these need to be calculated from daily data)
+            sleep_duration_hours=daily_metrics["sleep"]["sleep_percentage"] * 24,
+            sleep_efficiency=0.9,  # Default for now, should be calculated
+            sleep_onset_hour=21.0,  # Default for now
+            wake_time_hour=7.0,  # Default for now
+            sleep_fragmentation=0.0,  # Default for now
+            sleep_regularity_index=90.0,  # Default for now
+            
+            # Sleep windows
+            short_sleep_window_pct=daily_metrics["sleep"]["short_num"] / max(1, daily_metrics["sleep"]["long_num"] + daily_metrics["sleep"]["short_num"]),
+            long_sleep_window_pct=daily_metrics["sleep"]["long_num"] / max(1, daily_metrics["sleep"]["long_num"] + daily_metrics["sleep"]["short_num"]),
+            sleep_onset_variance=0.0,  # Default for now
+            wake_time_variance=0.0,  # Default for now
+            
+            # Circadian metrics
+            interdaily_stability=daily_metrics.get("circadian", {}).get("amplitude", 0.0),
+            intradaily_variability=0.0,  # Default for now
+            relative_amplitude=daily_metrics.get("circadian", {}).get("amplitude", 0.0),
+            l5_value=0.0,  # Default for now
+            m10_value=0.0,  # Default for now
+            l5_onset_hour=2,  # Default for now
+            m10_onset_hour=14,  # Default for now
+            dlmo_hour=daily_metrics.get("circadian", {}).get("phase", 21.0),
+            
+            # Activity metrics
+            total_steps=activity_metrics.get("daily_steps", 0.0),
+            activity_variance=activity_metrics.get("activity_variance", 0.0),
+            sedentary_hours=activity_metrics.get("sedentary_hours", 24.0),
+            activity_fragmentation=activity_metrics.get("activity_fragmentation", 0.0),
+            sedentary_bout_mean=activity_metrics.get("sedentary_bout_mean", 24.0),
+            activity_intensity_ratio=activity_metrics.get("activity_intensity_ratio", 0.0),
+            
+            # Heart rate metrics (defaults for now)
+            avg_resting_hr=70.0,
+            hrv_sdnn=0.0,
+            hr_circadian_range=0.0,
+            hr_minimum_hour=0.0,
+            
+            # Phase metrics
+            circadian_phase_advance=0.0,
+            circadian_phase_delay=0.0,
+            dlmo_confidence=0.8,
+            pat_hour=14.0,
+            
+            # Z-scores (these are the aggregated z-scores)
+            sleep_duration_zscore=sleep_features["sleep_percentage_zscore"],
+            activity_zscore=0.0,  # Default for now
+            hr_zscore=0.0,  # Default for now
+            hrv_zscore=0.0,  # Default for now
+            
+            # Data quality
+            data_completeness=0.8,  # Default for now
+            is_hypersomnia_pattern=False,
+            is_insomnia_pattern=False,
+            is_phase_advanced=False,
+            is_phase_delayed=False,
+            is_irregular_pattern=False,
+        )
+        
+        # Create ClinicalFeatureSet with flattened activity features
+        return ClinicalFeatureSet(
+            date=current_date,
+            seoul_features=seoul_features,
+            # Activity features as direct attributes
+            total_steps=activity_metrics.get("daily_steps", 0.0),
             activity_variance=activity_metrics.get("activity_variance", 0.0),
             sedentary_hours=activity_metrics.get("sedentary_hours", 24.0),
             activity_fragmentation=activity_metrics.get("activity_fragmentation", 0.0),

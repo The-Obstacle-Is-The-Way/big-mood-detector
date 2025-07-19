@@ -78,10 +78,12 @@ def test_pipeline_returns_clinical_feature_set(sample_sleep_records, sample_acti
     assert result_list, "Pipeline returned no daily features"
     daily = result_list[0]
     
+    # First assertion: Should return ClinicalFeatureSet, not DailyFeatures
     assert isinstance(
         daily, ClinicalFeatureSet
     ), f"Expected ClinicalFeatureSet, got {type(daily)}"
     
-    # Activity stats must be top-level, not nested
+    # Second assertion: Activity stats must be top-level, not nested
+    # Currently they exist on DailyFeatures but we want them flattened on ClinicalFeatureSet
     for field in ("total_steps", "activity_variance", "sedentary_hours"):
         assert hasattr(daily, field), f"{field} should be a direct attribute"
