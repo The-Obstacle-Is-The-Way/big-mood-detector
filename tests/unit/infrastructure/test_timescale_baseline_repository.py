@@ -129,6 +129,21 @@ class BaselineRepositoryContract:
 class TestFileBaselineRepository(BaselineRepositoryContract):
     """Test FileBaselineRepository against the contract"""
     
+    @pytest.fixture(autouse=True)
+    def cleanup_test_files(self):
+        """Clean up test files before and after each test to ensure isolation"""
+        test_path = Path("./temp_test_baselines")
+        
+        # Clean before test
+        if test_path.exists():
+            shutil.rmtree(test_path)
+        
+        yield  # Run the test
+        
+        # Clean after test
+        if test_path.exists():
+            shutil.rmtree(test_path)
+    
     def get_repository(self) -> BaselineRepositoryInterface:
         return FileBaselineRepository(base_path=Path("./temp_test_baselines"))
 
@@ -321,37 +336,49 @@ class TestBaselineRepositoryIntegration:
         )
         
         # Set up both repositories
-        file_repo = FileBaselineRepository(Path("./test_interop_data"))
-        timescale_repo = TimescaleBaselineRepository(
-            connection_string=postgres_container.get_connection_url(),
-            enable_feast_sync=False
-        )
+        test_path = Path("./test_interop_data")
         
-        baseline = UserBaseline(
-            user_id="interop_test_user",
-            baseline_date=date(2024, 1, 15),
-            sleep_mean=7.5,
-            sleep_std=1.2,
-            activity_mean=8000.0,
-            activity_std=2000.0,
-            circadian_phase=22.0,
-            last_updated=datetime(2024, 1, 15, 10, 30),
-            data_points=30
-        )
+        # Clean up before test
+        if test_path.exists():
+            shutil.rmtree(test_path)
         
-        # Both should handle the same data identically
-        file_repo.save_baseline(baseline)
-        timescale_repo.save_baseline(baseline)
+        try:
+            file_repo = FileBaselineRepository(test_path)
+            timescale_repo = TimescaleBaselineRepository(
+                connection_string=postgres_container.get_connection_url(),
+                enable_feast_sync=False
+            )
+            
+            baseline = UserBaseline(
+                user_id="interop_test_user",
+                baseline_date=date(2024, 1, 15),
+                sleep_mean=7.5,
+                sleep_std=1.2,
+                activity_mean=8000.0,
+                activity_std=2000.0,
+                circadian_phase=22.0,
+                last_updated=datetime(2024, 1, 15, 10, 30),
+                data_points=30
+            )
+            
+            # Both should handle the same data identically
+            file_repo.save_baseline(baseline)
+            timescale_repo.save_baseline(baseline)
+            
+            file_result = file_repo.get_baseline(baseline.user_id)
+            timescale_result = timescale_repo.get_baseline(baseline.user_id)
+            
+            # Results should be equivalent (allowing for minor serialization differences)
+            assert file_result.user_id == timescale_result.user_id
+            assert file_result.baseline_date == timescale_result.baseline_date
+            assert abs(file_result.sleep_mean - timescale_result.sleep_mean) < 0.001
+            assert abs(file_result.sleep_std - timescale_result.sleep_std) < 0.001
+            assert abs(file_result.activity_mean - timescale_result.activity_mean) < 0.001
+            assert abs(file_result.activity_std - timescale_result.activity_std) < 0.001
+            assert abs(file_result.circadian_phase - timescale_result.circadian_phase) < 0.001
+            assert file_result.data_points == timescale_result.data_points
         
-        file_result = file_repo.get_baseline(baseline.user_id)
-        timescale_result = timescale_repo.get_baseline(baseline.user_id)
-        
-        # Results should be equivalent (allowing for minor serialization differences)
-        assert file_result.user_id == timescale_result.user_id
-        assert file_result.baseline_date == timescale_result.baseline_date
-        assert abs(file_result.sleep_mean - timescale_result.sleep_mean) < 0.001
-        assert abs(file_result.sleep_std - timescale_result.sleep_std) < 0.001
-        assert abs(file_result.activity_mean - timescale_result.activity_mean) < 0.001
-        assert abs(file_result.activity_std - timescale_result.activity_std) < 0.001
-        assert abs(file_result.circadian_phase - timescale_result.circadian_phase) < 0.001
-        assert file_result.data_points == timescale_result.data_points 
+        finally:
+            # Clean up after test
+            if test_path.exists():
+                shutil.rmtree(test_path) 
