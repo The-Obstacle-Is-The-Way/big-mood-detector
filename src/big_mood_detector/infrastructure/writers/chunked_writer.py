@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 class ChunkedWriter:
     """
     Write data in chunks to avoid memory issues.
-    
+
     Useful for processing very large XML files where keeping
     all records in memory would be problematic.
     """
@@ -30,7 +30,7 @@ class ChunkedWriter:
     ):
         """
         Initialize chunked writer.
-        
+
         Args:
             output_path: Path to output file
             format: Output format ('csv' or 'parquet')
@@ -90,7 +90,7 @@ class ChunkedWriter:
     def finalize(self) -> Path:
         """
         Write any remaining records and finalize output.
-        
+
         Returns:
             Path to final output file
         """
@@ -146,7 +146,7 @@ class ChunkedWriter:
 class StreamingFeatureWriter(ChunkedWriter):
     """
     Specialized writer for streaming feature extraction results.
-    
+
     Converts domain entities to feature dictionaries on the fly.
     """
 
@@ -163,7 +163,7 @@ class StreamingFeatureWriter(ChunkedWriter):
     def write_features(self, date: str, features: dict[str, float]) -> None:
         """
         Write a day's features.
-        
+
         Args:
             date: Date string (YYYY-MM-DD)
             features: Feature dictionary
@@ -176,7 +176,7 @@ class StreamingFeatureWriter(ChunkedWriter):
     def write_clinical_features(self, clinical_features: Any) -> None:
         """
         Write clinical features from domain object.
-        
+
         Args:
             clinical_features: ClinicalFeatureSet object
         """
@@ -195,3 +195,4 @@ class StreamingFeatureWriter(ChunkedWriter):
             # Add more fields as needed
         }
         self.write_record(record)
+

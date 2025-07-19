@@ -39,7 +39,7 @@ logger = logging.getLogger(__name__)
 class FastStreamingXMLParser:
     """
     High-performance XML parser using lxml for 20x speed improvement.
-    
+
     Key optimizations:
     - Uses lxml's C-based parser (20x faster than stdlib)
     - Implements fast_iter pattern for memory efficiency
@@ -72,7 +72,7 @@ class FastStreamingXMLParser:
     ) -> Generator[Any, None, None]:
         """
         Fast iteration pattern that clears elements to save memory.
-        
+
         Based on Liza Daly's fast_iter pattern, optimized for date filtering.
         """
         for _event, elem in context:
@@ -124,13 +124,13 @@ class FastStreamingXMLParser:
     ) -> Generator[dict[str, Any], None, None]:
         """
         Stream records from XML file with optimized filtering.
-        
+
         Args:
             file_path: Path to the XML file
             record_types: Set of record types to filter (faster than list)
             start_date: Start date for filtering
             end_date: End date for filtering
-            
+
         Yields:
             Dictionary of record attributes
         """
@@ -189,13 +189,13 @@ class FastStreamingXMLParser:
     ) -> Generator[SleepRecord | ActivityRecord | HeartRateRecord, None, None]:
         """
         Parse file and yield domain entities with optimized performance.
-        
+
         Args:
             file_path: Path to the XML file
             entity_type: Type of entities to parse ('sleep', 'activity', 'heart', 'all')
             start_date: Optional start date (YYYY-MM-DD format)
             end_date: Optional end date (YYYY-MM-DD format)
-            
+
         Yields:
             Domain entities
         """
@@ -261,14 +261,14 @@ class FastStreamingXMLParser:
     ) -> Generator[list[Any], None, None]:
         """
         Parse file and yield entities in batches for better performance.
-        
+
         Args:
             file_path: Path to the XML file
             batch_size: Number of entities per batch (increased for performance)
             entity_type: Type of entities to parse
             start_date: Optional start date filter
             end_date: Optional end date filter
-            
+
         Yields:
             List of domain entities
         """
@@ -293,7 +293,7 @@ class FastStreamingXMLParser:
     ) -> dict[str, int]:
         """
         Quickly count records by type within date range without full parsing.
-        
+
         Useful for progress estimation and data quality checks.
         """
         counts = {
@@ -342,3 +342,4 @@ class FastStreamingXMLParser:
                 record.set(key, str(value))
 
         return root
+
