@@ -10,8 +10,8 @@ from unittest.mock import Mock
 
 import pytest
 
-from big_mood_detector.domain.entities.activity_record import ActivityRecord
-from big_mood_detector.domain.entities.heart_rate_record import HeartRateRecord
+from big_mood_detector.domain.entities.activity_record import ActivityRecord, ActivityType
+from big_mood_detector.domain.entities.heart_rate_record import HeartRateRecord, HeartMetricType
 from big_mood_detector.domain.entities.sleep_record import SleepRecord, SleepState
 from big_mood_detector.domain.repositories.baseline_repository_interface import (
     BaselineRepositoryInterface,
@@ -28,60 +28,72 @@ class TestClinicalFeatureExtractorWithCalibration:
     @pytest.fixture
     def mock_baseline_repository(self):
         """Create mock baseline repository."""
-        return Mock(spec=BaselineRepositoryInterface)
+        mock_repo = Mock(spec=BaselineRepositoryInterface)
+        
+        # Mock baseline data that AdvancedFeatureEngineer expects
+        mock_baseline = UserBaseline(
+            user_id="test_user",
+            baseline_date=date(2024, 1, 1),
+            sleep_mean=7.5,  # 7.5 hours average
+            sleep_std=1.0,   # 1 hour standard deviation
+            activity_mean=8000.0,  # 8000 steps average
+            activity_std=2000.0,   # 2000 steps standard deviation
+            circadian_phase=22.0,  # 10 PM phase
+            last_updated=datetime(2024, 1, 1, 0, 0),
+            data_points=30
+        )
+        
+        mock_repo.get_baseline.return_value = mock_baseline
+        mock_repo.save_baseline.return_value = None
+        
+        return mock_repo
 
     @pytest.fixture
     def sample_records(self):
-        """Create sample health records."""
-        base_date = datetime(2024, 1, 15, 23, 0)
-        
+        """Create sample records for testing."""
         sleep_records = []
         activity_records = []
-        heart_records = []
-        
-        for i in range(14):  # 2 weeks of data
-            record_date = base_date - timedelta(days=i)
-            
+        heart_rate_records = []
+
+        # Create 30 days of sample data
+        for i in range(30):
+            record_date = date(2024, 1, 1) + timedelta(days=i)
+            record_datetime = datetime.combine(record_date, time(9, 0))
+
             # Sleep record
             sleep_records.append(
                 SleepRecord(
                     source_name="com.apple.health",
-                    start_date=record_date,
-                    end_date=record_date + timedelta(hours=8),
+                    start_date=datetime.combine(record_date, time(23, 0)),  # Sleep starts at 11 PM
+                    end_date=datetime.combine(record_date + timedelta(days=1), time(7, 0)),  # Ends at 7 AM next day
                     state=SleepState.IN_BED,
                 )
             )
-            
+
             # Activity record
             activity_records.append(
                 ActivityRecord(
-                    id=f"activity_{i}",
-                    start_date=record_date.replace(hour=10),
-                    end_date=record_date.replace(hour=10) + timedelta(minutes=30),
-                    activity_type="Walking",
-                    duration_minutes=30,
-                    distance_meters=2000,
-                    step_count=2500,
-                    energy_burned=100,
-                    source="com.apple.health",
-                    metadata={},
+                    source_name="com.apple.health",
+                    start_date=record_datetime,
+                    end_date=record_datetime + timedelta(hours=1),
+                    activity_type=ActivityType.STEP_COUNT,
+                    value=1000.0 + i * 100,  # Varying step counts
+                    unit="count",
                 )
             )
-            
+
             # Heart rate record
-            heart_records.append(
+            heart_rate_records.append(
                 HeartRateRecord(
-                    id=f"hr_{i}",
-                    start_date=record_date.replace(hour=12),
-                    end_date=record_date.replace(hour=12) + timedelta(minutes=1),
-                    value=65,
+                    source_name="com.apple.health",
+                    timestamp=record_datetime,
+                    metric_type=HeartMetricType.HEART_RATE,
+                    value=70.0 + i,  # Varying heart rates
                     unit="bpm",
-                    source="com.apple.health",
-                    metadata={},
                 )
             )
-        
-        return sleep_records, activity_records, heart_records
+
+        return sleep_records, activity_records, heart_rate_records
 
     def test_feature_extractor_accepts_calibration_params(self):
         """Test that ClinicalFeatureExtractor can be initialized with calibration."""
