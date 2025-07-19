@@ -458,21 +458,95 @@ def setup_dependencies(settings: Any) -> Container:
     container.register_singleton(type(settings), settings)
 
     # Register domain services
+    # Load clinical thresholds configuration
+    from pathlib import Path
+
     from big_mood_detector.domain.services.activity_sequence_extractor import (
         ActivitySequenceExtractor,
+    )
+    from big_mood_detector.domain.services.biomarker_interpreter import (
+        BiomarkerInterpreter,
     )
     from big_mood_detector.domain.services.circadian_rhythm_analyzer import (
         CircadianRhythmAnalyzer,
     )
+    from big_mood_detector.domain.services.clinical_assessment_service import (
+        ClinicalAssessmentService,
+    )
     from big_mood_detector.domain.services.clinical_feature_extractor import (
         ClinicalFeatureExtractor,
     )
+    from big_mood_detector.domain.services.clinical_interpreter import (
+        ClinicalInterpreter,
+    )
+    from big_mood_detector.domain.services.clinical_thresholds import (
+        ClinicalThresholdsConfig,
+        load_clinical_thresholds,
+    )
     from big_mood_detector.domain.services.dlmo_calculator import DLMOCalculator
+    from big_mood_detector.domain.services.dsm5_criteria_evaluator import (
+        DSM5CriteriaEvaluator,
+    )
+    from big_mood_detector.domain.services.early_warning_detector import (
+        EarlyWarningDetector,
+    )
+    from big_mood_detector.domain.services.episode_interpreter import (
+        EpisodeInterpreter,
+    )
+    from big_mood_detector.domain.services.intervention_evaluation_service import (
+        InterventionEvaluationService,
+    )
+    from big_mood_detector.domain.services.longitudinal_assessment_service import (
+        LongitudinalAssessmentService,
+    )
+    from big_mood_detector.domain.services.risk_level_assessor import (
+        RiskLevelAssessor,
+    )
     from big_mood_detector.domain.services.sleep_window_analyzer import (
         SleepWindowAnalyzer,
     )
     from big_mood_detector.domain.services.sparse_data_handler import SparseDataHandler
+    from big_mood_detector.domain.services.treatment_recommender import (
+        TreatmentRecommender,
+    )
+    config_path = Path("config/clinical_thresholds.yaml")
+    if not config_path.exists():
+        # Try relative to data directory
+        fallback_path = getattr(settings, "DATA_DIR", Path("data")) / "config" / "clinical_thresholds.yaml"
+        logger.debug(
+            "clinical_config_path_fallback",
+            primary_path=str(config_path),
+            fallback_path=str(fallback_path),
+        )
+        config_path = fallback_path
 
+    if config_path.exists():
+        logger.info("loading_clinical_config", path=str(config_path))
+        clinical_config = load_clinical_thresholds(config_path)
+        container.register_singleton(ClinicalThresholdsConfig, clinical_config)
+    else:
+        logger.warning("clinical_config_not_found", attempted_paths=[
+            "config/clinical_thresholds.yaml",
+            str(config_path)
+        ])
+
+    # Register core services first (many others depend on these)
+    container.register_singleton(DSM5CriteriaEvaluator)
+    container.register_singleton(TreatmentRecommender)
+    container.register_singleton(EpisodeInterpreter)
+    container.register_singleton(BiomarkerInterpreter)
+    container.register_singleton(RiskLevelAssessor)
+    container.register_singleton(EarlyWarningDetector)
+
+    # Register new services extracted from clinical_interpreter
+    container.register_singleton(ClinicalAssessmentService)
+    container.register_singleton(LongitudinalAssessmentService)
+    container.register_singleton(InterventionEvaluationService)
+
+    # Register clinical interpreter (depends on many services)
+    container.register_singleton(ClinicalInterpreter)
+
+    # Register other domain services
     container.register_singleton(SleepWindowAnalyzer)
     container.register_singleton(ActivitySequenceExtractor)
     container.register_singleton(CircadianRhythmAnalyzer)

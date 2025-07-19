@@ -220,3 +220,95 @@ def _patch_pat_model(monkeypatch):
             pat_stub,
         )
         yield
+
+
+# Clinical Configuration Fixtures
+# ================================
+# These fixtures help avoid duplicating clinical configuration in tests
+
+from copy import deepcopy
+from pathlib import Path
+from tempfile import NamedTemporaryFile
+
+import yaml
+
+from big_mood_detector.domain.services.clinical_thresholds import (
+    ClinicalThresholdsConfig,
+    load_clinical_thresholds,
+)
+
+
+@pytest.fixture(scope="session")
+def clinical_config_path():
+    """Path to the real clinical thresholds config file."""
+    config_path = Path(__file__).parent.parent / "config" / "clinical_thresholds.yaml"
+    if not config_path.exists():
+        pytest.skip(f"Clinical config not found at {config_path}")
+    return config_path
+
+
+@pytest.fixture(scope="session")
+def clinical_config_dict(clinical_config_path):
+    """Load clinical config as a dictionary."""
+    with open(clinical_config_path) as f:
+        return yaml.safe_load(f)
+
+
+@pytest.fixture
+def clinical_config(clinical_config_path):
+    """
+    Load clinical thresholds config from real file.
+    
+    Returns a fresh instance for each test to ensure test isolation.
+    """
+    return load_clinical_thresholds(clinical_config_path)
+
+
+@pytest.fixture
+def clinical_config_mutable(clinical_config_dict):
+    """
+    Mutable copy of clinical config dictionary for tests that need to modify values.
+    
+    Use this when you need to test with modified thresholds.
+    """
+    return deepcopy(clinical_config_dict)
+
+
+@pytest.fixture
+def clinical_config_factory(clinical_config_dict):
+    """
+    Factory for creating ClinicalThresholdsConfig with custom modifications.
+    
+    Example:
+        config = clinical_config_factory(
+            depression={'phq_cutoffs': {'moderate': {'min': 15}}}
+        )
+    """
+    def _factory(**section_overrides):
+        config_dict = deepcopy(clinical_config_dict)
+        
+        # Apply overrides at the section level
+        for section, overrides in section_overrides.items():
+            if section in config_dict:
+                _deep_update(config_dict[section], overrides)
+        
+        # Write to temporary file and load
+        with NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
+            yaml.dump(config_dict, f)
+            temp_path = Path(f.name)
+        
+        try:
+            return load_clinical_thresholds(temp_path)
+        finally:
+            temp_path.unlink()
+    
+    return _factory
+
+
+def _deep_update(target: dict, source: dict) -> None:
+    """Recursively update target dict with source dict."""
+    for key, value in source.items():
+        if isinstance(value, dict) and key in target and isinstance(target[key], dict):
+            _deep_update(target[key], value)
+        else:
+            target[key] = value

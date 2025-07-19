@@ -14,6 +14,7 @@ from big_mood_detector.domain.services.clinical_thresholds import (
 from big_mood_detector.domain.services.dsm5_criteria_evaluator import (
     DSM5CriteriaEvaluator,
 )
+from big_mood_detector.domain.utils.episode_mapper import EpisodeMapper
 from big_mood_detector.domain.services.treatment_recommender import (
     TreatmentRecommender,
 )
@@ -148,15 +149,7 @@ class ClinicalAssessmentService:
             symptoms.extend(["elevated_mood", "decreased_sleep", "increased_activity"])
 
         # Map diagnosis to DSM-5 episode type
-        dsm5_episode_type = primary_diagnosis
-        if primary_diagnosis == "depressive_episode":
-            dsm5_episode_type = "depressive"
-        elif primary_diagnosis == "manic_episode":
-            dsm5_episode_type = "manic"
-        elif primary_diagnosis == "hypomanic_episode":
-            dsm5_episode_type = "hypomanic"
-        elif primary_diagnosis == "mixed_episode":
-            dsm5_episode_type = "mixed"
+        dsm5_episode_type = EpisodeMapper.to_dsm5_episode_type(primary_diagnosis)
 
         result = self.dsm5_evaluator.evaluate_complete_criteria(
             episode_type=dsm5_episode_type,
@@ -175,15 +168,7 @@ class ClinicalAssessmentService:
     ) -> list[dict[str, Any]]:
         """Get treatment recommendations."""
         # Map diagnosis to episode type expected by treatment recommender
-        episode_type = primary_diagnosis
-        if primary_diagnosis == "depressive_episode":
-            episode_type = "depressive"
-        elif primary_diagnosis == "manic_episode":
-            episode_type = "manic"
-        elif primary_diagnosis == "hypomanic_episode":
-            episode_type = "hypomanic"
-        elif primary_diagnosis == "mixed_episode":
-            episode_type = "mixed"
+        episode_type = EpisodeMapper.to_treatment_episode_type(primary_diagnosis)
 
         recommendations = self.treatment_recommender.get_recommendations(
             episode_type=episode_type,
