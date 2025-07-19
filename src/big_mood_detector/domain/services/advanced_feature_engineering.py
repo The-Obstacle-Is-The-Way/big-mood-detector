@@ -157,6 +157,7 @@ class AdvancedFeatureEngineer:
         self.population_baselines: dict[str, float] = {}
         self.baseline_repository = baseline_repository
         self.user_id = user_id
+        self._loaded_baseline = None  # Track loaded baseline for data_points accumulation
 
         # Initialize specialized calculators with config
         self.sleep_calculator = SleepFeatureCalculator(config)
@@ -520,25 +521,61 @@ class AdvancedFeatureEngineer:
     #     return self.sleep_calculator.calculate_relative_amplitude(sleep_summaries)
 
     def _update_individual_baseline(self, metric: str, value: float) -> None:
-        """Update individual baseline statistics."""
+        """Update individual baseline statistics using incremental update."""
         if metric not in self.individual_baselines:
-            self.individual_baselines[metric] = {"values": [], "mean": 0.0, "std": 0.0}
+            self.individual_baselines[metric] = {
+                "values": [], 
+                "mean": 0.0, 
+                "std": 0.0,
+                "count": 0,
+                "sum": 0.0,
+                "sum_sq": 0.0
+            }
 
         baseline = self.individual_baselines[metric]
+        
+        # If we have a loaded baseline with existing statistics but no values,
+        # initialize the incremental stats from the loaded mean/std
+        if baseline.get("count", 0) == 0 and baseline["mean"] != 0:
+            # Estimate count from loaded baseline (assuming 7 days of data minimum)
+            if hasattr(self, "_loaded_baseline") and self._loaded_baseline:
+                estimated_count = max(7, self._loaded_baseline.data_points)
+            else:
+                estimated_count = 7
+            baseline["count"] = estimated_count
+            baseline["sum"] = baseline["mean"] * estimated_count
+            # Variance = std^2, and sum_sq can be derived from variance formula
+            variance = baseline["std"] ** 2
+            baseline["sum_sq"] = (variance * estimated_count) + (baseline["sum"] ** 2 / estimated_count)
+        
+        # Add new value to baseline
         values_list = baseline["values"]
         if not isinstance(values_list, list):
             values_list = []
             baseline["values"] = values_list
         values_list.append(value)
 
-        # Keep last 30 days
+        # Update incremental statistics
+        baseline["count"] = baseline.get("count", 0) + 1
+        baseline["sum"] = baseline.get("sum", 0.0) + value
+        baseline["sum_sq"] = baseline.get("sum_sq", 0.0) + (value ** 2)
+        
+        # Calculate new mean and std using incremental formulas
+        count = baseline["count"]
+        if count > 0:
+            baseline["mean"] = baseline["sum"] / count
+            if count > 1:
+                # Variance = (sum_sq / n) - (mean^2)
+                variance = (baseline["sum_sq"] / count) - (baseline["mean"] ** 2)
+                # Handle numerical issues
+                variance = max(0, variance)
+                baseline["std"] = float(np.sqrt(variance))
+            else:
+                baseline["std"] = 0.0
+        
+        # Keep last 30 values for inspection (but don't use for calculation)
         if len(values_list) > 30:
             values_list.pop(0)
-
-        # Update statistics
-        if len(values_list) >= 3:
-            baseline["mean"] = float(np.mean(values_list))
-            baseline["std"] = float(np.std(values_list))
 
     def _calculate_zscore(self, metric: str, value: float) -> float:
         """Calculate Z-score relative to individual baseline."""
@@ -595,6 +632,9 @@ class AdvancedFeatureEngineer:
         if not baseline:
             return
 
+        # Store loaded baseline for data_points accumulation
+        self._loaded_baseline = baseline
+
         # Convert UserBaseline to internal format
         self.individual_baselines["sleep"] = {
             "values": [],  # Historical values not stored
@@ -621,11 +661,18 @@ class AdvancedFeatureEngineer:
         # Calculate circadian phase from recent data if available
         circadian_phase = 0.0  # Would calculate from recent sleep patterns
 
-        # Count data points (approximate from values list length)
-        data_points = max(
+        # Count data points - accumulate from previous baseline if exists
+        current_data_points = max(
             len(sleep_baseline.get("values", [])),
             len(activity_baseline.get("values", [])),
         )
+        
+        # Add to previous data points if we loaded a baseline
+        previous_data_points = 0
+        if hasattr(self, "_loaded_baseline") and self._loaded_baseline:
+            previous_data_points = self._loaded_baseline.data_points
+        
+        data_points = previous_data_points + current_data_points
 
         # Create UserBaseline object
         from big_mood_detector.domain.repositories.baseline_repository_interface import (
