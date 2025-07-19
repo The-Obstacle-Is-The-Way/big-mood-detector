@@ -6,7 +6,7 @@ Tracks API performance and model predictions.
 
 import time
 from collections.abc import Callable
-from typing import Any
+from typing import Any, cast
 
 from fastapi import Request, Response
 from fastapi.responses import PlainTextResponse
@@ -89,7 +89,7 @@ async def metrics_middleware(request: Request, call_next: Callable) -> Response:
         endpoint=endpoint
     ).observe(duration)
 
-    return response
+    return cast(Response, response)
 
 
 def track_prediction(model_type: str, prediction_type: str, latency: float) -> None:
