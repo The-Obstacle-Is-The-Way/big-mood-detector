@@ -154,6 +154,12 @@ nav:
     - Model Architecture: developer/MODEL_WEIGHT_ARCHITECTURE.md
     - Data Processing: developer/DATA_DOSSIER.md
     - Design Patterns: refactoring/DESIGN_PATTERNS_CATALOG.md
+    - Implementation Details:
+      - Domain Services Audit: architecture/domain_services_audit.md
+      - Pipeline Design: architecture/bulletproof_pipeline_summary.md
+      - Baseline Persistence: architecture/baseline_persistence_plan.md
+      - Ensemble Weights: architecture/ensemble_weights_config.md
+      - XML Optimization: architecture/xml_optimization_solution.md
   
   - Clinical Documentation:
     - Clinical Requirements: clinical/CLINICAL_REQUIREMENTS_DOCUMENT.md

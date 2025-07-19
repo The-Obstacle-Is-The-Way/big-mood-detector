@@ -221,3 +221,6 @@ uploads/
 
 nhanes/PAXMIN_H.xpt
 docs/assets/backup/
+
+# Additional runtime artifacts
+processed/
