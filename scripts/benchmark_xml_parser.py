@@ -25,7 +25,7 @@ def benchmark_parser(parser_class, xml_file: Path, entity_type: str = "all") -> 
     start_time = time.time()
     count = 0
 
-    for entity in parser.parse_file(xml_file, entity_type=entity_type):
+    for _entity in parser.parse_file(xml_file, entity_type=entity_type):
         count += 1
         if count % 10000 == 0:
             print(f"  {parser_class.__name__}: {count:,} records...", end='\r')
@@ -43,7 +43,7 @@ def benchmark_with_date_filter(parser_class, xml_file: Path, start_date: str, en
     start_time = time.time()
     count = 0
 
-    for entity in parser.parse_file(xml_file, entity_type="all", start_date=start_date, end_date=end_date):
+    for _entity in parser.parse_file(xml_file, entity_type="all", start_date=start_date, end_date=end_date):
         count += 1
         if count % 1000 == 0:
             print(f"  {parser_class.__name__} (filtered): {count:,} records...", end='\r')

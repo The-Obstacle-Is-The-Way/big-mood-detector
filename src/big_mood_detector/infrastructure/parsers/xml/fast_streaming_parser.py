@@ -75,7 +75,7 @@ class FastStreamingXMLParser:
         
         Based on Liza Daly's fast_iter pattern, optimized for date filtering.
         """
-        for event, elem in context:
+        for _event, elem in context:
             # Early date filtering before processing
             if start_date or end_date:
                 date_str = elem.get("startDate")
