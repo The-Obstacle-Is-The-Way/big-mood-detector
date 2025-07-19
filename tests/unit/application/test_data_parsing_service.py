@@ -221,7 +221,7 @@ class TestDataParsingService:
             assert len(progress_updates) > 0
             # Should have parsing stages
             stages = [update[0] for update in progress_updates]
-            assert any("sleep" in stage.lower() for stage in stages)
+            assert any("parsing" in stage.lower() for stage in stages)
 
     def test_handle_parsing_errors(self, parsing_service):
         """Test error handling during parsing."""
