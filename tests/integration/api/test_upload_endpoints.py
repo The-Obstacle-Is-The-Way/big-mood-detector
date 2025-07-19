@@ -22,7 +22,12 @@ class TestUploadEndpoints:
         # Enable async upload for tests
         monkeypatch.setenv("ENABLE_ASYNC_UPLOAD", "true")
         
-        # Import app after setting env var
+        # Need to reimport to pick up env var
+        import importlib
+        import sys
+        if "big_mood_detector.interfaces.api.main" in sys.modules:
+            importlib.reload(sys.modules["big_mood_detector.interfaces.api.main"])
+        
         from big_mood_detector.interfaces.api.main import app
 
         return TestClient(app)
