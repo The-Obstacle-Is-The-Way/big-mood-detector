@@ -9,6 +9,10 @@ from typing import Any
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel, Field
 
+from big_mood_detector.application.services.prediction_interpreter import (
+    ClinicalInterpretation,
+    PredictionInterpreter,
+)
 from big_mood_detector.application.use_cases.predict_mood_ensemble_use_case import (
     EnsembleOrchestrator,
 )
@@ -220,38 +224,20 @@ async def predict_mood_ensemble(
             prediction_date=None,
         )
 
-        # Generate clinical summary based on ensemble prediction
-        max_risk = max(
-            ensemble_result.ensemble_prediction.depression_risk,
-            ensemble_result.ensemble_prediction.hypomanic_risk,
-            ensemble_result.ensemble_prediction.manic_risk,
-        )
-
-        if max_risk > 0.7:
-            clinical_summary = "High risk mood episode - recommend clinical assessment"
-        elif max_risk > 0.5:
-            clinical_summary = "Moderate risk - monitor closely"
-        else:
-            clinical_summary = "Low risk - maintain healthy lifestyle"
-
-        # Generate recommendations
-        recommendations = []
-        if ensemble_result.ensemble_prediction.depression_risk > 0.5:
-            recommendations.extend([
-                "Consider mood monitoring",
-                "Maintain regular sleep schedule",
-                "Monitor activity patterns",
-            ])
-        if ensemble_result.ensemble_prediction.hypomanic_risk > 0.5:
-            recommendations.extend([
-                "Track sleep duration changes",
-                "Monitor for increased goal-directed activity",
-            ])
-        if max_risk < 0.3:
-            recommendations.extend([
-                "Continue current habits",
-                "Maintain consistent sleep-wake schedule",
-            ])
+        # Use PredictionInterpreter for clinical insights
+        interpreter = PredictionInterpreter()
+        ml_predictions = {
+            "depression": ensemble_result.ensemble_prediction.depression_risk,
+            "mania": ensemble_result.ensemble_prediction.manic_risk,
+            "hypomania": ensemble_result.ensemble_prediction.hypomanic_risk,
+        }
+        interpretation = interpreter.interpret(ml_predictions)
+        
+        # Generate clinical summary from interpretation
+        clinical_summary = f"{interpretation.primary_diagnosis} - {interpretation.risk_level} risk"
+        
+        # Use interpreter recommendations (limit to top 5 for API response)
+        recommendations = interpretation.recommendations[:5]
 
         # Format response
         xgb_pred = None
@@ -333,3 +319,103 @@ async def get_model_status(
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Status check failed: {e}") from e
+
+
+class ClinicalInterpretationResponse(BaseModel):
+    """Clinical interpretation of mood predictions."""
+    
+    # Core clinical assessment
+    primary_diagnosis: str
+    risk_level: str
+    confidence: float
+    
+    # Detailed clinical insights
+    clinical_notes: list[str]
+    recommendations: list[str]
+    
+    # Secondary risk assessment
+    secondary_risks: dict[str, float]
+    monitoring_frequency: str
+    
+    # Original predictions
+    ml_predictions: dict[str, float]
+    
+    # Metadata
+    interpretation_version: str = "1.0"
+    dsm5_compliant: bool = True
+
+
+@router.post("/clinical", response_model=ClinicalInterpretationResponse)
+@rate_limit("predict")
+async def get_clinical_interpretation(
+    request: Request,
+    features: FeatureInput,
+    predictor: MoodPredictor = Depends(get_mood_predictor),
+    orchestrator: EnsembleOrchestrator | None = Depends(get_ensemble_orchestrator),
+) -> ClinicalInterpretationResponse:
+    """
+    Get clinical interpretation of mood predictions.
+    
+    This endpoint provides:
+    - DSM-5 compliant diagnoses
+    - Risk stratification
+    - Clinical recommendations
+    - Monitoring frequency guidance
+    
+    The interpretation follows evidence-based guidelines from the Seoul study.
+    """
+    try:
+        # Convert input features to array format
+        feature_dict = features.model_dump()
+        
+        # Map to XGBoost feature order
+        xgboost_features = []
+        for xgb_name in API_TO_XGBOOST_MAPPING.values():
+            value = feature_dict.get(xgb_name, 0.0)
+            xgboost_features.append(value)
+        
+        # Get prediction (ensemble if available, XGBoost otherwise)
+        import numpy as np
+        feature_array = np.array(xgboost_features, dtype=np.float32)
+        
+        if orchestrator and orchestrator.xgboost_predictor.is_loaded:
+            # Use ensemble prediction
+            ensemble_result = orchestrator.predict(
+                statistical_features=feature_array,
+                activity_records=None,  # No activity data from direct API
+                prediction_date=None,
+            )
+            
+            ml_predictions = {
+                "depression": ensemble_result.ensemble_prediction.depression_risk,
+                "mania": ensemble_result.ensemble_prediction.manic_risk,
+                "hypomania": ensemble_result.ensemble_prediction.hypomanic_risk,
+            }
+        else:
+            # Fallback to XGBoost only
+            prediction = predictor.predict(feature_array)
+            ml_predictions = {
+                "depression": prediction.depression_risk,
+                "mania": prediction.manic_risk,
+                "hypomania": prediction.hypomanic_risk,
+            }
+        
+        # Initialize interpreter and get clinical interpretation
+        interpreter = PredictionInterpreter()
+        interpretation = interpreter.interpret(ml_predictions)
+        
+        return ClinicalInterpretationResponse(
+            primary_diagnosis=interpretation.primary_diagnosis,
+            risk_level=interpretation.risk_level,
+            confidence=interpretation.confidence,
+            clinical_notes=interpretation.clinical_notes,
+            recommendations=interpretation.recommendations,
+            secondary_risks=interpretation.secondary_risks,
+            monitoring_frequency=interpretation.monitoring_frequency,
+            ml_predictions=ml_predictions,
+        )
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Clinical interpretation failed: {e}"
+        ) from e
