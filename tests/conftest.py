@@ -31,6 +31,7 @@ def pytest_configure(config):
     config.addinivalue_line("markers", "ml: Machine learning model tests")
     config.addinivalue_line("markers", "clinical: Clinical validation tests")
     config.addinivalue_line("markers", "slow: Slow tests (can be skipped in CI)")
+    config.addinivalue_line("markers", "heavy: Tests that load real model weights or large data")
 
 
 def pytest_collection_modifyitems(config, items):
@@ -80,6 +81,41 @@ def expected_sleep_data():
             "value": "HKCategoryValueSleepAnalysisInBed",
         },
     ]
+
+
+class DummyBooster:
+    """Lightweight XGBoost Booster mock for unit tests.
+    
+    Following Eugene Yan's advice: mock at the API boundary,
+    not at the algorithm boundary.
+    """
+    def __init__(self, probability=0.42):
+        self.probability = probability
+    
+    def predict(self, X, **kwargs):
+        """Mock predict method returning consistent probabilities."""
+        import numpy as np
+        # Return single probability value per sample
+        if len(X.shape) == 1:
+            return np.array([self.probability])
+        else:
+            return np.full((X.shape[0],), self.probability)
+
+
+@pytest.fixture
+def dummy_booster():
+    """Fixture providing a DummyBooster instance."""
+    return DummyBooster()
+
+
+@pytest.fixture
+def dummy_xgboost_models():
+    """Fixture providing pre-configured XGBoost model mocks."""
+    return {
+        "depression": DummyBooster(probability=0.7),
+        "hypomanic": DummyBooster(probability=0.2),
+        "manic": DummyBooster(probability=0.1),
+    }
 
 
 @pytest.fixture(autouse=True)
