@@ -559,7 +559,7 @@ We welcome contributions from:
 
 ## 📄 **License & Ethics**
 
-- **Code**: MIT License (open source)
+- **Code**: Apache 2.0 License (open source)
 - **Research**: Academic use encouraged
 - **Clinical Use**: Consult healthcare providers
 - **Privacy**: Local processing, HIPAA-compliant design

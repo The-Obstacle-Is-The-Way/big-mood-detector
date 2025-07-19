@@ -6,7 +6,7 @@
 [![Coverage](https://img.shields.io/badge/coverage-91%25-brightgreen)](htmlcov/)
 [![Python](https://img.shields.io/badge/python-3.11%2B-blue)](pyproject.toml)
 [![Models](https://img.shields.io/badge/models-XGBoost%20%2B%20PAT-purple)](model_weights/)
-[![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+[![License](https://img.shields.io/badge/license-Apache%202.0-green)](LICENSE)
 
 A production-ready system for detecting mood episodes in bipolar disorder using wearable sensor data. Based on peer-reviewed research from Nature Digital Medicine, Harvard Medical School, and Dartmouth.
 
@@ -211,7 +211,7 @@ Key areas for contribution:
 
 ## 📄 License
 
-MIT License - See [LICENSE](LICENSE) for details.
+Apache 2.0 License - See [LICENSE](LICENSE) for details.
 
 ## 🙏 Acknowledgments
 
