@@ -19,6 +19,10 @@ from typing import Any
 from big_mood_detector.domain.services.biomarker_interpreter import (
     BiomarkerInterpreter,
 )
+from big_mood_detector.domain.services.clinical_assessment_service import (
+    ClinicalAssessment,
+    ClinicalAssessmentService,
+)
 from big_mood_detector.domain.services.clinical_thresholds import (
     ClinicalThresholdsConfig,
     load_clinical_thresholds,
@@ -31,6 +35,14 @@ from big_mood_detector.domain.services.early_warning_detector import (
 )
 from big_mood_detector.domain.services.episode_interpreter import (
     EpisodeInterpreter,
+)
+from big_mood_detector.domain.services.intervention_evaluation_service import (
+    InterventionDecision,
+    InterventionEvaluationService,
+)
+from big_mood_detector.domain.services.longitudinal_assessment_service import (
+    LongitudinalAssessment,
+    LongitudinalAssessmentService,
 )
 from big_mood_detector.domain.services.risk_level_assessor import (
     RiskLevelAssessor,
@@ -153,47 +165,7 @@ class BiomarkerInterpretation:
     clinical_summary: str = ""
 
 
-# Dataclasses migrated from clinical_decision_engine
-@dataclass(frozen=True)
-class ClinicalAssessment:
-    """Comprehensive clinical assessment result."""
-
-    primary_diagnosis: str
-    risk_level: str
-    meets_dsm5_criteria: bool
-    confidence: float
-    clinical_summary: str
-    treatment_options: list[dict[str, Any]] = field(default_factory=list)
-    requires_immediate_intervention: bool = False
-    complexity_score: float = 0.0
-    data_completeness: float = 1.0
-    limitations: list[str] = field(default_factory=list)
-
-
-@dataclass(frozen=True)
-class LongitudinalAssessment:
-    """Assessment incorporating historical data."""
-
-    trajectory: str  # improving, stable, worsening
-    pattern_detected: str
-    clinical_note: str
-    risk_projection: str
-    confidence_in_trend: float
-
-
-@dataclass(frozen=True)
-class InterventionDecision:
-    """Decision about clinical intervention."""
-
-    recommend_intervention: bool
-    intervention_type: str  # preventive, acute, maintenance
-    urgency: str  # low, moderate, high, emergency
-    rationale: str
-    specific_actions: list[str] = field(default_factory=list)
-    clinical_notes: list[str] = field(default_factory=list)
-    recommendation_priority: str = "routine"
-    mood_instability_risk: str = "low"
-    clinical_summary: str = ""
+# Re-export dataclasses from new services for backward compatibility
 
 
 class ClinicalInterpreter:
@@ -246,6 +218,17 @@ class ClinicalInterpreter:
         self.dsm5_evaluator = DSM5CriteriaEvaluator(config)
         self.risk_assessor = RiskLevelAssessor(config)
         self.early_warning_detector = EarlyWarningDetector(config)
+
+        # Initialize new assessment services
+        self.clinical_assessment_service = ClinicalAssessmentService(
+            dsm5_evaluator=self.dsm5_evaluator,
+            treatment_recommender=self.treatment_recommender,
+            config=config,
+        )
+        self.longitudinal_assessment_service = LongitudinalAssessmentService()
+        self.intervention_evaluation_service = InterventionEvaluationService(
+            early_warning_detector=self.early_warning_detector
+        )
 
     def interpret_depression_score(
         self,
@@ -762,361 +745,42 @@ class ClinicalInterpreter:
             activity_high=activity_mean + 2 * activity_std,
         )
 
-    # Methods migrated from clinical_decision_engine
+    # Delegate to new assessment services
     def make_clinical_assessment(
         self,
         mood_scores: dict[str, float],
         biomarkers: dict[str, float],
         clinical_context: dict[str, Any],
     ) -> ClinicalAssessment:
-        """
-        Make comprehensive clinical assessment.
-        
-        This method integrates mood scores, biomarkers, and clinical context
-        to produce a complete clinical assessment.
-        """
-        # Interpret mood scores
-        phq_score = mood_scores.get("phq", 0)
-        asrm_score = mood_scores.get("asrm", 0)
-        
-        # Determine primary diagnosis
-        if phq_score >= 10 and asrm_score < 6:
-            primary_diagnosis = "depressive_episode"
-        elif asrm_score >= 6 and phq_score < 10:
-            primary_diagnosis = "manic_episode" if asrm_score >= 14 else "hypomanic_episode"
-        elif phq_score >= 10 and asrm_score >= 6:
-            primary_diagnosis = "mixed_episode"
-        else:
-            primary_diagnosis = "euthymic"
-            
-        # Assess risk level
-        risk_level = self._calculate_risk_level(phq_score, asrm_score, clinical_context)
-        
-        # Check DSM-5 criteria
-        # For simplicity, assume symptoms based on scores
-        symptoms = []
-        if phq_score >= 10:
-            symptoms.extend(["depressed_mood", "anhedonia", "sleep_disturbance", "fatigue", "concentration"])
-        if asrm_score >= 6:
-            symptoms.extend(["elevated_mood", "decreased_sleep", "increased_activity"])
-            
-        meets_dsm5_criteria = self.dsm5_evaluator.evaluate_complete_criteria(
-            episode_type=primary_diagnosis,
-            symptom_days=clinical_context.get("symptom_days", 0),
-            symptoms=symptoms,
-            functional_impairment=clinical_context.get("functional_impairment", False),
-        ).meets_all_criteria
-        
-        # Get treatment recommendations
-        treatment_recommendations = self.treatment_recommender.get_recommendations(
-            episode_type=primary_diagnosis,
-            severity=risk_level,
-            current_medications=clinical_context.get("current_medications", []),
-            contraindications=clinical_context.get("contraindications", []),
-            rapid_cycling=clinical_context.get("rapid_cycling", False),
+        """Make comprehensive clinical assessment."""
+        return self.clinical_assessment_service.make_clinical_assessment(
+            mood_scores=mood_scores,
+            biomarkers=biomarkers,
+            clinical_context=clinical_context,
         )
-        
-        treatment_options = [
-            {"treatment": rec.treatment_type, "priority": rec.priority}
-            for rec in treatment_recommendations
-        ]
-        
-        # Calculate confidence and complexity
-        confidence = self._calculate_confidence(mood_scores, biomarkers)
-        complexity_score = self._calculate_complexity(clinical_context)
-        
-        # Generate clinical summary
-        clinical_summary = self._generate_clinical_summary(
-            primary_diagnosis, risk_level, meets_dsm5_criteria
-        )
-        
-        return ClinicalAssessment(
-            primary_diagnosis=primary_diagnosis,
-            risk_level=risk_level,
-            meets_dsm5_criteria=meets_dsm5_criteria,
-            confidence=confidence,
-            clinical_summary=clinical_summary,
-            treatment_options=treatment_options,
-            requires_immediate_intervention=risk_level == "critical",
-            complexity_score=complexity_score,
-            data_completeness=self._calculate_data_completeness(mood_scores, biomarkers),
-            limitations=self._identify_limitations(mood_scores, biomarkers),
-        )
-    
+
     def make_longitudinal_assessment(
         self,
         current_scores: dict[str, float],
         current_biomarkers: dict[str, float],
         historical_assessments: list[dict[str, Any]],
     ) -> LongitudinalAssessment:
-        """
-        Make assessment incorporating historical data.
-        
-        Analyzes trends and patterns over time to provide trajectory insights.
-        """
-        # Calculate trajectory
-        trajectory = self._calculate_trajectory(current_scores, historical_assessments)
-        
-        # Detect patterns
-        pattern = self._detect_pattern(current_scores, historical_assessments)
-        
-        # Generate clinical note
-        clinical_note = self._generate_longitudinal_note(
-            trajectory, pattern, current_scores, historical_assessments
+        """Make assessment incorporating historical data."""
+        return self.longitudinal_assessment_service.make_longitudinal_assessment(
+            current_scores=current_scores,
+            current_biomarkers=current_biomarkers,
+            historical_assessments=historical_assessments,
         )
-        
-        # Project future risk
-        risk_projection = self._project_risk(trajectory, pattern)
-        
-        # Calculate confidence
-        confidence = self._calculate_trend_confidence(historical_assessments)
-        
-        return LongitudinalAssessment(
-            trajectory=trajectory,
-            pattern_detected=pattern,
-            clinical_note=clinical_note,
-            risk_projection=risk_projection,
-            confidence_in_trend=confidence,
-        )
-    
+
     def evaluate_intervention_need(
         self,
         warning_indicators: dict[str, float],
         current_risk: str,
         patient_history: dict[str, Any],
     ) -> InterventionDecision:
-        """
-        Evaluate need for clinical intervention based on early warning signs.
-        """
-        # Use early warning detector
-        early_warning = self.early_warning_detector.detect_warnings(
-            sleep_change_hours=warning_indicators.get("sleep_change", 0),
-            activity_change_percent=warning_indicators.get("activity_change", 0),
-            circadian_shift_hours=warning_indicators.get("circadian_shift", 0),
-            consecutive_days=warning_indicators.get("consecutive_days", 0),
+        """Evaluate need for clinical intervention based on early warning signs."""
+        return self.intervention_evaluation_service.evaluate_intervention_need(
+            warning_indicators=warning_indicators,
+            current_risk=current_risk,
+            patient_history=patient_history,
         )
-        
-        # Determine intervention need
-        recommend_intervention = (
-            early_warning.urgency_level in ["moderate", "high"]
-            or patient_history.get("previous_episodes", 0) >= 2
-        )
-        
-        # Determine intervention type
-        if recommend_intervention:
-            # More specific logic to match test expectations
-            if current_risk == "low":
-                intervention_type = "preventive"
-            elif current_risk in ["moderate", "high"]:
-                intervention_type = "acute"
-            else:
-                intervention_type = "maintenance"
-        else:
-            intervention_type = "monitoring"
-            
-        # Determine urgency
-        urgency = self._determine_urgency(warning_indicators, current_risk)
-        
-        # Generate rationale
-        rationale = self._generate_intervention_rationale(
-            warning_indicators, current_risk, patient_history, early_warning
-        )
-        
-        # Generate specific actions
-        specific_actions = self._generate_specific_actions(
-            intervention_type, urgency, patient_history
-        )
-        
-        return InterventionDecision(
-            recommend_intervention=recommend_intervention,
-            intervention_type=intervention_type,
-            urgency=urgency,
-            rationale=rationale,
-            specific_actions=specific_actions,
-        )
-    
-    # Helper methods for the migrated functionality
-    def _calculate_risk_level(
-        self, phq_score: float, asrm_score: float, clinical_context: dict[str, Any]
-    ) -> str:
-        """Calculate overall risk level."""
-        if clinical_context.get("suicidal_ideation") or clinical_context.get("psychotic_features"):
-            return "critical"
-        elif phq_score >= 15 or asrm_score >= 14:
-            return "high"
-        elif phq_score >= 10 or asrm_score >= 6:
-            return "moderate"
-        else:
-            return "low"
-    
-    def _calculate_confidence(
-        self, mood_scores: dict[str, float], biomarkers: dict[str, float]
-    ) -> float:
-        """Calculate confidence in assessment."""
-        # Base confidence on data completeness
-        data_points = len(mood_scores) + len(biomarkers)
-        return min(0.5 + (data_points * 0.1), 0.95)
-    
-    def _calculate_complexity(self, clinical_context: dict[str, Any]) -> float:
-        """Calculate clinical complexity score."""
-        complexity_factors = [
-            clinical_context.get("comorbidities", 0) > 0,
-            clinical_context.get("substance_use", False),
-            clinical_context.get("psychotic_features", False),
-            clinical_context.get("mixed_features", False),
-        ]
-        return sum(complexity_factors) / len(complexity_factors)
-    
-    def _generate_clinical_summary(
-        self, diagnosis: str, risk_level: str, meets_criteria: bool
-    ) -> str:
-        """Generate clinical summary text."""
-        criteria_text = "meets" if meets_criteria else "does not meet"
-        return (
-            f"Patient presents with {diagnosis.replace('_', ' ')} "
-            f"with {risk_level} risk level. "
-            f"Clinical presentation {criteria_text} DSM-5 criteria."
-        )
-    
-    def _calculate_data_completeness(
-        self, mood_scores: dict[str, float], biomarkers: dict[str, float]
-    ) -> float:
-        """Calculate data completeness score."""
-        expected_scores = ["phq", "asrm"]
-        expected_biomarkers = ["sleep_hours", "activity_steps"]
-        
-        score_completeness = sum(s in mood_scores for s in expected_scores) / len(expected_scores)
-        bio_completeness = sum(b in biomarkers for b in expected_biomarkers) / len(expected_biomarkers)
-        
-        return (score_completeness + bio_completeness) / 2
-    
-    def _identify_limitations(
-        self, mood_scores: dict[str, float], biomarkers: dict[str, float]
-    ) -> list[str]:
-        """Identify assessment limitations."""
-        limitations = []
-        if "phq" not in mood_scores:
-            limitations.append("Missing depression screening data")
-        if "sleep_hours" not in biomarkers:
-            limitations.append("Missing sleep data")
-        return limitations
-    
-    def _calculate_trajectory(
-        self, current_scores: dict[str, float], historical: list[dict[str, Any]]
-    ) -> str:
-        """Calculate trajectory from historical data."""
-        if not historical:
-            return "unknown"
-            
-        # Get most recent historical score
-        recent_phq = historical[-1].get("phq_score", 0)
-        current_phq = current_scores.get("phq", 0)
-        
-        if current_phq > recent_phq + 3:
-            return "worsening"
-        elif current_phq < recent_phq - 3:
-            return "improving"
-        else:
-            return "stable"
-    
-    def _detect_pattern(
-        self, current_scores: dict[str, float], historical: list[dict[str, Any]]
-    ) -> str:
-        """Detect clinical patterns."""
-        if not historical:
-            return "insufficient_data"
-            
-        # Check for escalating depression
-        phq_scores = [h.get("phq_score", 0) for h in historical]
-        phq_scores.append(current_scores.get("phq", 0))
-        
-        if all(phq_scores[i] <= phq_scores[i+1] for i in range(len(phq_scores)-1)):
-            return "escalating_depression"
-        elif all(phq_scores[i] >= phq_scores[i+1] for i in range(len(phq_scores)-1)):
-            return "improving_depression"
-        else:
-            return "fluctuating"
-    
-    def _generate_longitudinal_note(
-        self, trajectory: str, pattern: str, current: dict[str, float], historical: list[dict[str, Any]]
-    ) -> str:
-        """Generate longitudinal clinical note."""
-        severity_note = ""
-        if trajectory == "worsening" and "escalating" in pattern:
-            severity_note = "Note: Increasing severity observed. "
-            
-        return (
-            f"Patient shows {trajectory} trajectory with {pattern} pattern. "
-            f"Current PHQ score: {current.get('phq', 'N/A')}. "
-            f"Historical data points: {len(historical)}. "
-            f"{severity_note}"
-            f"Recommend continued monitoring with focus on {trajectory} trend."
-        )
-    
-    def _project_risk(self, trajectory: str, pattern: str) -> str:
-        """Project future risk based on trajectory."""
-        if trajectory == "worsening" and "escalating" in pattern:
-            return "high_risk_for_episode"
-        elif trajectory == "improving":
-            return "decreasing_risk"
-        else:
-            return "stable_risk"
-    
-    def _calculate_trend_confidence(self, historical: list[dict[str, Any]]) -> float:
-        """Calculate confidence in trend analysis."""
-        # More data points = higher confidence
-        return min(0.5 + (len(historical) * 0.1), 0.9)
-    
-    def _determine_urgency(
-        self, warning_indicators: dict[str, float], current_risk: str
-    ) -> str:
-        """Determine intervention urgency."""
-        sleep_change = abs(warning_indicators.get("sleep_change", 0))
-        
-        if current_risk == "critical" or sleep_change > 4:
-            return "emergency"
-        elif current_risk == "high" or sleep_change > 2:
-            return "high"
-        elif current_risk == "moderate":
-            return "moderate"
-        else:
-            return "low"
-    
-    def _generate_intervention_rationale(
-        self, indicators: dict[str, float], risk: str, history: dict[str, Any], warning: Any
-    ) -> str:
-        """Generate rationale for intervention decision."""
-        factors = []
-        
-        if abs(indicators.get("sleep_change", 0)) > 2:
-            factors.append("significant sleep disruption")
-        if history.get("previous_episodes", 0) >= 2:
-            factors.append("history of multiple episodes")
-        if warning.urgency_level in ["moderate", "high"]:
-            factors.append(f"{warning.urgency_level} early warning signs")
-            
-        return f"Intervention recommended due to: {', '.join(factors)}"
-    
-    def _generate_specific_actions(
-        self, intervention_type: str, urgency: str, history: dict[str, Any]
-    ) -> list[str]:
-        """Generate specific intervention actions."""
-        actions = []
-        
-        if intervention_type == "preventive":
-            actions.extend([
-                "Increase monitoring frequency",
-                "Review and optimize sleep hygiene",
-                "Consider prophylactic medication adjustment",
-            ])
-        elif intervention_type == "acute":
-            actions.extend([
-                "Schedule urgent clinical evaluation",
-                "Initiate acute treatment protocol",
-                "Daily symptom monitoring",
-            ])
-            
-        if urgency == "emergency":
-            actions.insert(0, "Immediate psychiatric evaluation required")
-            
-        return actions
