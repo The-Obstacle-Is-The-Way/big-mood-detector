@@ -21,7 +21,16 @@ for var in (
 # Disable Rich formatting in tests for speed
 os.environ["RICH_DISABLE"] = "True"
 
+from copy import deepcopy  # noqa: E402
+from pathlib import Path  # noqa: E402
+from tempfile import NamedTemporaryFile  # noqa: E402
+
 import pytest  # noqa: E402
+import yaml  # noqa: E402
+
+from big_mood_detector.domain.services.clinical_thresholds import (  # noqa: E402
+    load_clinical_thresholds,
+)
 
 
 def pytest_configure(config):
@@ -226,17 +235,6 @@ def _patch_pat_model(monkeypatch):
 # ================================
 # These fixtures help avoid duplicating clinical configuration in tests
 
-from copy import deepcopy
-from pathlib import Path
-from tempfile import NamedTemporaryFile
-
-import yaml
-
-from big_mood_detector.domain.services.clinical_thresholds import (
-    ClinicalThresholdsConfig,
-    load_clinical_thresholds,
-)
-
 
 @pytest.fixture(scope="session")
 def clinical_config_path():
@@ -258,7 +256,7 @@ def clinical_config_dict(clinical_config_path):
 def clinical_config(clinical_config_path):
     """
     Load clinical thresholds config from real file.
-    
+
     Returns a fresh instance for each test to ensure test isolation.
     """
     return load_clinical_thresholds(clinical_config_path)
@@ -268,7 +266,7 @@ def clinical_config(clinical_config_path):
 def clinical_config_mutable(clinical_config_dict):
     """
     Mutable copy of clinical config dictionary for tests that need to modify values.
-    
+
     Use this when you need to test with modified thresholds.
     """
     return deepcopy(clinical_config_dict)
@@ -278,7 +276,7 @@ def clinical_config_mutable(clinical_config_dict):
 def clinical_config_factory(clinical_config_dict):
     """
     Factory for creating ClinicalThresholdsConfig with custom modifications.
-    
+
     Example:
         config = clinical_config_factory(
             depression={'phq_cutoffs': {'moderate': {'min': 15}}}
@@ -286,22 +284,22 @@ def clinical_config_factory(clinical_config_dict):
     """
     def _factory(**section_overrides):
         config_dict = deepcopy(clinical_config_dict)
-        
+
         # Apply overrides at the section level
         for section, overrides in section_overrides.items():
             if section in config_dict:
                 _deep_update(config_dict[section], overrides)
-        
+
         # Write to temporary file and load
         with NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
             yaml.dump(config_dict, f)
             temp_path = Path(f.name)
-        
+
         try:
             return load_clinical_thresholds(temp_path)
         finally:
             temp_path.unlink()
-    
+
     return _factory
 
 

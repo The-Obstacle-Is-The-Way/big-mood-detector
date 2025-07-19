@@ -14,10 +14,10 @@ from big_mood_detector.domain.services.clinical_thresholds import (
 from big_mood_detector.domain.services.dsm5_criteria_evaluator import (
     DSM5CriteriaEvaluator,
 )
-from big_mood_detector.domain.utils.episode_mapper import EpisodeMapper
 from big_mood_detector.domain.services.treatment_recommender import (
     TreatmentRecommender,
 )
+from big_mood_detector.domain.utils.episode_mapper import EpisodeMapper
 
 
 @dataclass(frozen=True)
