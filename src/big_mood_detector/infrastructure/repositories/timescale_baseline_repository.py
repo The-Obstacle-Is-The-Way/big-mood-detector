@@ -16,10 +16,9 @@ from collections.abc import Iterator
 from contextlib import contextmanager
 from datetime import UTC, date, datetime
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
-if TYPE_CHECKING:
-    import feast
+# Feast type is only used in annotations, not needed
 
 from sqlalchemy import (
     Column,
@@ -39,6 +38,7 @@ from big_mood_detector.domain.repositories.baseline_repository_interface import 
     BaselineRepositoryInterface,
     UserBaseline,
 )
+from big_mood_detector.infrastructure.security import hash_user_id
 
 logger = get_logger()
 
@@ -126,7 +126,7 @@ class TimescaleBaselineRepository(BaselineRepositoryInterface):
         self.SessionLocal = sessionmaker(bind=self.engine)
 
         # Initialize Feast client if enabled
-        self.feast_client: "feast.FeatureStore | None" = None
+        self.feast_client: Any | None = None  # Will be feast.FeatureStore if available
         if enable_feast_sync:
             try:
                 import feast  # type: ignore[import-not-found]
@@ -177,13 +177,16 @@ class TimescaleBaselineRepository(BaselineRepositoryInterface):
         with self._get_session() as session:
             effective_time = datetime.now(UTC)
 
+            # Hash user ID for privacy
+            hashed_user_id = hash_user_id(baseline.user_id)
+
             # Prepare metrics
             metrics = self._prepare_metrics(baseline)
 
             # Save raw records (always insert for bitemporal pattern)
             for metric_name, value in metrics:
                 raw_record = BaselineRawRecord(
-                    user_id=baseline.user_id,
+                    user_id=hashed_user_id,
                     metric=metric_name,
                     ts=baseline.last_updated,
                     effective_ts=effective_time,
@@ -196,7 +199,7 @@ class TimescaleBaselineRepository(BaselineRepositoryInterface):
             # Use PostgreSQL UPSERT for aggregate records
             for metric_name, value in metrics:
                 stmt = insert(BaselineAggregateRecord).values(
-                    user_id=baseline.user_id,
+                    user_id=hashed_user_id,
                     feature_name=metric_name,
                     window="30d",
                     as_of=baseline.baseline_date,
@@ -259,10 +262,12 @@ class TimescaleBaselineRepository(BaselineRepositoryInterface):
         Checks online store first for <1ms performance,
         falls back to TimescaleDB continuous aggregates.
         """
+        # Hash user ID for privacy
+        hashed_user_id = hash_user_id(user_id)
         # Try online store first (if enabled)
         if self.enable_feast_sync and self.feast_client:
             try:
-                baseline = self._get_from_feast(user_id)
+                baseline = self._get_from_feast(hashed_user_id)
                 if baseline:
                     logger.info("baseline_retrieved_online", user_id=user_id)
                     return baseline
@@ -270,7 +275,7 @@ class TimescaleBaselineRepository(BaselineRepositoryInterface):
                 logger.warning("feast_retrieval_failed", user_id=user_id, error=str(e))
 
         # Fallback to TimescaleDB
-        return self._get_from_timescale(user_id)
+        return self._get_from_timescale(hashed_user_id)
 
     def get_baseline_history(self, user_id: str, limit: int = 10) -> list[UserBaseline]:
         """
@@ -279,11 +284,14 @@ class TimescaleBaselineRepository(BaselineRepositoryInterface):
         Queries TimescaleDB continuous aggregates for temporal analysis.
         Perfect for detecting baseline drift over time.
         """
+        # Hash user ID for privacy
+        hashed_user_id = hash_user_id(user_id)
+
         with self._get_session() as session:
             # Query all baseline dates for this user
             baseline_dates = (
                 session.query(BaselineAggregateRecord.as_of)
-                .filter(BaselineAggregateRecord.user_id == user_id)
+                .filter(BaselineAggregateRecord.user_id == hashed_user_id)
                 .distinct()
                 .order_by(BaselineAggregateRecord.as_of.asc())
                 .limit(limit)
@@ -300,7 +308,7 @@ class TimescaleBaselineRepository(BaselineRepositoryInterface):
                 metrics = (
                     session.query(BaselineAggregateRecord)
                     .filter(
-                        BaselineAggregateRecord.user_id == user_id,
+                        BaselineAggregateRecord.user_id == hashed_user_id,
                         BaselineAggregateRecord.as_of == baseline_date,
                     )
                     .all()
@@ -326,7 +334,7 @@ class TimescaleBaselineRepository(BaselineRepositoryInterface):
         # Build metric dictionary with safety checks
         metric_values: dict[str, float] = {}
         for m in metrics:
-            assert m.feature_name is not None, f"feature_name cannot be None"
+            assert m.feature_name is not None, "feature_name cannot be None"
             assert m.mean is not None, f"mean cannot be None for {m.feature_name}"
             metric_values[str(m.feature_name)] = float(m.mean)
 
@@ -448,8 +456,12 @@ class TimescaleBaselineRepository(BaselineRepositoryInterface):
                     )
                     # Don't raise - Feast sync is optional
 
-    def _get_from_feast(self, user_id: str) -> UserBaseline | None:
-        """Retrieve baseline from Feast online store."""
+    def _get_from_feast(self, hashed_user_id: str) -> UserBaseline | None:
+        """Retrieve baseline from Feast online store.
+
+        Args:
+            hashed_user_id: Already hashed user ID for privacy
+        """
         if not self.feast_client:
             return None
 
@@ -464,7 +476,7 @@ class TimescaleBaselineRepository(BaselineRepositoryInterface):
                     "user_baselines:circadian_phase",
                     "user_baselines:data_points",
                 ],
-                entity_rows=[{"user_id": user_id}],
+                entity_rows=[{"user_id": hashed_user_id}],
             )
 
             # Convert to dict
@@ -475,7 +487,7 @@ class TimescaleBaselineRepository(BaselineRepositoryInterface):
 
             # Build UserBaseline from online features
             baseline = UserBaseline(
-                user_id=user_id,
+                user_id=hashed_user_id,
                 baseline_date=date.today(),  # Would need to store this in Feast
                 sleep_mean=features["sleep_mean"][0],
                 sleep_std=features["sleep_std"][0],
@@ -490,7 +502,7 @@ class TimescaleBaselineRepository(BaselineRepositoryInterface):
 
         except Exception as e:
             logger.warning(
-                "feast_online_retrieval_failed", user_id=user_id, error=str(e)
+                "feast_online_retrieval_failed", user_id=hashed_user_id, error=str(e)
             )
             return None
 
