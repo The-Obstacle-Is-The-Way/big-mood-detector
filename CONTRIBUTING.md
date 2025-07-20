@@ -52,6 +52,11 @@ We use GitHub issues to track public bugs. Report a bug by [opening a new issue]
 
 ## Development Setup
 
+### Prerequisites
+- Python 3.12 or higher (we test on Python 3.12 in CI)
+- Git
+- Make (optional but recommended)
+
 ```bash
 # Clone the repository
 git clone https://github.com/Clarity-Digital-Twin/big-mood-detector.git
