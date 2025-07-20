@@ -22,6 +22,10 @@
 # NHANES data files (very large - up to 8.7GB)
 nhanes/*.xpt
 nhanes/*.XPT
+data/nhanes/**/*.xpt
+data/nhanes/**/*.XPT
+*.xpt
+*.XPT
 
 # =====================================
 # Python
