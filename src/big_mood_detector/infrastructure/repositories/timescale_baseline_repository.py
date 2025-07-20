@@ -11,9 +11,10 @@ Architecture:
 Raw Data → TimescaleDB Hypertable → Continuous Aggregates → Feast → Redis
 """
 
-import logging
 from datetime import date, datetime
 from pathlib import Path
+
+from structlog import get_logger
 
 from sqlalchemy import (
     Column,
@@ -24,19 +25,19 @@ from sqlalchemy import (
     String,
     create_engine,
 )
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import declarative_base, sessionmaker
 from sqlalchemy.sql import text
+from typing import Any
 
 from big_mood_detector.domain.repositories.baseline_repository_interface import (
     BaselineRepositoryInterface,
     UserBaseline,
 )
 
-logger = logging.getLogger(__name__)
+logger = get_logger()
 
 # SQLAlchemy Base for TimescaleDB tables
-Base = declarative_base()
+Base: Any = declarative_base()
 
 
 class BaselineRawRecord(Base):
@@ -120,7 +121,7 @@ class TimescaleBaselineRepository(BaselineRepositoryInterface):
         self.feast_client = None
         if enable_feast_sync:
             try:
-                import feast
+                import feast  # type: ignore[import-not-found]
                 self.feast_client = feast.FeatureStore(repo_path=str(feast_repo_path))
                 logger.info("feast_client_initialized", repo_path=feast_repo_path)
             except ImportError:
@@ -251,7 +252,7 @@ class TimescaleBaselineRepository(BaselineRepositoryInterface):
                 ).all()
 
                 # Reconstruct baseline from metrics
-                metric_values = {m.feature_name: m.mean for m in metrics}
+                metric_values: dict[str, float] = {m.feature_name: m.mean for m in metrics}  # type: ignore[misc]
 
                 if metrics:  # Ensure we have at least some data
                     baseline = UserBaseline(
@@ -262,8 +263,8 @@ class TimescaleBaselineRepository(BaselineRepositoryInterface):
                         activity_mean=metric_values.get("activity_mean", 8000.0),
                         activity_std=metric_values.get("activity_std", 2000.0),
                         circadian_phase=metric_values.get("circadian_phase", 22.0),
-                        last_updated=metrics[0].created_at,
-                        data_points=metrics[0].n
+                        last_updated=metrics[0].created_at,  # type: ignore[arg-type]
+                        data_points=metrics[0].n  # type: ignore[arg-type]
                     )
                     baselines.append(baseline)
 
@@ -306,7 +307,7 @@ class TimescaleBaselineRepository(BaselineRepositoryInterface):
                 return None
 
             # Reconstruct baseline from metrics
-            metric_values = {m.feature_name: m.mean for m in metrics}
+            metric_values: dict[str, float] = {m.feature_name: m.mean for m in metrics}  # type: ignore[misc]
 
             baseline = UserBaseline(
                 user_id=user_id,
@@ -316,8 +317,8 @@ class TimescaleBaselineRepository(BaselineRepositoryInterface):
                 activity_mean=metric_values.get("activity_mean", 8000.0),
                 activity_std=metric_values.get("activity_std", 2000.0),
                 circadian_phase=metric_values.get("circadian_phase", 22.0),
-                last_updated=metrics[0].created_at,
-                data_points=metrics[0].n
+                last_updated=metrics[0].created_at,  # type: ignore[arg-type]
+                data_points=metrics[0].n  # type: ignore[arg-type]
             )
 
             logger.info("baseline_retrieved_timescale",

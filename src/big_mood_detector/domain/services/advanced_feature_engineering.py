@@ -559,10 +559,10 @@ class AdvancedFeatureEngineer:
 
         # If we have a loaded baseline with existing statistics but no values,
         # initialize the incremental stats from the loaded mean/std
-        if baseline.get("count", 0) == 0 and baseline["mean"] != 0:
+        if baseline.get("count", 0) == 0 and baseline.get("mean", 0.0) != 0:
             # Estimate count from loaded baseline (assuming 7 days of data minimum)
             if hasattr(self, "_loaded_baseline") and self._loaded_baseline:
-                estimated_count = max(7, self._loaded_baseline.data_points)
+                estimated_count = max(7, self._loaded_baseline.data_points)  # type: ignore[unreachable]
             else:
                 estimated_count = 7
             baseline["count"] = estimated_count
@@ -693,7 +693,7 @@ class AdvancedFeatureEngineer:
         # Add to previous data points if we loaded a baseline
         previous_data_points = 0
         if hasattr(self, "_loaded_baseline") and self._loaded_baseline:
-            previous_data_points = self._loaded_baseline.data_points
+            previous_data_points = self._loaded_baseline.data_points  # type: ignore[unreachable]
 
         data_points = previous_data_points + current_data_points
 

@@ -145,7 +145,7 @@ class FileBaselineRepository(BaselineRepositoryInterface):
             "heart_rate_std": baseline.heart_rate_std,
             "hrv_mean": baseline.hrv_mean,
             "hrv_std": baseline.hrv_std,
-            "last_updated": baseline.last_updated.isoformat(),
+            "last_updated": baseline.last_updated.isoformat() if baseline.last_updated else None,
             "data_points": baseline.data_points,
         }
 
