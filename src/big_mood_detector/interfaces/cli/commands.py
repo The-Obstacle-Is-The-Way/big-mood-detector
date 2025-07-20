@@ -137,18 +137,18 @@ def validate_user_id(user_id: str | None) -> None:
                 "Please use 64 characters or less"
             )
 
+        # Validate characters (alphanumeric, dash, underscore, @)
+        import re
+        if not re.match(r'^[a-zA-Z0-9_\-@]+$', user_id):
+            raise click.BadParameter(
+                f"Invalid user ID format: '{user_id}'\n"
+                "Use only letters, numbers, underscores, hyphens, and @"
+            )
+
         # Warn about potential PII
         if "@" in user_id:
             click.echo("⚠️  User ID contains '@' - avoid using email addresses")
             click.echo("   User IDs will be hashed for privacy protection")
-
-        # Validate characters (alphanumeric, dash, underscore)
-        import re
-        if not re.match(r'^[a-zA-Z0-9_\-]+$', user_id):
-            raise click.BadParameter(
-                f"Invalid user ID format: '{user_id}'\n"
-                "Use only letters, numbers, underscores, and hyphens"
-            )
 
 
 def format_risk_level(risk_score: float) -> str:
