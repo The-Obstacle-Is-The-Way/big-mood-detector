@@ -118,24 +118,24 @@ def validate_user_id(user_id: str | None) -> None:
                 f"User ID cannot contain spaces: '{user_id}'\n"
                 "Use underscores or hyphens instead (e.g., 'john_doe' or 'user-123')"
             )
-        
+
         if len(user_id) < 3:
             raise click.BadParameter(
                 f"User ID too short: '{user_id}'\n"
                 "Please use at least 3 characters for user identification"
             )
-        
+
         if len(user_id) > 64:
             raise click.BadParameter(
                 f"User ID too long: '{user_id}'\n"
                 "Please use 64 characters or less"
             )
-        
+
         # Warn about potential PII
         if "@" in user_id:
             click.echo("⚠️  User ID contains '@' - avoid using email addresses")
             click.echo("   User IDs will be hashed for privacy protection")
-        
+
         # Validate characters (alphanumeric, dash, underscore)
         import re
         if not re.match(r'^[a-zA-Z0-9_\-]+$', user_id):

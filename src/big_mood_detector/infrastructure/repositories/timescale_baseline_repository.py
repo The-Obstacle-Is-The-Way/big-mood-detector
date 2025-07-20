@@ -411,7 +411,7 @@ class TimescaleBaselineRepository(BaselineRepositoryInterface):
         # Get retry configuration from settings
         from big_mood_detector.infrastructure.settings.config import get_settings
         settings = get_settings()
-        
+
         if max_retries is None:
             max_retries = settings.FEAST_MAX_RETRIES
 

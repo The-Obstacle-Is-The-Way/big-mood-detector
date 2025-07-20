@@ -5,16 +5,13 @@ and other privacy-related functionality to ensure GDPR compliance.
 """
 
 import hashlib
-import os
 from typing import Any
 
 from structlog import get_logger
 
-logger = get_logger()
-
-# Get salt from settings
 from big_mood_detector.infrastructure.settings.config import get_settings
 
+logger = get_logger()
 USER_ID_SALT = get_settings().USER_ID_SALT
 
 

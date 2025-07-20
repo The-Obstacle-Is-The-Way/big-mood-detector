@@ -1,7 +1,7 @@
 """Test user ID validation for CLI commands."""
 
-import pytest
 import click
+import pytest
 
 from big_mood_detector.interfaces.cli.commands import validate_user_id
 
@@ -39,10 +39,10 @@ class TestUserIdValidation:
         """Test that user IDs with invalid characters are rejected."""
         with pytest.raises(click.BadParameter, match="Invalid user ID format"):
             validate_user_id("user@#$%")
-        
+
         with pytest.raises(click.BadParameter, match="Invalid user ID format"):
             validate_user_id("user/test")
-        
+
         with pytest.raises(click.BadParameter, match="Invalid user ID format"):
             validate_user_id("user.name")
 
@@ -50,7 +50,7 @@ class TestUserIdValidation:
         """Test that email-like user IDs trigger a warning."""
         # Should not raise but should warn
         validate_user_id("user@example")
-        
+
         captured = capsys.readouterr()
         assert "avoid using email addresses" in captured.out
         assert "hashed for privacy protection" in captured.out
@@ -59,9 +59,9 @@ class TestUserIdValidation:
         """Test edge cases for user ID validation."""
         # Single character repeated
         validate_user_id("aaa")
-        
+
         # All numbers
         validate_user_id("123456")
-        
+
         # Mix of valid characters
         validate_user_id("Test_User-123")

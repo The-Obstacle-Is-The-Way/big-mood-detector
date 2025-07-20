@@ -92,7 +92,6 @@ class Settings(BaseSettings):
     MAX_RETRIES: int = Field(default=3, ge=0)
 
     # Logging
-    LOG_LEVEL: Literal["DEBUG", "INFO", "WARNING", "ERROR"] = "INFO"
     LOG_FORMAT: Literal["json", "text"] = "json"
 
     # Clinical Thresholds
@@ -106,13 +105,13 @@ class Settings(BaseSettings):
         ge=1,
         description="Minimum days of data required for feature extraction",
     )
-    
+
     # Privacy
     USER_ID_SALT: str = Field(
         default="big-mood-detector-default-salt",
         description="Salt for user ID hashing (CHANGE IN PRODUCTION!)"
     )
-    
+
     # Feature Store
     FEAST_REPO_PATH: Path | None = Field(
         default=None,
@@ -139,7 +138,7 @@ class Settings(BaseSettings):
                 f"(XGBoost: {self.ENSEMBLE_XGBOOST_WEIGHT}, PAT: {self.ENSEMBLE_PAT_WEIGHT})"
             )
         return self
-    
+
     @model_validator(mode="after")
     def validate_production_settings(self) -> "Settings":
         """Validate critical settings for production environment."""

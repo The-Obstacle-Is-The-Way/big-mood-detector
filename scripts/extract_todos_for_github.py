@@ -13,7 +13,7 @@ class TodoItem(NamedTuple):
     file_path: str
     line_number: int
     content: str
-    category: str  # TODO, FIXME, HACK, XXX
+    category: str  # Categories: TODO, FIXME, HACK, XXX
 
 
 def extract_todos(root_dir: Path) -> list[TodoItem]:

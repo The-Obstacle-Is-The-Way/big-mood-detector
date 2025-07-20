@@ -2,7 +2,6 @@
 
 import time
 from datetime import UTC, date, datetime
-from pathlib import Path
 
 import pytest
 
@@ -26,7 +25,7 @@ class TestHRHRVEndToEnd:
     def test_db_url(self):
         """Get test database URL."""
         import os
-        
+
         # Use test database URL from environment or default
         return os.getenv(
             "TEST_DATABASE_URL",
@@ -49,7 +48,7 @@ class TestHRHRVEndToEnd:
         """Test complete HR/HRV pipeline from save to retrieve."""
         # Create baseline with all HR/HRV fields
         test_user_id = f"hr_hrv_test_user_{int(time.time())}"
-        
+
         baseline = UserBaseline(
             user_id=test_user_id,
             baseline_date=date.today(),
@@ -65,37 +64,37 @@ class TestHRHRVEndToEnd:
             last_updated=datetime.now(UTC),
             data_points=45,
         )
-        
+
         # Save baseline
         repository.save_baseline(baseline)
-        
+
         # Retrieve and verify
         retrieved = repository.get_baseline(test_user_id)
-        
+
         assert retrieved is not None
         assert retrieved.user_id == test_user_id
         assert retrieved.baseline_date == baseline.baseline_date
-        
+
         # Verify core metrics
         assert retrieved.sleep_mean == 7.8
         assert retrieved.sleep_std == 1.1
         assert retrieved.activity_mean == 8500.0
         assert retrieved.activity_std == 1800.0
         assert retrieved.circadian_phase == 22.5
-        
+
         # Verify HR/HRV metrics
         assert retrieved.heart_rate_mean == 62.5
         assert retrieved.heart_rate_std == 4.2
         assert retrieved.hrv_mean == 58.3
         assert retrieved.hrv_std == 12.1
-        
+
         # Verify metadata
         assert retrieved.data_points == 45
 
     def test_hr_hrv_optional_fields(self, repository):
         """Test that HR/HRV fields are optional and can be None."""
         test_user_id = f"optional_hr_test_{int(time.time())}"
-        
+
         # Create baseline without HR/HRV data
         baseline_no_hr = UserBaseline(
             user_id=test_user_id,
@@ -112,19 +111,19 @@ class TestHRHRVEndToEnd:
             last_updated=datetime.now(UTC),
             data_points=30,
         )
-        
+
         # Save baseline
         repository.save_baseline(baseline_no_hr)
-        
+
         # Retrieve and verify
         retrieved = repository.get_baseline(test_user_id)
-        
+
         assert retrieved is not None
         assert retrieved.heart_rate_mean is None
         assert retrieved.heart_rate_std is None
         assert retrieved.hrv_mean is None
         assert retrieved.hrv_std is None
-        
+
         # Core fields should still be present
         assert retrieved.sleep_mean == 7.0
         assert retrieved.activity_mean == 7000.0
@@ -132,7 +131,7 @@ class TestHRHRVEndToEnd:
     def test_hr_hrv_history_tracking(self, repository):
         """Test that HR/HRV metrics are tracked in baseline history."""
         test_user_id = f"history_hr_test_{int(time.time())}"
-        
+
         # Create baselines over multiple days with evolving HR/HRV
         baselines = [
             UserBaseline(
@@ -152,37 +151,37 @@ class TestHRHRVEndToEnd:
             )
             for day in range(1, 6)
         ]
-        
+
         # Save all baselines
         for baseline in baselines:
             repository.save_baseline(baseline)
-        
+
         # Retrieve history
         history = repository.get_baseline_history(test_user_id, limit=10)
-        
+
         # Should have all 5 baselines
         assert len(history) == 5
-        
+
         # Verify chronological order (oldest first)
         for i in range(1, len(history)):
             assert history[i].baseline_date > history[i-1].baseline_date
-        
+
         # Verify HR/HRV progression
         first_baseline = history[0]
         last_baseline = history[-1]
-        
+
         # HR should have decreased (improved)
         assert first_baseline.heart_rate_mean > last_baseline.heart_rate_mean
-        
+
         # HRV should have increased (improved)
         assert first_baseline.hrv_mean < last_baseline.hrv_mean
 
     def test_concurrent_hr_hrv_updates(self, repository):
         """Test concurrent updates to HR/HRV baselines."""
         import concurrent.futures
-        
+
         test_user_id = f"concurrent_hr_test_{int(time.time())}"
-        
+
         def update_baseline(value_offset: int):
             """Update baseline with different HR/HRV values."""
             baseline = UserBaseline(
@@ -202,22 +201,23 @@ class TestHRHRVEndToEnd:
             )
             repository.save_baseline(baseline)
             return value_offset
-        
+
         # Run concurrent updates
         with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
             futures = [
                 executor.submit(update_baseline, i)
                 for i in range(5)
             ]
-            results = [f.result() for f in concurrent.futures.as_completed(futures)]
-        
+            # Wait for all futures to complete
+            [f.result() for f in concurrent.futures.as_completed(futures)]
+
         # Verify the last update wins
         final_baseline = repository.get_baseline(test_user_id)
         assert final_baseline is not None
-        
+
         # Should have one of the HR values we set
         assert final_baseline.heart_rate_mean in [60.0 + i for i in range(5)]
-        
+
         # HRV should match HR (same offset was used)
         hr_offset = final_baseline.heart_rate_mean - 60.0
         assert final_baseline.hrv_mean == 50.0 + hr_offset
@@ -226,7 +226,7 @@ class TestHRHRVEndToEnd:
         """Test that user ID hashing works correctly with HR/HRV data."""
         # Use a recognizable user ID
         plain_user_id = "test.user@example.com"
-        
+
         baseline = UserBaseline(
             user_id=plain_user_id,
             baseline_date=date.today(),
@@ -242,18 +242,18 @@ class TestHRHRVEndToEnd:
             last_updated=datetime.now(UTC),
             data_points=30,
         )
-        
+
         # Save baseline
         repository.save_baseline(baseline)
-        
+
         # Retrieve using same plain user ID
         retrieved = repository.get_baseline(plain_user_id)
-        
+
         # Should work transparently
         assert retrieved is not None
         assert retrieved.user_id == plain_user_id
         assert retrieved.heart_rate_mean == 65.0
         assert retrieved.hrv_mean == 55.0
-        
+
         # The actual storage should use hashed ID
         # This is verified internally by the repository

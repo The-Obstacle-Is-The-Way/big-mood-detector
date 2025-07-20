@@ -60,7 +60,7 @@ def train_command(model_type: str, user_id: str, data: str, labels: str) -> None
     """Train a personalized model using ``PersonalCalibrator``."""
     import numpy as np
     import pandas as pd
-    
+
     # Validate user ID
     from big_mood_detector.interfaces.cli.commands import validate_user_id
     validate_user_id(user_id)
