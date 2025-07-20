@@ -1,4 +1,0 @@
-# file: /Users/ray/Desktop/CLARITY-DIGITAL-TWIN/big-mood-detector/src/big_mood_detector/domain/entities/sleep_record.py
-# hypothesis_version: 6.136.0
-
-[3600, 'SleepState', 'disrupted', 'general', 'light', 'rem', 'resting', 'restorative']

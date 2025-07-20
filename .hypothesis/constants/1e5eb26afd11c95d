@@ -1,4 +1,0 @@
-# file: /Users/ray/Desktop/CLARITY-DIGITAL-TWIN/big-mood-detector/src/big_mood_detector/domain/services/early_warning_detector.py
-# hypothesis_version: 6.136.0
-
-[-30.0, 0.0, 0.8, 1.0, 2.0, 4.0, 'activity_sensitivity', 'detected', 'high', 'low', 'moderate', 'none', 'sleep_sensitivity']

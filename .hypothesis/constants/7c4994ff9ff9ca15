@@ -1,4 +1,0 @@
-# file: /Users/ray/Desktop/CLARITY-DIGITAL-TWIN/big-mood-detector/src/big_mood_detector/domain/services/feature_extraction_service.py
-# hypothesis_version: 6.136.0
-
-[0.0, 0.5, 0.7, 1.0, 60.0, 'Hypersomnia pattern', 'Hypoactivity pattern']

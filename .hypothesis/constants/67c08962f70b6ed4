@@ -1,4 +1,0 @@
-# file: /Users/ray/Desktop/CLARITY-DIGITAL-TWIN/big-mood-detector/src/big_mood_detector/domain/services/temporal_feature_calculator.py
-# hypothesis_version: 6.136.0
-
-[0.0, 1e-10, 0.05, 0.1, 0.3, 0.8, 1.0, 'T', 'decrease', 'increase', 'min_period_strength', 'significance_level', 'stability_threshold', 'temporal', 'valid']

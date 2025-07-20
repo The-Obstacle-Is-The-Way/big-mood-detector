@@ -1,4 +1,0 @@
-# file: /Users/ray/Desktop/CLARITY-DIGITAL-TWIN/big-mood-detector/src/big_mood_detector/domain/services/clinical_assessment_service.py
-# hypothesis_version: 6.136.0
-
-[0.0, 0.1, 0.5, 0.95, 1.0, 'Missing sleep data', 'activity_steps', 'anhedonia', 'asrm', 'comorbidities', 'concentration', 'contraindications', 'critical', 'current_medications', 'decreased_sleep', 'depressed_mood', 'depressive_episode', 'description', 'does not meet', 'elevated_mood', 'euthymic', 'fatigue', 'high', 'hypomanic_episode', 'increased_activity', 'low', 'manic_episode', 'meets', 'mixed_episode', 'mixed_features', 'moderate', 'phq', 'priority', 'psychotic_features', 'rapid_cycling', 'sleep_disturbance', 'sleep_hours', 'substance_use', 'suicidal_ideation', 'symptom_days', 'treatment']

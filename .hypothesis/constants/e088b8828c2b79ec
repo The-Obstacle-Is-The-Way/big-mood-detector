@@ -1,4 +1,0 @@
-# file: /Users/ray/Desktop/CLARITY-DIGITAL-TWIN/big-mood-detector/src/big_mood_detector/domain/services/pat_sequence_builder.py
-# hypothesis_version: 6.136.0
-
-[0.0, 0.1, 1.0, 1440, 'active_minutes', 'fragmentation', 'pat_hour', 'peak_activity', 'quality_score', 'total_activity']

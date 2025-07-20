@@ -107,6 +107,7 @@ temp/
 htmlcov/
 .mypy_cache/
 .pytest_cache/
+.hypothesis/
 __pycache__/
 *.py[cod]
 

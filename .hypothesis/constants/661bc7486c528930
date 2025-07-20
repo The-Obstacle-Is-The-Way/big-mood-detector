@@ -1,4 +1,0 @@
-# file: /Users/ray/Desktop/CLARITY-DIGITAL-TWIN/big-mood-detector/src/big_mood_detector/domain/services/biomarker_interpreter.py
-# hypothesis_version: 6.136.0
-
-['Minimal rest periods', 'high', 'low', 'moderate', 'routine', 'urgent']

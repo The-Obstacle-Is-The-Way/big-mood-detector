@@ -1,4 +1,0 @@
-# file: /Users/ray/Desktop/CLARITY-DIGITAL-TWIN/big-mood-detector/src/big_mood_detector/domain/services/activity_feature_calculator.py
-# hypothesis_version: 6.136.0
-
-[0.0, 0.7, 1.0, 6.0, 12.0, 2000, 5000, 10000, 15000, 'activity', 'fragmentation_window', 'high_threshold', 'inf', 'low_threshold']

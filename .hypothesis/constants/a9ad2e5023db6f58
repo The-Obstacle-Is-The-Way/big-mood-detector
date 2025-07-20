@@ -1,4 +1,0 @@
-# file: /Users/ray/Desktop/CLARITY-DIGITAL-TWIN/big-mood-detector/src/big_mood_detector/domain/services/clinical_feature_extractor.py
-# hypothesis_version: 6.136.0
-
-[0.0, 0.3, 1.0, 2.0, 3.0, 4.0, 7.0, 14.0, 21.0, 23.0, 24.0, 60.0, 'activity_variance', 'daily_steps', 'date', 'sedentary_bout_mean', 'sedentary_hours', 'sleep_duration_hours', 'sleep_efficiency', 'sleep_onset_hour', 'wake_time_hour']

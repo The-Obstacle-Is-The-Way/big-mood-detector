@@ -1,4 +1,0 @@
-# file: /Users/ray/Desktop/CLARITY-DIGITAL-TWIN/big-mood-detector/src/big_mood_detector/domain/services/intervention_evaluation_service.py
-# hypothesis_version: 6.136.0
-
-['activity_change', 'acute', 'circadian_shift', 'consecutive_days', 'critical', 'emergency', 'high', 'low', 'maintenance', 'moderate', 'monitoring', 'preventive', 'previous_episodes', 'sleep_change']

@@ -1,4 +1,0 @@
-# file: /Users/ray/Desktop/CLARITY-DIGITAL-TWIN/big-mood-detector/src/big_mood_detector/domain/services/clinical_thresholds.py
-# hypothesis_version: 6.136.0
-
-['activity_steps', 'asrm_cutoffs', 'biomarkers', 'circadian', 'critical_threshold', 'depression', 'depressive_days', 'dsm5_duration', 'efficiency_threshold', 'elevated_threshold', 'extreme_threshold', 'hypomanic', 'hypomanic_days', 'mania', 'mania_with_mixed', 'manic_days', 'manic_moderate', 'manic_severe', 'max', 'mild', 'min', 'mixed_features', 'moderate', 'moderate_reduction', 'moderately_severe', 'none', 'normal_max', 'normal_min', 'phq_cutoffs', 'reduced_threshold', 'severe', 'severe_reduction', 'sleep', 'sleep_hours']

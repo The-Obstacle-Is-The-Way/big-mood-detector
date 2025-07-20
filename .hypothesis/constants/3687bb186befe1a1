@@ -1,4 +1,0 @@
-# file: /Users/ray/Desktop/CLARITY-DIGITAL-TWIN/big-mood-detector/src/big_mood_detector/domain/services/mood_predictor.py
-# hypothesis_version: 6.136.0
-
-[0.0, 1.0, 2.0, 36.0, 'Circadian_phase_MN', 'Circadian_phase_SD', 'No models loaded', 'ST_long_MN', 'ST_long_SD', 'ST_long_Zscore', 'ST_short_MN', 'ST_short_SD', 'ST_short_Zscore', 'Sleep_amplitude_MN', 'Sleep_amplitude_SD', 'Sleep_percentage_MN', 'Sleep_percentage_SD', 'WT_long_MN', 'WT_long_SD', 'WT_long_Zscore', 'WT_short_MN', 'WT_short_SD', 'WT_short_Zscore', 'XGBOOST_MODEL_PATH', 'XGBoost_DE.json', 'XGBoost_HME.json', 'XGBoost_ME.json', 'confidence', 'converted', 'depression', 'depression_model.pkl', 'depression_risk', 'highest_risk_type', 'highest_risk_value', 'hypomanic', 'hypomanic_model.pkl', 'hypomanic_risk', 'ignore', 'loaded', 'manic', 'manic_model.pkl', 'manic_risk', 'model_weights', 'n_features', 'n_features_', 'predict_proba', 'pretrained', 'rb', 'type', 'xgboost']
