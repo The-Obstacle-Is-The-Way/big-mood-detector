@@ -398,15 +398,22 @@ class TimescaleBaselineRepository(BaselineRepositoryInterface):
 
             return baseline
 
-    def _sync_to_feast(self, baseline: UserBaseline, max_retries: int = 3) -> None:
+    def _sync_to_feast(self, baseline: UserBaseline, max_retries: int | None = None) -> None:
         """Sync baseline to Feast online store with retry logic.
 
         Args:
             baseline: UserBaseline to sync
-            max_retries: Maximum number of retry attempts
+            max_retries: Maximum number of retry attempts (uses settings default if None)
         """
         if not self.feast_client:
             return
+
+        # Get retry configuration from settings
+        from big_mood_detector.infrastructure.settings.config import get_settings
+        settings = get_settings()
+        
+        if max_retries is None:
+            max_retries = settings.FEAST_MAX_RETRIES
 
         # Retry with exponential backoff
         for attempt in range(max_retries):
@@ -441,8 +448,8 @@ class TimescaleBaselineRepository(BaselineRepositoryInterface):
 
             except Exception as e:
                 if attempt < max_retries - 1:
-                    # Exponential backoff: 0.5s, 1s, 2s
-                    backoff_time = 0.5 * (2**attempt)
+                    # Exponential backoff using settings base
+                    backoff_time = settings.FEAST_RETRY_BASE * (2**attempt)
                     logger.warning(
                         "feast_sync_retry",
                         user_id=baseline.user_id,

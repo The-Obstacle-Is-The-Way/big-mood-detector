@@ -12,8 +12,10 @@ from structlog import get_logger
 
 logger = get_logger()
 
-# Get salt from environment or use a default (should be overridden in production)
-USER_ID_SALT = os.getenv("USER_ID_SALT", "big-mood-detector-default-salt")
+# Get salt from settings
+from big_mood_detector.infrastructure.settings.config import get_settings
+
+USER_ID_SALT = get_settings().USER_ID_SALT
 
 
 def hash_user_id(user_id: str) -> str:
