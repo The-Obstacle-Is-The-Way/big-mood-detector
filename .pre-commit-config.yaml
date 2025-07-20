@@ -1,18 +1,18 @@
 repos:
-  # Python code formatting
-  - repo: https://github.com/psf/black
-    rev: 23.11.0
-    hooks:
-      - id: black
-        language_version: python3.11
-
-  # Python linting and import sorting
+  # Python linting and import sorting (run first)
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.1.6
     hooks:
       - id: ruff
         args: [--fix, --exit-non-zero-on-fix]
       - id: ruff-format
+
+  # Python code formatting (run after ruff to lock format)
+  - repo: https://github.com/psf/black
+    rev: 23.11.0
+    hooks:
+      - id: black
+        language_version: python3.11
 
   # Type checking
   - repo: https://github.com/pre-commit/mirrors-mypy
