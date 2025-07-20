@@ -134,7 +134,7 @@ class TimescaleBaselineRepository(BaselineRepositoryInterface):
         )
         if enable_feast_sync:
             try:
-                import feast  # type: ignore[import-not-found]
+                import feast
 
                 self.feast_client = feast.FeatureStore(repo_path=str(feast_repo_path))
                 logger.info("feast_client_initialized", repo_path=feast_repo_path)

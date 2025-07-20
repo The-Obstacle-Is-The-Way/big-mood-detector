@@ -9,7 +9,7 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 
-import joblib  # type: ignore[import-untyped]
+import joblib
 import numpy as np
 import pandas as pd
 import xgboost as xgb
