@@ -218,6 +218,10 @@ class AggregationPipeline:
         self.activity_extractor = activity_extractor or ActivitySequenceExtractor()
         self.circadian_analyzer = circadian_analyzer or CircadianRhythmAnalyzer()
         self.dlmo_calculator = dlmo_calculator or DLMOCalculator()
+        
+        # Import and initialize HeartRateAggregator
+        from big_mood_detector.domain.services.heart_rate_aggregator import HeartRateAggregator
+        self.heart_rate_aggregator = HeartRateAggregator()
 
         # Default normalization parameters
         self._default_normalization_params: dict[str, dict[str, float]] = {
@@ -297,7 +301,12 @@ class AggregationPipeline:
                 activity_records, current_date
             )
 
-            # 4. Circadian Rhythm Analysis
+            # 4. Heart Rate Metrics
+            heart_metrics = self._calculate_heart_rate_metrics(
+                heart_records, current_date
+            )
+
+            # 5. Circadian Rhythm Analysis
             circadian_metrics = self._calculate_circadian_metrics(
                 activity_records, current_date
             )
@@ -344,7 +353,8 @@ class AggregationPipeline:
                     sleep_metrics_window,
                     circadian_metrics_window,
                     activity_metrics,  # Pass activity metrics
-                    sleep_records,  # Pass sleep records for duration fix
+                    heart_metrics,     # Pass heart metrics
+                    sleep_records,     # Pass sleep records for duration fix
                 )
 
                 if features:
@@ -680,6 +690,47 @@ class AggregationPipeline:
             "activity_intensity_ratio": float(activity_intensity_ratio),
         }
 
+    def _calculate_heart_rate_metrics(
+        self,
+        heart_records: list[HeartRateRecord],
+        target_date: date,
+    ) -> dict[str, float]:
+        """Calculate heart rate metrics for a date."""
+        # Use HeartRateAggregator to get daily summary
+        all_summaries = self.heart_rate_aggregator.aggregate_daily(heart_records)
+        
+        # Get summary for target date
+        if target_date not in all_summaries:
+            # Return None values when no heart data (not magic defaults!)
+            return {
+                "avg_resting_hr": None,
+                "hrv_sdnn": None,
+                "hr_circadian_range": 0.0,
+                "hr_minimum_hour": 0.0,
+            }
+        
+        summary = all_summaries[target_date]
+        
+        # Find the hour when minimum HR occurred
+        hr_minimum_hour = 0.0
+        if heart_records:
+            # Filter records for target date
+            day_records = [
+                r for r in heart_records 
+                if r.timestamp.date() == target_date
+            ]
+            if day_records:
+                # Find record with minimum heart rate
+                min_record = min(day_records, key=lambda r: r.value)
+                hr_minimum_hour = float(min_record.timestamp.hour)
+        
+        return {
+            "avg_resting_hr": summary.avg_resting_hr if summary.avg_resting_hr > 0 else None,
+            "hrv_sdnn": summary.avg_hrv_sdnn if summary.avg_hrv_sdnn > 0 else None,
+            "hr_circadian_range": summary.circadian_hr_range,
+            "hr_minimum_hour": hr_minimum_hour,
+        }
+
     def _calculate_circadian_metrics(
         self,
         activity_records: list[ActivityRecord],
@@ -738,6 +789,7 @@ class AggregationPipeline:
         sleep_window: list[dict[str, float]],
         circadian_window: list[dict[str, float]],
         activity_metrics: dict[str, float],
+        heart_metrics: dict[str, float],
         sleep_records: list[SleepRecord],
     ) -> ClinicalFeatureSet | None:
         """Calculate features with mean, std, and z-scores."""
@@ -826,11 +878,11 @@ class AggregationPipeline:
             sedentary_bout_mean=activity_metrics.get("sedentary_bout_mean", 24.0),
             activity_intensity_ratio=activity_metrics.get("activity_intensity_ratio", 0.0),
 
-            # Heart rate metrics (defaults for now)
-            avg_resting_hr=70.0,
-            hrv_sdnn=0.0,
-            hr_circadian_range=0.0,
-            hr_minimum_hour=0.0,
+            # Heart rate metrics - use actual data or 0.0 if None
+            avg_resting_hr=heart_metrics.get("avg_resting_hr", 0.0) or 0.0,
+            hrv_sdnn=heart_metrics.get("hrv_sdnn", 0.0) or 0.0,
+            hr_circadian_range=heart_metrics.get("hr_circadian_range", 0.0),
+            hr_minimum_hour=heart_metrics.get("hr_minimum_hour", 0.0),
 
             # Phase metrics
             circadian_phase_advance=0.0,

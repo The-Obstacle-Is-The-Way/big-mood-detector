@@ -26,11 +26,11 @@ class UserBaseline:
     activity_mean: float
     activity_std: float
     circadian_phase: float
-    # Heart rate baselines (NEW)
-    heart_rate_mean: float = 70.0  # Default resting HR
-    heart_rate_std: float = 10.0
-    hrv_mean: float = 50.0  # Default HRV
-    hrv_std: float = 15.0
+    # Heart rate baselines - Optional, no magic defaults
+    heart_rate_mean: float | None = None
+    heart_rate_std: float | None = None
+    hrv_mean: float | None = None
+    hrv_std: float | None = None
     last_updated: datetime | None = None  # Will be set in __post_init__
     data_points: int = 30  # Number of days used in calculation
 

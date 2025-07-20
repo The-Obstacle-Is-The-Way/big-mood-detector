@@ -402,11 +402,10 @@ class AdvancedFeatureEngineer:
             "activity", activity.total_steps if activity else 0
         )
 
-        # SAFETY: Only update HR/HRV baselines with real data, not defaults
-        # Default HR=70, HRV=50 would skew athlete baselines incorrectly
-        if heart and heart.avg_resting_hr != 70.0:  # Skip default value
+        # Only update HR/HRV baselines with actual data
+        if heart and heart.avg_resting_hr > 0:  # Must have real data
             self._update_individual_baseline("hr", heart.avg_resting_hr)
-        if heart and heart.avg_hrv_sdnn != 50.0:  # Skip default value
+        if heart and heart.avg_hrv_sdnn > 0:  # Must have real data
             self._update_individual_baseline("hrv", heart.avg_hrv_sdnn)
 
         # Calculate Z-scores
@@ -669,8 +668,19 @@ class AdvancedFeatureEngineer:
             "mean": baseline.activity_mean,
             "std": baseline.activity_std,
         }
-        # Note: We'd need to extend UserBaseline to include HR/HRV baselines
-        # For now, these will be calculated fresh
+        # Load HR/HRV baselines if available (no magic defaults)
+        if baseline.heart_rate_mean is not None:
+            self.individual_baselines["hr"] = {
+                "values": [],
+                "mean": baseline.heart_rate_mean,
+                "std": baseline.heart_rate_std or 0.0,
+            }
+        if baseline.hrv_mean is not None:
+            self.individual_baselines["hrv"] = {
+                "values": [],
+                "mean": baseline.hrv_mean,
+                "std": baseline.hrv_std or 0.0,
+            }
 
     def persist_baselines(self) -> None:
         """Persist current baselines to repository."""
@@ -680,6 +690,8 @@ class AdvancedFeatureEngineer:
         # Extract current baseline statistics
         sleep_baseline = self.individual_baselines.get("sleep", {})
         activity_baseline = self.individual_baselines.get("activity", {})
+        hr_baseline = self.individual_baselines.get("hr", {})
+        hrv_baseline = self.individual_baselines.get("hrv", {})
 
         # Calculate circadian phase from recent data if available
         circadian_phase = 0.0  # Would calculate from recent sleep patterns
@@ -710,6 +722,11 @@ class AdvancedFeatureEngineer:
             activity_mean=activity_baseline.get("mean", 0.0),
             activity_std=activity_baseline.get("std", 0.0),
             circadian_phase=circadian_phase,
+            # Only include HR/HRV if we have actual data (no magic defaults!)
+            heart_rate_mean=hr_baseline.get("mean") if hr_baseline else None,
+            heart_rate_std=hr_baseline.get("std") if hr_baseline else None,
+            hrv_mean=hrv_baseline.get("mean") if hrv_baseline else None,
+            hrv_std=hrv_baseline.get("std") if hrv_baseline else None,
             last_updated=datetime.now(),
             data_points=data_points,
         )
