@@ -16,7 +16,10 @@ from collections.abc import Iterator
 from contextlib import contextmanager
 from datetime import UTC, date, datetime
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    import feast
 
 from sqlalchemy import (
     Column,
@@ -121,7 +124,7 @@ class TimescaleBaselineRepository(BaselineRepositoryInterface):
         self.SessionLocal = sessionmaker(bind=self.engine)
 
         # Initialize Feast client if enabled
-        self.feast_client: Any | None = None  # Will be feast.FeatureStore if available
+        self.feast_client: "feast.FeatureStore | None" = None
         if enable_feast_sync:
             try:
                 import feast  # type: ignore[import-not-found]
@@ -309,10 +312,12 @@ class TimescaleBaselineRepository(BaselineRepositoryInterface):
         if not metrics:
             return None
 
-        # Build metric dictionary
-        metric_values: dict[str, float] = {
-            str(m.feature_name): float(m.mean) for m in metrics
-        }
+        # Build metric dictionary with safety checks
+        metric_values: dict[str, float] = {}
+        for m in metrics:
+            assert m.feature_name is not None, f"feature_name cannot be None"
+            assert m.mean is not None, f"mean cannot be None for {m.feature_name}"
+            metric_values[str(m.feature_name)] = float(m.mean)
 
         return UserBaseline(
             user_id=user_id,
@@ -399,8 +404,8 @@ class TimescaleBaselineRepository(BaselineRepositoryInterface):
 
             except Exception as e:
                 if attempt < max_retries - 1:
-                    # Exponential backoff: 0.1s, 0.2s, 0.4s
-                    backoff_time = 0.1 * (2 ** attempt)
+                    # Exponential backoff: 0.5s, 1s, 2s
+                    backoff_time = 0.5 * (2 ** attempt)
                     logger.warning("feast_sync_retry",
                                  user_id=baseline.user_id,
                                  attempt=attempt + 1,
