@@ -10,9 +10,11 @@ from .xgboost_models import XGBoostMoodPredictor
 # Conditional import for PAT model (requires TensorFlow)
 try:
     from .pat_model import PATFeatureExtractor, PATModel
+
     PAT_AVAILABLE = True
 except ImportError:
     from typing import Any
+
     PAT_AVAILABLE = False
     PATModel = Any  # type: ignore
     PATFeatureExtractor = Any  # type: ignore

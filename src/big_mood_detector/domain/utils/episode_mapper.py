@@ -6,7 +6,6 @@ Centralizes the mapping logic to avoid duplication across services.
 """
 
 
-
 class EpisodeMapper:
     """Maps between different episode type representations."""
 

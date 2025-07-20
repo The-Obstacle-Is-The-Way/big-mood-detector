@@ -195,15 +195,16 @@ async def predict_mood_ensemble(
         if orchestrator is None:
             # Check if it's a TensorFlow issue
             from big_mood_detector.infrastructure.ml_models import PAT_AVAILABLE
+
             if not PAT_AVAILABLE:
                 raise HTTPException(
                     status_code=501,
-                    detail="PAT model requires TensorFlow. Install with: pip install tensorflow>=2.14.0"
+                    detail="PAT model requires TensorFlow. Install with: pip install tensorflow>=2.14.0",
                 )
             else:
                 raise HTTPException(
                     status_code=503,
-                    detail="Ensemble models not available. Check server logs."
+                    detail="Ensemble models not available. Check server logs.",
                 )
 
         # Convert features to numpy array
@@ -235,7 +236,9 @@ async def predict_mood_ensemble(
         interpretation = interpret_predictions(ml_predictions)
 
         # Generate clinical summary from interpretation
-        clinical_summary = f"{interpretation.primary_diagnosis} - {interpretation.risk_level} risk"
+        clinical_summary = (
+            f"{interpretation.primary_diagnosis} - {interpretation.risk_level} risk"
+        )
 
         # Use interpreter recommendations (limit to top 5 for API response)
         recommendations = interpretation.recommendations[:5]
@@ -301,8 +304,7 @@ async def get_model_status(
 
         # Check ensemble availability
         ensemble_available = (
-            orchestrator is not None
-            and orchestrator.xgboost_predictor.is_loaded
+            orchestrator is not None and orchestrator.xgboost_predictor.is_loaded
         )
 
         return {
@@ -312,10 +314,18 @@ async def get_model_status(
             "models_loaded": list(predictor.models.keys()),
             "model_info": predictor.get_model_info(),
             "pat_info": pat_info,
-            "ensemble_config": {
-                "xgboost_weight": orchestrator.config.xgboost_weight if orchestrator else None,
-                "pat_weight": orchestrator.config.pat_weight if orchestrator else None,
-            } if orchestrator else None,
+            "ensemble_config": (
+                {
+                    "xgboost_weight": (
+                        orchestrator.config.xgboost_weight if orchestrator else None
+                    ),
+                    "pat_weight": (
+                        orchestrator.config.pat_weight if orchestrator else None
+                    ),
+                }
+                if orchestrator
+                else None
+            ),
         }
 
     except Exception as e:
@@ -370,10 +380,13 @@ async def get_clinical_interpretation(
         feature_dict = features.model_dump()
 
         # Map to XGBoost feature order
-        xgboost_features = [0.0] * len(XGBOOST_FEATURE_NAMES)  # Initialize all features dynamically
+        xgboost_features = [0.0] * len(
+            XGBOOST_FEATURE_NAMES
+        )  # Initialize all features dynamically
 
         # Validate feature mapping in debug mode
         import os
+
         if os.getenv("DEBUG_FEATURES", "0") == "1":
             for api_name in API_TO_XGBOOST_MAPPING:
                 if api_name not in feature_dict:
@@ -386,6 +399,7 @@ async def get_clinical_interpretation(
 
         # Get prediction (ensemble if available, XGBoost otherwise)
         import numpy as np
+
         feature_array = np.array(xgboost_features, dtype=np.float32)
 
         if orchestrator and orchestrator.xgboost_predictor.is_loaded:

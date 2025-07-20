@@ -509,10 +509,15 @@ def setup_dependencies(settings: Any) -> Container:
     from big_mood_detector.domain.services.treatment_recommender import (
         TreatmentRecommender,
     )
+
     config_path = Path("config/clinical_thresholds.yaml")
     if not config_path.exists():
         # Try relative to data directory
-        fallback_path = getattr(settings, "DATA_DIR", Path("data")) / "config" / "clinical_thresholds.yaml"
+        fallback_path = (
+            getattr(settings, "DATA_DIR", Path("data"))
+            / "config"
+            / "clinical_thresholds.yaml"
+        )
         logger.debug(
             "clinical_config_path_fallback",
             primary_path=str(config_path),
@@ -525,10 +530,10 @@ def setup_dependencies(settings: Any) -> Container:
         clinical_config = load_clinical_thresholds(config_path)
         container.register_singleton(ClinicalThresholdsConfig, clinical_config)
     else:
-        logger.warning("clinical_config_not_found", attempted_paths=[
-            "config/clinical_thresholds.yaml",
-            str(config_path)
-        ])
+        logger.warning(
+            "clinical_config_not_found",
+            attempted_paths=["config/clinical_thresholds.yaml", str(config_path)],
+        )
 
     # Register core services first (many others depend on these)
     container.register_singleton(DSM5CriteriaEvaluator)
@@ -558,6 +563,7 @@ def setup_dependencies(settings: Any) -> Container:
     from big_mood_detector.domain.services.feature_engineering_orchestrator import (
         FeatureEngineeringOrchestrator,
     )
+
     container.register_singleton(FeatureEngineeringOrchestrator)
 
     # Register application services

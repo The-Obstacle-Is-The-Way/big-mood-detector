@@ -194,20 +194,30 @@ class ClinicalInterpreter:
                 from big_mood_detector.infrastructure.settings.config import (
                     get_settings,
                 )
+
                 settings = get_settings()
                 # Check in the root config directory first, then in data directory
                 config_path = Path("config/clinical_thresholds.yaml")
                 if not config_path.exists():
-                    config_path = settings.DATA_DIR / "config" / "clinical_thresholds.yaml"
+                    config_path = (
+                        settings.DATA_DIR / "config" / "clinical_thresholds.yaml"
+                    )
             except ImportError:
                 # Fallback for tests or when settings module is not available
                 import os
-                config_path = Path(os.environ.get("CLINICAL_CONFIG_PATH", "config/clinical_thresholds.yaml"))
+
+                config_path = Path(
+                    os.environ.get(
+                        "CLINICAL_CONFIG_PATH", "config/clinical_thresholds.yaml"
+                    )
+                )
 
             if config_path.exists():
                 config = load_clinical_thresholds(config_path)
             else:
-                raise ValueError(f"No configuration provided and default not found at {config_path}")
+                raise ValueError(
+                    f"No configuration provided and default not found at {config_path}"
+                )
 
         self.config = config
 

@@ -16,6 +16,7 @@ from big_mood_detector.domain.repositories.baseline_repository_interface import 
     UserBaseline,
 )
 from big_mood_detector.infrastructure.logging import get_logger
+from big_mood_detector.infrastructure.security import hash_user_id
 
 logger = get_logger()
 
@@ -41,7 +42,9 @@ class FileBaselineRepository(BaselineRepositoryInterface):
 
     def save_baseline(self, baseline: UserBaseline) -> None:
         """Save or update a user's baseline with file locking for thread safety."""
-        user_dir = self.base_path / baseline.user_id
+        # Hash user ID for privacy
+        hashed_user_id = hash_user_id(baseline.user_id)
+        user_dir = self.base_path / hashed_user_id
         user_dir.mkdir(exist_ok=True)
 
         history_file = user_dir / "baseline_history.json"
@@ -75,7 +78,9 @@ class FileBaselineRepository(BaselineRepositoryInterface):
 
     def get_baseline(self, user_id: str) -> UserBaseline | None:
         """Retrieve the most recent baseline for a user."""
-        history_file = self.base_path / user_id / "baseline_history.json"
+        # Hash user ID for privacy
+        hashed_user_id = hash_user_id(user_id)
+        history_file = self.base_path / hashed_user_id / "baseline_history.json"
 
         if not history_file.exists():
             logger.debug("baseline_not_found", user_id=user_id)
@@ -98,7 +103,9 @@ class FileBaselineRepository(BaselineRepositoryInterface):
 
     def get_baseline_history(self, user_id: str, limit: int = 10) -> list[UserBaseline]:
         """Get historical baselines for trend analysis."""
-        history_file = self.base_path / user_id / "baseline_history.json"
+        # Hash user ID for privacy
+        hashed_user_id = hash_user_id(user_id)
+        history_file = self.base_path / hashed_user_id / "baseline_history.json"
 
         if not history_file.exists():
             logger.debug("baseline_history_not_found", user_id=user_id)

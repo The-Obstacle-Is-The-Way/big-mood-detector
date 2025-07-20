@@ -195,4 +195,3 @@ class StreamingFeatureWriter(ChunkedWriter):
             # Add more fields as needed
         }
         self.write_record(record)
-

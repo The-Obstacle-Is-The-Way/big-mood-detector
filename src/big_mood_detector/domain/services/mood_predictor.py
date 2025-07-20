@@ -88,18 +88,25 @@ class MoodPredictor:
                 from big_mood_detector.infrastructure.settings.config import (
                     get_settings,
                 )
+
                 settings = get_settings()
                 # Check in the root model_weights directory first, then in data directory
                 model_dir = Path("model_weights/xgboost/pretrained")
                 if not model_dir.exists():
-                    model_dir = settings.DATA_DIR / "model_weights" / "xgboost" / "pretrained"
+                    model_dir = (
+                        settings.DATA_DIR / "model_weights" / "xgboost" / "pretrained"
+                    )
             except ImportError:
                 # Fallback for tests or when settings module is not available
-                model_path = os.environ.get("XGBOOST_MODEL_PATH", "model_weights/xgboost/pretrained")
+                model_path = os.environ.get(
+                    "XGBOOST_MODEL_PATH", "model_weights/xgboost/pretrained"
+                )
                 if os.path.isabs(model_path):
                     model_dir = Path(model_path)
                 else:
-                    base_path = Path(os.path.dirname(__file__)).parent.parent.parent.parent
+                    base_path = Path(
+                        os.path.dirname(__file__)
+                    ).parent.parent.parent.parent
                     model_dir = base_path / model_path
 
         self.model_dir = Path(model_dir)
@@ -130,7 +137,9 @@ class MoodPredictor:
                 try:
                     self.models[mood_type] = xgb.Booster()
                     self.models[mood_type].load_model(str(json_path))
-                    print(f"Loaded {mood_type} model from {json_models[mood_type]} (JSON format)")
+                    print(
+                        f"Loaded {mood_type} model from {json_models[mood_type]} (JSON format)"
+                    )
                     continue
                 except Exception as e:
                     print(f"Failed to load JSON model: {e}")
@@ -181,18 +190,42 @@ class MoodPredictor:
                 if isinstance(model, xgb.Booster):
                     # JSON-loaded Booster - use DMatrix with feature names
                     feature_names = [
-                        "ST_long_MN", "ST_long_SD", "ST_long_Zscore",
-                        "ST_short_MN", "ST_short_SD", "ST_short_Zscore",
-                        "WT_long_MN", "WT_long_SD", "WT_long_Zscore",
-                        "WT_short_MN", "WT_short_SD", "WT_short_Zscore",
-                        "LongSleepWindow_length_MN", "LongSleepWindow_length_SD", "LongSleepWindow_length_Zscore",
-                        "LongSleepWindow_number_MN", "LongSleepWindow_number_SD", "LongSleepWindow_number_Zscore",
-                        "ShortSleepWindow_length_MN", "ShortSleepWindow_length_SD", "ShortSleepWindow_length_Zscore",
-                        "ShortSleepWindow_number_MN", "ShortSleepWindow_number_SD", "ShortSleepWindow_number_Zscore",
-                        "Sleep_percentage_MN", "Sleep_percentage_SD", "Sleep_percentage_Zscore",
-                        "Sleep_amplitude_MN", "Sleep_amplitude_SD", "Sleep_amplitude_Zscore",
-                        "Circadian_phase_MN", "Circadian_phase_SD", "Circadian_phase_Zscore",
-                        "Circadian_amplitude_MN", "Circadian_amplitude_SD", "Circadian_amplitude_Zscore",
+                        "ST_long_MN",
+                        "ST_long_SD",
+                        "ST_long_Zscore",
+                        "ST_short_MN",
+                        "ST_short_SD",
+                        "ST_short_Zscore",
+                        "WT_long_MN",
+                        "WT_long_SD",
+                        "WT_long_Zscore",
+                        "WT_short_MN",
+                        "WT_short_SD",
+                        "WT_short_Zscore",
+                        "LongSleepWindow_length_MN",
+                        "LongSleepWindow_length_SD",
+                        "LongSleepWindow_length_Zscore",
+                        "LongSleepWindow_number_MN",
+                        "LongSleepWindow_number_SD",
+                        "LongSleepWindow_number_Zscore",
+                        "ShortSleepWindow_length_MN",
+                        "ShortSleepWindow_length_SD",
+                        "ShortSleepWindow_length_Zscore",
+                        "ShortSleepWindow_number_MN",
+                        "ShortSleepWindow_number_SD",
+                        "ShortSleepWindow_number_Zscore",
+                        "Sleep_percentage_MN",
+                        "Sleep_percentage_SD",
+                        "Sleep_percentage_Zscore",
+                        "Sleep_amplitude_MN",
+                        "Sleep_amplitude_SD",
+                        "Sleep_amplitude_Zscore",
+                        "Circadian_phase_MN",
+                        "Circadian_phase_SD",
+                        "Circadian_phase_Zscore",
+                        "Circadian_amplitude_MN",
+                        "Circadian_amplitude_SD",
+                        "Circadian_amplitude_Zscore",
                     ]
                     dmatrix = xgb.DMatrix(features_2d, feature_names=feature_names)
                     # Booster.predict returns raw scores (probabilities for binary classification)

@@ -144,6 +144,7 @@ class SleepJSONParser:
                     # Last resort - use dateutil if available
                     try:
                         from dateutil import parser
+
                         start_date = parser.parse(start_str)
                         end_date = parser.parse(end_str)
                     except ImportError:
@@ -464,6 +465,7 @@ class ActivityJSONParser:
                     # Last resort - use dateutil if available
                     try:
                         from dateutil import parser
+
                         start_date = parser.parse(start_str)
                         end_date = parser.parse(end_str)
                     except ImportError:

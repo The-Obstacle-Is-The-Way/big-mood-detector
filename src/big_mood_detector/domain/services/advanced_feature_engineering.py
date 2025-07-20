@@ -160,7 +160,9 @@ class AdvancedFeatureEngineer:
         self.population_baselines: dict[str, float] = {}
         self.baseline_repository = baseline_repository
         self.user_id = user_id
-        self._loaded_baseline = None  # Track loaded baseline for data_points accumulation
+        self._loaded_baseline = (
+            None  # Track loaded baseline for data_points accumulation
+        )
 
         # Initialize specialized calculators with config
         self.sleep_calculator = SleepFeatureCalculator(config)
@@ -551,7 +553,7 @@ class AdvancedFeatureEngineer:
                 "std": 0.0,
                 "count": 0,
                 "sum": 0.0,
-                "sum_sq": 0.0
+                "sum_sq": 0.0,
             }
 
         baseline = self.individual_baselines[metric]
@@ -568,7 +570,9 @@ class AdvancedFeatureEngineer:
             baseline["sum"] = baseline["mean"] * estimated_count
             # Variance = std^2, and sum_sq can be derived from variance formula
             variance = baseline["std"] ** 2
-            baseline["sum_sq"] = (variance * estimated_count) + (baseline["sum"] ** 2 / estimated_count)
+            baseline["sum_sq"] = (variance * estimated_count) + (
+                baseline["sum"] ** 2 / estimated_count
+            )
 
         # Add new value to baseline
         values_list = baseline["values"]
@@ -580,7 +584,7 @@ class AdvancedFeatureEngineer:
         # Update incremental statistics
         baseline["count"] = baseline.get("count", 0) + 1
         baseline["sum"] = baseline.get("sum", 0.0) + value
-        baseline["sum_sq"] = baseline.get("sum_sq", 0.0) + (value ** 2)
+        baseline["sum_sq"] = baseline.get("sum_sq", 0.0) + (value**2)
 
         # Calculate new mean and std using incremental formulas
         count = baseline["count"]

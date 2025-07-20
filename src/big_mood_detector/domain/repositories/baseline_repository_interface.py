@@ -19,6 +19,7 @@ class UserBaseline:
     Baselines are statistical summaries of a user's typical patterns,
     used for Z-score normalization in mood prediction.
     """
+
     user_id: str
     baseline_date: date
     sleep_mean: float
@@ -37,7 +38,7 @@ class UserBaseline:
     def __post_init__(self) -> None:
         """Set default values for datetime fields."""
         if self.last_updated is None:
-            object.__setattr__(self, 'last_updated', datetime.now())
+            object.__setattr__(self, "last_updated", datetime.now())
 
 
 class BaselineRepositoryInterface(ABC):
@@ -72,9 +73,7 @@ class BaselineRepositoryInterface(ABC):
         pass
 
     @abstractmethod
-    def get_baseline_history(
-        self, user_id: str, limit: int = 10
-    ) -> list[UserBaseline]:
+    def get_baseline_history(self, user_id: str, limit: int = 10) -> list[UserBaseline]:
         """
         Get historical baselines for trend analysis.
 

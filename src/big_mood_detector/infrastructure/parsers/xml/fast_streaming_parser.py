@@ -16,9 +16,11 @@ from typing import Any
 
 try:
     from lxml import etree
+
     HAS_LXML = True
 except ImportError:
     import xml.etree.ElementTree as etree  # type: ignore[no-redef]
+
     HAS_LXML = False
     logging.warning("lxml not available, falling back to slower stdlib XML parser")
 
@@ -68,7 +70,7 @@ class FastStreamingXMLParser:
         start_date: datetime | None = None,
         end_date: datetime | None = None,
         *args: Any,
-        **kwargs: Any
+        **kwargs: Any,
     ) -> Generator[Any, None, None]:
         """
         Fast iteration pattern that clears elements to save memory.
@@ -143,11 +145,7 @@ class FastStreamingXMLParser:
 
         try:
             # Create iterator context - only parse Record elements
-            context = etree.iterparse(
-                str(file_path),
-                events=("end",),
-                tag="Record"
-            )
+            context = etree.iterparse(str(file_path), events=("end",), tag="Record")
 
             def process_element(elem: Any) -> dict[str, Any] | None:
                 """Process a single element and return its data."""
@@ -164,18 +162,16 @@ class FastStreamingXMLParser:
                 for metadata in elem.findall("MetadataEntry"):
                     key = metadata.get("key")
                     value = metadata.get("value")
-                    if key == "HKMetadataKeyHeartRateMotionContext" and value is not None:
+                    if (
+                        key == "HKMetadataKeyHeartRateMotionContext"
+                        and value is not None
+                    ):
                         record_data["motionContext"] = value
 
                 return record_data
 
             # Use fast_iter for memory-efficient processing
-            yield from self.fast_iter(
-                context,
-                process_element,
-                start_date,
-                end_date
-            )
+            yield from self.fast_iter(context, process_element, start_date, end_date)
 
         except etree.ParseError as e:
             raise ValueError(f"XML parsing error: {str(e)}") from e
@@ -217,7 +213,9 @@ class FastStreamingXMLParser:
         record_count = 0
 
         # Stream through records
-        for record_dict in self.iter_records(file_path, types_to_parse, start_dt, end_dt):
+        for record_dict in self.iter_records(
+            file_path, types_to_parse, start_dt, end_dt
+        ):
             record_type = record_dict.get("type")
             record_count += 1
 
@@ -296,19 +294,16 @@ class FastStreamingXMLParser:
 
         Useful for progress estimation and data quality checks.
         """
-        counts = {
-            "sleep": 0,
-            "activity": 0,
-            "heart": 0,
-            "total": 0
-        }
+        counts = {"sleep": 0, "activity": 0, "heart": 0, "total": 0}
 
         # Convert dates
         start_dt = datetime.strptime(start_date, "%Y-%m-%d") if start_date else None
         end_dt = datetime.strptime(end_date, "%Y-%m-%d") if end_date else None
 
         # Just count without converting to entities
-        for record_dict in self.iter_records(file_path, self.all_types, start_dt, end_dt):
+        for record_dict in self.iter_records(
+            file_path, self.all_types, start_dt, end_dt
+        ):
             record_type = record_dict.get("type")
             counts["total"] += 1
 
@@ -342,4 +337,3 @@ class FastStreamingXMLParser:
                 record.set(key, str(value))
 
         return root
-

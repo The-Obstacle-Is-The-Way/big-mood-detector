@@ -223,6 +223,7 @@ class AggregationPipeline:
         from big_mood_detector.domain.services.heart_rate_aggregator import (
             HeartRateAggregator,
         )
+
         self.heart_rate_aggregator = HeartRateAggregator()
 
         # Default normalization parameters
@@ -328,7 +329,9 @@ class AggregationPipeline:
                 # FIX: Add accurate sleep duration to daily_metrics
                 # This overwrites the bogus sleep_percentage * 24 calculation
                 if "sleep" in daily_metrics:
-                    accurate_hours = self._get_actual_sleep_duration(sleep_records, current_date)
+                    accurate_hours = self._get_actual_sleep_duration(
+                        sleep_records, current_date
+                    )
                     daily_metrics["sleep"]["sleep_duration_hours"] = accurate_hours
 
                     # WARNING: sleep_percentage is ONLY the fraction of day asleep
@@ -355,8 +358,8 @@ class AggregationPipeline:
                     sleep_metrics_window,
                     circadian_metrics_window,
                     activity_metrics,  # Pass activity metrics
-                    heart_metrics,     # Pass heart metrics
-                    sleep_records,     # Pass sleep records for duration fix
+                    heart_metrics,  # Pass heart metrics
+                    sleep_records,  # Pass sleep records for duration fix
                 )
 
                 if features:
@@ -617,8 +620,7 @@ class AggregationPipeline:
         """Calculate activity metrics for a date."""
         # Filter activity records for the target date
         day_activity = [
-            a for a in activity_records
-            if a.start_date.date() == target_date
+            a for a in activity_records if a.start_date.date() == target_date
         ]
 
         if not day_activity:
@@ -634,9 +636,9 @@ class AggregationPipeline:
 
         # Calculate total steps
         from big_mood_detector.domain.entities.activity_record import ActivityType
+
         step_records = [
-            r for r in day_activity
-            if r.activity_type == ActivityType.STEP_COUNT
+            r for r in day_activity if r.activity_type == ActivityType.STEP_COUNT
         ]
         total_steps = sum(r.value for r in step_records)
 
@@ -655,7 +657,7 @@ class AggregationPipeline:
         # Simple fragmentation: transitions between active/sedentary
         transitions = 0
         for i in range(1, len(hourly_activity)):
-            if (hourly_activity[i-1] < 250) != (hourly_activity[i] < 250):
+            if (hourly_activity[i - 1] < 250) != (hourly_activity[i] < 250):
                 transitions += 1
         activity_fragmentation = transitions / 23.0 if len(hourly_activity) > 1 else 0.0
 
@@ -672,15 +674,13 @@ class AggregationPipeline:
             sedentary_bouts.append(current_bout)
 
         sedentary_bout_mean = (
-            sum(sedentary_bouts) / len(sedentary_bouts)
-            if sedentary_bouts else 24.0
+            sum(sedentary_bouts) / len(sedentary_bouts) if sedentary_bouts else 24.0
         )
 
         # Activity intensity ratio (high activity hours / total active hours)
         high_activity_hours = sum(1 for h in hourly_activity if h >= 1000)
         activity_intensity_ratio = (
-            high_activity_hours / max(1, active_hours)
-            if active_hours > 0 else 0.0
+            high_activity_hours / max(1, active_hours) if active_hours > 0 else 0.0
         )
 
         return {
@@ -718,8 +718,7 @@ class AggregationPipeline:
         if heart_records:
             # Filter records for target date
             day_records = [
-                r for r in heart_records
-                if r.timestamp.date() == target_date
+                r for r in heart_records if r.timestamp.date() == target_date
             ]
             if day_records:
                 # Find record with minimum heart rate
@@ -727,7 +726,9 @@ class AggregationPipeline:
                 hr_minimum_hour = float(min_record.timestamp.hour)
 
         return {
-            "avg_resting_hr": summary.avg_resting_hr if summary.avg_resting_hr > 0 else None,
+            "avg_resting_hr": (
+                summary.avg_resting_hr if summary.avg_resting_hr > 0 else None
+            ),
             "hrv_sdnn": summary.avg_hrv_sdnn if summary.avg_hrv_sdnn > 0 else None,
             "hr_circadian_range": summary.circadian_hr_range,
             "hr_minimum_hour": hr_minimum_hour,
@@ -849,21 +850,33 @@ class AggregationPipeline:
         seoul_features = SeoulXGBoostFeatures(
             date=current_date,
             # Sleep duration metrics - FIXED: Use SleepAggregator for accurate duration
-            sleep_duration_hours=self._get_actual_sleep_duration(sleep_records, current_date),
+            sleep_duration_hours=self._get_actual_sleep_duration(
+                sleep_records, current_date
+            ),
             sleep_efficiency=0.9,  # Default for now, should be calculated
             sleep_onset_hour=21.0,  # Default for now
             wake_time_hour=7.0,  # Default for now
             sleep_fragmentation=0.0,  # Default for now
             sleep_regularity_index=90.0,  # Default for now
-
             # Sleep windows
-            short_sleep_window_pct=daily_metrics["sleep"]["short_num"] / max(1, daily_metrics["sleep"]["long_num"] + daily_metrics["sleep"]["short_num"]),
-            long_sleep_window_pct=daily_metrics["sleep"]["long_num"] / max(1, daily_metrics["sleep"]["long_num"] + daily_metrics["sleep"]["short_num"]),
+            short_sleep_window_pct=daily_metrics["sleep"]["short_num"]
+            / max(
+                1,
+                daily_metrics["sleep"]["long_num"]
+                + daily_metrics["sleep"]["short_num"],
+            ),
+            long_sleep_window_pct=daily_metrics["sleep"]["long_num"]
+            / max(
+                1,
+                daily_metrics["sleep"]["long_num"]
+                + daily_metrics["sleep"]["short_num"],
+            ),
             sleep_onset_variance=0.0,  # Default for now
             wake_time_variance=0.0,  # Default for now
-
             # Circadian metrics
-            interdaily_stability=daily_metrics.get("circadian", {}).get("amplitude", 0.0),
+            interdaily_stability=daily_metrics.get("circadian", {}).get(
+                "amplitude", 0.0
+            ),
             intradaily_variability=0.0,  # Default for now
             relative_amplitude=daily_metrics.get("circadian", {}).get("amplitude", 0.0),
             l5_value=0.0,  # Default for now
@@ -871,33 +884,30 @@ class AggregationPipeline:
             l5_onset_hour=2,  # Default for now
             m10_onset_hour=14,  # Default for now
             dlmo_hour=daily_metrics.get("circadian", {}).get("phase", 21.0),
-
             # Activity metrics
             total_steps=int(activity_metrics.get("daily_steps", 0)),
             activity_variance=activity_metrics.get("activity_variance", 0.0),
             sedentary_hours=activity_metrics.get("sedentary_hours", 24.0),
             activity_fragmentation=activity_metrics.get("activity_fragmentation", 0.0),
             sedentary_bout_mean=activity_metrics.get("sedentary_bout_mean", 24.0),
-            activity_intensity_ratio=activity_metrics.get("activity_intensity_ratio", 0.0),
-
+            activity_intensity_ratio=activity_metrics.get(
+                "activity_intensity_ratio", 0.0
+            ),
             # Heart rate metrics - use actual data or 0.0 if None
             avg_resting_hr=heart_metrics.get("avg_resting_hr", 0.0) or 0.0,
             hrv_sdnn=heart_metrics.get("hrv_sdnn", 0.0) or 0.0,
             hr_circadian_range=heart_metrics.get("hr_circadian_range", 0.0) or 0.0,
             hr_minimum_hour=heart_metrics.get("hr_minimum_hour", 0.0) or 0.0,
-
             # Phase metrics
             circadian_phase_advance=0.0,
             circadian_phase_delay=0.0,
             dlmo_confidence=0.8,
             pat_hour=14.0,
-
             # Z-scores (these are the aggregated z-scores)
             sleep_duration_zscore=sleep_features["sleep_percentage_zscore"],
             activity_zscore=0.0,  # Default for now
             hr_zscore=0.0,  # Default for now
             hrv_zscore=0.0,  # Default for now
-
             # Data quality
             data_completeness=0.8,  # Default for now
             is_hypersomnia_pattern=False,
@@ -917,7 +927,9 @@ class AggregationPipeline:
             sedentary_hours=activity_metrics.get("sedentary_hours", 24.0),
             activity_fragmentation=activity_metrics.get("activity_fragmentation", 0.0),
             sedentary_bout_mean=activity_metrics.get("sedentary_bout_mean", 24.0),
-            activity_intensity_ratio=activity_metrics.get("activity_intensity_ratio", 0.0),
+            activity_intensity_ratio=activity_metrics.get(
+                "activity_intensity_ratio", 0.0
+            ),
         )
 
     def _get_actual_sleep_duration(

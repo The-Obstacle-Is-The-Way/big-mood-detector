@@ -32,6 +32,7 @@ try:
     from big_mood_detector.infrastructure.parsers.xml.fast_streaming_parser import (
         FastStreamingXMLParser,
     )
+
     HAS_FAST_PARSER = True
 except ImportError:
     HAS_FAST_PARSER = False
@@ -110,7 +111,9 @@ class DataParsingService:
         """
         # Use fast parser if available (20x faster with lxml)
         if HAS_FAST_PARSER and xml_parser is None:
-            self._xml_parser: StreamingXMLParser | FastStreamingXMLParser = FastStreamingXMLParser()
+            self._xml_parser: StreamingXMLParser | FastStreamingXMLParser = (
+                FastStreamingXMLParser()
+            )
         else:
             self._xml_parser = xml_parser or StreamingXMLParser()
         self._sleep_parser = sleep_parser or SleepJSONParser()
@@ -229,7 +232,10 @@ class DataParsingService:
         # Single-pass parsing: parse all entity types in one iteration
         # This is 3x faster than the previous approach that made 3 separate passes
         for entity in self._xml_parser.parse_file(
-            xml_path, entity_type="all", start_date=start_date_str, end_date=end_date_str
+            xml_path,
+            entity_type="all",
+            start_date=start_date_str,
+            end_date=end_date_str,
         ):
             if isinstance(entity, SleepRecord):
                 sleep_records.append(entity)
@@ -269,7 +275,12 @@ class DataParsingService:
         if progress_callback:
             progress_callback("Parsing sleep files", 0.0)
 
-        sleep_files = list(set(list(json_dir.glob("*[Ss]leep*.json")) + list(json_dir.glob("[Ss]leep*.json"))))
+        sleep_files = list(
+            set(
+                list(json_dir.glob("*[Ss]leep*.json"))
+                + list(json_dir.glob("[Ss]leep*.json"))
+            )
+        )
         for i, file in enumerate(sleep_files):
             sleep_data = self._sleep_parser.parse_file(str(file))
             sleep_records.extend(sleep_data)
@@ -282,7 +293,12 @@ class DataParsingService:
         if progress_callback:
             progress_callback("Parsing activity files", 0.0)
 
-        activity_files = list(set(list(json_dir.glob("*[Ss]tep*.json")) + list(json_dir.glob("[Ss]tep*.json"))))
+        activity_files = list(
+            set(
+                list(json_dir.glob("*[Ss]tep*.json"))
+                + list(json_dir.glob("[Ss]tep*.json"))
+            )
+        )
         for i, file in enumerate(activity_files):
             activity_data = self._activity_parser.parse_file(str(file))
             activity_records.extend(activity_data)
@@ -319,17 +335,19 @@ class DataParsingService:
         activity_records = []
         heart_rate_records: list[HeartRateRecord] = []
 
-        with zipfile.ZipFile(zip_path, 'r') as zf:
+        with zipfile.ZipFile(zip_path, "r") as zf:
             # Check if this is an Apple Health XML export or JSON export
-            xml_files = [f for f in zf.namelist() if f.endswith('.xml')]
-            json_files = [f for f in zf.namelist() if f.endswith('.json')]
+            xml_files = [f for f in zf.namelist() if f.endswith(".xml")]
+            json_files = [f for f in zf.namelist() if f.endswith(".json")]
 
-            if xml_files and any('export.xml' in f for f in xml_files):
+            if xml_files and any("export.xml" in f for f in xml_files):
                 # This is an Apple Health XML export ZIP
                 # Extract and parse the XML file
                 for xml_file in xml_files:
-                    if 'export.xml' in xml_file:
-                        with tempfile.NamedTemporaryFile(mode='wb', suffix='.xml', delete=False) as tmp:
+                    if "export.xml" in xml_file:
+                        with tempfile.NamedTemporaryFile(
+                            mode="wb", suffix=".xml", delete=False
+                        ) as tmp:
                             tmp.write(zf.read(xml_file))
                             tmp_path = Path(tmp.name)
 
@@ -351,9 +369,11 @@ class DataParsingService:
                     json_content = zf.read(filename)
 
                     # Parse based on filename
-                    if 'sleep' in filename.lower():
+                    if "sleep" in filename.lower():
                         # Write to temp file for parser
-                        with tempfile.NamedTemporaryFile(mode='wb', suffix='.json', delete=False) as tmp:
+                        with tempfile.NamedTemporaryFile(
+                            mode="wb", suffix=".json", delete=False
+                        ) as tmp:
                             tmp.write(json_content)
                             tmp_path = Path(tmp.name)
 
@@ -361,9 +381,15 @@ class DataParsingService:
                         sleep_records.extend(sleep_data)
                         Path(tmp_path).unlink()  # Clean up temp file
 
-                    elif 'step' in filename.lower() or 'activity' in filename.lower() or 'count' in filename.lower():
+                    elif (
+                        "step" in filename.lower()
+                        or "activity" in filename.lower()
+                        or "count" in filename.lower()
+                    ):
                         # Write to temp file for parser
-                        with tempfile.NamedTemporaryFile(mode='wb', suffix='.json', delete=False) as tmp:
+                        with tempfile.NamedTemporaryFile(
+                            mode="wb", suffix=".json", delete=False
+                        ) as tmp:
                             tmp.write(json_content)
                             tmp_path = Path(tmp.name)
 
@@ -376,7 +402,9 @@ class DataParsingService:
 
             else:
                 # No supported files found
-                raise ValueError("ZIP file does not contain supported health data (no export.xml or JSON files found)")
+                raise ValueError(
+                    "ZIP file does not contain supported health data (no export.xml or JSON files found)"
+                )
 
         return ParsedHealthData(
             sleep_records=sleep_records,
@@ -413,7 +441,9 @@ class DataParsingService:
 
         return filtered
 
-    def validate_parsed_data(self, data: dict[str, list] | ParsedHealthData) -> DataValidationResult:
+    def validate_parsed_data(
+        self, data: dict[str, list] | ParsedHealthData
+    ) -> DataValidationResult:
         """
         Validate parsed health data.
 

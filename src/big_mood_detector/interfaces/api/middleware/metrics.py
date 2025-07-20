@@ -14,46 +14,36 @@ from prometheus_client import Counter, Gauge, Histogram, generate_latest
 
 # Metrics definitions
 REQUEST_COUNT = Counter(
-    "http_requests_total",
-    "Total HTTP requests",
-    ["method", "endpoint", "status_code"]
+    "http_requests_total", "Total HTTP requests", ["method", "endpoint", "status_code"]
 )
 
 REQUEST_DURATION = Histogram(
     "http_request_duration_seconds",
     "HTTP request duration in seconds",
-    ["method", "endpoint"]
+    ["method", "endpoint"],
 )
 
 PREDICTION_COUNT = Counter(
-    "predictions_total",
-    "Total predictions made",
-    ["model_type", "prediction_type"]
+    "predictions_total", "Total predictions made", ["model_type", "prediction_type"]
 )
 
 PREDICTION_LATENCY = Histogram(
-    "prediction_latency_seconds",
-    "Prediction latency in seconds",
-    ["model_type"]
+    "prediction_latency_seconds", "Prediction latency in seconds", ["model_type"]
 )
 
 MODEL_LOAD_STATUS = Gauge(
-    "model_loaded",
-    "Model load status (1=loaded, 0=not loaded)",
-    ["model_name"]
+    "model_loaded", "Model load status (1=loaded, 0=not loaded)", ["model_name"]
 )
 
 ENSEMBLE_REQUESTS = Counter(
-    "ensemble_requests_total",
-    "Total ensemble prediction requests",
-    ["pat_available"]
+    "ensemble_requests_total", "Total ensemble prediction requests", ["pat_available"]
 )
 
 RISK_PREDICTIONS = Histogram(
     "risk_prediction_values",
     "Risk prediction values distribution",
     ["risk_type"],
-    buckets=(0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0)
+    buckets=(0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0),
 )
 
 
@@ -79,15 +69,10 @@ async def metrics_middleware(request: Request, call_next: Callable) -> Response:
     endpoint = request.url.path
 
     REQUEST_COUNT.labels(
-        method=request.method,
-        endpoint=endpoint,
-        status_code=response.status_code
+        method=request.method, endpoint=endpoint, status_code=response.status_code
     ).inc()
 
-    REQUEST_DURATION.labels(
-        method=request.method,
-        endpoint=endpoint
-    ).observe(duration)
+    REQUEST_DURATION.labels(method=request.method, endpoint=endpoint).observe(duration)
 
     return cast(Response, response)
 
@@ -102,20 +87,15 @@ def track_prediction(model_type: str, prediction_type: str, latency: float) -> N
         latency: Time taken in seconds
     """
     PREDICTION_COUNT.labels(
-        model_type=model_type,
-        prediction_type=prediction_type
+        model_type=model_type, prediction_type=prediction_type
     ).inc()
 
-    PREDICTION_LATENCY.labels(
-        model_type=model_type
-    ).observe(latency)
+    PREDICTION_LATENCY.labels(model_type=model_type).observe(latency)
 
 
 def track_ensemble_request(pat_available: bool) -> None:
     """Track ensemble prediction request."""
-    ENSEMBLE_REQUESTS.labels(
-        pat_available=str(pat_available).lower()
-    ).inc()
+    ENSEMBLE_REQUESTS.labels(pat_available=str(pat_available).lower()).inc()
 
 
 def track_risk_values(depression: float, hypomanic: float, manic: float) -> None:
@@ -139,7 +119,7 @@ async def metrics_endpoint(request: Request) -> PlainTextResponse:
     metrics = generate_latest()
     return PlainTextResponse(
         content=metrics.decode("utf-8"),
-        headers={"Content-Type": "text/plain; version=0.0.4"}
+        headers={"Content-Type": "text/plain; version=0.0.4"},
     )
 
 
@@ -147,6 +127,7 @@ def setup_metrics(app: Any) -> Any:
     """
     Set up metrics collection for the FastAPI app.
     """
+
     # Add middleware
     @app.middleware("http")  # type: ignore[misc]
     async def add_metrics_middleware(request: Request, call_next: Callable) -> Response:

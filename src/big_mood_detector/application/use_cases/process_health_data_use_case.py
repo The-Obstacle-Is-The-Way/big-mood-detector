@@ -132,7 +132,10 @@ class MoodPredictionPipeline:
                 from big_mood_detector.domain.repositories.baseline_repository_interface import (
                     BaselineRepositoryInterface,
                 )
-                self.baseline_repository = di_container.resolve(BaselineRepositoryInterface)
+
+                self.baseline_repository = di_container.resolve(
+                    BaselineRepositoryInterface
+                )
             else:
                 # Fallback to creating FileBaselineRepository for backward compatibility
                 from big_mood_detector.infrastructure.repositories.file_baseline_repository import (
@@ -147,7 +150,9 @@ class MoodPredictionPipeline:
 
         self.clinical_extractor = ClinicalFeatureExtractor(
             baseline_repository=self.baseline_repository,
-            user_id=self.config.user_id if self.config.enable_personal_calibration else None,
+            user_id=(
+                self.config.user_id if self.config.enable_personal_calibration else None
+            ),
         )
 
         self.mood_predictor = MoodPredictor(model_dir=self.config.model_dir)
@@ -175,6 +180,7 @@ class MoodPredictionPipeline:
                 from big_mood_detector.infrastructure.ml_models.pat_model import (
                     PATModel,
                 )
+
                 pat_model = PATModel()
             else:
                 logger.warning("PAT model not available - TensorFlow not installed")
@@ -192,7 +198,8 @@ class MoodPredictionPipeline:
                 self.ensemble_orchestrator = EnsembleOrchestrator(
                     xgboost_predictor=self.xgboost_predictor,
                     pat_model=pat_model,
-                    config=self.config.ensemble_config or EnsembleConfig.from_settings(),
+                    config=self.config.ensemble_config
+                    or EnsembleConfig.from_settings(),
                 )
 
         # Data parsing service (extracted)
@@ -396,14 +403,10 @@ class MoodPredictionPipeline:
             all_predictions = list(daily_predictions.values())
             overall_summary = {
                 "avg_depression_risk": float(
-                    np.mean(
-                        [p["depression_risk"] for p in all_predictions]
-                    )
+                    np.mean([p["depression_risk"] for p in all_predictions])
                 ),
                 "avg_hypomanic_risk": float(
-                    np.mean(
-                        [p["hypomanic_risk"] for p in all_predictions]
-                    )
+                    np.mean([p["hypomanic_risk"] for p in all_predictions])
                 ),
                 "avg_manic_risk": float(
                     np.mean([p["manic_risk"] for p in all_predictions])
@@ -600,11 +603,12 @@ class MoodPredictionPipeline:
         """
         # Extract records from parsed data
         records: dict[str, list[Any]]
-        if hasattr(parsed_data, 'sleep_records'):
+        if hasattr(parsed_data, "sleep_records"):
             # It's a ParsedHealthData object
             from big_mood_detector.application.services.data_parsing_service import (
                 ParsedHealthData,
             )
+
             if isinstance(parsed_data, ParsedHealthData):
                 records = {
                     "sleep": parsed_data.sleep_records,
@@ -633,11 +637,15 @@ class MoodPredictionPipeline:
 
         # Get data summary for analysis
         self.data_parsing_service.get_data_summary(
-            parsed_data if isinstance(parsed_data, dict) else self.data_parsing_service._format_result(parsed_data)
+            parsed_data
+            if isinstance(parsed_data, dict)
+            else self.data_parsing_service._format_result(parsed_data)
         )
 
         # Continue with existing processing logic
-        return self._process_parsed_data_internal(records, output_path, start_date, end_date)
+        return self._process_parsed_data_internal(
+            records, output_path, start_date, end_date
+        )
 
     def process_health_export(
         self,
@@ -683,7 +691,9 @@ class MoodPredictionPipeline:
             )
 
         # Continue with existing processing logic
-        return self._process_parsed_data_internal(records, output_path, start_date, end_date)
+        return self._process_parsed_data_internal(
+            records, output_path, start_date, end_date
+        )
 
     def _process_parsed_data_internal(
         self,

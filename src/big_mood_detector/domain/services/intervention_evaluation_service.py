@@ -116,7 +116,11 @@ class InterventionEvaluationService:
             return "low"
 
     def _generate_intervention_rationale(
-        self, indicators: dict[str, float], risk: str, history: dict[str, Any], warning: Any
+        self,
+        indicators: dict[str, float],
+        risk: str,
+        history: dict[str, Any],
+        warning: Any,
     ) -> str:
         """Generate rationale for intervention decision."""
         factors = []
@@ -137,20 +141,23 @@ class InterventionEvaluationService:
         actions = []
 
         if intervention_type == "preventive":
-            actions.extend([
-                "Increase monitoring frequency",
-                "Review and optimize sleep hygiene",
-                "Consider prophylactic medication adjustment",
-            ])
+            actions.extend(
+                [
+                    "Increase monitoring frequency",
+                    "Review and optimize sleep hygiene",
+                    "Consider prophylactic medication adjustment",
+                ]
+            )
         elif intervention_type == "acute":
-            actions.extend([
-                "Schedule urgent clinical evaluation",
-                "Initiate acute treatment protocol",
-                "Daily symptom monitoring",
-            ])
+            actions.extend(
+                [
+                    "Schedule urgent clinical evaluation",
+                    "Initiate acute treatment protocol",
+                    "Daily symptom monitoring",
+                ]
+            )
 
         if urgency == "emergency":
             actions.insert(0, "Immediate psychiatric evaluation required")
 
         return actions
-

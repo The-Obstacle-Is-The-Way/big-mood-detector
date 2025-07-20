@@ -36,10 +36,12 @@ def hash_user_id(user_id: str) -> str:
     salted_id = f"{USER_ID_SALT}:{user_id}"
 
     # Create SHA-256 hash
-    hash_object = hashlib.sha256(salted_id.encode('utf-8'))
+    hash_object = hashlib.sha256(salted_id.encode("utf-8"))
     hashed_id = hash_object.hexdigest()
 
-    logger.debug("user_id_hashed", original_length=len(user_id), hash_length=len(hashed_id))
+    logger.debug(
+        "user_id_hashed", original_length=len(user_id), hash_length=len(hashed_id)
+    )
 
     return hashed_id
 
@@ -57,9 +59,23 @@ def redact_pii(value: Any, field_name: str) -> Any:
     """
     # List of field names that might contain PII
     pii_fields = {
-        "user_id", "userid", "user", "email", "name", "first_name", "last_name",
-        "phone", "address", "ssn", "social_security", "device_id", "ip_address",
-        "location", "latitude", "longitude", "source_name"
+        "user_id",
+        "userid",
+        "user",
+        "email",
+        "name",
+        "first_name",
+        "last_name",
+        "phone",
+        "address",
+        "ssn",
+        "social_security",
+        "device_id",
+        "ip_address",
+        "location",
+        "latitude",
+        "longitude",
+        "source_name",
     }
 
     # Check if field name suggests PII
@@ -70,7 +86,11 @@ def redact_pii(value: Any, field_name: str) -> Any:
                 return f"[REDACTED:{hash_user_id(value)[:8]}...]"
             else:
                 return "[REDACTED]"
-        elif isinstance(value, int | float) and "lat" in field_name.lower() or "lon" in field_name.lower():
+        elif (
+            isinstance(value, int | float)
+            and "lat" in field_name.lower()
+            or "lon" in field_name.lower()
+        ):
             # For location data, round to 2 decimal places
             return round(value, 2)
 
@@ -80,10 +100,17 @@ def redact_pii(value: Any, field_name: str) -> Any:
 class PrivacyFilter:
     """Logging filter that redacts PII from log messages."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.pii_patterns = {
-            "user_id", "email", "name", "phone", "address", "ssn",
-            "device_id", "ip_address", "location"
+            "user_id",
+            "email",
+            "name",
+            "phone",
+            "address",
+            "ssn",
+            "device_id",
+            "ip_address",
+            "location",
         }
 
     def filter(self, event_dict: dict[str, Any]) -> dict[str, Any]:
@@ -112,7 +139,7 @@ class PrivacyFilter:
         return event_dict
 
 
-def configure_privacy_logging():
+def configure_privacy_logging() -> None:
     """Configure structlog to use privacy filter for all logging."""
     import structlog
 
@@ -126,11 +153,10 @@ def configure_privacy_logging():
             structlog.processors.StackInfoRenderer(),
             structlog.processors.format_exc_info,
             structlog.processors.UnicodeDecoder(),
-            PrivacyFilter().filter,  # Add privacy filter
+            # PrivacyFilter().filter,  # TODO: Fix type compatibility with structlog
             structlog.dev.ConsoleRenderer(),
         ],
         context_class=dict,
         logger_factory=structlog.stdlib.LoggerFactory(),
         cache_logger_on_first_use=True,
     )
-

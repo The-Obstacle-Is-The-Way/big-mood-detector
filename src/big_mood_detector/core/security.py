@@ -43,11 +43,11 @@ def validate_secrets() -> None:
     if unsafe_secrets:
         print(
             f"SECURITY ERROR: Default secrets detected in production for: {', '.join(unsafe_secrets)}",
-            file=sys.stderr
+            file=sys.stderr,
         )
         print(
             "Generate secure secrets with: python -c 'import secrets; print(secrets.token_urlsafe(32))'",
-            file=sys.stderr
+            file=sys.stderr,
         )
         sys.exit(1)
 
@@ -78,10 +78,7 @@ def check_cors_origins() -> list[str]:
 
     # Warn about wildcards in production
     if environment == "production" and "*" in cors_origins:
-        print(
-            "WARNING: Wildcard CORS origin detected in production!",
-            file=sys.stderr
-        )
+        print("WARNING: Wildcard CORS origin detected in production!", file=sys.stderr)
 
     return origins
 

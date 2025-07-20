@@ -19,7 +19,6 @@ from pathlib import Path
 from typing import Any
 
 # Feast type is only used in annotations, not needed
-
 from sqlalchemy import (
     Column,
     Date,

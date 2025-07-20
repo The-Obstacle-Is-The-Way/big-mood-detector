@@ -77,23 +77,27 @@ async def extract_features(
         from big_mood_detector.application.services.data_parsing_service import (
             DataParsingService,
         )
+
         parsing_service = DataParsingService()
 
-        logger.info("Starting feature extraction", filename=file.filename, file_type=file_ext)
+        logger.info(
+            "Starting feature extraction", filename=file.filename, file_type=file_ext
+        )
 
         # Handle different file types
         if file_ext == ".zip":
             # Extract and process ZIP file
             import zipfile
+
             try:
-                with zipfile.ZipFile(tmp_path, 'r') as zf:
+                with zipfile.ZipFile(tmp_path, "r") as zf:
                     # Check if ZIP contains JSON files
-                    json_files = [f for f in zf.namelist() if f.endswith('.json')]
+                    json_files = [f for f in zf.namelist() if f.endswith(".json")]
 
                     if not json_files:
                         raise HTTPException(
                             status_code=400,
-                            detail="No JSON files found in ZIP archive."
+                            detail="No JSON files found in ZIP archive.",
                         )
 
                 # Parse JSON files from ZIP
@@ -103,8 +107,7 @@ async def extract_features(
 
             except zipfile.BadZipFile:
                 raise HTTPException(
-                    status_code=400,
-                    detail="Invalid ZIP file."
+                    status_code=400, detail="Invalid ZIP file."
                 ) from None
 
         elif file_ext == ".xml":
@@ -116,6 +119,7 @@ async def extract_features(
         else:
             # Single JSON file - create a clean directory for it
             import shutil
+
             json_dir = tmp_path.parent / "json_files"
             json_dir.mkdir(exist_ok=True)
 
@@ -176,7 +180,10 @@ async def extract_features(
             # Process the data and extract features
             # Create a temporary output file
             import tempfile
-            with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as tmp_output:
+
+            with tempfile.NamedTemporaryFile(
+                mode="w", suffix=".csv", delete=False
+            ) as tmp_output:
                 output_path = Path(tmp_output.name)
 
             feature_df = pipeline.process_parsed_health_data(
@@ -209,12 +216,10 @@ async def extract_features(
                 "sleep_percentage_mean": latest_features.get("sleep_percentage_MN", 0),
                 "sleep_percentage_std": latest_features.get("sleep_percentage_SD", 0),
                 "sleep_percentage_zscore": latest_features.get("sleep_percentage_Z", 0),
-
                 # Sleep amplitude features (3)
                 "sleep_amplitude_mean": latest_features.get("sleep_amplitude_MN", 0),
                 "sleep_amplitude_std": latest_features.get("sleep_amplitude_SD", 0),
                 "sleep_amplitude_zscore": latest_features.get("sleep_amplitude_Z", 0),
-
                 # Long sleep window features (12)
                 "long_sleep_num_mean": latest_features.get("long_num_MN", 0),
                 "long_sleep_num_std": latest_features.get("long_num_SD", 0),
@@ -228,7 +233,6 @@ async def extract_features(
                 "long_sleep_wt_mean": latest_features.get("long_WT_MN", 0),
                 "long_sleep_wt_std": latest_features.get("long_WT_SD", 0),
                 "long_sleep_wt_zscore": latest_features.get("long_WT_Z", 0),
-
                 # Short sleep window features (12)
                 "short_sleep_num_mean": latest_features.get("short_num_MN", 0),
                 "short_sleep_num_std": latest_features.get("short_num_SD", 0),
@@ -242,22 +246,30 @@ async def extract_features(
                 "short_sleep_wt_mean": latest_features.get("short_WT_MN", 0),
                 "short_sleep_wt_std": latest_features.get("short_WT_SD", 0),
                 "short_sleep_wt_zscore": latest_features.get("short_WT_Z", 0),
-
                 # Circadian features (6)
-                "circadian_amplitude_mean": latest_features.get("circadian_amplitude_MN", 0),
-                "circadian_amplitude_std": latest_features.get("circadian_amplitude_SD", 0),
-                "circadian_amplitude_zscore": latest_features.get("circadian_amplitude_Z", 0),
+                "circadian_amplitude_mean": latest_features.get(
+                    "circadian_amplitude_MN", 0
+                ),
+                "circadian_amplitude_std": latest_features.get(
+                    "circadian_amplitude_SD", 0
+                ),
+                "circadian_amplitude_zscore": latest_features.get(
+                    "circadian_amplitude_Z", 0
+                ),
                 "circadian_phase_mean": latest_features.get("circadian_phase_MN", 0),
                 "circadian_phase_std": latest_features.get("circadian_phase_SD", 0),
                 "circadian_phase_zscore": latest_features.get("circadian_phase_Z", 0),
-
                 # Activity features (6)
                 "daily_steps": latest_features.get("daily_steps", 0),
                 "activity_variance": latest_features.get("activity_variance", 0),
                 "sedentary_hours": latest_features.get("sedentary_hours", 24.0),
-                "activity_fragmentation": latest_features.get("activity_fragmentation", 0),
+                "activity_fragmentation": latest_features.get(
+                    "activity_fragmentation", 0
+                ),
                 "sedentary_bout_mean": latest_features.get("sedentary_bout_mean", 24.0),
-                "activity_intensity_ratio": latest_features.get("activity_intensity_ratio", 0),
+                "activity_intensity_ratio": latest_features.get(
+                    "activity_intensity_ratio", 0
+                ),
             }
 
             processing_time = time.time() - start_time
@@ -277,7 +289,6 @@ async def extract_features(
                 detail=f"Feature extraction failed: {str(e)}",
             ) from e
 
-
         # Build response
         response = FeatureExtractionResponse(
             features=features,
@@ -288,12 +299,12 @@ async def extract_features(
                 "date_range": {
                     "start": str(start_date),
                     "end": str(end_date),
-                    "days": (end_date - start_date).days + 1
+                    "days": (end_date - start_date).days + 1,
                 },
                 "records_processed": {
                     "sleep": len(parsed_data.get("sleep_records", [])),
                     "activity": len(parsed_data.get("activity_records", [])),
-                    "heart_rate": len(parsed_data.get("heart_rate_records", []))
+                    "heart_rate": len(parsed_data.get("heart_rate_records", [])),
                 },
             },
             processing_time_seconds=processing_time,
@@ -311,7 +322,9 @@ async def extract_features(
 
     except Exception as e:
         logger.error("Feature extraction failed", error=str(e), filename=file.filename)
-        raise HTTPException(status_code=500, detail=f"Feature extraction failed: {e}") from e
+        raise HTTPException(
+            status_code=500, detail=f"Feature extraction failed: {e}"
+        ) from e
     finally:
         # Clean up temporary file
         if "tmp_path" in locals() and tmp_path.exists():

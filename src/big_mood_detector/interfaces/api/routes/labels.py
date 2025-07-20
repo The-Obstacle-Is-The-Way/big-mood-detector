@@ -28,13 +28,13 @@ class EpisodeCreateRequest(BaseModel):
     notes: str = ""
     rater_id: str = "api_user"
 
-    @field_validator('end_date')
+    @field_validator("end_date")
     @classmethod
     def validate_date_range(cls, v: date | None, info: Any) -> date | None:
         """Ensure end_date is after start_date if provided."""
-        if v is not None and 'start_date' in info.data:
-            if v < info.data['start_date']:
-                raise ValueError('end_date must be after or equal to start_date')
+        if v is not None and "start_date" in info.data:
+            if v < info.data["start_date"]:
+                raise ValueError("end_date must be after or equal to start_date")
         return v
 
 
@@ -86,6 +86,7 @@ class LabelStatsResponse(BaseModel):
 def get_repository() -> SQLiteEpisodeRepository:
     """Get episode repository instance."""
     import os
+
     db_path = os.environ.get("LABELS_DB_PATH", "labels.db")
     return SQLiteEpisodeRepository(db_path=db_path)
 

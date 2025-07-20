@@ -8,6 +8,7 @@ from .streaming_adapter import StreamingXMLParser
 # Try to import fast parser
 try:
     from .fast_streaming_parser import FastStreamingXMLParser
+
     __all__ = [
         "SleepParser",
         "ActivityParser",

@@ -102,15 +102,20 @@ class XGBoostModelLoader:
             # Handle JSON format (preferred)
             if model_path.suffix == ".json":
                 import xgboost as xgb
+
                 model = xgb.Booster()
                 model.load_model(str(model_path))
                 self.models[model_type] = model
-                logger.info(f"Successfully loaded {model_type} model from {model_path} (JSON format)")
+                logger.info(
+                    f"Successfully loaded {model_type} model from {model_path} (JSON format)"
+                )
             # Handle PKL format (legacy)
             else:
                 model = joblib.load(model_path)
                 self.models[model_type] = model
-                logger.info(f"Successfully loaded {model_type} model from {model_path} (PKL format)")
+                logger.info(
+                    f"Successfully loaded {model_type} model from {model_path} (PKL format)"
+                )
 
             return True
 

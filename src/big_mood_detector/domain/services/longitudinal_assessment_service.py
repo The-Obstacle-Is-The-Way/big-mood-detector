@@ -93,15 +93,21 @@ class LongitudinalAssessmentService:
         phq_scores = [h.get("phq_score", 0) for h in historical]
         phq_scores.append(current_scores.get("phq", 0))
 
-        if all(phq_scores[i] <= phq_scores[i+1] for i in range(len(phq_scores)-1)):
+        if all(phq_scores[i] <= phq_scores[i + 1] for i in range(len(phq_scores) - 1)):
             return "escalating_depression"
-        elif all(phq_scores[i] >= phq_scores[i+1] for i in range(len(phq_scores)-1)):
+        elif all(
+            phq_scores[i] >= phq_scores[i + 1] for i in range(len(phq_scores) - 1)
+        ):
             return "improving_depression"
         else:
             return "fluctuating"
 
     def _generate_longitudinal_note(
-        self, trajectory: str, pattern: str, current: dict[str, float], historical: list[dict[str, Any]]
+        self,
+        trajectory: str,
+        pattern: str,
+        current: dict[str, float],
+        historical: list[dict[str, Any]],
     ) -> str:
         """Generate longitudinal clinical note."""
         severity_note = ""
@@ -129,4 +135,3 @@ class LongitudinalAssessmentService:
         """Calculate confidence in trend analysis."""
         # More data points = higher confidence
         return min(0.5 + (len(historical) * 0.1), 0.9)
-

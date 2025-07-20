@@ -118,4 +118,3 @@ class AnomalyResult:
     has_anomalies: bool
     anomaly_domains: list[str]
     severity: float  # 0-1, higher is more severe
-

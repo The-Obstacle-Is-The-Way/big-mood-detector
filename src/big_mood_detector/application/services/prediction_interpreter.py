@@ -64,7 +64,9 @@ class PredictionInterpreter:
         confidence = self._calculate_confidence(ml_predictions)
 
         # Generate clinical notes
-        clinical_notes = self._generate_clinical_notes(ml_predictions, primary_diagnosis)
+        clinical_notes = self._generate_clinical_notes(
+            ml_predictions, primary_diagnosis
+        )
 
         # Generate recommendations
         recommendations = self._generate_recommendations(
@@ -87,9 +89,7 @@ class PredictionInterpreter:
             monitoring_frequency=monitoring_frequency,
         )
 
-    def _determine_diagnosis(
-        self, ml_predictions: dict[str, float]
-    ) -> tuple[str, str]:
+    def _determine_diagnosis(self, ml_predictions: dict[str, float]) -> tuple[str, str]:
         """Determine primary diagnosis and risk level."""
         depression = ml_predictions.get("depression", 0.0)
         mania = ml_predictions.get("mania", 0.0)
@@ -171,7 +171,9 @@ class PredictionInterpreter:
 
         # Mixed episode notes
         if "Mixed" in primary_diagnosis:
-            notes.append("Mixed mood episode detected - simultaneous depressive and manic symptoms")
+            notes.append(
+                "Mixed mood episode detected - simultaneous depressive and manic symptoms"
+            )
             notes.append("High risk state requiring immediate intervention")
             notes.append("Meets DSM-5 criteria for mixed features specifier")
             return notes
@@ -188,22 +190,20 @@ class PredictionInterpreter:
                 f"Patient shows strong indicators of depression (score: {depression:.2f})"
             )
             if depression > 0.8:
-                notes.append("Severity level suggests significant functional impairment")
+                notes.append(
+                    "Severity level suggests significant functional impairment"
+                )
             if depression > 0.7:
                 notes.append("Meets DSM-5 criteria for major depressive episode")
 
         elif "Manic" in primary_diagnosis:
-            notes.append(
-                f"Patient exhibits manic symptoms (score: {mania:.2f})"
-            )
+            notes.append(f"Patient exhibits manic symptoms (score: {mania:.2f})")
             if mania > 0.7:
                 notes.append("High risk of impulsive behavior and poor judgment")
                 notes.append("Consistent with DSM-5 criteria for manic episode")
 
         elif "Hypomanic" in primary_diagnosis:
-            notes.append(
-                f"Patient shows hypomania symptoms (score: {hypomania:.2f})"
-            )
+            notes.append(f"Patient shows hypomania symptoms (score: {hypomania:.2f})")
             notes.append("Monitor for potential escalation to mania")
             if hypomania > 0.6:
                 notes.append("Meets DSM-5 criteria for hypomanic episode")
@@ -291,7 +291,9 @@ class PredictionInterpreter:
 
         # Calculate additional risk factors
         mixed_risk = min(depression, max(mania, hypomania)) * 2
-        rapid_cycling_risk = (abs(depression - mania) < 0.3 and max(depression, mania) > 0.5)
+        rapid_cycling_risk = (
+            abs(depression - mania) < 0.3 and max(depression, mania) > 0.5
+        )
         psychosis_risk = mania * 0.7 if mania > 0.7 else 0.0
 
         return {

@@ -35,6 +35,7 @@ app = FastAPI(
 setup_rate_limiting(app)
 app = setup_metrics(app)
 
+
 # Ensure directories exist on startup
 @app.on_event("startup")
 async def startup_event() -> None:
@@ -95,6 +96,7 @@ async def startup_event() -> None:
     app.state.orchestrator = orchestrator
 
     logger.info("API startup complete", model_path=str(settings.MODEL_WEIGHTS_PATH))
+
 
 # Include routers
 app.include_router(clinical_router)

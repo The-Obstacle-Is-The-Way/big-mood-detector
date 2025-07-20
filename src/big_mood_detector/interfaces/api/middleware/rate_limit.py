@@ -54,16 +54,12 @@ else:
 RATE_LIMITS = {
     # Expensive ensemble predictions
     "ensemble_predict": "10/minute",
-
     # Regular predictions
     "predict": "30/minute",
-
     # File uploads
     "upload": "5/minute",
-
     # Status checks
     "status": "60/minute",
-
     # General API calls
     "default": "100/minute",
 }
@@ -85,6 +81,7 @@ def rate_limit(limit_key: str = "default") -> Callable:
         # Return a no-op decorator
         def decorator(func: Callable) -> Callable:
             return func
+
         return decorator
 
     limit = RATE_LIMITS.get(limit_key, RATE_LIMITS["default"])
@@ -128,7 +125,9 @@ def setup_rate_limiting(app: Any) -> None:
             # Check if limit_info is a dict (not a tuple)
             if isinstance(limit_info, dict):
                 response.headers["X-RateLimit-Limit"] = str(limit_info.get("limit", ""))
-                response.headers["X-RateLimit-Remaining"] = str(limit_info.get("remaining", ""))
+                response.headers["X-RateLimit-Remaining"] = str(
+                    limit_info.get("remaining", "")
+                )
                 response.headers["X-RateLimit-Reset"] = str(limit_info.get("reset", ""))
 
         return response
@@ -136,6 +135,7 @@ def setup_rate_limiting(app: Any) -> None:
 
 # Custom rate limit exceeded response
 if not DISABLE_RATE_LIMIT:
+
     def custom_rate_limit_exceeded_handler(
         request: Request, exc: RateLimitExceeded
     ) -> Response:

@@ -105,7 +105,9 @@ class ClinicalAssessmentService:
             treatment_options=treatment_options,
             requires_immediate_intervention=risk_level == "critical",
             complexity_score=complexity_score,
-            data_completeness=self._calculate_data_completeness(mood_scores, biomarkers),
+            data_completeness=self._calculate_data_completeness(
+                mood_scores, biomarkers
+            ),
             limitations=self._identify_limitations(mood_scores, biomarkers),
         )
 
@@ -124,7 +126,9 @@ class ClinicalAssessmentService:
         self, phq_score: float, asrm_score: float, clinical_context: dict[str, Any]
     ) -> str:
         """Calculate overall risk level."""
-        if clinical_context.get("suicidal_ideation") or clinical_context.get("psychotic_features"):
+        if clinical_context.get("suicidal_ideation") or clinical_context.get(
+            "psychotic_features"
+        ):
             return "critical"
         elif phq_score >= 15 or asrm_score >= 14:
             return "high"
@@ -144,7 +148,15 @@ class ClinicalAssessmentService:
         # For simplicity, assume symptoms based on scores
         symptoms = []
         if phq_score >= 10:
-            symptoms.extend(["depressed_mood", "anhedonia", "sleep_disturbance", "fatigue", "concentration"])
+            symptoms.extend(
+                [
+                    "depressed_mood",
+                    "anhedonia",
+                    "sleep_disturbance",
+                    "fatigue",
+                    "concentration",
+                ]
+            )
         if asrm_score >= 6:
             symptoms.extend(["elevated_mood", "decreased_sleep", "increased_activity"])
 
@@ -223,8 +235,12 @@ class ClinicalAssessmentService:
         expected_scores = ["phq", "asrm"]
         expected_biomarkers = ["sleep_hours", "activity_steps"]
 
-        score_completeness = sum(s in mood_scores for s in expected_scores) / len(expected_scores)
-        bio_completeness = sum(b in biomarkers for b in expected_biomarkers) / len(expected_biomarkers)
+        score_completeness = sum(s in mood_scores for s in expected_scores) / len(
+            expected_scores
+        )
+        bio_completeness = sum(b in biomarkers for b in expected_biomarkers) / len(
+            expected_biomarkers
+        )
 
         return (score_completeness + bio_completeness) / 2
 
@@ -238,4 +254,3 @@ class ClinicalAssessmentService:
         if "sleep_hours" not in biomarkers:
             limitations.append("Missing sleep data")
         return limitations
-

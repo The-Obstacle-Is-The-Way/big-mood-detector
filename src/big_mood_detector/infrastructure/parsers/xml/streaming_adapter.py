@@ -91,7 +91,9 @@ class StreamingXMLParser:
 
                                 # Apply date filters
                                 if start_date:
-                                    start = datetime.strptime(start_date, "%Y-%m-%d").date()
+                                    start = datetime.strptime(
+                                        start_date, "%Y-%m-%d"
+                                    ).date()
                                     if record_date_utc < start:
                                         elem.clear()
                                         continue
@@ -159,7 +161,9 @@ class StreamingXMLParser:
             types_to_parse = sleep_types + activity_types + heart_types
 
         # Stream through records
-        for record_dict in self.iter_records(file_path, types_to_parse, start_date, end_date):
+        for record_dict in self.iter_records(
+            file_path, types_to_parse, start_date, end_date
+        ):
             record_type = record_dict.get("type")
 
             try:

@@ -71,6 +71,7 @@ def get_ensemble_orchestrator() -> EnsembleOrchestrator | None:
 
     # Use converted directory where JSON models actually exist
     from big_mood_detector.core.paths import MODEL_WEIGHTS_DIR
+
     xgboost_converted_dir = MODEL_WEIGHTS_DIR / "xgboost" / "converted"
 
     if not xgboost_predictor.load_models(xgboost_converted_dir):

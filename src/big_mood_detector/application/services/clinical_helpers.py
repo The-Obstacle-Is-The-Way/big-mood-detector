@@ -10,7 +10,9 @@ from big_mood_detector.application.services.prediction_interpreter import (
 )
 
 
-def get_clinical_interpretation(ml_predictions: dict[str, float]) -> ClinicalInterpretation:
+def get_clinical_interpretation(
+    ml_predictions: dict[str, float],
+) -> ClinicalInterpretation:
     """
     Get clinical interpretation from ML predictions.
 

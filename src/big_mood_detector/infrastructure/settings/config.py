@@ -31,11 +31,30 @@ class Settings(BaseSettings):
 
     # Paths
     # Support both DATA_DIR and BIGMOOD_DATA_DIR for flexibility
-    DATA_DIR: Path = Path(os.environ.get("BIGMOOD_DATA_DIR", os.environ.get("DATA_DIR", "data")))
-    MODEL_WEIGHTS_PATH: Path = Field(default_factory=lambda: Path("model_weights/xgboost/converted"))
-    OUTPUT_DIR: Path = Field(default_factory=lambda: Path(os.environ.get("BIGMOOD_DATA_DIR", os.environ.get("DATA_DIR", "data"))) / "output")
-    UPLOAD_DIR: Path = Field(default_factory=lambda: Path(os.environ.get("BIGMOOD_DATA_DIR", os.environ.get("DATA_DIR", "data"))) / "uploads")
-    TEMP_DIR: Path = Field(default_factory=lambda: Path(os.environ.get("BIGMOOD_DATA_DIR", os.environ.get("DATA_DIR", "data"))) / "temp")
+    DATA_DIR: Path = Path(
+        os.environ.get("BIGMOOD_DATA_DIR", os.environ.get("DATA_DIR", "data"))
+    )
+    MODEL_WEIGHTS_PATH: Path = Field(
+        default_factory=lambda: Path("model_weights/xgboost/converted")
+    )
+    OUTPUT_DIR: Path = Field(
+        default_factory=lambda: Path(
+            os.environ.get("BIGMOOD_DATA_DIR", os.environ.get("DATA_DIR", "data"))
+        )
+        / "output"
+    )
+    UPLOAD_DIR: Path = Field(
+        default_factory=lambda: Path(
+            os.environ.get("BIGMOOD_DATA_DIR", os.environ.get("DATA_DIR", "data"))
+        )
+        / "uploads"
+    )
+    TEMP_DIR: Path = Field(
+        default_factory=lambda: Path(
+            os.environ.get("BIGMOOD_DATA_DIR", os.environ.get("DATA_DIR", "data"))
+        )
+        / "temp"
+    )
 
     # File Processing
     MAX_FILE_SIZE: int = 100 * 1024 * 1024  # 100MB
@@ -46,12 +65,26 @@ class Settings(BaseSettings):
     USE_PAT_MODEL: bool = False  # Until we implement PAT
 
     # Ensemble Model Weights
-    ENSEMBLE_XGBOOST_WEIGHT: float = Field(default=0.6, ge=0.0, le=1.0, description="Weight for XGBoost model in ensemble (0.6 = 60%)")
-    ENSEMBLE_PAT_WEIGHT: float = Field(default=0.4, ge=0.0, le=1.0, description="Weight for PAT model in ensemble (0.4 = 40%)")
+    ENSEMBLE_XGBOOST_WEIGHT: float = Field(
+        default=0.6,
+        ge=0.0,
+        le=1.0,
+        description="Weight for XGBoost model in ensemble (0.6 = 60%)",
+    )
+    ENSEMBLE_PAT_WEIGHT: float = Field(
+        default=0.4,
+        ge=0.0,
+        le=1.0,
+        description="Weight for PAT model in ensemble (0.4 = 40%)",
+    )
 
     # Ensemble Timeouts
-    ENSEMBLE_PAT_TIMEOUT: float = Field(default=10.0, gt=0, description="Timeout for PAT model in seconds")
-    ENSEMBLE_XGBOOST_TIMEOUT: float = Field(default=5.0, gt=0, description="Timeout for XGBoost model in seconds")
+    ENSEMBLE_PAT_TIMEOUT: float = Field(
+        default=10.0, gt=0, description="Timeout for PAT model in seconds"
+    )
+    ENSEMBLE_XGBOOST_TIMEOUT: float = Field(
+        default=5.0, gt=0, description="Timeout for XGBoost model in seconds"
+    )
 
     # Background Tasks
     TASK_TIMEOUT: int = Field(default=300, gt=0)  # 5 minutes
@@ -67,10 +100,14 @@ class Settings(BaseSettings):
     MANIC_THRESHOLD: float = Field(default=0.3, ge=0.0, le=1.0)
 
     # Data Quality Requirements
-    MIN_OBSERVATION_DAYS: int = Field(default=7, ge=1, description="Minimum days of data required for feature extraction")
+    MIN_OBSERVATION_DAYS: int = Field(
+        default=7,
+        ge=1,
+        description="Minimum days of data required for feature extraction",
+    )
 
-    @model_validator(mode='after')
-    def validate_ensemble_weights(self) -> 'Settings':
+    @model_validator(mode="after")
+    def validate_ensemble_weights(self) -> "Settings":
         """Validate that ensemble weights sum to 1.0."""
         total = self.ENSEMBLE_XGBOOST_WEIGHT + self.ENSEMBLE_PAT_WEIGHT
         if abs(total - 1.0) > 0.001:  # Allow small floating point errors
@@ -83,6 +120,7 @@ class Settings(BaseSettings):
     def ensure_directories(self) -> None:
         """Create necessary directories. Call this after settings are loaded."""
         from .utils import initialize_directories
+
         initialize_directories(self)
 
     @computed_field

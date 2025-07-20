@@ -29,10 +29,19 @@ logger = get_module_logger(__name__)
 # Export control based on torch availability
 if TYPE_CHECKING:
     # Always export for type checking
-    __all__ = ["PopulationTrainer", "XGBoostPopulationTrainer", "PATPopulationTrainer", "create_population_trainer"]
+    __all__ = [
+        "PopulationTrainer",
+        "XGBoostPopulationTrainer",
+        "PATPopulationTrainer",
+        "create_population_trainer",
+    ]
 else:
     # Only export what's available at runtime
-    __all__ = ["PopulationTrainer", "XGBoostPopulationTrainer", "create_population_trainer"]
+    __all__ = [
+        "PopulationTrainer",
+        "XGBoostPopulationTrainer",
+        "create_population_trainer",
+    ]
 
 
 class PopulationTrainer(ABC):
@@ -130,6 +139,7 @@ class PopulationTrainer(ABC):
 try:
     import torch
     import torch.nn as nn
+
     TORCH_AVAILABLE = True
 except ImportError:
     TORCH_AVAILABLE = False
@@ -138,6 +148,7 @@ except ImportError:
 
 
 if TORCH_AVAILABLE:
+
     class TaskHead(nn.Module):
         """Task-specific head for PAT model."""
 
@@ -184,6 +195,7 @@ else:
     @runtime_checkable
     class TaskHead(Protocol):  # type: ignore[no-redef]
         """Protocol for TaskHead when torch is not available."""
+
         output_dim: int
 
         def parameters(self) -> Iterable[Any]: ...
@@ -217,6 +229,7 @@ def load_pat_model(model_path: str) -> Any:
 
 
 if TORCH_AVAILABLE:
+
     class PATPopulationTrainer(PopulationTrainer):
         """PAT-specific population trainer."""
 
@@ -602,7 +615,9 @@ def create_population_trainer(
     """
     if model_type.lower() == "pat":
         if not TORCH_AVAILABLE:
-            raise ImportError("PyTorch is required for PAT population training. Install with: pip install torch")
+            raise ImportError(
+                "PyTorch is required for PAT population training. Install with: pip install torch"
+            )
         return PATPopulationTrainer(task_name=task_name, **kwargs)
     elif model_type.lower() == "xgboost":
         return XGBoostPopulationTrainer(task_name=task_name, **kwargs)

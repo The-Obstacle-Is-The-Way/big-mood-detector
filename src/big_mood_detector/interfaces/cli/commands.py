@@ -306,7 +306,9 @@ def generate_clinical_report(result: PipelineResult, output_path: Path) -> None:
 )
 @click.option("--verbose", "-v", is_flag=True, help="Enable verbose output")
 @click.option("--progress", is_flag=True, help="Show progress bar for large files")
-@click.option("--max-records", type=int, help="Maximum records to process (for testing)")
+@click.option(
+    "--max-records", type=int, help="Maximum records to process (for testing)"
+)
 def process_command(
     input_path: str,
     output: str | None,
@@ -330,10 +332,13 @@ def process_command(
         if progress:
             try:
                 from tqdm import tqdm
+
                 pbar = tqdm(total=100, desc="Processing", unit="%")
+
                 def progress_callback(message: str, progress: float) -> None:
                     pbar.set_description(message)
                     pbar.update(int(progress * 100) - pbar.n)
+
             except ImportError:
                 click.echo("Warning: tqdm not installed, progress bar disabled")
                 progress = False
@@ -347,8 +352,13 @@ def process_command(
 
         # Process health export
         import os
-        data_dir = os.environ.get("BIGMOOD_DATA_DIR", os.environ.get("DATA_DIR", "data"))
-        output_path = Path(output) if output else Path(data_dir) / "output" / "features.csv"
+
+        data_dir = os.environ.get(
+            "BIGMOOD_DATA_DIR", os.environ.get("DATA_DIR", "data")
+        )
+        output_path = (
+            Path(output) if output else Path(data_dir) / "output" / "features.csv"
+        )
 
         # Ensure parent directory exists
         output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -483,7 +493,10 @@ def predict_command(
         # Generate clinical report if requested
         if report:
             import os
-            data_dir = os.environ.get("BIGMOOD_DATA_DIR", os.environ.get("DATA_DIR", "data"))
+
+            data_dir = os.environ.get(
+                "BIGMOOD_DATA_DIR", os.environ.get("DATA_DIR", "data")
+            )
             report_path = (
                 Path(output).with_suffix(".txt")
                 if output

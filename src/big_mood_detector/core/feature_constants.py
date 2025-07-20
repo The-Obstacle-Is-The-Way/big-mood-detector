@@ -12,14 +12,12 @@ XGBOOST_FEATURE_NAMES = [
     "sleep_onset_hour",
     "wake_time_hour",
     "sleep_fragmentation",
-
     # Advanced Sleep Features (5-9)
     "sleep_regularity_index",
     "short_sleep_window_pct",
     "long_sleep_window_pct",
     "sleep_onset_variance",
     "wake_time_variance",
-
     # Circadian Rhythm Features (10-17)
     "interdaily_stability",
     "intradaily_variability",
@@ -29,7 +27,6 @@ XGBOOST_FEATURE_NAMES = [
     "l5_onset_hour",
     "m10_onset_hour",
     "dlmo_hour",
-
     # Activity Features (18-23)
     "total_steps",
     "activity_variance",
@@ -37,19 +34,16 @@ XGBOOST_FEATURE_NAMES = [
     "activity_fragmentation",
     "sedentary_bout_mean",
     "activity_intensity_ratio",
-
     # Heart Rate Features (24-27)
     "avg_resting_hr",
     "hrv_sdnn",
     "hr_circadian_range",
     "hr_minimum_hour",
-
     # Phase Features (28-31)
     "circadian_phase_advance",
     "circadian_phase_delay",
     "dlmo_confidence",
     "pat_hour",
-
     # Z-Score Features (32-35)
     "sleep_duration_zscore",
     "activity_zscore",
