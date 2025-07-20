@@ -37,7 +37,7 @@ A production-ready system for detecting mood episodes in bipolar disorder using 
 ## 🆕 What's New (v0.2.0)
 
 - ✅ **Personal Baselines**: Adaptive predictions based on YOUR normal patterns
-- ✅ **Ensemble Models**: Combined XGBoost + PAT for optimal accuracy
+- ✅ **Enhanced Features**: XGBoost predictions with PAT embeddings
 - ✅ **Clinical Reports**: DSM-5 aligned risk assessments with explanations
 - ✅ **Python 3.12**: Full support with performance improvements
 - ✅ **Enhanced Documentation**: Complete feature reference and math details
@@ -68,15 +68,20 @@ python src/big_mood_detector/main.py serve
 
 ## 📊 Clinical Performance
 
-Validated on 168 patients over 44,787 observation days:
+XGBoost model validated on 168 patients over 44,787 observation days:
 
-| Condition | Accuracy (AUC) | Model | Clinical Use |
-|-----------|----------------|-------|--------------|
-| **Mania** | **0.98** ⭐ | XGBoost | Rule out bipolar episodes |
-| **Hypomania** | **0.95** | XGBoost | Early warning system |
-| **Depression** | **0.80** | Ensemble | Continuous monitoring |
+| Condition | Accuracy (AUC) | Prediction Window | Clinical Use |
+|-----------|----------------|-------------------|--------------|
+| **Mania** | **0.98** ⭐ | Next 24 hours | Rule out bipolar episodes |
+| **Hypomania** | **0.95** | Next 24 hours | Early warning system |
+| **Depression** | **0.80** | Next 24 hours | Preventive interventions |
 
-*Based on Nature Digital Medicine 2024 & Dartmouth studies*
+*Source: Nature Digital Medicine 2024 (Seoul National University)*
+
+**Important Notes:**
+- All predictions are **24-hour forecasts** (tomorrow's risk, not today's)
+- v0.2.0 uses XGBoost only (PAT provides embeddings, not predictions)
+- True ensemble with dual predictions coming in v0.3.0
 
 ### Sample Output
 ```
@@ -149,7 +154,7 @@ big-mood-detector/
 | Command | Description | Example |
 |---------|-------------|---------|
 | `process` | Extract features from health data | `process data/ -o features.json` |
-| `predict` | Generate mood predictions | `predict data/ --ensemble --report` |
+| `predict` | Generate mood predictions | `predict data/ --report` |
 | `label` | Create ground truth annotations | `label episode --date-range 2024-01-01:2024-01-14` |
 | `train` | Fine-tune personalized model | `train --user-id patient_123 --data features.csv` |
 | `serve` | Start API server | `serve --port 8000 --reload` |
@@ -222,7 +227,7 @@ results = requests.get(
 ### For Developers  
 - **[Architecture Overview](docs/developer/ARCHITECTURE_OVERVIEW.md)** - System design
 - **[API Reference](docs/developer/API_REFERENCE.md)** - REST endpoints
-- **[Model Mathematics](docs/models/)** - Feature formulas and ensemble math
+- **[Model Mathematics](docs/models/)** - Feature formulas and model details
 
 ### For Clinicians
 - **[Clinical Validation](docs/clinical/CLINICAL_DOSSIER.md)** - Research foundation
