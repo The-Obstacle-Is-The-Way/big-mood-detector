@@ -236,6 +236,7 @@ class DataParsingService:
             entity_type="all",
             start_date=start_date_str,
             end_date=end_date_str,
+            progress_callback=progress_callback,
         ):
             if isinstance(entity, SleepRecord):
                 sleep_records.append(entity)
