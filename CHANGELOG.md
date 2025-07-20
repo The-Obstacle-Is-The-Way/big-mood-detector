@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Date range filtering for XML processing with `--days-back` and `--date-range` CLI options
 - Wire-tap logging in SleepAggregator for debugging sleep date assignment
 - Property-based testing with hypothesis for incremental statistics
 - Heart rate aggregation in AggregationPipeline
