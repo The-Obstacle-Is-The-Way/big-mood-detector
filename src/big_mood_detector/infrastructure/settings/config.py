@@ -106,6 +106,28 @@ class Settings(BaseSettings):
         ge=1,
         description="Minimum days of data required for feature extraction",
     )
+    
+    # Privacy
+    USER_ID_SALT: str = Field(
+        default="big-mood-detector-default-salt",
+        description="Salt for user ID hashing (CHANGE IN PRODUCTION!)"
+    )
+    
+    # Feature Store
+    FEAST_REPO_PATH: Path | None = Field(
+        default=None,
+        description="Path to Feast feature repository"
+    )
+    FEAST_RETRY_BASE: float = Field(
+        default=0.5,
+        gt=0,
+        description="Base retry delay for Feast sync (seconds)"
+    )
+    FEAST_MAX_RETRIES: int = Field(
+        default=3,
+        ge=0,
+        description="Maximum retry attempts for Feast sync"
+    )
 
     @model_validator(mode="after")
     def validate_ensemble_weights(self) -> "Settings":
@@ -116,6 +138,19 @@ class Settings(BaseSettings):
                 f"Ensemble weights must sum to 1.0, got {total:.3f} "
                 f"(XGBoost: {self.ENSEMBLE_XGBOOST_WEIGHT}, PAT: {self.ENSEMBLE_PAT_WEIGHT})"
             )
+        return self
+    
+    @model_validator(mode="after")
+    def validate_production_settings(self) -> "Settings":
+        """Validate critical settings for production environment."""
+        if self.ENVIRONMENT == "production":
+            if self.USER_ID_SALT == "big-mood-detector-default-salt":
+                import warnings
+                warnings.warn(
+                    "Using default salt in production! Set USER_ID_SALT to a secure value.",
+                    UserWarning,
+                    stacklevel=2
+                )
         return self
 
     def ensure_directories(self) -> None:
