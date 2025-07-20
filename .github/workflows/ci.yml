@@ -43,7 +43,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.12"]  # Standardized on Python 3.12
+        python-version: ["3.12"]  # Requires Python 3.12+ (see pyproject.toml)
     
     steps:
       - uses: actions/checkout@v4
