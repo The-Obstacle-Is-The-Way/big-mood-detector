@@ -4,9 +4,9 @@ Test that magic HR/HRV defaults (70 bpm, 50 ms) have been removed.
 This guards against hardcoded values that would incorrectly skew
 personal baselines for athletes or individuals with different physiology.
 """
-from datetime import date, datetime, timedelta
-from pathlib import Path
 import tempfile
+from datetime import date, datetime
+from pathlib import Path
 
 import pytest
 
@@ -43,7 +43,7 @@ class TestNoMagicHRDefaults:
             activity_std=2000,
             circadian_phase=22.0,
         )
-        
+
         # HR/HRV should be None by default, not magic numbers
         assert baseline.heart_rate_mean is None
         assert baseline.heart_rate_std is None
@@ -54,7 +54,7 @@ class TestNoMagicHRDefaults:
         """Test FileBaselineRepository doesn't add magic defaults when loading."""
         with tempfile.TemporaryDirectory() as tmpdir:
             repo = FileBaselineRepository(Path(tmpdir))
-            
+
             # Save baseline without HR/HRV data
             baseline = UserBaseline(
                 user_id="athlete",
@@ -66,13 +66,13 @@ class TestNoMagicHRDefaults:
                 circadian_phase=21.0,
                 # No HR/HRV data - should remain None
             )
-            
+
             repo.save_baseline(baseline)
-            
+
             # Load it back
             loaded = repo.get_baseline("athlete")
             assert loaded is not None
-            
+
             # Should still be None, not defaulted to 70/50
             assert loaded.heart_rate_mean is None
             assert loaded.hrv_mean is None
@@ -80,11 +80,11 @@ class TestNoMagicHRDefaults:
     def test_feature_engineering_no_magic_defaults(self):
         """Test AdvancedFeatureEngineer doesn't use magic HR values."""
         engineer = AdvancedFeatureEngineer(user_id="test_user")
-        
+
         # Should not update baselines with magic values
         # The old code had checks for != 70.0 and != 50.0
         # Now it should check for > 0
-        
+
         # Check the baseline is empty initially
         assert "hr" not in engineer.individual_baselines
         assert "hrv" not in engineer.individual_baselines
@@ -92,7 +92,7 @@ class TestNoMagicHRDefaults:
     def test_aggregation_pipeline_no_hr_defaults(self):
         """Test aggregation pipeline doesn't insert magic HR values."""
         pipeline = AggregationPipeline()
-        
+
         # Create minimal test data WITHOUT heart rate records
         sleep_records = [
             SleepRecord(
@@ -103,7 +103,7 @@ class TestNoMagicHRDefaults:
             )
             for i in range(1, 4)  # 3 days to meet min_window_size
         ]
-        
+
         activity_records = [
             ActivityRecord(
                 source_name="test",
@@ -115,7 +115,7 @@ class TestNoMagicHRDefaults:
             )
             for i in range(3)
         ]
-        
+
         # Process WITHOUT heart rate data
         features = pipeline.aggregate_daily_features(
             sleep_records=sleep_records,
@@ -125,10 +125,10 @@ class TestNoMagicHRDefaults:
             end_date=date(2024, 1, 3),
             min_window_size=3,
         )
-        
+
         # Should get features
         assert len(features) > 0
-        
+
         # Check that HR values are 0.0 (not 70.0)
         for feature in features:
             if hasattr(feature, 'seoul_features'):
@@ -144,23 +144,23 @@ class TestNoMagicHRDefaults:
                 user_id="no_hr_user",
                 baseline_repository=repo
             )
-            
+
             # Update sleep and activity baselines
             engineer._update_individual_baseline("sleep", 7.5)
             engineer._update_individual_baseline("activity", 10000)
-            
+
             # Don't update HR/HRV baselines
             # Persist
             engineer.persist_baselines()
-            
+
             # Load and verify
             saved = repo.get_baseline("no_hr_user")
             assert saved is not None
-            
+
             # HR/HRV should be None, not magic defaults
             assert saved.heart_rate_mean is None
             assert saved.hrv_mean is None
-            
+
             # But sleep/activity should be saved
             assert saved.sleep_mean == 7.5
             assert saved.activity_mean == 10000
@@ -174,23 +174,19 @@ class TestNoMagicHRDefaults:
     ])
     def test_baseline_update_logic(self, hr_value, hrv_value, should_update):
         """Test that baseline updates only with valid data."""
-        from big_mood_detector.domain.entities.heart_rate_record import (
-            HeartRateRecord,
-            HeartMetricType,
-        )
         from big_mood_detector.domain.services.heart_rate_aggregator import (
             DailyHeartSummary,
         )
-        
+
         engineer = AdvancedFeatureEngineer(user_id="test_user")
-        
+
         # Create a mock heart summary
         heart_summary = DailyHeartSummary(
             date=date.today(),
             avg_resting_hr=hr_value,
             avg_hrv_sdnn=hrv_value,
         )
-        
+
         # Call the normalization calculation which updates baselines
         engineer._calculate_normalized_features(
             current_date=date.today(),
@@ -198,7 +194,7 @@ class TestNoMagicHRDefaults:
             activity=None,
             heart=heart_summary,
         )
-        
+
         # Check if baselines were updated
         if should_update:
             assert "hr" in engineer.individual_baselines

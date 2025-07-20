@@ -11,10 +11,9 @@ Architecture:
 Raw Data → TimescaleDB Hypertable → Continuous Aggregates → Feast → Redis
 """
 
-from datetime import date, datetime
+from datetime import UTC, date, datetime
 from pathlib import Path
-
-from structlog import get_logger
+from typing import Any
 
 from sqlalchemy import (
     Column,
@@ -27,7 +26,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import declarative_base, sessionmaker
 from sqlalchemy.sql import text
-from typing import Any
+from structlog import get_logger
 
 from big_mood_detector.domain.repositories.baseline_repository_interface import (
     BaselineRepositoryInterface,
@@ -81,7 +80,7 @@ class BaselineAggregateRecord(Base):
     n = Column(Integer, nullable=False)  # number of data points
 
     # Metadata
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(UTC))
 
 
 class TimescaleBaselineRepository(BaselineRepositoryInterface):
@@ -145,7 +144,7 @@ class TimescaleBaselineRepository(BaselineRepositoryInterface):
         """
         session = self.SessionLocal()
         try:
-            effective_time = datetime.utcnow()
+            effective_time = datetime.now(UTC)
 
             # Save individual metrics as raw records
             metrics = [
@@ -155,6 +154,16 @@ class TimescaleBaselineRepository(BaselineRepositoryInterface):
                 ("activity_std", baseline.activity_std),
                 ("circadian_phase", baseline.circadian_phase),
             ]
+
+            # Add HR/HRV metrics if available
+            if baseline.heart_rate_mean is not None:
+                metrics.append(("heart_rate_mean", baseline.heart_rate_mean))
+            if baseline.heart_rate_std is not None:
+                metrics.append(("heart_rate_std", baseline.heart_rate_std))
+            if baseline.hrv_mean is not None:
+                metrics.append(("hrv_mean", baseline.hrv_mean))
+            if baseline.hrv_std is not None:
+                metrics.append(("hrv_std", baseline.hrv_std))
 
             for metric_name, value in metrics:
                 raw_record = BaselineRawRecord(
@@ -169,6 +178,12 @@ class TimescaleBaselineRepository(BaselineRepositoryInterface):
                 session.add(raw_record)
 
             # Save each metric as separate aggregate records for proper retrieval
+            # First, delete existing records for this user/date to handle updates
+            session.query(BaselineAggregateRecord).filter(
+                BaselineAggregateRecord.user_id == baseline.user_id,
+                BaselineAggregateRecord.as_of == baseline.baseline_date
+            ).delete()
+
             for metric_name, value in metrics:
                 aggregate_record = BaselineAggregateRecord(
                     user_id=baseline.user_id,
@@ -263,6 +278,11 @@ class TimescaleBaselineRepository(BaselineRepositoryInterface):
                         activity_mean=metric_values.get("activity_mean", 8000.0),
                         activity_std=metric_values.get("activity_std", 2000.0),
                         circadian_phase=metric_values.get("circadian_phase", 22.0),
+                        # HR/HRV fields - use None if not present (no magic defaults!)
+                        heart_rate_mean=metric_values.get("heart_rate_mean"),
+                        heart_rate_std=metric_values.get("heart_rate_std"),
+                        hrv_mean=metric_values.get("hrv_mean"),
+                        hrv_std=metric_values.get("hrv_std"),
                         last_updated=metrics[0].created_at,  # type: ignore[arg-type]
                         data_points=metrics[0].n  # type: ignore[arg-type]
                     )
@@ -317,6 +337,11 @@ class TimescaleBaselineRepository(BaselineRepositoryInterface):
                 activity_mean=metric_values.get("activity_mean", 8000.0),
                 activity_std=metric_values.get("activity_std", 2000.0),
                 circadian_phase=metric_values.get("circadian_phase", 22.0),
+                # HR/HRV fields - use None if not present (no magic defaults!)
+                heart_rate_mean=metric_values.get("heart_rate_mean"),
+                heart_rate_std=metric_values.get("heart_rate_std"),
+                hrv_mean=metric_values.get("hrv_mean"),
+                hrv_std=metric_values.get("hrv_std"),
                 last_updated=metrics[0].created_at,  # type: ignore[arg-type]
                 data_points=metrics[0].n  # type: ignore[arg-type]
             )
@@ -399,7 +424,7 @@ class TimescaleBaselineRepository(BaselineRepositoryInterface):
                 activity_mean=features["activity_mean"][0],
                 activity_std=features["activity_std"][0],
                 circadian_phase=features["circadian_phase"][0],
-                last_updated=datetime.utcnow(),
+                last_updated=datetime.now(UTC),
                 data_points=features["data_points"][0]
             )
 
