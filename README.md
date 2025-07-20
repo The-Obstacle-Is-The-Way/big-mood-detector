@@ -18,7 +18,21 @@
 
 A production-ready system for detecting mood episodes in bipolar disorder using wearable sensor data. Based on peer-reviewed research from Nature Digital Medicine, Harvard Medical School, and Dartmouth.
 
-**⚠️ IMPORTANT: XGBoost models work out-of-the-box. PAT Transformer currently provides embeddings only (no mood predictions without additional fine-tuning). This implementation has not been clinically validated.**
+## ⚠️ Important v0.2.0 Limitations
+
+**What Works Today:**
+- ✅ **XGBoost predictions** - Fully validated mood risk scores (0.80-0.98 AUC)
+- ✅ **Feature extraction** - Robust processing of Apple Health data
+- ✅ **PAT embeddings** - Adds signal to XGBoost features
+
+**Current Limitations:**
+- ❌ **Not a true ensemble** - Only XGBoost makes predictions
+- ❌ **PAT can't predict mood** - Outputs embeddings only (no classification heads)
+- ❌ **Single model dependency** - No redundancy from dual predictions
+
+**Coming in v0.3.0:** True dual-model ensemble with independent predictions. [See roadmap →](docs/ROADMAP_V0.3.0.md)
+
+**Note:** This implementation has not been clinically validated. For research and personal use only.
 
 ## 🆕 What's New (v0.2.0)
 
@@ -106,11 +120,11 @@ big-mood-detector/
 
 ## 🧬 Key Features
 
-### 1. **ML Models (Current Status)**
+### 1. **ML Models (v0.2.0 Status)**
 
-- **XGBoost** ✅: Fully functional with 36 engineered features, excels at mania detection (98% AUC)
-- **PAT Transformer** ⚠️: Encoder only - outputs embeddings, not mood predictions
-- **Ensemble** ❌: Not functional without PAT classification heads
+- **XGBoost** ✅: Fully functional with 36 engineered features, validated predictions (0.80-0.98 AUC)
+- **PAT Transformer** ⚠️: Provides 96-dim embeddings to enhance XGBoost features (no independent predictions)
+- **Current "Ensemble"** 🔄: XGBoost with PAT-enhanced features (true ensemble coming v0.3.0)
 
 ### 2. **Personal Baseline System**
 - Learns YOUR normal patterns (not population average)

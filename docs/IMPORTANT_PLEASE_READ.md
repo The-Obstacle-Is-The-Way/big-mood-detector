@@ -47,23 +47,24 @@ differentiate these conditions using passive wearable data.
 
 ## 📋 What You Actually Need to Use This Application
 
-### Model Capabilities: What Actually Works Out-of-the-Box
+### Model Capabilities: What Actually Works in v0.2.0
 
 **IMPORTANT CLARIFICATION:**
 
-1. **XGBoost Model** ✅ WORKS WITHOUT LABELS
+1. **XGBoost Model** ✅ FULLY FUNCTIONAL
    - Pre-trained on 168 clinical patients
    - 235 psychiatrist-labeled episodes  
    - Full model weights included (.pkl files)
-   - Produces mood risk scores immediately
+   - Produces validated mood risk scores immediately
    - Just needs 30-60 days of your sleep/activity data
+   - **This is what generates all predictions you see**
 
-2. **PAT Transformer** ⚠️ ENCODER ONLY
+2. **PAT Transformer** ⚠️ EMBEDDINGS ONLY
    - Pre-trained encoder on 29,307 participants
-   - Only produces embeddings (feature vectors)
-   - **Does NOT include mood classification heads**
-   - Requires fine-tuning with labeled data OR
-   - Request classification heads from original authors
+   - Outputs 96-dimensional activity embeddings
+   - **Cannot make mood predictions** (no classification heads)
+   - Currently used to enhance XGBoost features
+   - v0.3.0 will add classification heads for independent predictions
 
 ### What You Actually Need
 
@@ -110,11 +111,12 @@ Based on the research literature:
 - **Current capability**: Only outputs embeddings (168-dim vectors)
 - **Best for**: Feature extraction for downstream tasks
 
-### Current System Reality
+### Current System Reality (v0.2.0)
 
-- **XGBoost Only**: Provides mood predictions out-of-the-box
-- **PAT**: Requires additional work for mood predictions
-- **Ensemble**: Not fully functional without PAT classification head
+- **All predictions come from XGBoost** (validated 0.80-0.98 AUC)
+- **PAT enhances features** but doesn't make independent predictions
+- **"Ensemble" mode** concatenates PAT embeddings with XGBoost features
+- **True ensemble coming in v0.3.0** with dual predictions
 
 ## 🚀 How to Use This Application
 
@@ -227,13 +229,15 @@ This is an **active research project** and we need help!
 - GitHub Issues: Report bugs or suggest features
 - Research Collaborations: See CONTRIBUTING.md
 
-## 🔑 Key Takeaways
+## 🔑 Key Takeaways for v0.2.0
 
-1. **XGBoost works without labels** - PAT requires classification heads
-2. **Predictions start after 30 days** of baseline data  
-3. **Best accuracy after 60 days** of consistent use
-4. **XGBoost forecasts 24 hours ahead** for mood episodes
+1. **XGBoost provides all mood predictions** (validated 0.80-0.98 AUC)
+2. **PAT enhances features** but doesn't predict independently yet
+3. **Predictions start after 30 days** of baseline data  
+4. **Best accuracy after 60 days** of consistent use
 5. **ALWAYS consult healthcare providers** for medical decisions
+
+**Coming in v0.3.0:** True ensemble with both models predicting independently
 
 ## 📚 Further Reading
 
