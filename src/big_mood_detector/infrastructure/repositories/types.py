@@ -3,6 +3,7 @@
 This module provides proper type hints for ORM models and other
 infrastructure types to avoid type: ignore comments.
 """
+
 from datetime import date, datetime
 from typing import Protocol
 
@@ -30,4 +31,3 @@ class BaselineRawRecordProtocol(Protocol):
     value: float
     window_days: int
     source: str
-

@@ -4,6 +4,7 @@ Baseline Repository Factory
 Provides a factory for creating baseline repositories based on configuration.
 Supports both file-based and TimescaleDB repositories.
 """
+
 import os
 import threading
 from dataclasses import dataclass
@@ -73,7 +74,9 @@ class BaselineRepositoryFactory:
         )
 
     @classmethod
-    def from_settings(cls, settings: BaselineRepositorySettings) -> "BaselineRepositoryFactory":
+    def from_settings(
+        cls, settings: BaselineRepositorySettings
+    ) -> "BaselineRepositoryFactory":
         """Create factory from settings object."""
         return cls(
             base_path=settings.base_path,
@@ -98,7 +101,9 @@ class BaselineRepositoryFactory:
             ValueError: If repository type is unknown or required config missing
         """
         # Determine repository type
-        repo_type = repository_type or os.getenv("BASELINE_REPOSITORY_TYPE", self.default_type)
+        repo_type = repository_type or os.getenv(
+            "BASELINE_REPOSITORY_TYPE", self.default_type
+        )
 
         logger.info("creating_baseline_repository", repository_type=repo_type)
 

@@ -53,18 +53,19 @@ class BaselineRawRecord(Base):
     Stores individual metric values that get aggregated into baselines.
     Following your bitemporal pattern with immutable records.
     """
-    __tablename__ = 'user_baseline_raw'
+
+    __tablename__ = "user_baseline_raw"
 
     # Composite primary key for bitemporal model
     user_id = Column(String, primary_key=True)
     metric = Column(String, primary_key=True)  # e.g. 'total_sleep_hours'
-    ts = Column(DateTime, primary_key=True)    # measurement timestamp
+    ts = Column(DateTime, primary_key=True)  # measurement timestamp
     effective_ts = Column(DateTime, primary_key=True)  # when record was created
 
     # Value and metadata
     value = Column(Float, nullable=False)
     window_days = Column(Integer, default=30)  # aggregation window
-    source = Column(String, default='feature_engineer')
+    source = Column(String, default="feature_engineer")
 
 
 class BaselineAggregateRecord(Base):
@@ -74,7 +75,8 @@ class BaselineAggregateRecord(Base):
     TimescaleDB continuous aggregates keep this updated automatically.
     Maps to your user_baseline_30d materialized view.
     """
-    __tablename__ = 'user_baseline_30d'
+
+    __tablename__ = "user_baseline_30d"
 
     user_id = Column(String, primary_key=True)
     feature_name = Column(String, primary_key=True)
@@ -105,7 +107,7 @@ class TimescaleBaselineRepository(BaselineRepositoryInterface):
         self,
         connection_string: str,
         enable_feast_sync: bool = False,
-        feast_repo_path: Path | None = None
+        feast_repo_path: Path | None = None,
     ):
         """
         Initialize TimescaleDB repository.
@@ -128,19 +130,23 @@ class TimescaleBaselineRepository(BaselineRepositoryInterface):
         if enable_feast_sync:
             try:
                 import feast  # type: ignore[import-not-found]
+
                 self.feast_client = feast.FeatureStore(repo_path=str(feast_repo_path))
                 logger.info("feast_client_initialized", repo_path=feast_repo_path)
             except ImportError:
-                logger.warning("feast_not_available",
-                             message="Install feast for online serving")
+                logger.warning(
+                    "feast_not_available", message="Install feast for online serving"
+                )
                 self.enable_feast_sync = False
 
         # Ensure TimescaleDB extension and tables exist
         self._initialize_database()
 
-        logger.info("timescale_baseline_repository_initialized",
-                   connection=connection_string,
-                   feast_enabled=self.enable_feast_sync)
+        logger.info(
+            "timescale_baseline_repository_initialized",
+            connection=connection_string,
+            feast_enabled=self.enable_feast_sync,
+        )
 
     @contextmanager
     def _get_session(self) -> Iterator[Any]:
@@ -183,7 +189,7 @@ class TimescaleBaselineRepository(BaselineRepositoryInterface):
                     effective_ts=effective_time,
                     value=float(value),
                     window_days=30,
-                    source="advanced_feature_engineer"
+                    source="advanced_feature_engineer",
                 )
                 session.add(raw_record)
 
@@ -197,26 +203,28 @@ class TimescaleBaselineRepository(BaselineRepositoryInterface):
                     mean=value,
                     std=0.0,
                     n=baseline.data_points,
-                    created_at=effective_time
+                    created_at=effective_time,
                 )
 
                 # ON CONFLICT update everything except primary keys
                 stmt = stmt.on_conflict_do_update(
-                    index_elements=['user_id', 'feature_name', 'window', 'as_of'],
+                    index_elements=["user_id", "feature_name", "window", "as_of"],
                     set_={
-                        'mean': stmt.excluded.mean,
-                        'std': stmt.excluded.std,
-                        'n': stmt.excluded.n,
-                        'created_at': stmt.excluded.created_at
-                    }
+                        "mean": stmt.excluded.mean,
+                        "std": stmt.excluded.std,
+                        "n": stmt.excluded.n,
+                        "created_at": stmt.excluded.created_at,
+                    },
                 )
 
                 session.execute(stmt)
 
-            logger.info("baseline_saved_atomically",
-                       user_id=baseline.user_id,
-                       effective_ts=effective_time.isoformat(),
-                       metrics_count=len(metrics))
+            logger.info(
+                "baseline_saved_atomically",
+                user_id=baseline.user_id,
+                effective_ts=effective_time.isoformat(),
+                metrics_count=len(metrics),
+            )
 
             # Sync to Feast if enabled
             if self.enable_feast_sync:
@@ -259,8 +267,7 @@ class TimescaleBaselineRepository(BaselineRepositoryInterface):
                     logger.info("baseline_retrieved_online", user_id=user_id)
                     return baseline
             except Exception as e:
-                logger.warning("feast_retrieval_failed",
-                             user_id=user_id, error=str(e))
+                logger.warning("feast_retrieval_failed", user_id=user_id, error=str(e))
 
         # Fallback to TimescaleDB
         return self._get_from_timescale(user_id)
@@ -274,11 +281,14 @@ class TimescaleBaselineRepository(BaselineRepositoryInterface):
         """
         with self._get_session() as session:
             # Query all baseline dates for this user
-            baseline_dates = session.query(BaselineAggregateRecord.as_of).filter(
-                BaselineAggregateRecord.user_id == user_id
-            ).distinct().order_by(
-                BaselineAggregateRecord.as_of.asc()
-            ).limit(limit).all()
+            baseline_dates = (
+                session.query(BaselineAggregateRecord.as_of)
+                .filter(BaselineAggregateRecord.user_id == user_id)
+                .distinct()
+                .order_by(BaselineAggregateRecord.as_of.asc())
+                .limit(limit)
+                .all()
+            )
 
             if not baseline_dates:
                 logger.info("baseline_history_empty", user_id=user_id)
@@ -287,26 +297,27 @@ class TimescaleBaselineRepository(BaselineRepositoryInterface):
             baselines = []
             for (baseline_date,) in baseline_dates:
                 # Get all metrics for this date
-                metrics = session.query(BaselineAggregateRecord).filter(
-                    BaselineAggregateRecord.user_id == user_id,
-                    BaselineAggregateRecord.as_of == baseline_date
-                ).all()
+                metrics = (
+                    session.query(BaselineAggregateRecord)
+                    .filter(
+                        BaselineAggregateRecord.user_id == user_id,
+                        BaselineAggregateRecord.as_of == baseline_date,
+                    )
+                    .all()
+                )
 
                 baseline = self._reconstruct_baseline(user_id, baseline_date, metrics)
                 if baseline:
                     baselines.append(baseline)
 
-            logger.info("baseline_history_retrieved",
-                       user_id=user_id,
-                       count=len(baselines))
+            logger.info(
+                "baseline_history_retrieved", user_id=user_id, count=len(baselines)
+            )
 
             return baselines
 
     def _reconstruct_baseline(
-        self,
-        user_id: str,
-        baseline_date: date,
-        metrics: list[BaselineAggregateRecord]
+        self, user_id: str, baseline_date: date, metrics: list[BaselineAggregateRecord]
     ) -> UserBaseline | None:
         """Reconstruct UserBaseline from aggregate records."""
         if not metrics:
@@ -333,37 +344,44 @@ class TimescaleBaselineRepository(BaselineRepositoryInterface):
             hrv_mean=metric_values.get("hrv_mean"),
             hrv_std=metric_values.get("hrv_std"),
             last_updated=metrics[0].created_at,  # type: ignore[arg-type]
-            data_points=metrics[0].n  # type: ignore[arg-type]
+            data_points=metrics[0].n,  # type: ignore[arg-type]
         )
 
     def _get_from_timescale(self, user_id: str) -> UserBaseline | None:
         """Retrieve baseline from TimescaleDB with session management."""
         with self._get_session() as session:
             # Get the most recent baseline date for this user
-            latest_date = session.query(BaselineAggregateRecord.as_of).filter(
-                BaselineAggregateRecord.user_id == user_id
-            ).order_by(
-                BaselineAggregateRecord.as_of.desc()
-            ).first()
+            latest_date = (
+                session.query(BaselineAggregateRecord.as_of)
+                .filter(BaselineAggregateRecord.user_id == user_id)
+                .order_by(BaselineAggregateRecord.as_of.desc())
+                .first()
+            )
 
             if not latest_date:
                 logger.info("baseline_not_found", user_id=user_id)
                 return None
 
             # Get all metrics for the latest date
-            metrics = session.query(BaselineAggregateRecord).filter(
-                BaselineAggregateRecord.user_id == user_id,
-                BaselineAggregateRecord.as_of == latest_date[0]
-            ).all()
+            metrics = (
+                session.query(BaselineAggregateRecord)
+                .filter(
+                    BaselineAggregateRecord.user_id == user_id,
+                    BaselineAggregateRecord.as_of == latest_date[0],
+                )
+                .all()
+            )
 
             if not metrics:
                 return None
 
             baseline = self._reconstruct_baseline(user_id, latest_date[0], metrics)
 
-            logger.info("baseline_retrieved_timescale",
-                       user_id=user_id,
-                       as_of=str(latest_date[0]))
+            logger.info(
+                "baseline_retrieved_timescale",
+                user_id=user_id,
+                as_of=str(latest_date[0]),
+            )
 
             return baseline
 
@@ -383,41 +401,51 @@ class TimescaleBaselineRepository(BaselineRepositoryInterface):
                 import pandas as pd
 
                 # Convert baseline to Feast-compatible format
-                features_df = pd.DataFrame([{
-                    "user_id": baseline.user_id,
-                    "sleep_mean": baseline.sleep_mean,
-                    "sleep_std": baseline.sleep_std,
-                    "activity_mean": baseline.activity_mean,
-                    "activity_std": baseline.activity_std,
-                    "circadian_phase": baseline.circadian_phase,
-                    "data_points": baseline.data_points,
-                    "event_timestamp": baseline.last_updated
-                }])
+                features_df = pd.DataFrame(
+                    [
+                        {
+                            "user_id": baseline.user_id,
+                            "sleep_mean": baseline.sleep_mean,
+                            "sleep_std": baseline.sleep_std,
+                            "activity_mean": baseline.activity_mean,
+                            "activity_std": baseline.activity_std,
+                            "circadian_phase": baseline.circadian_phase,
+                            "data_points": baseline.data_points,
+                            "event_timestamp": baseline.last_updated,
+                        }
+                    ]
+                )
 
                 # Push to online store
                 self.feast_client.push("user_baselines", features_df)
 
-                logger.info("feast_sync_complete",
-                           user_id=baseline.user_id,
-                           features_count=len(features_df.columns))
+                logger.info(
+                    "feast_sync_complete",
+                    user_id=baseline.user_id,
+                    features_count=len(features_df.columns),
+                )
                 return  # Success, exit
 
             except Exception as e:
                 if attempt < max_retries - 1:
                     # Exponential backoff: 0.5s, 1s, 2s
-                    backoff_time = 0.5 * (2 ** attempt)
-                    logger.warning("feast_sync_retry",
-                                 user_id=baseline.user_id,
-                                 attempt=attempt + 1,
-                                 backoff=backoff_time,
-                                 error=str(e))
+                    backoff_time = 0.5 * (2**attempt)
+                    logger.warning(
+                        "feast_sync_retry",
+                        user_id=baseline.user_id,
+                        attempt=attempt + 1,
+                        backoff=backoff_time,
+                        error=str(e),
+                    )
                     time.sleep(backoff_time)
                 else:
                     # Final attempt failed
-                    logger.error("feast_sync_failed_after_retries",
-                                user_id=baseline.user_id,
-                                attempts=max_retries,
-                                error=str(e))
+                    logger.error(
+                        "feast_sync_failed_after_retries",
+                        user_id=baseline.user_id,
+                        attempts=max_retries,
+                        error=str(e),
+                    )
                     # Don't raise - Feast sync is optional
 
     def _get_from_feast(self, user_id: str) -> UserBaseline | None:
@@ -434,9 +462,9 @@ class TimescaleBaselineRepository(BaselineRepositoryInterface):
                     "user_baselines:activity_mean",
                     "user_baselines:activity_std",
                     "user_baselines:circadian_phase",
-                    "user_baselines:data_points"
+                    "user_baselines:data_points",
                 ],
-                entity_rows=[{"user_id": user_id}]
+                entity_rows=[{"user_id": user_id}],
             )
 
             # Convert to dict
@@ -455,14 +483,15 @@ class TimescaleBaselineRepository(BaselineRepositoryInterface):
                 activity_std=features["activity_std"][0],
                 circadian_phase=features["circadian_phase"][0],
                 last_updated=datetime.now(UTC),
-                data_points=features["data_points"][0]
+                data_points=features["data_points"][0],
             )
 
             return baseline
 
         except Exception as e:
-            logger.warning("feast_online_retrieval_failed",
-                          user_id=user_id, error=str(e))
+            logger.warning(
+                "feast_online_retrieval_failed", user_id=user_id, error=str(e)
+            )
             return None
 
     def _initialize_database(self) -> None:
@@ -481,17 +510,21 @@ class TimescaleBaselineRepository(BaselineRepositoryInterface):
 
                 # Create hypertable for raw data (if not exists)
                 try:
-                    conn.execute(text(
-                        "SELECT create_hypertable('user_baseline_raw', 'ts', "
-                        "if_not_exists => TRUE)"
-                    ))
+                    conn.execute(
+                        text(
+                            "SELECT create_hypertable('user_baseline_raw', 'ts', "
+                            "if_not_exists => TRUE)"
+                        )
+                    )
                 except Exception:
                     # Hypertable might already exist
                     pass
 
                 # Create continuous aggregate (materialized view)
                 try:
-                    conn.execute(text("""
+                    conn.execute(
+                        text(
+                            """
                         CREATE MATERIALIZED VIEW IF NOT EXISTS user_baseline_30d
                         WITH (timescaledb.continuous) AS
                         SELECT
@@ -506,7 +539,9 @@ class TimescaleBaselineRepository(BaselineRepositoryInterface):
                         FROM user_baseline_raw
                         WHERE ts >= NOW() - INTERVAL '30 days'
                         GROUP BY user_id, metric, time_bucket('1 day', ts)
-                    """))
+                    """
+                        )
+                    )
                 except Exception as e:
                     # View might already exist
                     logger.debug("continuous_aggregate_creation_info", error=str(e))

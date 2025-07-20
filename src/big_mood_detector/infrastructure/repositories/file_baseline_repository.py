@@ -60,8 +60,8 @@ class FileBaselineRepository(BaselineRepositoryInterface):
             history = history[-10:]
 
             # Save updated history atomically
-            temp_file = history_file.with_suffix('.tmp')
-            with open(temp_file, 'w') as f:
+            temp_file = history_file.with_suffix(".tmp")
+            with open(temp_file, "w") as f:
                 json.dump(history, f, indent=2)
             # Atomic rename
             temp_file.replace(history_file)
@@ -96,9 +96,7 @@ class FileBaselineRepository(BaselineRepositoryInterface):
         )
         return baseline
 
-    def get_baseline_history(
-        self, user_id: str, limit: int = 10
-    ) -> list[UserBaseline]:
+    def get_baseline_history(self, user_id: str, limit: int = 10) -> list[UserBaseline]:
         """Get historical baselines for trend analysis."""
         history_file = self.base_path / user_id / "baseline_history.json"
 
@@ -145,7 +143,9 @@ class FileBaselineRepository(BaselineRepositoryInterface):
             "heart_rate_std": baseline.heart_rate_std,
             "hrv_mean": baseline.hrv_mean,
             "hrv_std": baseline.hrv_std,
-            "last_updated": baseline.last_updated.isoformat() if baseline.last_updated else None,
+            "last_updated": (
+                baseline.last_updated.isoformat() if baseline.last_updated else None
+            ),
             "data_points": baseline.data_points,
         }
 
