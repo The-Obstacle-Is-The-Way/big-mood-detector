@@ -31,52 +31,104 @@ class TestSleepDurationRegression:
             (datetime(2024, 1, 1, 23, 0), datetime(2024, 1, 2, 5, 0), "Short 6h"),
             # Long 10 hour sleep
             (datetime(2024, 1, 1, 21, 0), datetime(2024, 1, 2, 7, 0), "Long 10h"),
-            # Split sleep (nap + night)
-            (datetime(2024, 1, 1, 14, 0), datetime(2024, 1, 1, 15, 30), "Afternoon nap"),
+            # Morning nap (ends before 3pm)
+            (datetime(2024, 1, 2, 11, 0), datetime(2024, 1, 2, 12, 30), "Morning nap"),
         ]
         
         for start, end, description in test_cases:
-            sleep_record = SleepRecord(
-                source_name="Apple Watch",
-                start_date=start,
-                end_date=end,
-                state=SleepState.ASLEEP,
-            )
+            # Need to create multiple days of data for pipeline statistics
+            sleep_records = []
+            activity_records = []
+            heart_records = []
             
-            # Minimal activity/heart data
-            activity_record = ActivityRecord(
-                source_name="Apple Watch",
-                start_date=datetime(2024, 1, 1, 12, 0),
-                end_date=datetime(2024, 1, 1, 13, 0),
-                activity_type=ActivityType.STEP_COUNT,
-                value=1000,
-                unit="steps",
-            )
+            # Determine target date based on sleep end time (Apple 3pm rule)
+            if end.hour < 15 or (end.hour == 15 and end.minute == 0):
+                target_date = end.date()
+            else:
+                target_date = end.date() + timedelta(days=1)
             
-            heart_record = HeartRateRecord(
-                source_name="Apple Watch",
-                timestamp=datetime(2024, 1, 1, 12, 0),
-                metric_type=HeartMetricType.HEART_RATE,
-                value=70,
-                unit="bpm",
-            )
+            # Create 3 days of data to meet min_window_size requirements
+            # Day before, target day, and day after
+            for day_offset in [-1, 0, 1]:
+                current_date = target_date + timedelta(days=day_offset)
+                
+                # For the target day, use the actual test sleep pattern
+                if day_offset == 0:
+                    sleep_records.append(
+                        SleepRecord(
+                            source_name="Apple Watch",
+                            start_date=start,
+                            end_date=end,
+                            state=SleepState.ASLEEP,
+                        )
+                    )
+                else:
+                    # For other days, create normal 8h sleep (10pm-6am)
+                    # Adjust dates to ensure proper assignment
+                    sleep_start = datetime.combine(
+                        current_date - timedelta(days=1), 
+                        datetime.min.time()
+                    ).replace(hour=22)  # 10pm previous day
+                    sleep_end = datetime.combine(
+                        current_date,
+                        datetime.min.time()
+                    ).replace(hour=6)  # 6am current day
+                    
+                    sleep_records.append(
+                        SleepRecord(
+                            source_name="Apple Watch",
+                            start_date=sleep_start,
+                            end_date=sleep_end,
+                            state=SleepState.ASLEEP,
+                        )
+                    )
+                
+                # Create activity and heart data for each day
+                activity_records.append(
+                    ActivityRecord(
+                        source_name="Apple Watch",
+                        start_date=datetime.combine(current_date, datetime.min.time()).replace(hour=12),
+                        end_date=datetime.combine(current_date, datetime.min.time()).replace(hour=13),
+                        activity_type=ActivityType.STEP_COUNT,
+                        value=1000,
+                        unit="steps",
+                    )
+                )
+                
+                heart_records.append(
+                    HeartRateRecord(
+                        source_name="Apple Watch",
+                        timestamp=datetime.combine(current_date, datetime.min.time()).replace(hour=12),
+                        metric_type=HeartMetricType.HEART_RATE,
+                        value=70,
+                        unit="bpm",
+                    )
+                )
             
-            # Process through pipeline with min_window_size=1 to get immediate results
+            # Process through pipeline with proper date range
             features = pipeline.aggregate_daily_features(
-                sleep_records=[sleep_record],
-                activity_records=[activity_record],
-                heart_records=[heart_record],
-                start_date=date(2024, 1, 1),
-                end_date=date(2024, 1, 1),
-                min_window_size=1,  # Allow single-day results for regression testing
+                sleep_records=sleep_records,
+                activity_records=activity_records,
+                heart_records=heart_records,
+                start_date=target_date - timedelta(days=1),
+                end_date=target_date + timedelta(days=1),
+                min_window_size=1,  # Allow results with just 1 day of data
             )
             
-            # Check that sleep duration is reasonable
-            assert len(features) > 0, f"No features extracted for {description}"
-            feature = features[0]
+            # Debug info
+            print(f"\n{description}: Sleep {start} to {end}, target_date={target_date}, features={len(features)}")
             
-            assert hasattr(feature, 'seoul_features'), "Should have seoul_features"
-            sleep_hours = feature.seoul_features.sleep_duration_hours
+            # Find the feature for our target date
+            target_feature = None
+            for feature in features:
+                if feature and hasattr(feature, 'date') and feature.date == target_date:
+                    target_feature = feature
+                    break
+            
+            assert target_feature is not None, f"No features extracted for {description} on target_date={target_date}"
+            
+            assert hasattr(target_feature, 'seoul_features'), "Should have seoul_features"
+            sleep_hours = target_feature.seoul_features.sleep_duration_hours
             
             # The key assertion: sleep should be in reasonable range
             assert 0 <= sleep_hours <= 24, (

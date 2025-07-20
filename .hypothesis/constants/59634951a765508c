@@ -1,0 +1,4 @@
+# file: /Users/ray/Desktop/CLARITY-DIGITAL-TWIN/big-mood-detector/src/big_mood_detector/domain/entities/activity_record.py
+# hypothesis_version: 6.136.0
+
+[0.0, 100, 500, 2000, 3600, 15000, 'ActivityRecord', 'ActivityType', 'Unit is required']

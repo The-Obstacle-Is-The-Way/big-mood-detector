@@ -1,0 +1,4 @@
+# file: /Users/ray/Desktop/CLARITY-DIGITAL-TWIN/big-mood-detector/src/big_mood_detector/domain/utils/episode_mapper.py
+# hypothesis_version: 6.136.0
+
+['depressive', 'depressive_episode', 'depressive_mixed', 'euthymic', 'hypomanic', 'hypomanic_episode', 'manic', 'manic_episode', 'manic_mixed', 'mixed', 'mixed_episode', 'none']

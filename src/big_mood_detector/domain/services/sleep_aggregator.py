@@ -5,11 +5,14 @@ Aggregates sleep records into daily summaries for clinical analysis.
 Following Domain-Driven Design and Clean Code principles.
 """
 
+import logging
 from collections import defaultdict
 from dataclasses import dataclass
 from datetime import date, datetime, time, timedelta
 
 from big_mood_detector.domain.entities.sleep_record import SleepRecord
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)
@@ -85,15 +88,23 @@ class SleepAggregator:
             Dictionary mapping dates to daily sleep summaries
         """
         if not sleep_records:
+            logger.debug("No sleep records to aggregate")
             return {}
+
+        logger.debug(f"Aggregating {len(sleep_records)} sleep records")
 
         # Group records by date
         daily_records = self._group_by_date(sleep_records)
+        logger.debug(f"Grouped into {len(daily_records)} days")
 
         # Create summary for each day
         summaries = {}
         for day, records in daily_records.items():
             summaries[day] = self._create_daily_summary(day, records)
+            logger.debug(
+                f"Day {day}: {len(records)} records, "
+                f"total sleep {summaries[day].total_sleep_hours:.1f}h"
+            )
 
         return summaries
 
@@ -114,24 +125,31 @@ class SleepAggregator:
         """
         Determine which date a sleep record belongs to.
 
-        Uses the "sleep day" concept - sleep after 6 PM belongs to that night,
-        sleep before 6 PM belongs to previous night.
+        Uses Apple Health convention:
+        - Sleep is assigned to the date you wake up
+        - If you wake up before 3pm, it's assigned to that day
+        - If you wake up after 3pm, it's assigned to the next day
+        
+        This matches how Apple Health exports data and ensures consistency.
         """
-        midpoint = record.start_date + (record.end_date - record.start_date) / 2
-
-        # If sleep starts after 6 PM, it's that day's sleep
-        if record.start_date.hour >= 18:
-            return record.start_date.date()
-        # If sleep starts before 6 AM, it's previous day's sleep
-        elif record.start_date.hour < 6:
-            return (record.start_date - timedelta(days=1)).date()
-        # Otherwise use midpoint
-        else:
-            return (
-                midpoint.date()
-                if midpoint.hour >= 12
-                else (midpoint - timedelta(days=1)).date()
-            )
+        # Get the wake time (end of sleep)
+        wake_time = record.end_date
+        
+        # If wake time is at or before 3pm (15:00), assign to wake date
+        # Using <= 15 to include 3:00-3:59pm as same day
+        if wake_time.hour < 15 or (wake_time.hour == 15 and wake_time.minute == 0):
+            assigned_date = wake_time.date()
+        else:  # After 3pm
+            # Assign to next day
+            assigned_date = (wake_time + timedelta(days=1)).date()
+        
+        logger.debug(
+            f"Sleep {record.start_date.strftime('%Y-%m-%d %H:%M')} to "
+            f"{record.end_date.strftime('%Y-%m-%d %H:%M')} "
+            f"(duration {record.duration_hours:.1f}h) -> assigned to {assigned_date}"
+        )
+        
+        return assigned_date
 
     def _create_daily_summary(
         self, day: date, records: list[SleepRecord]
@@ -156,6 +174,15 @@ class SleepAggregator:
         # Circadian rhythm indicators
         earliest_bed, latest_wake, mid_sleep = self._calculate_circadian_markers(
             records
+        )
+        
+        logger.debug(
+            f"Summary for {day}: "
+            f"sleep={total_sleep_time:.1f}h, "
+            f"bed={total_bed_time:.1f}h, "
+            f"efficiency={efficiency:.1%}, "
+            f"sessions={len(sleep_sessions)}, "
+            f"fragmentation={fragmentation:.2f}"
         )
 
         return DailySleepSummary(

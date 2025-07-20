@@ -1,0 +1,4 @@
+# file: /Users/ray/Desktop/CLARITY-DIGITAL-TWIN/big-mood-detector/src/big_mood_detector/domain/services/treatment_recommender.py
+# hypothesis_version: 6.136.0
+
+['asenapine', 'bipolar_disorder', 'cariprazine', 'critical', 'depressed', 'depressive', 'diabetes', 'escitalopram', 'first-line', 'fluoxetine', 'hypomanic', 'lamotrigine', 'lithium', 'liver disease', 'lurasidone', 'manic', 'metabolic syndrome', 'mixed', 'pregnancy', 'quetiapine', 'rapid cycling', 'renal impairment', 'second-line', 'sertraline', 'valproate', 'venlafaxine']

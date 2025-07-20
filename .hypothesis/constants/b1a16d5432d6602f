@@ -1,0 +1,4 @@
+# file: /Users/ray/Desktop/CLARITY-DIGITAL-TWIN/big-mood-detector/src/big_mood_detector/domain/entities/heart_rate_record.py
+# hypothesis_version: 6.136.0
+
+[100, 'HeartMetricType', 'HeartRateRecord', 'MotionContext', 'Unit is required', 'active', 'sedentary', 'unknown']

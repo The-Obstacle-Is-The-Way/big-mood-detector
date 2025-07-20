@@ -1,0 +1,4 @@
+# file: /Users/ray/Desktop/CLARITY-DIGITAL-TWIN/big-mood-detector/src/big_mood_detector/domain/services/advanced_feature_engineering.py
+# hypothesis_version: 6.136.0
+
+[0.0, 0.15, 0.2, 0.3, 50.0, 70.0, 100, 1440, '_loaded_baseline', 'activity', 'activity_7day_mean', 'activity_7day_std', 'activity_zscore', 'core_body_temp_nadir', 'count', 'dlmo_estimate', 'hr', 'hr_7day_mean', 'hr_7day_std', 'hr_zscore', 'hrv', 'hrv_zscore', 'interdaily_stability', 'is_insomnia_pattern', 'is_irregular_pattern', 'is_phase_advanced', 'is_phase_delayed', 'l5_onset', 'l5_value', 'm10_onset', 'm10_value', 'mean', 'mood_risk_score', 'relative_amplitude', 'sedentary_bout_max', 'sedentary_bout_mean', 'sleep', 'sleep_7day_mean', 'sleep_7day_std', 'sleep_onset_variance', 'std', 'sum', 'sum_sq', 'values', 'wake_time_variance']

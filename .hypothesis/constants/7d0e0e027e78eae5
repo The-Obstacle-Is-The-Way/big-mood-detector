@@ -1,0 +1,4 @@
+# file: /Users/ray/Desktop/CLARITY-DIGITAL-TWIN/big-mood-detector/src/big_mood_detector/domain/services/interpolation_strategies.py
+# hypothesis_version: 6.136.0
+
+[3600, '00:00:00', 'D', 'activity', 'both', 'float32', 'float64', 'h', 'int32', 'int64', 'linear']

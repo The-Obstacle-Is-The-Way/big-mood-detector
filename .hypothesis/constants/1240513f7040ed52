@@ -1,0 +1,4 @@
+# file: /Users/ray/Desktop/CLARITY-DIGITAL-TWIN/big-mood-detector/src/big_mood_detector/domain/services/clinical_interpreter.py
+# hypothesis_version: 6.136.0
+
+[0.25, 0.5, 0.6, 0.7, 0.75, 0.8, 1.0, '.', '. ', 'CLINICAL_CONFIG_PATH', '_', 'activity_level', 'activity_mean', 'activity_std', 'activity_steps', 'asrm_score', 'config', 'critical', 'date', 'depressive', 'high', 'hypomanic', 'increased_energy', 'low', 'manic', 'medium', 'moderate', 'mood_scores', 'none', 'phq_score', 'racing_thoughts', 'risk_level', 'routine', 'score', 'sleep_duration', 'sleep_hours', 'sleep_mean', 'sleep_std']

@@ -1,0 +1,4 @@
+# file: /Users/ray/Desktop/CLARITY-DIGITAL-TWIN/big-mood-detector/src/big_mood_detector/domain/services/episode_labeler.py
+# hypothesis_version: 6.136.0
+
+[1.0, '%Y-%m-%d', 'action', 'add_baseline', 'add_episode', 'baseline', 'confidence', 'data', 'date', 'default', 'duration_days', 'end_date', 'episode_type', 'label', 'labeled_at', 'model_agreed', 'notes', 'rater_id', 'severity', 'start_date']

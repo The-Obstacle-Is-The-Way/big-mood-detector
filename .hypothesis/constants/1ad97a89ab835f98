@@ -1,0 +1,4 @@
+# file: /Users/ray/Desktop/CLARITY-DIGITAL-TWIN/big-mood-detector/src/big_mood_detector/domain/services/sleep_feature_calculator.py
+# hypothesis_version: 6.136.0
+
+[0.0, 1e-06, 1.0, 2.0, 6.0, 10.0, 100.0, 100, 3600, 'fragmentation_scale', 'long_sleep_threshold', 'regularity_scaling', 'sleep_windows']

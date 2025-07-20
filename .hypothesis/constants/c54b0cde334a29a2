@@ -1,0 +1,4 @@
+# file: /Users/ray/Desktop/CLARITY-DIGITAL-TWIN/big-mood-detector/src/big_mood_detector/domain/services/sparse_data_handler.py
+# hypothesis_version: 6.136.0
+
+[0.0, 0.1, 0.2, 0.3, 0.5, 0.7, 0.8, 1.0, 7.0, 'D', 'activity_summary', 'all_sleep_metrics', 'basic_sleep_metrics', 'basic_statistics', 'circadian_amplitude', 'circadian_phase', 'confidence', 'daily_summary', 'data_available_flag', 'date', 'first', 'float64', 'hour', 'inner', 'int64', 'left', 'mean', 'minimal_analysis', 'missing_ratio', 'monthly_trends', 'periodic', 'seasonal_patterns', 'timestamp', 'weekday', 'weekday_bias', 'weekend_bias', 'weekly_patterns']
