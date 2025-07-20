@@ -8,15 +8,19 @@
 2. **This is NOT a medical device and has NOT been approved by the FDA**
 3. **This application CANNOT diagnose mental health conditions**
 4. **ALWAYS consult with qualified healthcare professionals for medical advice**
-5. **If you are experiencing a mental health crisis, IMMEDIATELY seek professional help**
+5. **If you are experiencing a mental health crisis, IMMEDIATELY seek
+   professional help**
 
 **Emergency Resources:**
+
 - National Suicide Prevention Lifeline: 988 (US)
 - Crisis Text Line: Text HOME to 741741
 - Emergency Services: 911
 
 **Research Status:**
-- This application is based on peer-reviewed machine learning papers from Nature Digital Medicine, Harvard, and Dartmouth
+
+- This application is based on peer-reviewed machine learning papers from
+  Nature Digital Medicine, Harvard, and Dartmouth
 - However, **this specific application has NOT been clinically validated**
 - It has NOT been tested on real patients in a controlled clinical setting
 - Exercise extreme caution and use only as a supplementary tool
@@ -25,38 +29,43 @@
 
 ### The Clinical Problem
 
-As a clinical psychiatrist knows, differentiating between these conditions is one of the hardest challenges in mental health:
+As a clinical psychiatrist knows, differentiating between these conditions
+is one of the hardest challenges in mental health:
 
 1. **Unipolar Depression** (Major Depressive Disorder)
 2. **Bipolar Depression** (depressive phase of bipolar disorder)
 3. **Borderline Personality Disorder** (with mood symptoms)
 
 **Why is this differentiation critical?**
+
 - Wrong diagnosis → Wrong treatment → Potential harm
 - Antidepressants alone in bipolar disorder can trigger mania
 - Each condition requires different treatment approaches
 
-**This is the FIRST application in the world** that theoretically could help differentiate these conditions using passive wearable data.
+**This is the FIRST application in the world** that theoretically could help
+differentiate these conditions using passive wearable data.
 
 ## 📋 What You Actually Need to Use This Application
 
-### Good News: NO Labeling Required!
+### Model Capabilities: What Actually Works Out-of-the-Box
 
-**Both models work out-of-the-box:**
+**IMPORTANT CLARIFICATION:**
 
-1. **XGBoost Model**
+1. **XGBoost Model** ✅ WORKS WITHOUT LABELS
    - Pre-trained on 168 clinical patients
-   - 235 psychiatrist-labeled episodes
-   - NO user labels needed
+   - 235 psychiatrist-labeled episodes  
+   - Full model weights included (.pkl files)
+   - Produces mood risk scores immediately
    - Just needs 30-60 days of your sleep/activity data
 
-2. **PAT Transformer**
-   - Pre-trained on 29,307 participants
-   - Foundation model approach
-   - NO user labels needed
-   - Works with as little as 7 days of data
+2. **PAT Transformer** ⚠️ ENCODER ONLY
+   - Pre-trained encoder on 29,307 participants
+   - Only produces embeddings (feature vectors)
+   - **Does NOT include mood classification heads**
+   - Requires fine-tuning with labeled data OR
+   - Request classification heads from original authors
 
-### What You DO Need:
+### What You Actually Need
 
 1. **Apple Health Data Export** (or compatible format)
    - Minimum 30 days for initial predictions
@@ -68,13 +77,17 @@ As a clinical psychiatrist knows, differentiating between these conditions is on
    - After 30 days: Predictions become personalized
    - After 60 days: Maximum accuracy achieved
 
-3. **Regular Data Updates**
-   - Export and process new data weekly or bi-weekly
-   - System improves with more data
+3. **For Full Functionality**
+   - XGBoost: Works immediately (model included)
+   - PAT: Either:
+     - Fine-tune with ~500 labeled episodes (as per paper)
+     - Request pre-trained heads from authors
+     - Or use embeddings for clustering/anomaly detection only
 
 ### Optional: Labeling for Enhanced Accuracy
 
 While NOT required, you CAN label past mood episodes to:
+
 - Improve personal calibration
 - Validate model accuracy
 - Contribute to research
@@ -83,24 +96,30 @@ While NOT required, you CAN label past mood episodes to:
 
 Based on the research literature:
 
-### XGBoost Model (Nature Digital Medicine 2024)
+### XGBoost Model (Nature Digital Medicine 2024) ✅
+
 - **Prediction Window**: Next-day (24 hours ahead)
 - **What it predicts**: Tomorrow's mood state based on past 30 days
 - **Best for**: Mania detection (98% accuracy)
+- **Status**: FULLY FUNCTIONAL - model weights included
 
-### PAT Model (Dartmouth 2024)
+### PAT Model (Dartmouth 2024) ⚠️
+
 - **Prediction Window**: Current state analysis
-- **What it predicts**: Depression risk based on last 7 days
-- **Best for**: Depression detection
+- **What it predicts**: Would predict depression if classification head available
+- **Current capability**: Only outputs embeddings (168-dim vectors)
+- **Best for**: Feature extraction for downstream tasks
 
-### Combined System
-- **Continuous Monitoring**: Daily risk assessments
-- **Early Warning**: 1-2 days before clinical symptoms
-- **Trend Analysis**: Identifies deteriorating patterns
+### Current System Reality
+
+- **XGBoost Only**: Provides mood predictions out-of-the-box
+- **PAT**: Requires additional work for mood predictions
+- **Ensemble**: Not fully functional without PAT classification head
 
 ## 🚀 How to Use This Application
 
 ### Step 1: Initial Setup (One Time)
+
 ```bash
 # Install the application
 git clone https://github.com/Clarity-Digital-Twin/big-mood-detector.git
@@ -109,6 +128,7 @@ pip install -e ".[dev,ml,monitoring]"
 ```
 
 ### Step 2: Establish Your Baseline (First Month)
+
 ```bash
 # Process your historical Apple Health data
 python src/big_mood_detector/main.py process ~/Desktop/apple_health_export/
@@ -118,6 +138,7 @@ python src/big_mood_detector/main.py predict ~/Desktop/apple_health_export/ --re
 ```
 
 ### Step 3: Ongoing Monitoring (Weekly/Bi-weekly)
+
 ```bash
 # Export new Apple Health data
 # Process the update
@@ -128,6 +149,7 @@ python src/big_mood_detector/main.py predict ~/Desktop/apple_health_export_new/ 
 ```
 
 ### Step 4: Optional - Add Labels for Better Accuracy
+
 ```bash
 # If you know when you had mood episodes
 python src/big_mood_detector/main.py label episode \
@@ -140,12 +162,14 @@ python src/big_mood_detector/main.py label episode \
 ## 📊 Understanding Your Results
 
 ### Risk Levels
+
 - **LOW** (<30%): Continue monitoring
 - **MODERATE** (30-50%): Increased vigilance, consider checking in with provider
 - **HIGH** (50-70%): Schedule appointment with provider soon
 - **VERY HIGH** (>70%): Seek clinical evaluation promptly
 
 ### What the Predictions Mean
+
 - These are **RISK ASSESSMENTS**, not diagnoses
 - Based on patterns similar to clinically validated episodes
 - Should be discussed with your healthcare provider
@@ -168,26 +192,47 @@ python src/big_mood_detector/main.py label episode \
    - Always secondary to professional assessment
    - Not for emergency situations
 
+## 🔧 Getting PAT Classification Heads
+
+Since PAT only includes the encoder, you have options:
+
+1. **Contact Original Authors** (Recommended)
+   - Email: franklin.y.ruan.24@dartmouth.edu
+   - GitHub: https://github.com/njacobsonlab/Pretrained-Actigraphy-Transformer
+   - They have shared weights with other labs under MIT license
+   
+2. **Fine-tune Your Own**
+   - Requires ~500 labeled episodes minimum
+   - See their fine-tuning notebooks for guidance
+   - Takes 1-2 hours on Google Colab GPU
+
+3. **Use Embeddings Only**
+   - Clustering for patient stratification
+   - Anomaly detection for outlier days
+   - Feature extraction for other ML models
+
 ## 🤝 Call for Contributors
 
 This is an **active research project** and we need help!
 
-### How You Can Contribute:
+### How You Can Contribute
+
 1. **Developers**: Improve code, add features, fix bugs
 2. **Researchers**: Validate models, publish studies
 3. **Clinicians**: Provide feedback, suggest improvements
 4. **Users**: Report issues, share experiences (anonymously)
 
 ### Contact
+
 - GitHub Issues: Report bugs or suggest features
 - Research Collaborations: See CONTRIBUTING.md
 
 ## 🔑 Key Takeaways
 
-1. **NO LABELS REQUIRED** - Works out-of-the-box
-2. **Predictions start after 30 days** of baseline data
+1. **XGBoost works without labels** - PAT requires classification heads
+2. **Predictions start after 30 days** of baseline data  
 3. **Best accuracy after 60 days** of consistent use
-4. **Forecasts 1-2 days ahead** for mood episodes
+4. **XGBoost forecasts 24 hours ahead** for mood episodes
 5. **ALWAYS consult healthcare providers** for medical decisions
 
 ## 📚 Further Reading
@@ -198,6 +243,7 @@ This is an **active research project** and we need help!
 
 ---
 
-**Remember**: This tool is meant to SUPPLEMENT, not REPLACE, professional mental healthcare. Your safety and wellbeing come first.
+**Remember**: This tool is meant to SUPPLEMENT, not REPLACE, professional mental
+healthcare. Your safety and wellbeing come first.
 
-*Last Updated: 2025-07-20*
+**Last Updated:** 2025-07-20

@@ -1,5 +1,13 @@
 # 🧠 Big Mood Detector
 
+## ⚠️ CRITICAL MEDICAL DISCLAIMERS
+
+**This application is for RESEARCH and PERSONAL USE ONLY. It is NOT FDA-approved, NOT a medical device, and CANNOT diagnose mental health conditions. ALWAYS consult qualified healthcare professionals. If experiencing a mental health crisis, seek immediate help: Call 988 (US) or emergency services.**
+
+**[📋 PLEASE READ IMPORTANT INFORMATION FIRST](docs/IMPORTANT_PLEASE_READ.md)**
+
+---
+
 > **Clinical-grade bipolar mood prediction from Apple Health data using validated ML models**
 
 [![Tests](https://img.shields.io/badge/tests-695%20passing-brightgreen)](tests/)
@@ -9,6 +17,8 @@
 [![License](https://img.shields.io/badge/license-Apache%202.0-green)](LICENSE)
 
 A production-ready system for detecting mood episodes in bipolar disorder using wearable sensor data. Based on peer-reviewed research from Nature Digital Medicine, Harvard Medical School, and Dartmouth.
+
+**⚠️ IMPORTANT: XGBoost models work out-of-the-box. PAT Transformer currently provides embeddings only (no mood predictions without additional fine-tuning). This implementation has not been clinically validated.**
 
 ## 🆕 What's New (v0.2.0)
 
@@ -96,10 +106,11 @@ big-mood-detector/
 
 ## 🧬 Key Features
 
-### 1. **State-of-the-Art ML Models**
-- **XGBoost**: 36 engineered features, excels at mania detection (98% AUC)
-- **PAT Transformer**: Pre-trained on 29,307 participants for depression
-- **Ensemble**: Intelligent combination based on data quality and context
+### 1. **ML Models (Current Status)**
+
+- **XGBoost** ✅: Fully functional with 36 engineered features, excels at mania detection (98% AUC)
+- **PAT Transformer** ⚠️: Encoder only - outputs embeddings, not mood predictions
+- **Ensemble** ❌: Not functional without PAT classification heads
 
 ### 2. **Personal Baseline System**
 - Learns YOUR normal patterns (not population average)
@@ -238,12 +249,16 @@ Key areas for contribution:
 - Performance optimizations
 - Documentation improvements
 
-## ⚠️ Disclaimers
+## ⚠️ Medical & Safety Disclaimers
 
-1. **Clinical Tool**: Provides risk assessments, not diagnoses
-2. **Professional Consultation**: Always consult healthcare providers
-3. **Research Use**: Validated in research settings
-4. **Individual Variability**: Requires personal calibration
+1. **NOT A DIAGNOSTIC TOOL**: Provides risk assessments only, cannot diagnose conditions
+2. **NOT FDA APPROVED**: This is research software, not a medical device
+3. **REQUIRES PROFESSIONAL CONSULTATION**: Always work with qualified healthcare providers
+4. **RESEARCH STATUS**: Based on validated papers but this implementation is not clinically tested
+5. **INDIVIDUAL VARIABILITY**: Accuracy varies by person and improves with calibration
+6. **EMERGENCY**: If in crisis, call 988 (US) or seek immediate professional help
+
+**[Full disclaimers and safety information](docs/IMPORTANT_PLEASE_READ.md)**
 
 ## 📄 License
 

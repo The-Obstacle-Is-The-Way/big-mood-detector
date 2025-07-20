@@ -4,11 +4,11 @@ This document clarifies the labeling requirements for the XGBoost and PAT (Pretr
 
 ## Executive Summary
 
-**Key Finding**: Neither model requires user-provided mood episode labels to function. Both models come pre-trained and ready to use out-of-the-box for mood prediction.
+**CORRECTED Finding**: Only XGBoost works out-of-the-box for mood prediction. PAT requires additional work.
 
-- **XGBoost**: Pre-trained on clinical cohort data with mood episodes already labeled by psychiatrists
-- **PAT**: Pre-trained foundation model that was fine-tuned for mental health tasks on labeled NHANES data
-- **User Labels**: Optional - only needed if you want to fine-tune models on your specific population
+- **XGBoost** ✅: Pre-trained on clinical cohort data with mood episodes already labeled by psychiatrists. Full model weights included.
+- **PAT** ⚠️: Only the encoder is available - outputs embeddings, NOT mood predictions. Classification heads are NOT included.
+- **User Labels**: Required for PAT mood predictions, optional for XGBoost personalization
 
 ## XGBoost Model Details
 
@@ -47,9 +47,9 @@ From "AI Foundation Models for Wearable Movement Data in Mental Health Research"
 - **Fine-tuned on labeled subsets** for specific tasks (depression, medication use, sleep disorders)
 
 #### Pre-training Status
-- **Foundation model approach** - pre-trained on massive unlabeled dataset
-- **Task-specific heads already fine-tuned** on labeled NHANES data
-- **No user labeling required** for standard mental health predictions
+- **Foundation model approach** - encoder pre-trained on massive unlabeled dataset
+- **Task-specific heads were fine-tuned** on labeled NHANES data **BUT NOT INCLUDED IN REPOSITORY**
+- **User labeling IS REQUIRED** to train classification heads for mood predictions
 
 #### Prediction Capabilities
 - **Multiple mental health outcomes**: Depression (PHQ-9 ≥ 10), medication usage, sleep disorders
@@ -96,13 +96,17 @@ python -m big_mood_detector label baseline \
 ## Practical Implications
 
 ### For Immediate Use
-Users can start using Big Mood Detector immediately without any labeled data:
+Users can get XGBoost predictions immediately, but PAT requires additional work:
 
 ```bash
-# Process health data and get predictions - no labels needed!
+# XGBoost predictions work immediately
 python -m big_mood_detector process path/to/health/export \
+  --model xgboost \
   --predict \
   --report
+
+# PAT only outputs embeddings (no mood predictions)
+# Ensemble mode will fail without PAT classification heads
 ```
 
 ### For Enhanced Accuracy
@@ -141,11 +145,17 @@ If you choose to collect labels:
 
 ## Conclusion
 
-The Big Mood Detector system is designed for **immediate clinical utility without requiring labeled data**. Both the XGBoost and PAT models come pre-trained on large clinical datasets and can provide accurate mood predictions out-of-the-box.
+**IMPORTANT CORRECTION**: Only the XGBoost models provide immediate clinical utility without requiring labeled data. The PAT model requires additional work:
 
-The labeling functionality exists to:
-- Enable continuous improvement through personal calibration
-- Support research and model development
-- Allow validation of predictions in real-world settings
+- **XGBoost** ✅: Ready for immediate use with full mood prediction capabilities
+- **PAT** ⚠️: Only provides embeddings - requires either:
+  1. Fine-tuning with ~500 labeled episodes (as shown in paper)
+  2. Obtaining pre-trained classification heads from original authors
+  3. Using embeddings for clustering/anomaly detection only
 
-Users should feel confident deploying the system immediately while optionally collecting labels to enhance accuracy over time.
+The labeling functionality is:
+- **Optional** for XGBoost (improves personalization)
+- **Required** for PAT mood predictions (unless you obtain authors' heads)
+- **Valuable** for continuous improvement and validation
+
+**Recommendation**: Start with XGBoost-only predictions while working to obtain PAT classification heads or collecting labels for fine-tuning.

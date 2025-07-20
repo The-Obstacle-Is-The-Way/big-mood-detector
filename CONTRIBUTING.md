@@ -50,6 +50,34 @@ We use GitHub issues to track public bugs. Report a bug by [opening a new issue]
 * Run `make test` to ensure tests pass
 * Follow the existing code style (Clean Architecture patterns)
 
+## 🎯 Current Priorities (v0.3.0)
+
+### CRITICAL: Enable True Ensemble Predictions
+**Context:** v0.2.0 only has XGBoost predictions. PAT provides embeddings but can't make mood predictions without classification heads.
+
+**The Big Task: Train PAT Classification Heads**
+1. Process NHANES data (already in `data/nhanes/2013-2014/`)
+2. Train depression detection head on PAT embeddings
+3. Wire PAT predictions into ensemble orchestrator
+4. Deliver true dual-model predictions
+
+**Quick Start for Contributors:**
+```python
+# Current (v0.2.0) - PAT only gives embeddings
+pat_embeddings = pat.extract_features(activity)  # 96-dim vector
+
+# Goal (v0.3.0) - PAT makes predictions  
+pat_prediction = pat.predict_mood(activity)  # 0.82 depression risk
+```
+
+See [`docs/PAT_FINE_TUNING_ROADMAP.md`](docs/PAT_FINE_TUNING_ROADMAP.md) for detailed implementation guide.
+
+### Other High-Priority Areas
+1. **Clinical Validation** - Test on diverse populations
+2. **Performance** - Optimize for very large Apple Health exports
+3. **Wearables** - Add Fitbit, Garmin, Oura support
+4. **Documentation** - Keep it accurate and honest
+
 ## Development Setup
 
 ### Prerequisites
