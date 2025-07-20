@@ -125,7 +125,11 @@ class TimescaleBaselineRepository(BaselineRepositoryInterface):
         self.SessionLocal = sessionmaker(bind=self.engine)
 
         # Initialize Feast client if enabled
-        self.feast_client: Any | None = None  # Will be feast.FeatureStore if available
+        from big_mood_detector.infrastructure.repositories.feast_types import (
+            FeatureStoreProtocol,
+        )
+
+        self.feast_client: FeatureStoreProtocol | None = None  # Will be feast.FeatureStore if available
         if enable_feast_sync:
             try:
                 import feast  # type: ignore[import-not-found]

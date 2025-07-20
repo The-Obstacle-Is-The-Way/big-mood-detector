@@ -17,6 +17,9 @@ if config.config_file_name is not None:
 
 # add your model's MetaData object here
 # for 'autogenerate' support
+import sys
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
+
 from big_mood_detector.infrastructure.repositories.timescale_baseline_repository import Base
 target_metadata = Base.metadata
 
