@@ -27,7 +27,10 @@ Before deleting a label, we should check if it's in use by any records to preven
 ## Priority
 - [ ] High (blocking)
 - [x] Medium (should fix soon)
-- [ ] Low (nice to have)" \
+- [ ] Low (nice to have)
+
+## Assignee
+@claude - Please work on this autonomously" \
   --label "tech-debt" \
   --label "enhancement"
 
@@ -54,7 +57,10 @@ The PrivacyFilter needs proper type compatibility with structlog processors. Cur
 ## Priority
 - [x] High (blocking) - Privacy/GDPR compliance
 - [ ] Medium (should fix soon)
-- [ ] Low (nice to have)" \
+- [ ] Low (nice to have)
+
+## Assignee
+@claude - Please work on this autonomously" \
   --label "tech-debt" \
   --label "privacy" \
   --label "bug"
@@ -140,7 +146,10 @@ The large XML processing script needs two features implemented:
 ## Priority
 - [ ] High (blocking)
 - [x] Medium (should fix soon)
-- [ ] Low (nice to have)" \
+- [ ] Low (nice to have)
+
+## Assignee
+@claude - Please work on this autonomously" \
   --label "tech-debt" \
   --label "enhancement" \
   --label "performance"

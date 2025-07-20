@@ -153,7 +153,7 @@ def configure_privacy_logging() -> None:
             structlog.processors.StackInfoRenderer(),
             structlog.processors.format_exc_info,
             structlog.processors.UnicodeDecoder(),
-            # PrivacyFilter().filter,  # TODO: Fix type compatibility with structlog
+            # PrivacyFilter().filter,  # TODO(gh-101): Fix type compatibility with structlog
             structlog.dev.ConsoleRenderer(),
         ],
         context_class=dict,

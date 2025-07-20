@@ -513,7 +513,7 @@ class AdvancedFeatureEngineer:
                 return s
         return None
 
-    # TODO: Remove these stubs after Q1 2025 - moved to SleepFeatureCalculator
+    # TODO(gh-102): Remove these stubs after Q1 2025 - moved to SleepFeatureCalculator
     # NOTE: These methods have been moved to SleepFeatureCalculator
     # Keeping stub for backward compatibility if needed
 

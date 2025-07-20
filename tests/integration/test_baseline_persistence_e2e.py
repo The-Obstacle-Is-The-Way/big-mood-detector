@@ -252,7 +252,7 @@ class TestBaselinePersistenceE2E:
         # The baselines should converge toward Jane's actual patterns
         assert 7.0 < baseline_week2.sleep_mean < 8.0, "Sleep baseline should reflect athlete pattern"
         assert baseline_week2.activity_mean > 12000, "Activity baseline should reflect high activity"
-        # TODO: Fix HR/HRV baseline calculation to use actual values instead of defaults
+        # TODO(gh-103): Fix HR/HRV baseline calculation to use actual values instead of defaults
         # assert baseline_week2.heart_rate_mean < 65, "HR baseline should reflect athlete fitness"
 
         # Check baseline history
