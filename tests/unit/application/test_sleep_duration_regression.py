@@ -3,6 +3,7 @@ Regression test to ensure sleep duration calculations stay within reasonable bou
 
 This test guards against the sleep_percentage * 24 bug returning.
 """
+
 from datetime import date, datetime, timedelta
 
 from big_mood_detector.application.services.aggregation_pipeline import (
@@ -74,13 +75,15 @@ class TestSleepDurationRegression:
                     # For other days, create normal 8h sleep (10pm-6am)
                     # Adjust dates to ensure proper assignment
                     sleep_start = datetime.combine(
-                        current_date - timedelta(days=1),
-                        datetime.min.time()
-                    ).replace(hour=22)  # 10pm previous day
+                        current_date - timedelta(days=1), datetime.min.time()
+                    ).replace(
+                        hour=22
+                    )  # 10pm previous day
                     sleep_end = datetime.combine(
-                        current_date,
-                        datetime.min.time()
-                    ).replace(hour=6)  # 6am current day
+                        current_date, datetime.min.time()
+                    ).replace(
+                        hour=6
+                    )  # 6am current day
 
                     sleep_records.append(
                         SleepRecord(
@@ -95,8 +98,12 @@ class TestSleepDurationRegression:
                 activity_records.append(
                     ActivityRecord(
                         source_name="Apple Watch",
-                        start_date=datetime.combine(current_date, datetime.min.time()).replace(hour=12),
-                        end_date=datetime.combine(current_date, datetime.min.time()).replace(hour=13),
+                        start_date=datetime.combine(
+                            current_date, datetime.min.time()
+                        ).replace(hour=12),
+                        end_date=datetime.combine(
+                            current_date, datetime.min.time()
+                        ).replace(hour=13),
                         activity_type=ActivityType.STEP_COUNT,
                         value=1000,
                         unit="steps",
@@ -106,7 +113,9 @@ class TestSleepDurationRegression:
                 heart_records.append(
                     HeartRateRecord(
                         source_name="Apple Watch",
-                        timestamp=datetime.combine(current_date, datetime.min.time()).replace(hour=12),
+                        timestamp=datetime.combine(
+                            current_date, datetime.min.time()
+                        ).replace(hour=12),
                         metric_type=HeartMetricType.HEART_RATE,
                         value=70,
                         unit="bpm",
@@ -124,28 +133,36 @@ class TestSleepDurationRegression:
             )
 
             # Debug info
-            print(f"\n{description}: Sleep {start} to {end}, target_date={target_date}, features={len(features)}")
+            print(
+                f"\n{description}: Sleep {start} to {end}, target_date={target_date}, features={len(features)}"
+            )
 
             # Find the feature for our target date
             target_feature = None
             for feature in features:
-                if feature and hasattr(feature, 'date') and feature.date == target_date:
+                if feature and hasattr(feature, "date") and feature.date == target_date:
                     target_feature = feature
                     break
 
-            assert target_feature is not None, f"No features extracted for {description} on target_date={target_date}"
+            assert (
+                target_feature is not None
+            ), f"No features extracted for {description} on target_date={target_date}"
 
-            assert hasattr(target_feature, 'seoul_features'), "Should have seoul_features"
+            assert hasattr(
+                target_feature, "seoul_features"
+            ), "Should have seoul_features"
             sleep_hours = target_feature.seoul_features.sleep_duration_hours
 
             # The key assertion: sleep should be in reasonable range
-            assert 0 <= sleep_hours <= 24, (
-                f"{description}: Sleep duration {sleep_hours}h is impossible (>24h)"
-            )
+            assert (
+                0 <= sleep_hours <= 24
+            ), f"{description}: Sleep duration {sleep_hours}h is impossible (>24h)"
 
             # Warn if outside normal range (but don't fail - naps are valid)
             if not (4 <= sleep_hours <= 12):
-                print(f"⚠️  {description}: Sleep duration {sleep_hours}h is unusual but valid")
+                print(
+                    f"⚠️  {description}: Sleep duration {sleep_hours}h is unusual but valid"
+                )
 
     def test_multi_day_sleep_average_reasonable(self):
         """Test that multi-day averages are reasonable."""
@@ -163,10 +180,12 @@ class TestSleepDurationRegression:
             sleep_records.append(
                 SleepRecord(
                     source_name="Apple Watch",
-                    start_date=datetime.combine(base_date - timedelta(days=1),
-                                               datetime.min.time()).replace(hour=22),
-                    end_date=datetime.combine(base_date,
-                                             datetime.min.time()).replace(hour=6),
+                    start_date=datetime.combine(
+                        base_date - timedelta(days=1), datetime.min.time()
+                    ).replace(hour=22),
+                    end_date=datetime.combine(base_date, datetime.min.time()).replace(
+                        hour=6
+                    ),
                     state=SleepState.ASLEEP,
                 )
             )
@@ -175,8 +194,12 @@ class TestSleepDurationRegression:
             activity_records.append(
                 ActivityRecord(
                     source_name="Apple Watch",
-                    start_date=datetime.combine(base_date, datetime.min.time()).replace(hour=12),
-                    end_date=datetime.combine(base_date, datetime.min.time()).replace(hour=13),
+                    start_date=datetime.combine(base_date, datetime.min.time()).replace(
+                        hour=12
+                    ),
+                    end_date=datetime.combine(base_date, datetime.min.time()).replace(
+                        hour=13
+                    ),
                     activity_type=ActivityType.STEP_COUNT,
                     value=5000,
                     unit="steps",
@@ -187,7 +210,9 @@ class TestSleepDurationRegression:
             heart_records.append(
                 HeartRateRecord(
                     source_name="Apple Watch",
-                    timestamp=datetime.combine(base_date, datetime.min.time()).replace(hour=12),
+                    timestamp=datetime.combine(base_date, datetime.min.time()).replace(
+                        hour=12
+                    ),
                     metric_type=HeartMetricType.HEART_RATE,
                     value=70,
                     unit="bpm",
@@ -207,19 +232,21 @@ class TestSleepDurationRegression:
         # Check each day's sleep
         sleep_hours_list = []
         for feature in features:
-            if feature and hasattr(feature, 'seoul_features'):
+            if feature and hasattr(feature, "seoul_features"):
                 sleep_hours = feature.seoul_features.sleep_duration_hours
                 sleep_hours_list.append(sleep_hours)
 
                 # Each day should be reasonable
-                assert 6 <= sleep_hours <= 10, (
-                    f"Daily sleep {sleep_hours}h outside normal range [6,10]"
-                )
+                assert (
+                    6 <= sleep_hours <= 10
+                ), f"Daily sleep {sleep_hours}h outside normal range [6,10]"
 
         # Average should be close to 8
         if sleep_hours_list:
             avg_sleep = sum(sleep_hours_list) / len(sleep_hours_list)
-            assert 7 <= avg_sleep <= 9, (
-                f"Average sleep {avg_sleep}h is unusual (expected ~8h)"
+            assert (
+                7 <= avg_sleep <= 9
+            ), f"Average sleep {avg_sleep}h is unusual (expected ~8h)"
+            print(
+                f"✅ Average sleep over {len(sleep_hours_list)} days: {avg_sleep:.1f}h"
             )
-            print(f"✅ Average sleep over {len(sleep_hours_list)} days: {avg_sleep:.1f}h")

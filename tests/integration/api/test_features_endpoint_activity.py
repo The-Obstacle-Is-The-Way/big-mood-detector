@@ -35,49 +35,53 @@ class TestFeatureExtractionAPIActivity:
             date_str = f"2024-01-{10 + day:02d}"
 
             # Add step data (3 entries per day)
-            step_data["data"].extend([
-                {
-                    "sourceName": "Apple Watch",
-                    "sourceVersion": "10.1",
-                    "device": "Apple Watch",
-                    "type": "stepCount",
-                    "unit": "count",
-                    "value": 3500 + day * 100,
-                    "startDate": f"{date_str} 08:00:00",
-                    "endDate": f"{date_str} 12:00:00"
-                },
-                {
-                    "sourceName": "Apple Watch",
-                    "sourceVersion": "10.1",
-                    "device": "Apple Watch",
-                    "type": "stepCount",
-                    "unit": "count",
-                    "value": 5200 + day * 100,
-                    "startDate": f"{date_str} 12:00:00",
-                    "endDate": f"{date_str} 18:00:00"
-                },
-                {
-                    "sourceName": "Apple Watch",
-                    "sourceVersion": "10.1",
-                    "device": "Apple Watch",
-                    "type": "stepCount",
-                    "unit": "count",
-                    "value": 1300 + day * 100,
-                    "startDate": f"{date_str} 18:00:00",
-                    "endDate": f"{date_str} 22:00:00"
-                }
-            ])
+            step_data["data"].extend(
+                [
+                    {
+                        "sourceName": "Apple Watch",
+                        "sourceVersion": "10.1",
+                        "device": "Apple Watch",
+                        "type": "stepCount",
+                        "unit": "count",
+                        "value": 3500 + day * 100,
+                        "startDate": f"{date_str} 08:00:00",
+                        "endDate": f"{date_str} 12:00:00",
+                    },
+                    {
+                        "sourceName": "Apple Watch",
+                        "sourceVersion": "10.1",
+                        "device": "Apple Watch",
+                        "type": "stepCount",
+                        "unit": "count",
+                        "value": 5200 + day * 100,
+                        "startDate": f"{date_str} 12:00:00",
+                        "endDate": f"{date_str} 18:00:00",
+                    },
+                    {
+                        "sourceName": "Apple Watch",
+                        "sourceVersion": "10.1",
+                        "device": "Apple Watch",
+                        "type": "stepCount",
+                        "unit": "count",
+                        "value": 1300 + day * 100,
+                        "startDate": f"{date_str} 18:00:00",
+                        "endDate": f"{date_str} 22:00:00",
+                    },
+                ]
+            )
 
             # Add sleep data
-            sleep_data["data"].append({
-                "sourceName": "Apple Watch",
-                "sourceVersion": "10.1",
-                "device": "Apple Watch",
-                "type": "sleepAnalysis",
-                "value": "AsleepCore",
-                "startDate": f"{date_str} 23:00:00",
-                "endDate": f"2024-01-{11 + day:02d} 07:00:00"
-            })
+            sleep_data["data"].append(
+                {
+                    "sourceName": "Apple Watch",
+                    "sourceVersion": "10.1",
+                    "device": "Apple Watch",
+                    "type": "sleepAnalysis",
+                    "value": "AsleepCore",
+                    "startDate": f"{date_str} 23:00:00",
+                    "endDate": f"2024-01-{11 + day:02d} 07:00:00",
+                }
+            )
 
         # Create a directory structure
         health_dir = tmp_path / "health_export"
@@ -92,6 +96,7 @@ class TestFeatureExtractionAPIActivity:
 
         # Create a zip file
         import zipfile
+
         zip_path = tmp_path / "health_export.zip"
         with zipfile.ZipFile(zip_path, "w") as zf:
             zf.write(health_dir / "Step Count.json", "Step Count.json")
@@ -99,7 +104,9 @@ class TestFeatureExtractionAPIActivity:
 
         return zip_path
 
-    def test_extract_features_includes_activity(self, client, sample_health_export_json):
+    def test_extract_features_includes_activity(
+        self, client, sample_health_export_json
+    ):
         """Test that feature extraction returns activity features."""
         # Read the zip file
         with open(sample_health_export_json, "rb") as f:
@@ -140,7 +147,7 @@ class TestFeatureExtractionAPIActivity:
     def test_extract_features_activity_from_xml(self, client, tmp_path):
         """Test activity feature extraction from Apple Health XML export."""
         # Create a minimal XML export with 8 days of data
-        xml_content = '''<?xml version="1.0" encoding="UTF-8"?>
+        xml_content = """<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE HealthData [
 <!ELEMENT HealthData (Record*)>
 <!ATTLIST HealthData locale CDATA #REQUIRED>
@@ -155,12 +162,12 @@ class TestFeatureExtractionAPIActivity:
                   endDate CDATA #REQUIRED
                   value CDATA #IMPLIED>
 ]>
-<HealthData locale="en_US">'''
+<HealthData locale="en_US">"""
 
         # Add 8 days of sleep and activity data
         for day_offset in range(8):
             date_str = f"2024-01-{10 + day_offset:02d}"
-            xml_content += f'''
+            xml_content += f"""
   <Record type="HKCategoryTypeIdentifierSleepAnalysis" sourceName="Apple Watch"
           startDate="{date_str} 23:00:00 -0800" endDate="2024-01-{11 + day_offset:02d} 07:00:00 -0800" value="HKCategoryValueSleepAnalysisAsleepCore"/>
   <Record type="HKQuantityTypeIdentifierStepCount" sourceName="Apple Watch" unit="count"
@@ -168,10 +175,10 @@ class TestFeatureExtractionAPIActivity:
   <Record type="HKQuantityTypeIdentifierStepCount" sourceName="Apple Watch" unit="count"
           startDate="{date_str} 13:00:00 -0800" endDate="{date_str} 17:00:00 -0800" value="6000"/>
   <Record type="HKQuantityTypeIdentifierStepCount" sourceName="Apple Watch" unit="count"
-          startDate="{date_str} 18:00:00 -0800" endDate="{date_str} 20:00:00 -0800" value="2000"/>'''
+          startDate="{date_str} 18:00:00 -0800" endDate="{date_str} 20:00:00 -0800" value="2000"/>"""
 
-        xml_content += '''
-</HealthData>'''
+        xml_content += """
+</HealthData>"""
 
         # Save XML file
         xml_path = tmp_path / "export.xml"
@@ -211,18 +218,30 @@ class TestFeatureExtractionAPIActivity:
 
         # Expected feature groups
         sleep_features = [
-            "sleep_percentage_mean", "sleep_percentage_std", "sleep_percentage_zscore",
-            "sleep_amplitude_mean", "sleep_amplitude_std", "sleep_amplitude_zscore"
+            "sleep_percentage_mean",
+            "sleep_percentage_std",
+            "sleep_percentage_zscore",
+            "sleep_amplitude_mean",
+            "sleep_amplitude_std",
+            "sleep_amplitude_zscore",
         ]
 
         circadian_features = [
-            "circadian_amplitude_mean", "circadian_amplitude_std", "circadian_amplitude_zscore",
-            "circadian_phase_mean", "circadian_phase_std", "circadian_phase_zscore"
+            "circadian_amplitude_mean",
+            "circadian_amplitude_std",
+            "circadian_amplitude_zscore",
+            "circadian_phase_mean",
+            "circadian_phase_std",
+            "circadian_phase_zscore",
         ]
 
         activity_features = [
-            "daily_steps", "activity_variance", "sedentary_hours",
-            "activity_fragmentation", "sedentary_bout_mean", "activity_intensity_ratio"
+            "daily_steps",
+            "activity_variance",
+            "sedentary_hours",
+            "activity_fragmentation",
+            "sedentary_bout_mean",
+            "activity_intensity_ratio",
         ]
 
         # All features should be present
@@ -236,19 +255,19 @@ class TestFeatureExtractionAPIActivity:
     def test_missing_activity_data_defaults(self, client, tmp_path):
         """Test API response when activity data is missing."""
         # Create export with only sleep data (8 days to allow feature extraction)
-        sleep_only_data = {
-            "data": []
-        }
+        sleep_only_data = {"data": []}
 
         # Add 8 days of sleep data
         for day in range(8):
-            sleep_only_data["data"].append({
-                "sourceName": "Apple Watch",
-                "type": "sleepAnalysis",
-                "value": "AsleepCore",
-                "startDate": f"2024-01-{14 + day:02d} 23:00:00",
-                "endDate": f"2024-01-{15 + day:02d} 07:00:00"
-            })
+            sleep_only_data["data"].append(
+                {
+                    "sourceName": "Apple Watch",
+                    "type": "sleepAnalysis",
+                    "value": "AsleepCore",
+                    "startDate": f"2024-01-{14 + day:02d} 23:00:00",
+                    "endDate": f"2024-01-{15 + day:02d} 07:00:00",
+                }
+            )
 
         json_path = tmp_path / "Sleep Analysis.json"
         with open(json_path, "w") as f:
@@ -281,8 +300,11 @@ class TestFeatureExtractionAPIActivity:
 
         # Original 36 features should still be present
         original_features = [
-            "sleep_percentage_mean", "long_sleep_num_mean", "short_sleep_num_mean",
-            "circadian_amplitude_mean", "circadian_phase_mean"
+            "sleep_percentage_mean",
+            "long_sleep_num_mean",
+            "short_sleep_num_mean",
+            "circadian_amplitude_mean",
+            "circadian_phase_mean",
         ]
 
         for feature in original_features:
@@ -291,4 +313,3 @@ class TestFeatureExtractionAPIActivity:
 
         # New activity features should be additional
         assert len(features) > 36
-

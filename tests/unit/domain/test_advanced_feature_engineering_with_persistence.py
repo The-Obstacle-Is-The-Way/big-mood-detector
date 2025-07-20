@@ -35,7 +35,7 @@ class TestAdvancedFeatureEngineeringWithPersistence:
         engineer = AdvancedFeatureEngineer(
             config={},
             baseline_repository=mock_baseline_repository,
-            user_id="test_user_123"
+            user_id="test_user_123",
         )
         return engineer
 
@@ -50,7 +50,7 @@ class TestAdvancedFeatureEngineeringWithPersistence:
         heart_data = []
 
         for i in range(30):
-            current_date = base_date - timedelta(days=29-i)
+            current_date = base_date - timedelta(days=29 - i)
 
             sleep_data.append(
                 DailySleepSummary(
@@ -120,7 +120,7 @@ class TestAdvancedFeatureEngineeringWithPersistence:
         engineer = AdvancedFeatureEngineer(
             config={},
             baseline_repository=mock_baseline_repository,
-            user_id="test_user_123"
+            user_id="test_user_123",
         )
 
         # Extract features
@@ -176,7 +176,7 @@ class TestAdvancedFeatureEngineeringWithPersistence:
         engineer = AdvancedFeatureEngineer(
             config={},
             baseline_repository=mock_baseline_repository,
-            user_id="test_user_123"
+            user_id="test_user_123",
         )
 
         # Extract features - should use loaded baseline for Z-scores
@@ -195,16 +195,20 @@ class TestAdvancedFeatureEngineeringWithPersistence:
         # (This assumes we modify the feature engineer to use repository baselines)
         assert features is not None
 
-    def test_persist_baselines_method(
-        self, mock_baseline_repository
-    ):
+    def test_persist_baselines_method(self, mock_baseline_repository):
         """Test explicit persist_baselines method."""
+        # Set up mock to return None (no existing baseline)
+        mock_baseline_repository.get_baseline.return_value = None
+
         # Create engineer with baseline repository
         engineer = AdvancedFeatureEngineer(
             config={},
             baseline_repository=mock_baseline_repository,
-            user_id="test_user_123"
+            user_id="test_user_123",
         )
+
+        # Initialize the engineer's baselines (this would normally happen in __init__)
+        engineer._load_baselines_from_repository()
 
         # Add some baseline data
         engineer._update_individual_baseline("sleep", 7.5)

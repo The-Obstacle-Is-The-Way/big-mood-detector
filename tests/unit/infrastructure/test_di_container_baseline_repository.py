@@ -50,8 +50,7 @@ class TestDIContainerBaselineRepository:
 
         # Register the repository
         container.register_singleton(
-            BaselineRepositoryInterface,
-            lambda: FileBaselineRepository(baselines_dir)
+            BaselineRepositoryInterface, lambda: FileBaselineRepository(baselines_dir)
         )
 
         # Should resolve successfully
@@ -67,6 +66,7 @@ class TestDIContainerBaselineRepository:
         """Test that setup_dependencies registers baseline repository."""
         # Clear any existing container
         import big_mood_detector.infrastructure.di.container as di_module
+
         di_module._container = None
         di_module.get_container.cache_clear()
 
@@ -82,6 +82,7 @@ class TestDIContainerBaselineRepository:
         """Test that AdvancedFeatureEngineer gets baseline repository injected."""
         # Setup dependencies
         import big_mood_detector.infrastructure.di.container as di_module
+
         di_module._container = None
         di_module.get_container.cache_clear()
 

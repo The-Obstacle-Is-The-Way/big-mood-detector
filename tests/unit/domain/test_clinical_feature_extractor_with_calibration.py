@@ -41,12 +41,12 @@ class TestClinicalFeatureExtractorWithCalibration:
             user_id="test_user",
             baseline_date=date(2024, 1, 1),
             sleep_mean=7.5,  # 7.5 hours average
-            sleep_std=1.0,   # 1 hour standard deviation
+            sleep_std=1.0,  # 1 hour standard deviation
             activity_mean=8000.0,  # 8000 steps average
-            activity_std=2000.0,   # 2000 steps standard deviation
+            activity_std=2000.0,  # 2000 steps standard deviation
             circadian_phase=22.0,  # 10 PM phase
             last_updated=datetime(2024, 1, 1, 0, 0),
-            data_points=30
+            data_points=30,
         )
 
         mock_repo.get_baseline.return_value = mock_baseline
@@ -70,8 +70,12 @@ class TestClinicalFeatureExtractorWithCalibration:
             sleep_records.append(
                 SleepRecord(
                     source_name="com.apple.health",
-                    start_date=datetime.combine(record_date, time(23, 0)),  # Sleep starts at 11 PM
-                    end_date=datetime.combine(record_date + timedelta(days=1), time(7, 0)),  # Ends at 7 AM next day
+                    start_date=datetime.combine(
+                        record_date, time(23, 0)
+                    ),  # Sleep starts at 11 PM
+                    end_date=datetime.combine(
+                        record_date + timedelta(days=1), time(7, 0)
+                    ),  # Ends at 7 AM next day
                     state=SleepState.IN_BED,
                 )
             )
@@ -107,8 +111,7 @@ class TestClinicalFeatureExtractorWithCalibration:
 
         # Should accept baseline_repository and user_id
         extractor = ClinicalFeatureExtractor(
-            baseline_repository=mock_repo,
-            user_id="test_user"
+            baseline_repository=mock_repo, user_id="test_user"
         )
 
         assert extractor.baseline_repository == mock_repo
@@ -136,8 +139,7 @@ class TestClinicalFeatureExtractorWithCalibration:
 
         # Create extractor with calibration
         extractor = ClinicalFeatureExtractor(
-            baseline_repository=mock_baseline_repository,
-            user_id="test_user"
+            baseline_repository=mock_baseline_repository, user_id="test_user"
         )
 
         # Extract features
@@ -155,16 +157,13 @@ class TestClinicalFeatureExtractorWithCalibration:
         assert features.sleep_duration_zscore != 0.0
         assert features.activity_zscore != 0.0
 
-    def test_persists_updated_baselines(
-        self, mock_baseline_repository, sample_records
-    ):
+    def test_persists_updated_baselines(self, mock_baseline_repository, sample_records):
         """Test that baselines are persisted after feature extraction."""
         sleep_records, activity_records, heart_records = sample_records
 
         # Create extractor with calibration
         extractor = ClinicalFeatureExtractor(
-            baseline_repository=mock_baseline_repository,
-            user_id="test_user"
+            baseline_repository=mock_baseline_repository, user_id="test_user"
         )
 
         # Extract features

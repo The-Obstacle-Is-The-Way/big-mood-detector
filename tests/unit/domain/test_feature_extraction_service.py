@@ -223,22 +223,16 @@ class TestFeatureExtractionService:
         )
 
         # ASSERT
-        # Sleep, activity, and heart data span Dec 31 and Jan 1
-        assert len(features) == 2
+        # Sleep from Dec 31 11pm is assigned to Jan 1, all other data is on Jan 1
+        assert len(features) == 1
 
-        # Check combined features across both days
-        dec31_features = features.get(date(2023, 12, 31))
+        # All data is on Jan 1
         jan1_features = features.get(date(2024, 1, 1))
-
-        # Sleep is on Dec 31
-        if dec31_features:
-            assert dec31_features.sleep_duration_hours == 8.0
-
-        # Activity and heart data are on Jan 1
-        if jan1_features:
-            assert jan1_features.total_steps == 8000  # 5000 + 3000
-            assert jan1_features.avg_resting_hr == 65.0  # (58 + 72) / 2
-            assert jan1_features.hrv_sdnn == 45.0
+        assert jan1_features is not None
+        assert jan1_features.sleep_duration_hours == 8.0
+        assert jan1_features.total_steps == 8000  # 5000 + 3000
+        assert jan1_features.avg_resting_hr == 65.0  # (58 + 72) / 2
+        assert jan1_features.hrv_sdnn == 45.0
 
     def test_missing_data_handling(self, service):
         """Test handling of partial data (e.g., no heart rate data)."""
@@ -271,21 +265,21 @@ class TestFeatureExtractionService:
         )
 
         # ASSERT
-        assert len(features) == 2  # Dec 31 (sleep) and Jan 1 (activity)
+        assert len(features) == 1  # Only Jan 1 (sleep assigned here due to 3pm rule + activity)
 
-        # Check features across both days
-        dec31_features = features.get(date(2023, 12, 31))
+        # Check features - sleep from Dec 31 11pm is assigned to Jan 1
         jan1_features = features.get(date(2024, 1, 1))
+        dec31_features = features.get(date(2023, 12, 31))  # Should be None
 
-        # Sleep is on Dec 31
-        if dec31_features:
-            assert dec31_features.sleep_duration_hours == 8.0
+        # All data is on Jan 1 (sleep from Dec 31 11pm + activity)
+        assert jan1_features is not None
+        assert jan1_features.sleep_duration_hours == 8.0  # Sleep from Dec 31 11pm
+        assert jan1_features.total_steps == 5000
+        assert jan1_features.avg_resting_hr == 0.0  # Default when no data
+        assert jan1_features.hrv_sdnn == 0.0
 
-        # Activity is on Jan 1
-        if jan1_features:
-            assert jan1_features.total_steps == 5000
-            assert jan1_features.avg_resting_hr == 0.0  # Default when no data
-            assert jan1_features.hrv_sdnn == 0.0
+        # No data on Dec 31
+        assert dec31_features is None
 
     def test_circadian_alignment_calculation(self, service):
         """Test calculation of circadian alignment score."""

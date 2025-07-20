@@ -175,22 +175,33 @@ class TestClinicalEndpoint:
         assert data["monitoring_frequency"] == "daily"
 
         # Verify high-risk recommendations
-        assert any("emergency" in r.lower() or "crisis" in r.lower()
-                  for r in data["recommendations"])
+        assert any(
+            "emergency" in r.lower() or "crisis" in r.lower()
+            for r in data["recommendations"]
+        )
 
         # Verify secondary risks are elevated
         assert data["secondary_risks"]["mixed_features"] > 0.5
         assert data["secondary_risks"]["suicide"] > 0.3
 
-    @pytest.mark.parametrize("depression,mania,hypomania,expected_diagnosis,expected_risk", [
-        (0.85, 0.10, 0.05, "Severe Depressive Episode", "high"),
-        (0.10, 0.85, 0.15, "Manic Episode", "high"),
-        (0.15, 0.10, 0.75, "Hypomanic Episode", "moderate"),
-        (0.15, 0.10, 0.15, "Euthymic (Stable)", "low"),
-        (0.55, 0.50, 0.20, "Mixed Episode", "critical"),
-    ])
+    @pytest.mark.parametrize(
+        "depression,mania,hypomania,expected_diagnosis,expected_risk",
+        [
+            (0.85, 0.10, 0.05, "Severe Depressive Episode", "high"),
+            (0.10, 0.85, 0.15, "Manic Episode", "high"),
+            (0.15, 0.10, 0.75, "Hypomanic Episode", "moderate"),
+            (0.15, 0.10, 0.15, "Euthymic (Stable)", "low"),
+            (0.55, 0.50, 0.20, "Mixed Episode", "critical"),
+        ],
+    )
     def test_clinical_endpoint_various_scenarios(
-        self, app_client, depression, mania, hypomania, expected_diagnosis, expected_risk
+        self,
+        app_client,
+        depression,
+        mania,
+        hypomania,
+        expected_diagnosis,
+        expected_risk,
     ):
         """Test clinical endpoint with various mood scenarios."""
         # Arrange - Create mock with specific values

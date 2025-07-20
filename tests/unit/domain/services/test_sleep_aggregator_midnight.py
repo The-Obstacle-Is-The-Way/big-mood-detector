@@ -4,6 +4,7 @@ Unit test for SleepAggregator midnight boundary handling.
 This test ensures sleep calculations work correctly when sleep spans midnight,
 which is the most common case for normal sleep patterns.
 """
+
 from datetime import date, datetime, timedelta
 
 from big_mood_detector.domain.entities.sleep_record import SleepRecord, SleepState
@@ -25,7 +26,7 @@ class TestSleepAggregatorMidnight:
         """
         # Create sleep record from 10pm to 6am next day
         sleep_start = datetime(2024, 1, 1, 22, 0)  # 10pm
-        sleep_end = datetime(2024, 1, 2, 6, 0)    # 6am next day
+        sleep_end = datetime(2024, 1, 2, 6, 0)  # 6am next day
 
         sleep_record = SleepRecord(
             source_name="Apple Watch",
@@ -52,8 +53,8 @@ class TestSleepAggregatorMidnight:
         Some people sleep very late (after midnight).
         """
         # Sleep from 2am to 10am same day
-        sleep_start = datetime(2024, 1, 2, 2, 0)   # 2am
-        sleep_end = datetime(2024, 1, 2, 10, 0)    # 10am same day
+        sleep_start = datetime(2024, 1, 2, 2, 0)  # 2am
+        sleep_end = datetime(2024, 1, 2, 10, 0)  # 10am same day
 
         sleep_record = SleepRecord(
             source_name="Apple Watch",
@@ -80,7 +81,7 @@ class TestSleepAggregatorMidnight:
         nap = SleepRecord(
             source_name="Apple Watch",
             start_date=datetime(2024, 1, 1, 20, 0),  # 8pm
-            end_date=datetime(2024, 1, 1, 21, 0),    # 9pm
+            end_date=datetime(2024, 1, 1, 21, 0),  # 9pm
             state=SleepState.ASLEEP,
         )
 
@@ -88,7 +89,7 @@ class TestSleepAggregatorMidnight:
         main_sleep = SleepRecord(
             source_name="Apple Watch",
             start_date=datetime(2024, 1, 1, 23, 0),  # 11pm
-            end_date=datetime(2024, 1, 2, 7, 0),     # 7am next day
+            end_date=datetime(2024, 1, 2, 7, 0),  # 7am next day
             state=SleepState.ASLEEP,
         )
 
@@ -110,16 +111,16 @@ class TestSleepAggregatorMidnight:
         # Sleep from exactly midnight to 8am
         sleep1 = SleepRecord(
             source_name="Apple Watch",
-            start_date=datetime(2024, 1, 2, 0, 0),   # Exactly midnight
-            end_date=datetime(2024, 1, 2, 8, 0),     # 8am
+            start_date=datetime(2024, 1, 2, 0, 0),  # Exactly midnight
+            end_date=datetime(2024, 1, 2, 8, 0),  # 8am
             state=SleepState.ASLEEP,
         )
 
         # Sleep from 10pm to exactly midnight
         sleep2 = SleepRecord(
             source_name="Apple Watch",
-            start_date=datetime(2024, 1, 1, 22, 0),   # 10pm
-            end_date=datetime(2024, 1, 2, 0, 0),      # Exactly midnight
+            start_date=datetime(2024, 1, 1, 22, 0),  # 10pm
+            end_date=datetime(2024, 1, 2, 0, 0),  # Exactly midnight
             state=SleepState.ASLEEP,
         )
 
@@ -141,8 +142,8 @@ class TestSleepAggregatorMidnight:
         # Sleep for 36 hours straight (illness/recovery)
         marathon_sleep = SleepRecord(
             source_name="Apple Watch",
-            start_date=datetime(2024, 1, 1, 20, 0),   # 8pm Jan 1
-            end_date=datetime(2024, 1, 3, 8, 0),      # 8am Jan 3
+            start_date=datetime(2024, 1, 1, 20, 0),  # 8pm Jan 1
+            end_date=datetime(2024, 1, 3, 8, 0),  # 8am Jan 3
             state=SleepState.ASLEEP,
         )
 
@@ -165,7 +166,9 @@ class TestSleepAggregatorMidnight:
             base_date = date(2024, 1, 1) + timedelta(days=day)
 
             # Sleep from 10:30pm to 6:30am next day
-            sleep_start = datetime.combine(base_date, datetime.min.time()).replace(hour=22, minute=30)
+            sleep_start = datetime.combine(base_date, datetime.min.time()).replace(
+                hour=22, minute=30
+            )
             sleep_end = sleep_start + timedelta(hours=8)  # 6:30am next day
 
             sleep_records.append(
@@ -202,8 +205,12 @@ class TestSleepAggregatorMidnight:
         sleep_records.append(
             SleepRecord(
                 source_name="Apple Watch",
-                start_date=datetime.combine(base_date, datetime.min.time()).replace(hour=23),
-                end_date=datetime.combine(base_date + timedelta(days=1), datetime.min.time()).replace(hour=3),
+                start_date=datetime.combine(base_date, datetime.min.time()).replace(
+                    hour=23
+                ),
+                end_date=datetime.combine(
+                    base_date + timedelta(days=1), datetime.min.time()
+                ).replace(hour=3),
                 state=SleepState.ASLEEP,
             )
         )
@@ -214,8 +221,12 @@ class TestSleepAggregatorMidnight:
         sleep_records.append(
             SleepRecord(
                 source_name="Apple Watch",
-                start_date=datetime.combine(base_date + timedelta(days=1), datetime.min.time()).replace(hour=4),
-                end_date=datetime.combine(base_date + timedelta(days=1), datetime.min.time()).replace(hour=7),
+                start_date=datetime.combine(
+                    base_date + timedelta(days=1), datetime.min.time()
+                ).replace(hour=4),
+                end_date=datetime.combine(
+                    base_date + timedelta(days=1), datetime.min.time()
+                ).replace(hour=7),
                 state=SleepState.ASLEEP,
             )
         )

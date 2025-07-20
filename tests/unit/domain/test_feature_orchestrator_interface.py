@@ -257,4 +257,3 @@ class TestFeatureOrchestratorInterface:
         # Should implement both interfaces
         assert isinstance(orchestrator, FeatureExtractorInterface)
         assert isinstance(orchestrator, FeatureValidatorInterface)
-

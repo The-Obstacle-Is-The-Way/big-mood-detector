@@ -25,7 +25,13 @@ class TestAPIStartup:
         env["DISABLE_RATE_LIMIT"] = "1"
 
         process = subprocess.Popen(
-            [sys.executable, "src/big_mood_detector/main.py", "serve", "--port", "8002"],
+            [
+                sys.executable,
+                "src/big_mood_detector/main.py",
+                "serve",
+                "--port",
+                "8002",
+            ],
             env=env,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,  # Capture both stdout and stderr
@@ -61,7 +67,9 @@ class TestAPIStartup:
             else:
                 # Timeout reached
                 stdout, _ = process.communicate(timeout=5)
-                pytest.fail(f"Server did not start within {max_wait_time}s. Output:\n{stdout}")
+                pytest.fail(
+                    f"Server did not start within {max_wait_time}s. Output:\n{stdout}"
+                )
 
             # Server is responding, now test endpoints
             response = requests.get("http://127.0.0.1:8002/health", timeout=5)
@@ -90,12 +98,14 @@ class TestAPIStartup:
 
         # These are the files that should exist and be loadable
         expected_files = [
-            "XGBoost_DE.json",    # Depression
-            "XGBoost_HME.json",   # Hypomanic Episode
-            "XGBoost_ME.json",    # Manic Episode
+            "XGBoost_DE.json",  # Depression
+            "XGBoost_HME.json",  # Hypomanic Episode
+            "XGBoost_ME.json",  # Manic Episode
         ]
 
         for filename in expected_files:
             file_path = model_dir / filename
             assert file_path.exists(), f"Model file {filename} should exist"
-            assert file_path.stat().st_size > 0, f"Model file {filename} should not be empty"
+            assert (
+                file_path.stat().st_size > 0
+            ), f"Model file {filename} should not be empty"

@@ -3,6 +3,7 @@ Simple test to prove the sleep percentage bug.
 
 This test will FAIL until we fix the aggregation pipeline.
 """
+
 from datetime import date, datetime
 from unittest.mock import Mock, patch
 
@@ -53,7 +54,9 @@ class TestSleepPercentageBug:
         print("\n🐛 BUG EXPOSED:")
         print("   Sleep windows total: 4.5 hours")
         print(f"   Sleep percentage: {daily_metrics['sleep_percentage']:.1%}")
-        print(f"   Calculated duration: {daily_metrics['sleep_percentage'] * 24:.1f} hours")
+        print(
+            f"   Calculated duration: {daily_metrics['sleep_percentage'] * 24:.1f} hours"
+        )
         print("   MISSING: 3.0 hours of sleep!")
 
     def test_correct_approach_using_sleep_aggregator(self):
@@ -65,7 +68,7 @@ class TestSleepPercentageBug:
             source_name="Apple Watch",
             start_date=datetime(2024, 1, 1, 22, 0),
             end_date=datetime(2024, 1, 2, 5, 30),
-            state=SleepState.ASLEEP
+            state=SleepState.ASLEEP,
         )
 
         # Use the aggregator
@@ -81,9 +84,15 @@ class TestSleepPercentageBug:
 
         assert summary.total_sleep_hours == 7.5
 
-    @patch('big_mood_detector.application.services.aggregation_pipeline.SleepWindowAnalyzer')
-    @patch('big_mood_detector.application.services.aggregation_pipeline.SleepAggregator')
-    def test_pipeline_should_use_aggregator_not_windows(self, mock_aggregator_class, mock_analyzer_class):
+    @patch(
+        "big_mood_detector.application.services.aggregation_pipeline.SleepWindowAnalyzer"
+    )
+    @patch(
+        "big_mood_detector.application.services.aggregation_pipeline.SleepAggregator"
+    )
+    def test_pipeline_should_use_aggregator_not_windows(
+        self, mock_aggregator_class, mock_analyzer_class
+    ):
         """
         Show that pipeline should call SleepAggregator.aggregate_daily()
         instead of using window analysis for duration.
@@ -101,7 +110,7 @@ class TestSleepPercentageBug:
             sleep_efficiency=0.9375,
             sleep_sessions=1,
             longest_sleep_hours=7.5,
-            sleep_fragmentation_index=0.0
+            sleep_fragmentation_index=0.0,
         )
         mock_aggregator.aggregate_daily.return_value = {
             date(2024, 1, 2): mock_summary  # Sleep assigned to Jan 2
@@ -113,13 +122,15 @@ class TestSleepPercentageBug:
             source_name="Apple Watch",
             start_date=datetime(2024, 1, 1, 22, 0),
             end_date=datetime(2024, 1, 2, 5, 30),
-            state=SleepState.ASLEEP
+            state=SleepState.ASLEEP,
         )
 
         # THE FIX: Pipeline should do this
         aggregator = SleepAggregator()
         summaries = aggregator.aggregate_daily([sleep_record])
-        sleep_duration = summaries[date(2024, 1, 2)].total_sleep_hours  # Sleep assigned to Jan 2
+        sleep_duration = summaries[
+            date(2024, 1, 2)
+        ].total_sleep_hours  # Sleep assigned to Jan 2
 
         print("\n🔧 THE FIX:")
         print("   Instead of: sleep_percentage * 24")

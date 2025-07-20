@@ -24,7 +24,7 @@ class TestClinicalInterpreterMigration:
 
     def test_make_clinical_assessment_exists(self, interpreter):
         """Test that make_clinical_assessment method exists."""
-        assert hasattr(interpreter, 'make_clinical_assessment')
+        assert hasattr(interpreter, "make_clinical_assessment")
 
     def test_make_clinical_assessment_depression(self, interpreter):
         """Test comprehensive depression assessment (from clinical_decision_engine)."""
@@ -52,12 +52,14 @@ class TestClinicalInterpreterMigration:
             f"DSM-5 criteria not met. Got: {assessment.meets_dsm5_criteria}. "
             f"Clinical summary: {assessment.clinical_summary}"
         )
-        assert len(assessment.treatment_options) > 0, "Should have treatment recommendations"
+        assert (
+            len(assessment.treatment_options) > 0
+        ), "Should have treatment recommendations"
         assert assessment.confidence > 0.7
 
     def test_make_longitudinal_assessment_exists(self, interpreter):
         """Test that make_longitudinal_assessment method exists."""
-        assert hasattr(interpreter, 'make_longitudinal_assessment')
+        assert hasattr(interpreter, "make_longitudinal_assessment")
 
     def test_make_longitudinal_assessment(self, interpreter):
         """Test assessment with historical data (from clinical_decision_engine)."""
@@ -91,7 +93,7 @@ class TestClinicalInterpreterMigration:
 
     def test_evaluate_intervention_need_exists(self, interpreter):
         """Test that evaluate_intervention_need method exists."""
-        assert hasattr(interpreter, 'evaluate_intervention_need')
+        assert hasattr(interpreter, "evaluate_intervention_need")
 
     def test_evaluate_intervention_need(self, interpreter):
         """Test early intervention decision making (from clinical_decision_engine)."""
@@ -114,4 +116,3 @@ class TestClinicalInterpreterMigration:
         assert decision.intervention_type == "preventive"
         assert len(decision.rationale) > 0
         assert len(decision.specific_actions) > 0
-

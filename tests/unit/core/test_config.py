@@ -105,6 +105,7 @@ class TestSettings:
             from big_mood_detector.infrastructure.settings.utils import (
                 initialize_directories,
             )
+
             initialize_directories(settings)
 
             # Now paths should exist

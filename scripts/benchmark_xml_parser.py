@@ -18,7 +18,9 @@ from big_mood_detector.infrastructure.parsers.xml.streaming_adapter import (
 )
 
 
-def benchmark_parser(parser_class, xml_file: Path, entity_type: str = "all") -> tuple[int, float]:
+def benchmark_parser(
+    parser_class, xml_file: Path, entity_type: str = "all"
+) -> tuple[int, float]:
     """Benchmark a parser and return count and time."""
     parser = parser_class()
 
@@ -28,7 +30,7 @@ def benchmark_parser(parser_class, xml_file: Path, entity_type: str = "all") -> 
     for _entity in parser.parse_file(xml_file, entity_type=entity_type):
         count += 1
         if count % 10000 == 0:
-            print(f"  {parser_class.__name__}: {count:,} records...", end='\r')
+            print(f"  {parser_class.__name__}: {count:,} records...", end="\r")
 
     elapsed = time.time() - start_time
     print(f"  {parser_class.__name__}: {count:,} records in {elapsed:.2f}s")
@@ -36,17 +38,23 @@ def benchmark_parser(parser_class, xml_file: Path, entity_type: str = "all") -> 
     return count, elapsed
 
 
-def benchmark_with_date_filter(parser_class, xml_file: Path, start_date: str, end_date: str) -> tuple[int, float]:
+def benchmark_with_date_filter(
+    parser_class, xml_file: Path, start_date: str, end_date: str
+) -> tuple[int, float]:
     """Benchmark a parser with date filtering."""
     parser = parser_class()
 
     start_time = time.time()
     count = 0
 
-    for _entity in parser.parse_file(xml_file, entity_type="all", start_date=start_date, end_date=end_date):
+    for _entity in parser.parse_file(
+        xml_file, entity_type="all", start_date=start_date, end_date=end_date
+    ):
         count += 1
         if count % 1000 == 0:
-            print(f"  {parser_class.__name__} (filtered): {count:,} records...", end='\r')
+            print(
+                f"  {parser_class.__name__} (filtered): {count:,} records...", end="\r"
+            )
 
     elapsed = time.time() - start_time
     print(f"  {parser_class.__name__} (filtered): {count:,} records in {elapsed:.2f}s")
@@ -74,7 +82,9 @@ def main():
 
     speedup = stdlib_time / lxml_time if lxml_time > 0 else 0
     print(f"\nSpeedup: {speedup:.1f}x faster with lxml")
-    print(f"Records/second: {int(stdlib_count/stdlib_time):,} (stdlib) vs {int(lxml_count/lxml_time):,} (lxml)")
+    print(
+        f"Records/second: {int(stdlib_count/stdlib_time):,} (stdlib) vs {int(lxml_count/lxml_time):,} (lxml)"
+    )
 
     # Test 2: Parse with date filtering (1 month)
     print("\n\nTest 2: Parse with date filtering (June 2025)")
@@ -90,9 +100,13 @@ def main():
         FastStreamingXMLParser, xml_file, start_date, end_date
     )
 
-    filtered_speedup = stdlib_filtered_time / lxml_filtered_time if lxml_filtered_time > 0 else 0
+    filtered_speedup = (
+        stdlib_filtered_time / lxml_filtered_time if lxml_filtered_time > 0 else 0
+    )
     print(f"\nFiltered speedup: {filtered_speedup:.1f}x faster with lxml")
-    print(f"Date filtering efficiency: {lxml_filtered_count:,} records from {lxml_count:,} total")
+    print(
+        f"Date filtering efficiency: {lxml_filtered_count:,} records from {lxml_count:,} total"
+    )
 
     # Test 3: Count records quickly
     print("\n\nTest 3: Quick record count by type")

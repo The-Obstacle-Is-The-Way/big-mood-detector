@@ -4,6 +4,7 @@ Test baseline repository factory for selecting between File and TimescaleDB.
 This ensures we can configure which baseline repository to use via
 environment variables or settings.
 """
+
 import os
 import tempfile
 from pathlib import Path
@@ -47,7 +48,9 @@ class TestBaselineRepositoryFactory:
             # Set environment variable
             with patch.dict(os.environ, {"BASELINE_REPOSITORY_TYPE": "timescale"}):
                 # Mock connection string
-                with patch.dict(os.environ, {"TIMESCALE_CONNECTION_STRING": "postgresql://test"}):
+                with patch.dict(
+                    os.environ, {"TIMESCALE_CONNECTION_STRING": "postgresql://test"}
+                ):
                     repo = factory.create_repository()
 
             assert isinstance(repo, BaselineRepositoryInterface)
@@ -68,7 +71,9 @@ class TestBaselineRepositoryFactory:
             assert file_repo.__class__.__name__ == "FileBaselineRepository"
 
             # Create timescale repository explicitly
-            with patch.dict(os.environ, {"TIMESCALE_CONNECTION_STRING": "postgresql://test"}):
+            with patch.dict(
+                os.environ, {"TIMESCALE_CONNECTION_STRING": "postgresql://test"}
+            ):
                 ts_repo = factory.create_repository(repository_type="timescale")
                 assert ts_repo.__class__.__name__ == "TimescaleBaselineRepository"
 

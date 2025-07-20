@@ -3,6 +3,7 @@ Test TimescaleDB repository uses proper UPSERT instead of DELETE+INSERT.
 
 This prevents race conditions when multiple processes update the same baseline.
 """
+
 from datetime import date
 from unittest.mock import MagicMock, patch
 
@@ -32,8 +33,7 @@ class TestTimescaleUpsertPattern:
     def repository(self, test_db):
         """Create repository with test database."""
         repo = TimescaleBaselineRepository(
-            connection_string="sqlite:///:memory:",
-            enable_feast_sync=False
+            connection_string="sqlite:///:memory:", enable_feast_sync=False
         )
         # Replace the session to track SQL calls
         repo._test_engine = test_db
@@ -62,13 +62,13 @@ class TestTimescaleUpsertPattern:
         def track_execute(stmt):
             nonlocal upsert_used
             # Check if this is an insert statement with on_conflict
-            if hasattr(stmt, 'on_conflict_do_update'):
+            if hasattr(stmt, "on_conflict_do_update"):
                 upsert_used = True
             if original_execute:
                 return original_execute(stmt)
 
         # Mock the session to track SQL operations
-        with patch.object(repository, '_get_session') as mock_context:
+        with patch.object(repository, "_get_session") as mock_context:
             mock_session = MagicMock()
             mock_context.return_value.__enter__.return_value = mock_session
             original_execute = mock_session.execute
@@ -78,7 +78,7 @@ class TestTimescaleUpsertPattern:
             repository.save_baseline(baseline)
 
             # Verify NO query/delete operations (old pattern)
-            assert not hasattr(mock_session, 'query') or not mock_session.query.called
+            assert not hasattr(mock_session, "query") or not mock_session.query.called
 
             # Verify execute was called (new UPSERT pattern)
             # The track_execute function was called
@@ -135,7 +135,7 @@ class TestTimescaleUpsertPattern:
                 nonlocal close_called
                 close_called = True
 
-        with patch.object(repository, 'SessionLocal', return_value=MockSession()):
+        with patch.object(repository, "SessionLocal", return_value=MockSession()):
             repository.save_baseline(baseline)
             assert close_called, "Session should be closed after normal operation"
             assert commit_called, "Session should be committed"
@@ -173,7 +173,9 @@ class TestTimescaleUpsertPattern:
                 nonlocal close_called
                 close_called = True
 
-        with patch.object(repository, 'SessionLocal', return_value=MockSessionWithError()):
+        with patch.object(
+            repository, "SessionLocal", return_value=MockSessionWithError()
+        ):
             with pytest.raises(Exception, match="DB Error"):
                 repository.save_baseline(baseline)
 

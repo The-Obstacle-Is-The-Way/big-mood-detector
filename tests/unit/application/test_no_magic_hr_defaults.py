@@ -4,6 +4,7 @@ Test that magic HR/HRV defaults (70 bpm, 50 ms) have been removed.
 This guards against hardcoded values that would incorrectly skew
 personal baselines for athletes or individuals with different physiology.
 """
+
 import tempfile
 from datetime import date, datetime
 from pathlib import Path
@@ -98,7 +99,7 @@ class TestNoMagicHRDefaults:
             SleepRecord(
                 source_name="test",
                 start_date=datetime(2024, 1, i, 22, 0),
-                end_date=datetime(2024, 1, i+1, 6, 0),
+                end_date=datetime(2024, 1, i + 1, 6, 0),
                 state=SleepState.ASLEEP,
             )
             for i in range(1, 4)  # 3 days to meet min_window_size
@@ -107,8 +108,8 @@ class TestNoMagicHRDefaults:
         activity_records = [
             ActivityRecord(
                 source_name="test",
-                start_date=datetime(2024, 1, i+1, 12, 0),
-                end_date=datetime(2024, 1, i+1, 13, 0),
+                start_date=datetime(2024, 1, i + 1, 12, 0),
+                end_date=datetime(2024, 1, i + 1, 13, 0),
                 activity_type=ActivityType.STEP_COUNT,
                 value=5000,
                 unit="steps",
@@ -131,7 +132,7 @@ class TestNoMagicHRDefaults:
 
         # Check that HR values are 0.0 (not 70.0)
         for feature in features:
-            if hasattr(feature, 'seoul_features'):
+            if hasattr(feature, "seoul_features"):
                 # Should be 0.0 when no data, not magic 70.0
                 assert feature.seoul_features.avg_resting_hr == 0.0
                 assert feature.seoul_features.hrv_sdnn == 0.0
@@ -141,8 +142,7 @@ class TestNoMagicHRDefaults:
         with tempfile.TemporaryDirectory() as tmpdir:
             repo = FileBaselineRepository(Path(tmpdir))
             engineer = AdvancedFeatureEngineer(
-                user_id="no_hr_user",
-                baseline_repository=repo
+                user_id="no_hr_user", baseline_repository=repo
             )
 
             # Update sleep and activity baselines
@@ -165,13 +165,16 @@ class TestNoMagicHRDefaults:
             assert saved.sleep_mean == 7.5
             assert saved.activity_mean == 10000
 
-    @pytest.mark.parametrize("hr_value,hrv_value,should_update", [
-        (0.0, 0.0, False),      # Zero values should not update
-        (70.0, 50.0, True),     # Real values should update (no more magic check)
-        (55.0, 65.0, True),     # Athlete values should update
-        (85.0, 35.0, True),     # Stressed person values should update
-        (-1.0, -1.0, False),    # Negative values should not update
-    ])
+    @pytest.mark.parametrize(
+        "hr_value,hrv_value,should_update",
+        [
+            (0.0, 0.0, False),  # Zero values should not update
+            (70.0, 50.0, True),  # Real values should update (no more magic check)
+            (55.0, 65.0, True),  # Athlete values should update
+            (85.0, 35.0, True),  # Stressed person values should update
+            (-1.0, -1.0, False),  # Negative values should not update
+        ],
+    )
     def test_baseline_update_logic(self, hr_value, hrv_value, should_update):
         """Test that baseline updates only with valid data."""
         from big_mood_detector.domain.services.heart_rate_aggregator import (

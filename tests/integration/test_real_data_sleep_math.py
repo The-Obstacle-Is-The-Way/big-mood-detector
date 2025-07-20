@@ -3,6 +3,7 @@ Test with REAL Apple Health data to trace the sleep duration bug.
 
 This is not mock data - this is YOUR actual sleep data!
 """
+
 from datetime import timedelta
 from pathlib import Path
 
@@ -29,7 +30,9 @@ class TestRealDataSleepMath:
         We'll trace the math at every step!
         """
         # Pick a real export file
-        export_file = Path("/Users/ray/Desktop/CLARITY-DIGITAL-TWIN/big-mood-detector/data/input/apple_export/export.xml")
+        export_file = Path(
+            "/Users/ray/Desktop/CLARITY-DIGITAL-TWIN/big-mood-detector/data/input/apple_export/export.xml"
+        )
 
         if not export_file.exists():
             pytest.skip("No real export file found")
@@ -78,8 +81,7 @@ class TestRealDataSleepMath:
             config.min_days_required = 3
 
             pipeline = MoodPredictionPipeline(
-                config=config,
-                baseline_repository=baseline_repo
+                config=config, baseline_repository=baseline_repo
             )
 
             # Process just 7 days
@@ -87,7 +89,7 @@ class TestRealDataSleepMath:
                 sleep_records=sleep_records,
                 activity_records=activity_records,
                 heart_records=heart_records,
-                target_date=latest_date
+                target_date=latest_date,
             )
 
             # Check baseline
@@ -109,15 +111,21 @@ class TestRealDataSleepMath:
                     print("\n⚠️  COMPARISON:")
                     print(f"   Manual calculation mean: {manual_mean:.1f}h")
                     print(f"   Pipeline baseline mean: {baseline.sleep_mean:.1f}h")
-                    print(f"   DIFFERENCE: {abs(manual_mean - baseline.sleep_mean):.1f}h")
+                    print(
+                        f"   DIFFERENCE: {abs(manual_mean - baseline.sleep_mean):.1f}h"
+                    )
 
                     # The bug check
                     if abs(manual_mean - baseline.sleep_mean) > 2.0:
-                        print(f"\n🐛 BUG CONFIRMED! Pipeline loses {abs(manual_mean - baseline.sleep_mean):.1f} hours!")
+                        print(
+                            f"\n🐛 BUG CONFIRMED! Pipeline loses {abs(manual_mean - baseline.sleep_mean):.1f} hours!"
+                        )
 
     def test_single_day_detailed_trace(self, tmp_path):
         """Trace a single day's sleep calculation in detail."""
-        export_file = Path("/Users/ray/Desktop/CLARITY-DIGITAL-TWIN/big-mood-detector/data/input/apple_export/export.xml")
+        export_file = Path(
+            "/Users/ray/Desktop/CLARITY-DIGITAL-TWIN/big-mood-detector/data/input/apple_export/export.xml"
+        )
 
         if not export_file.exists():
             pytest.skip("No real export file found")
@@ -136,7 +144,8 @@ class TestRealDataSleepMath:
 
         # Get all sleep records for that date
         day_sleep = [
-            r for r in sleep_records
+            r
+            for r in sleep_records
             if r.start_date.date() <= latest_date <= r.end_date.date()
         ]
 
@@ -147,7 +156,9 @@ class TestRealDataSleepMath:
         for i, record in enumerate(day_sleep):
             duration = record.duration_hours
             total_hours += duration
-            print(f"   Record {i+1}: {record.start_date.strftime('%H:%M')} → {record.end_date.strftime('%H:%M')} = {duration:.1f}h")
+            print(
+                f"   Record {i+1}: {record.start_date.strftime('%H:%M')} → {record.end_date.strftime('%H:%M')} = {duration:.1f}h"
+            )
             print(f"      State: {record.state.value}")
             print(f"      Source: {record.source_name}")
 
@@ -164,4 +175,6 @@ class TestRealDataSleepMath:
             print(f"   Sleep sessions: {summary.sleep_sessions}")
 
             if abs(total_hours - summary.total_sleep_hours) > 0.1:
-                print(f"\n⚠️  MISMATCH: Raw total ({total_hours:.1f}h) != Aggregated ({summary.total_sleep_hours:.1f}h)")
+                print(
+                    f"\n⚠️  MISMATCH: Raw total ({total_hours:.1f}h) != Aggregated ({summary.total_sleep_hours:.1f}h)"
+                )

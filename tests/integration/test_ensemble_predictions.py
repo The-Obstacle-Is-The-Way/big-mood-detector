@@ -42,9 +42,9 @@ class TestEnsemblePredictions:
                     records.append(
                         ActivityRecord(
                             start_date=datetime.combine(
-                                current_date,
-                                datetime.min.time()
-                            ) + timedelta(hours=hour, minutes=minute),
+                                current_date, datetime.min.time()
+                            )
+                            + timedelta(hours=hour, minutes=minute),
                             activity_type="movement",
                             intensity=intensity + np.random.normal(0, 5),
                             duration_minutes=1.0,
@@ -56,44 +56,47 @@ class TestEnsemblePredictions:
     @pytest.fixture
     def mock_features(self):
         """Generate mock feature array."""
-        return np.array([
-            7.5,    # sleep_duration_hours
-            0.85,   # sleep_efficiency
-            23.5,   # sleep_onset_hour
-            7.0,    # wake_time_hour
-            0.15,   # sleep_fragmentation
-            85.0,   # sleep_regularity_index
-            0.1,    # short_sleep_window_pct
-            0.05,   # long_sleep_window_pct
-            0.5,    # sleep_onset_variance
-            0.3,    # wake_time_variance
-            0.75,   # interdaily_stability
-            0.45,   # intradaily_variability
-            0.82,   # relative_amplitude
-            10.5,   # l5_value
-            85.2,   # m10_value
-            2.5,    # l5_onset_hour
-            14.5,   # m10_onset_hour
-            22.0,   # dlmo_hour
-            8500,   # total_steps
-            150.0,  # activity_variance
-            8.0,    # sedentary_hours
-            0.25,   # activity_fragmentation
-            45.0,   # sedentary_bout_mean
-            2.5,    # activity_intensity_ratio
-            65.0,   # avg_resting_hr
-            35.0,   # hrv_sdnn
-            20.0,   # hr_circadian_range
-            4.5,    # hr_minimum_hour
-            0.0,    # circadian_phase_advance
-            0.5,    # circadian_phase_delay
-            0.9,    # dlmo_confidence
-            14.0,   # pat_hour
-            0.1,    # sleep_duration_zscore
-            -0.2,   # activity_zscore
-            0.3,    # circadian_phase_zscore
-            0.0,    # sleep_efficiency_zscore
-        ], dtype=np.float32)
+        return np.array(
+            [
+                7.5,  # sleep_duration_hours
+                0.85,  # sleep_efficiency
+                23.5,  # sleep_onset_hour
+                7.0,  # wake_time_hour
+                0.15,  # sleep_fragmentation
+                85.0,  # sleep_regularity_index
+                0.1,  # short_sleep_window_pct
+                0.05,  # long_sleep_window_pct
+                0.5,  # sleep_onset_variance
+                0.3,  # wake_time_variance
+                0.75,  # interdaily_stability
+                0.45,  # intradaily_variability
+                0.82,  # relative_amplitude
+                10.5,  # l5_value
+                85.2,  # m10_value
+                2.5,  # l5_onset_hour
+                14.5,  # m10_onset_hour
+                22.0,  # dlmo_hour
+                8500,  # total_steps
+                150.0,  # activity_variance
+                8.0,  # sedentary_hours
+                0.25,  # activity_fragmentation
+                45.0,  # sedentary_bout_mean
+                2.5,  # activity_intensity_ratio
+                65.0,  # avg_resting_hr
+                35.0,  # hrv_sdnn
+                20.0,  # hr_circadian_range
+                4.5,  # hr_minimum_hour
+                0.0,  # circadian_phase_advance
+                0.5,  # circadian_phase_delay
+                0.9,  # dlmo_confidence
+                14.0,  # pat_hour
+                0.1,  # sleep_duration_zscore
+                -0.2,  # activity_zscore
+                0.3,  # circadian_phase_zscore
+                0.0,  # sleep_efficiency_zscore
+            ],
+            dtype=np.float32,
+        )
 
     def test_ensemble_with_pat_available(self, mock_features, mock_activity_data):
         """Test ensemble prediction when PAT is available."""
@@ -113,9 +116,7 @@ class TestEnsemblePredictions:
 
         # Initialize models
         xgboost_predictor = XGBoostMoodPredictor()
-        assert xgboost_predictor.load_models(
-            Path("model_weights/xgboost/pretrained")
-        )
+        assert xgboost_predictor.load_models(Path("model_weights/xgboost/pretrained"))
 
         pat_model = PATModel(model_size="medium")
         assert pat_model.load_pretrained_weights()
@@ -155,10 +156,7 @@ class TestEnsemblePredictions:
 
     def test_ensemble_without_pat(self, mock_features):
         """Test ensemble prediction when PAT is not available."""
-        with patch(
-            "big_mood_detector.infrastructure.ml_models.PAT_AVAILABLE",
-            False
-        ):
+        with patch("big_mood_detector.infrastructure.ml_models.PAT_AVAILABLE", False):
             from big_mood_detector.application.use_cases.predict_mood_ensemble_use_case import (
                 EnsembleConfig,
                 EnsembleOrchestrator,
@@ -263,7 +261,7 @@ class TestEnsemblePredictions:
         export_file.write_text(
             '<?xml version="1.0" encoding="UTF-8"?>\n'
             '<HealthData locale="en_US">\n'
-            '</HealthData>'
+            "</HealthData>"
         )
 
         # Run predict command with ensemble
@@ -272,8 +270,10 @@ class TestEnsemblePredictions:
             [
                 str(export_file),
                 "--ensemble",
-                "--format", "json",
-                "-o", str(tmp_path / "predictions.json"),
+                "--format",
+                "json",
+                "-o",
+                str(tmp_path / "predictions.json"),
             ],
         )
 
@@ -305,9 +305,7 @@ class TestEnsemblePredictions:
         )
 
         xgboost_predictor = XGBoostMoodPredictor()
-        assert xgboost_predictor.load_models(
-            Path("model_weights/xgboost/pretrained")
-        )
+        assert xgboost_predictor.load_models(Path("model_weights/xgboost/pretrained"))
 
         orchestrator = EnsembleOrchestrator(
             xgboost_predictor=xgboost_predictor,

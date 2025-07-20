@@ -4,6 +4,7 @@ Test to verify the aggregation pipeline fix is actually being used.
 This test verifies that the sleep duration calculation in the
 aggregation pipeline now correctly uses SleepAggregator.
 """
+
 from datetime import date, datetime
 
 from big_mood_detector.application.services.aggregation_pipeline import (
@@ -30,7 +31,7 @@ class TestAggregationPipelineFix:
                 source_name="Apple Watch",
                 start_date=datetime(2024, 1, 1, 22, 0),
                 end_date=datetime(2024, 1, 2, 5, 30),
-                state=SleepState.ASLEEP
+                state=SleepState.ASLEEP,
             )
         ]
 
@@ -90,7 +91,9 @@ class TestAggregationPipelineFix:
             "The fix should use SleepAggregator, not sleep_percentage * 24!"
         )
 
-        print(f"✅ SUCCESS: Sleep duration correctly calculated as {features.seoul_features.sleep_duration_hours} hours")
+        print(
+            f"✅ SUCCESS: Sleep duration correctly calculated as {features.seoul_features.sleep_duration_hours} hours"
+        )
 
     def test_aggregation_pipeline_handles_no_sleep_data(self):
         """Test that the pipeline handles days with no sleep data."""
@@ -121,9 +124,20 @@ class TestAggregationPipelineFix:
             daily_metrics,
             [daily_metrics["sleep"]],
             [],
-            {"daily_steps": 0, "activity_variance": 0, "sedentary_hours": 24,
-             "activity_fragmentation": 0, "sedentary_bout_mean": 24, "activity_intensity_ratio": 0},
-            {"avg_resting_hr": None, "hrv_sdnn": None, "hr_circadian_range": 0.0, "hr_minimum_hour": 0.0},
+            {
+                "daily_steps": 0,
+                "activity_variance": 0,
+                "sedentary_hours": 24,
+                "activity_fragmentation": 0,
+                "sedentary_bout_mean": 24,
+                "activity_intensity_ratio": 0,
+            },
+            {
+                "avg_resting_hr": None,
+                "hrv_sdnn": None,
+                "hr_circadian_range": 0.0,
+                "hr_minimum_hour": 0.0,
+            },
             sleep_records,
         )
 

@@ -40,8 +40,10 @@ class TestPredictionInterpreter:
         assert result.confidence >= 0.8
         assert "depression" in result.clinical_notes[0].lower()
         assert len(result.recommendations) > 0
-        assert any("urgent" in r.lower() or "immediate" in r.lower()
-                  for r in result.recommendations)
+        assert any(
+            "urgent" in r.lower() or "immediate" in r.lower()
+            for r in result.recommendations
+        )
 
     def test_interpret_hypomania(self, interpreter):
         """Test interpretation of hypomanic episode."""
@@ -77,8 +79,10 @@ class TestPredictionInterpreter:
         assert result.primary_diagnosis == "Mixed Episode"
         assert result.risk_level == "critical"  # Mixed states are dangerous
         assert "mixed" in result.clinical_notes[0].lower()
-        assert any("crisis" in r.lower() or "emergency" in r.lower()
-                  for r in result.recommendations)
+        assert any(
+            "crisis" in r.lower() or "emergency" in r.lower()
+            for r in result.recommendations
+        )
 
     def test_interpret_euthymic_state(self, interpreter):
         """Test interpretation of stable/euthymic state."""
@@ -96,8 +100,10 @@ class TestPredictionInterpreter:
         assert result.primary_diagnosis == "Euthymic (Stable)"
         assert result.risk_level == "low"
         assert result.confidence >= 0.7
-        assert any("stable" in note.lower() or "euthymic" in note.lower()
-                  for note in result.clinical_notes)
+        assert any(
+            "stable" in note.lower() or "euthymic" in note.lower()
+            for note in result.clinical_notes
+        )
 
     def test_dsm5_compliance(self, interpreter):
         """Test that interpretations follow DSM-5 criteria."""
@@ -124,43 +130,57 @@ class TestPredictionInterpreter:
             )
 
             if should_have_dsm5:
-                assert has_dsm5_reference, f"Missing DSM-5 reference for {ml_predictions}"
+                assert (
+                    has_dsm5_reference
+                ), f"Missing DSM-5 reference for {ml_predictions}"
 
     def test_confidence_calculation(self, interpreter):
         """Test confidence score calculation based on prediction clarity."""
         # High confidence - clear single diagnosis
-        clear_result = interpreter.interpret({
-            "depression": 0.90,
-            "mania": 0.05,
-            "hypomania": 0.05,
-        })
+        clear_result = interpreter.interpret(
+            {
+                "depression": 0.90,
+                "mania": 0.05,
+                "hypomania": 0.05,
+            }
+        )
         assert clear_result.confidence >= 0.85
 
         # Low confidence - ambiguous predictions
-        ambiguous_result = interpreter.interpret({
-            "depression": 0.45,
-            "mania": 0.40,
-            "hypomania": 0.35,
-        })
+        ambiguous_result = interpreter.interpret(
+            {
+                "depression": 0.45,
+                "mania": 0.40,
+                "hypomania": 0.35,
+            }
+        )
         assert ambiguous_result.confidence < 0.6
 
     def test_treatment_recommendations(self, interpreter):
         """Test that appropriate treatment recommendations are provided."""
         # Depression case
-        dep_result = interpreter.interpret({
-            "depression": 0.80,
-            "mania": 0.10,
-            "hypomania": 0.10,
-        })
+        dep_result = interpreter.interpret(
+            {
+                "depression": 0.80,
+                "mania": 0.10,
+                "hypomania": 0.10,
+            }
+        )
         assert len(dep_result.recommendations) >= 3
-        assert any("medication" in r.lower() or "therapy" in r.lower()
-                  for r in dep_result.recommendations)
+        assert any(
+            "medication" in r.lower() or "therapy" in r.lower()
+            for r in dep_result.recommendations
+        )
 
         # Mania case
-        mania_result = interpreter.interpret({
-            "depression": 0.10,
-            "mania": 0.85,
-            "hypomania": 0.15,
-        })
-        assert any("hospitalization" in r.lower() or "emergency" in r.lower()
-                  for r in mania_result.recommendations)
+        mania_result = interpreter.interpret(
+            {
+                "depression": 0.10,
+                "mania": 0.85,
+                "hypomania": 0.15,
+            }
+        )
+        assert any(
+            "hospitalization" in r.lower() or "emergency" in r.lower()
+            for r in mania_result.recommendations
+        )

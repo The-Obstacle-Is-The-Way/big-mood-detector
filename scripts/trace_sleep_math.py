@@ -16,7 +16,9 @@ from big_mood_detector.infrastructure.repositories.file_baseline_repository impo
 
 def main():
     # Use real export
-    export_file = Path("/Users/ray/Desktop/CLARITY-DIGITAL-TWIN/big-mood-detector/data/input/apple_export/export.xml")
+    export_file = Path(
+        "/Users/ray/Desktop/CLARITY-DIGITAL-TWIN/big-mood-detector/data/input/apple_export/export.xml"
+    )
 
     if not export_file.exists():
         print("No export file found!")
@@ -32,17 +34,14 @@ def main():
 
     baseline_repo = FileBaselineRepository(Path("./temp_trace_baselines"))
 
-    pipeline = MoodPredictionPipeline(
-        config=config,
-        baseline_repository=baseline_repo
-    )
+    pipeline = MoodPredictionPipeline(config=config, baseline_repository=baseline_repo)
 
     # Process the file
     print("\n⏳ Processing Apple Health export...")
     result = pipeline.process_apple_health_file(
         file_path=export_file,
         end_date=date.today(),
-        start_date=date.today() - timedelta(days=30)
+        start_date=date.today() - timedelta(days=30),
     )
 
     if result and result.daily_predictions:
@@ -65,12 +64,15 @@ def main():
         print(f"   Data points: {baseline.data_points}")
 
         if baseline.sleep_mean < 6.0:
-            print(f"\n🐛 BUG CONFIRMED: Sleep baseline is too low! Should be ~7-8 hours, not {baseline.sleep_mean:.1f}!")
+            print(
+                f"\n🐛 BUG CONFIRMED: Sleep baseline is too low! Should be ~7-8 hours, not {baseline.sleep_mean:.1f}!"
+            )
     else:
         print("\n❌ No baseline created!")
 
     # Cleanup
     import shutil
+
     if Path("./temp_trace_baselines").exists():
         shutil.rmtree("./temp_trace_baselines")
 

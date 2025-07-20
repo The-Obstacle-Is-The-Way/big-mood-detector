@@ -50,12 +50,13 @@ class TestBaselineRepositoryInterface:
             BaselineRepositoryInterface()
 
         # Should define required methods
-        assert hasattr(BaselineRepositoryInterface, 'save_baseline')
-        assert hasattr(BaselineRepositoryInterface, 'get_baseline')
-        assert hasattr(BaselineRepositoryInterface, 'get_baseline_history')
+        assert hasattr(BaselineRepositoryInterface, "save_baseline")
+        assert hasattr(BaselineRepositoryInterface, "get_baseline")
+        assert hasattr(BaselineRepositoryInterface, "get_baseline_history")
 
     def test_mock_implementation(self):
         """Test with a mock implementation to verify interface."""
+
         class MockBaselineRepository(BaselineRepositoryInterface):
             def __init__(self):
                 self._baselines: dict[str, list[UserBaseline]] = {}

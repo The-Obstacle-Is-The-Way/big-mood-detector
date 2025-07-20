@@ -16,7 +16,7 @@ test_features = {
     "intradaily_variability": 0.45,
     "relative_amplitude": 0.82,
     "resting_hr": 65.0,
-    "hrv_rmssd": 35.0
+    "hrv_rmssd": 35.0,
 }
 
 # Check model status first
@@ -27,18 +27,21 @@ if response.status_code == 200:
     print(f"✓ XGBoost available: {status['xgboost_available']}")
     print(f"✓ PAT available: {status['pat_available']}")
     print(f"✓ Ensemble available: {status['ensemble_available']}")
-    if status.get('pat_info'):
-        print(f"  PAT model: {status['pat_info']['model_size']} ({status['pat_info']['parameters']} params)")
-    if status.get('ensemble_config'):
-        print(f"  Weights: XGBoost={status['ensemble_config']['xgboost_weight']}, PAT={status['ensemble_config']['pat_weight']}")
+    if status.get("pat_info"):
+        print(
+            f"  PAT model: {status['pat_info']['model_size']} ({status['pat_info']['parameters']} params)"
+        )
+    if status.get("ensemble_config"):
+        print(
+            f"  Weights: XGBoost={status['ensemble_config']['xgboost_weight']}, PAT={status['ensemble_config']['pat_weight']}"
+        )
 else:
     print(f"✗ Status check failed: {response.status_code}")
     print(response.text)
 
 print("\nTesting ensemble prediction...")
 response = requests.post(
-    "http://localhost:8000/api/v1/predictions/predict/ensemble",
-    json=test_features
+    "http://localhost:8000/api/v1/predictions/predict/ensemble", json=test_features
 )
 
 if response.status_code == 200:
@@ -52,7 +55,7 @@ if response.status_code == 200:
     print(f"  Confidence: {result['ensemble_prediction']['confidence']:.1%}")
     print(f"\nClinical summary: {result['clinical_summary']}")
     print("Recommendations:")
-    for rec in result['recommendations']:
+    for rec in result["recommendations"]:
         print(f"  - {rec}")
 else:
     print(f"✗ Prediction failed: {response.status_code}")

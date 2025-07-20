@@ -43,9 +43,9 @@ class TestDIIntegrationSmoke:
 
         # Then: It should be properly initialized
         assert interpreter is not None
-        assert hasattr(interpreter, 'clinical_assessment_service')
-        assert hasattr(interpreter, 'longitudinal_assessment_service')
-        assert hasattr(interpreter, 'intervention_evaluation_service')
+        assert hasattr(interpreter, "clinical_assessment_service")
+        assert hasattr(interpreter, "longitudinal_assessment_service")
+        assert hasattr(interpreter, "intervention_evaluation_service")
 
     def test_can_resolve_mood_prediction_pipeline(self, settings):
         """Test that the main use case can be resolved."""
@@ -57,7 +57,7 @@ class TestDIIntegrationSmoke:
 
         # Then: It should be properly initialized
         assert pipeline is not None
-        assert hasattr(pipeline, 'process_apple_health_file')
+        assert hasattr(pipeline, "process_apple_health_file")
 
     def test_clinical_assessment_service_integration(self, settings):
         """Test that ClinicalAssessmentService works end-to-end."""
@@ -108,7 +108,10 @@ class TestDIIntegrationSmoke:
         captured = capsys.readouterr()
 
         # Verify we see the loading_clinical_config event in stdout
-        assert "loading_clinical_config" in captured.out or "clinical_config_not_found" in captured.out
+        assert (
+            "loading_clinical_config" in captured.out
+            or "clinical_config_not_found" in captured.out
+        )
 
         # And container should have registered services
         assert container._services  # Non-empty services dict

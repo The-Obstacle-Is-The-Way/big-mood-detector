@@ -1,21 +1,21 @@
 """Add heart rate and HRV columns to baseline aggregates
 
 Revision ID: 84347d3b14a1
-Revises: 
+Revises:
 Create Date: 2025-07-20 00:28:47.229960
 
 """
-from typing import Sequence, Union
+from collections.abc import Sequence
 
-from alembic import op
 import sqlalchemy as sa
 
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision: str = '84347d3b14a1'
-down_revision: Union[str, None] = None
-branch_labels: Union[str, Sequence[str], None] = None
-depends_on: Union[str, Sequence[str], None] = None
+down_revision: str | None = None
+branch_labels: str | Sequence[str] | None = None
+depends_on: str | Sequence[str] | None = None
 
 
 def upgrade() -> None:

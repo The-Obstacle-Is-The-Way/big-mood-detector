@@ -3,6 +3,7 @@ Test to ensure no orphaned/duplicate code remains in the codebase.
 
 This prevents dead code from accumulating and confusing developers.
 """
+
 from pathlib import Path
 
 
@@ -74,7 +75,8 @@ class TestNoOrphanedCode:
                         if pattern in line:
                             found_hacks.append(f"{py_file}:{line_num} - {line.strip()}")
 
-        assert len(found_hacks) == 0, (
-            f"Found {len(found_hacks)} HACK/FIXME comments:\n" +
-            "\n".join(found_hacks[:10])  # Show first 10
-        )
+        assert (
+            len(found_hacks) == 0
+        ), f"Found {len(found_hacks)} HACK/FIXME comments:\n" + "\n".join(
+            found_hacks[:10]
+        )  # Show first 10

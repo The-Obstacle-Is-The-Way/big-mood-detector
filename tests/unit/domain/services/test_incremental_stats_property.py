@@ -4,6 +4,7 @@ Property-based tests for incremental statistics calculations.
 Uses hypothesis to verify the incremental baseline update implementation
 in AdvancedFeatureEngineer is mathematically correct.
 """
+
 import numpy as np
 from hypothesis import given, settings
 from hypothesis import strategies as st
@@ -16,7 +17,11 @@ from big_mood_detector.domain.services.advanced_feature_engineering import (
 class TestIncrementalStatsProperty:
     """Property-based tests for incremental statistics using hypothesis."""
 
-    @given(st.lists(st.floats(min_value=-1000, max_value=1000, allow_nan=False), min_size=1))
+    @given(
+        st.lists(
+            st.floats(min_value=-1000, max_value=1000, allow_nan=False), min_size=1
+        )
+    )
     def test_mean_matches_numpy(self, values):
         """
         Test that incremental mean calculation matches numpy.
@@ -32,11 +37,15 @@ class TestIncrementalStatsProperty:
         baseline = engineer.individual_baselines["test_metric"]
         np_mean = np.mean(values)
 
-        assert abs(baseline["mean"] - np_mean) < 1e-9, (
-            f"Incremental mean {baseline['mean']} != numpy mean {np_mean}"
-        )
+        assert (
+            abs(baseline["mean"] - np_mean) < 1e-9
+        ), f"Incremental mean {baseline['mean']} != numpy mean {np_mean}"
 
-    @given(st.lists(st.floats(min_value=-1000, max_value=1000, allow_nan=False), min_size=2))
+    @given(
+        st.lists(
+            st.floats(min_value=-1000, max_value=1000, allow_nan=False), min_size=2
+        )
+    )
     def test_std_matches_numpy(self, values):
         """
         Test that incremental std calculation matches numpy.
@@ -56,16 +65,20 @@ class TestIncrementalStatsProperty:
         # For constant values (all same), numpy returns exactly 0.0
         # but our incremental algorithm might have tiny numerical error
         if np_std == 0.0:
-            assert baseline["std"] < 1e-5, (
-                f"For constant values, incremental std {baseline['std']} should be near 0"
-            )
+            assert (
+                baseline["std"] < 1e-5
+            ), f"For constant values, incremental std {baseline['std']} should be near 0"
         else:
             # Allow slightly more tolerance due to floating point accumulation
-            assert abs(baseline["std"] - np_std) < 1e-7, (
-                f"Incremental std {baseline['std']} != numpy std {np_std}"
-            )
+            assert (
+                abs(baseline["std"] - np_std) < 1e-7
+            ), f"Incremental std {baseline['std']} != numpy std {np_std}"
 
-    @given(st.lists(st.floats(min_value=-1000, max_value=1000, allow_nan=False), min_size=1))
+    @given(
+        st.lists(
+            st.floats(min_value=-1000, max_value=1000, allow_nan=False), min_size=1
+        )
+    )
     def test_count_is_correct(self, values):
         """
         Test that count tracks number of values.
@@ -101,7 +114,7 @@ class TestIncrementalStatsProperty:
 
     @given(
         st.lists(st.floats(min_value=-100, max_value=100, allow_nan=False), min_size=1),
-        st.lists(st.floats(min_value=-100, max_value=100, allow_nan=False), min_size=1)
+        st.lists(st.floats(min_value=-100, max_value=100, allow_nan=False), min_size=1),
     )
     def test_order_independence(self, values1, values2):
         """
@@ -128,7 +141,13 @@ class TestIncrementalStatsProperty:
         assert abs(baseline1["std"] - baseline2["std"]) < 1e-9
         assert baseline1["count"] == baseline2["count"]
 
-    @given(st.lists(st.floats(min_value=-100, max_value=100, allow_nan=False), min_size=10, max_size=50))
+    @given(
+        st.lists(
+            st.floats(min_value=-100, max_value=100, allow_nan=False),
+            min_size=10,
+            max_size=50,
+        )
+    )
     @settings(max_examples=50)
     def test_incremental_vs_batch(self, values):
         """
@@ -169,10 +188,14 @@ class TestIncrementalStatsProperty:
         baseline = engineer.individual_baselines["constant"]
         assert abs(baseline["mean"] - constant) < 1e-9
         # Allow tiny numerical error in std for constant values
-        assert baseline["std"] < 1e-5, f"Std should be ~0 for constant values, got {baseline['std']}'"
+        assert (
+            baseline["std"] < 1e-5
+        ), f"Std should be ~0 for constant values, got {baseline['std']}'"
         assert baseline["count"] == 10
 
-    @given(st.lists(st.floats(min_value=-10, max_value=10, allow_nan=False), min_size=3))
+    @given(
+        st.lists(st.floats(min_value=-10, max_value=10, allow_nan=False), min_size=3)
+    )
     def test_zscore_calculation(self, values):
         """
         Test z-score calculation is correct.
@@ -197,7 +220,12 @@ class TestIncrementalStatsProperty:
 
             assert abs(actual_zscore - expected_zscore) < 1e-9
 
-    @given(st.lists(st.floats(min_value=1e6 - 10, max_value=1e6 + 10, allow_nan=False), min_size=5))
+    @given(
+        st.lists(
+            st.floats(min_value=1e6 - 10, max_value=1e6 + 10, allow_nan=False),
+            min_size=5,
+        )
+    )
     def test_numerical_stability_large_numbers(self, values):
         """
         Test numerical stability with large numbers.

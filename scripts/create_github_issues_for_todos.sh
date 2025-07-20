@@ -88,7 +88,10 @@ Remove the deprecated stub methods that were moved to SleepFeatureCalculator. Th
 ## Priority
 - [ ] High (blocking)
 - [ ] Medium (should fix soon)
-- [x] Low (nice to have) - Scheduled for Q1 2025" \
+- [x] Low (nice to have) - Scheduled for Q1 2025
+
+## Assignee
+@claude - Please work on this autonomously" \
   --label "tech-debt" \
   --label "deprecation"
 
@@ -115,7 +118,10 @@ The HR/HRV baseline calculation test is currently using default values instead o
 ## Priority
 - [x] High (blocking) - Affects clinical accuracy
 - [ ] Medium (should fix soon)
-- [ ] Low (nice to have)" \
+- [ ] Low (nice to have)
+
+## Assignee
+@claude - Please work on this autonomously" \
   --label "tech-debt" \
   --label "bug" \
   --label "clinical"

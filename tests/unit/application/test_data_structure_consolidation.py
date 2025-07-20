@@ -66,7 +66,9 @@ def sample_heart_records():
     return []  # Empty for now, as other tests do
 
 
-def test_pipeline_returns_clinical_feature_set(sample_sleep_records, sample_activity_records, sample_heart_records):
+def test_pipeline_returns_clinical_feature_set(
+    sample_sleep_records, sample_activity_records, sample_heart_records
+):
     """Test that aggregation pipeline returns ClinicalFeatureSet instead of DailyFeatures."""
     # Use a range to ensure we get results
     start_date = date(2024, 1, 10)

@@ -39,7 +39,9 @@ def generate_test_data():
     records = []
     base_date = date.today()
     for hour in range(24 * 7):  # 7 days
-        start_time = datetime.combine(base_date, datetime.min.time()) + timedelta(hours=hour)
+        start_time = datetime.combine(base_date, datetime.min.time()) + timedelta(
+            hours=hour
+        )
         records.append(
             ActivityRecord(
                 source_name="benchmark_test",
@@ -103,7 +105,9 @@ def calculate_percentiles(latencies):
 
 def main():
     """Run the benchmark."""
-    console.print("[bold cyan]Big Mood Detector - Ensemble Prediction Benchmark[/bold cyan]\n")
+    console.print(
+        "[bold cyan]Big Mood Detector - Ensemble Prediction Benchmark[/bold cyan]\n"
+    )
 
     # Initialize models
     console.print("Loading models...")
@@ -199,18 +203,18 @@ def main():
 
     # Performance summary
     console.print("\n[bold]Performance Summary:[/bold]")
-    if stats_xgb['p99'] < 100:
+    if stats_xgb["p99"] < 100:
         console.print("[green]✓ XGBoost P99 < 100ms target[/green]")
     else:
         console.print("[red]✗ XGBoost P99 > 100ms target[/red]")
 
     if pat_model:
-        if stats_ensemble['p99'] < 200:
+        if stats_ensemble["p99"] < 200:
             console.print("[green]✓ Ensemble P99 < 200ms target[/green]")
         else:
             console.print("[red]✗ Ensemble P99 > 200ms target[/red]")
 
-        overhead = stats_ensemble['p50'] - stats_xgb['p50']
+        overhead = stats_ensemble["p50"] - stats_xgb["p50"]
         console.print(f"\nPAT overhead (P50): {overhead:.1f}ms")
 
     # Model info

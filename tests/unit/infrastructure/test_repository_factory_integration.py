@@ -4,6 +4,7 @@ Integration test showing repository factory usage with feature engineering.
 This demonstrates how the factory-created repository integrates with
 the AdvancedFeatureEngineer for baseline persistence.
 """
+
 import tempfile
 from pathlib import Path
 
@@ -76,7 +77,9 @@ class TestRepositoryFactoryWithFeatureEngineering:
 
                 for j in range(7):
                     engineer._update_individual_baseline("sleep", sleep_base + j * 0.1)
-                    engineer._update_individual_baseline("activity", activity_base + j * 100)
+                    engineer._update_individual_baseline(
+                        "activity", activity_base + j * 100
+                    )
 
                 engineer.persist_baselines()
 

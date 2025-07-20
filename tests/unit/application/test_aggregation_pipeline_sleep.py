@@ -3,6 +3,7 @@ Test aggregation pipeline sleep duration calculation.
 
 MISSION: Prove the bug exists, then fix it like a pro!
 """
+
 import logging
 from datetime import date, datetime
 
@@ -36,24 +37,28 @@ class TestAggregationPipelineSleep:
         for day_offset in range(3):
             # Create 7.5 hour sleep record for each night
             sleep_start = datetime(2024, 1, 1 + day_offset, 22, 30)  # 10:30 PM
-            sleep_end = datetime(2024, 1, 2 + day_offset, 6, 0)   # 6:00 AM next day
+            sleep_end = datetime(2024, 1, 2 + day_offset, 6, 0)  # 6:00 AM next day
 
-            sleep_records.append(SleepRecord(
-                source_name="Apple Watch",
-                start_date=sleep_start,
-                end_date=sleep_end,
-                state=SleepState.ASLEEP
-            ))
+            sleep_records.append(
+                SleepRecord(
+                    source_name="Apple Watch",
+                    start_date=sleep_start,
+                    end_date=sleep_end,
+                    state=SleepState.ASLEEP,
+                )
+            )
 
             # Create minimal activity data
-            activity_records.append(ActivityRecord(
-                source_name="Apple Watch",
-                start_date=datetime(2024, 1, 2 + day_offset, 12, 0),
-                end_date=datetime(2024, 1, 2 + day_offset, 12, 1),
-                activity_type=ActivityType.STEP_COUNT,
-                value=100 + day_offset * 50,
-                unit="steps"
-            ))
+            activity_records.append(
+                ActivityRecord(
+                    source_name="Apple Watch",
+                    start_date=datetime(2024, 1, 2 + day_offset, 12, 0),
+                    end_date=datetime(2024, 1, 2 + day_offset, 12, 1),
+                    activity_type=ActivityType.STEP_COUNT,
+                    value=100 + day_offset * 50,
+                    unit="steps",
+                )
+            )
 
         # Create pipeline
         pipeline = AggregationPipeline()
@@ -66,15 +71,19 @@ class TestAggregationPipelineSleep:
             heart_records=[],
             start_date=date(2024, 1, 2),
             end_date=date(2024, 1, 4),
-            min_window_size=2  # Need at least 2 days for window
+            min_window_size=2,  # Need at least 2 days for window
         )
 
         # ASSERTION: Should get 7.5 hours, not ~2 hours!
         print(f"\n🔍 Got {len(features)} features")
         for f in features:
-            print(f"  - Date: {f.date}, Has Seoul features: {f.seoul_features is not None}")
+            print(
+                f"  - Date: {f.date}, Has Seoul features: {f.seoul_features is not None}"
+            )
             if f.seoul_features:
-                print(f"    Sleep duration: {f.seoul_features.sleep_duration_hours:.1f} hours")
+                print(
+                    f"    Sleep duration: {f.seoul_features.sleep_duration_hours:.1f} hours"
+                )
 
         assert len(features) >= 1
         # Check the middle day which should have proper sleep data
@@ -89,7 +98,7 @@ class TestAggregationPipelineSleep:
         print(f"🔴 ACTUAL: {actual_sleep_hours:.1f} hours")
 
         # Let's also check what the raw metrics show
-        if hasattr(daily_feature, 'raw_features'):
+        if hasattr(daily_feature, "raw_features"):
             print(f"🔍 Raw features: {daily_feature.raw_features}")
 
         # Check the Seoul features in detail
@@ -100,11 +109,13 @@ class TestAggregationPipelineSleep:
         print(f"🔍 Long sleep window %: {seoul.long_sleep_window_pct}")
 
         # Check that sleep duration is correctly calculated as ~7.5 hours
-        assert 7.0 <= actual_sleep_hours <= 8.0, (
-            f"Sleep duration should be ~7.5 hours, not {actual_sleep_hours:.1f}!"
-        )
+        assert (
+            7.0 <= actual_sleep_hours <= 8.0
+        ), f"Sleep duration should be ~7.5 hours, not {actual_sleep_hours:.1f}!"
 
-        print(f"\n✅ SUCCESS: Sleep duration correctly calculated as {actual_sleep_hours:.1f} hours")
+        print(
+            f"\n✅ SUCCESS: Sleep duration correctly calculated as {actual_sleep_hours:.1f} hours"
+        )
 
     def test_multiple_sleep_fragments(self):
         """Test that fragmented sleep is summed correctly."""
@@ -118,7 +129,7 @@ class TestAggregationPipelineSleep:
                 source_name="Apple Watch",
                 start_date=datetime(2024, 1, 1 + day_offset, 22, 0),
                 end_date=datetime(2024, 1, 2 + day_offset, 2, 0),
-                state=SleepState.ASLEEP
+                state=SleepState.ASLEEP,
             )
 
             # Back to sleep: 03:00 → 06:30 (3.5 hours)
@@ -126,20 +137,22 @@ class TestAggregationPipelineSleep:
                 source_name="Apple Watch",
                 start_date=datetime(2024, 1, 2 + day_offset, 3, 0),
                 end_date=datetime(2024, 1, 2 + day_offset, 6, 30),
-                state=SleepState.ASLEEP
+                state=SleepState.ASLEEP,
             )
 
             sleep_records.extend([sleep1, sleep2])
 
             # Add activity data for each day
-            activity_records.append(ActivityRecord(
-                source_name="Apple Watch",
-                start_date=datetime(2024, 1, 2 + day_offset, 12, 0),
-                end_date=datetime(2024, 1, 2 + day_offset, 12, 1),
-                activity_type=ActivityType.STEP_COUNT,
-                value=100,
-                unit="steps"
-            ))
+            activity_records.append(
+                ActivityRecord(
+                    source_name="Apple Watch",
+                    start_date=datetime(2024, 1, 2 + day_offset, 12, 0),
+                    end_date=datetime(2024, 1, 2 + day_offset, 12, 1),
+                    activity_type=ActivityType.STEP_COUNT,
+                    value=100,
+                    unit="steps",
+                )
+            )
 
         # Total should be 4 + 3.5 = 7.5 hours per night
 
@@ -150,7 +163,7 @@ class TestAggregationPipelineSleep:
             heart_records=[],
             start_date=date(2024, 1, 2),
             end_date=date(2024, 1, 4),
-            min_window_size=2
+            min_window_size=2,
         )
 
         # Check the middle day
@@ -165,6 +178,6 @@ class TestAggregationPipelineSleep:
         print("   EXPECTED TOTAL: 7.5 hours")
         print(f"   ACTUAL TOTAL: {actual_sleep:.1f} hours")
 
-        assert 7.0 <= actual_sleep <= 8.0, (
-            f"Fragmented sleep should sum to ~7.5 hours, not {actual_sleep:.1f}!"
-        )
+        assert (
+            7.0 <= actual_sleep <= 8.0
+        ), f"Fragmented sleep should sum to ~7.5 hours, not {actual_sleep:.1f}!"

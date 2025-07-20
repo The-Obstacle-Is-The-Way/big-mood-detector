@@ -3,6 +3,7 @@ Debug the sleep duration math - BILLION DOLLAR MATH OLYMPIAD!
 
 Let's trace every single number through the system.
 """
+
 from datetime import date, datetime, timedelta
 
 from big_mood_detector.domain.entities.sleep_record import SleepRecord, SleepState
@@ -27,13 +28,13 @@ class TestSleepMathDebug:
 
         # Create ONE sleep record: 22:00 → 05:30
         start = datetime(2024, 1, 1, 22, 0)  # 10 PM
-        end = datetime(2024, 1, 2, 5, 30)   # 5:30 AM next day
+        end = datetime(2024, 1, 2, 5, 30)  # 5:30 AM next day
 
         sleep_record = SleepRecord(
             source_name="Apple Watch",
             start_date=start,
             end_date=end,
-            state=SleepState.ASLEEP
+            state=SleepState.ASLEEP,
         )
 
         # MATH CHECK 1: Raw duration
@@ -52,8 +53,12 @@ class TestSleepMathDebug:
         summary = summaries[summary_date]
 
         print(f"✅ MATH 2: DailySleepSummary.date = {summary.date}")
-        print(f"✅ MATH 2: DailySleepSummary.total_sleep_hours = {summary.total_sleep_hours}")
-        assert summary.total_sleep_hours == 7.5, f"Expected 7.5, got {summary.total_sleep_hours}"
+        print(
+            f"✅ MATH 2: DailySleepSummary.total_sleep_hours = {summary.total_sleep_hours}"
+        )
+        assert (
+            summary.total_sleep_hours == 7.5
+        ), f"Expected 7.5, got {summary.total_sleep_hours}"
 
     def test_midnight_cross_assignment(self):
         """Test which day gets the sleep when crossing midnight"""
@@ -67,7 +72,7 @@ class TestSleepMathDebug:
             source_name="Apple Watch",
             start_date=start1,
             end_date=end1,
-            state=SleepState.ASLEEP
+            state=SleepState.ASLEEP,
         )
 
         aggregator = SleepAggregator()
@@ -81,8 +86,8 @@ class TestSleepMathDebug:
         print(f"Assigned to date: {summary.date}")
         print(f"Duration: {summary.total_sleep_hours} hours")
 
-        # The sleep should be assigned to Jan 1 (the day it started)
-        assert summary.date == date(2024, 1, 1), f"Expected Jan 1, got {summary.date}"
+        # The sleep should be assigned to Jan 2 (due to 3pm rule)
+        assert summary.date == date(2024, 1, 2), f"Expected Jan 2, got {summary.date}"
 
     def test_multiple_days_aggregation(self):
         """Test 3 days of 7.5 hour sleep each"""
@@ -93,12 +98,14 @@ class TestSleepMathDebug:
             start = datetime(2024, 1, day + 1, 22, 0)
             end = start + timedelta(hours=7.5)
 
-            records.append(SleepRecord(
-                source_name="Apple Watch",
-                start_date=start,
-                end_date=end,
-                state=SleepState.ASLEEP
-            ))
+            records.append(
+                SleepRecord(
+                    source_name="Apple Watch",
+                    start_date=start,
+                    end_date=end,
+                    state=SleepState.ASLEEP,
+                )
+            )
 
         aggregator = SleepAggregator()
         summaries = aggregator.aggregate_daily(records)
@@ -108,7 +115,9 @@ class TestSleepMathDebug:
 
         for i, (summary_date, summary) in enumerate(summaries.items()):
             print(f"Day {i+1}: {summary_date} = {summary.total_sleep_hours} hours")
-            assert summary.total_sleep_hours == 7.5, f"Day {i+1} wrong: {summary.total_sleep_hours}"
+            assert (
+                summary.total_sleep_hours == 7.5
+            ), f"Day {i+1} wrong: {summary.total_sleep_hours}"
 
     def test_baseline_calculation_simple(self, tmp_path):
         """Test baseline calculation with known values"""
@@ -119,8 +128,7 @@ class TestSleepMathDebug:
 
         # Create feature engineer with baseline tracking
         feature_eng = AdvancedFeatureEngineer(
-            baseline_repository=repo,
-            user_id="test_jane"
+            baseline_repository=repo, user_id="test_jane"
         )
 
         # Simulate 3 days of sleep data
@@ -141,7 +149,9 @@ class TestSleepMathDebug:
         expected_mean = sum(sleep_values) / len(sleep_values)
 
         print(f"\n✅ FINAL CHECK: Mean = {final_mean}, Expected = {expected_mean}")
-        assert abs(final_mean - expected_mean) < 0.01, f"Mean wrong: {final_mean} != {expected_mean}"
+        assert (
+            abs(final_mean - expected_mean) < 0.01
+        ), f"Mean wrong: {final_mean} != {expected_mean}"
 
     def test_persist_and_reload_baseline(self, tmp_path):
         """Test that baselines persist correctly"""
@@ -158,7 +168,7 @@ class TestSleepMathDebug:
             activity_mean=15000.0,
             activity_std=2000.0,
             circadian_phase=0.0,
-            data_points=3
+            data_points=3,
         )
 
         print(f"Saving baseline with sleep_mean={baseline.sleep_mean}")

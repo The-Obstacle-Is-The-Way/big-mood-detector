@@ -32,33 +32,49 @@ def main():
 
     # Change to project root
     import os
+
     os.chdir(PROJECT_ROOT)
 
     print("\nGenerating requirements.txt (base dependencies)...")
-    run_command([
-        sys.executable, "-m", "piptools", "compile",
-        "--resolver=backtracking",
-        "--output-file=requirements.txt",
-        "pyproject.toml"
-    ])
+    run_command(
+        [
+            sys.executable,
+            "-m",
+            "piptools",
+            "compile",
+            "--resolver=backtracking",
+            "--output-file=requirements.txt",
+            "pyproject.toml",
+        ]
+    )
 
     print("\nGenerating requirements-ml.txt (with ML dependencies)...")
-    run_command([
-        sys.executable, "-m", "piptools", "compile",
-        "--resolver=backtracking",
-        "--extra=ml",
-        "--output-file=requirements-ml.txt",
-        "pyproject.toml"
-    ])
+    run_command(
+        [
+            sys.executable,
+            "-m",
+            "piptools",
+            "compile",
+            "--resolver=backtracking",
+            "--extra=ml",
+            "--output-file=requirements-ml.txt",
+            "pyproject.toml",
+        ]
+    )
 
     print("\nGenerating requirements-dev.txt (with dev dependencies)...")
-    run_command([
-        sys.executable, "-m", "piptools", "compile",
-        "--resolver=backtracking",
-        "--extra=dev",
-        "--output-file=requirements-dev.txt",
-        "pyproject.toml"
-    ])
+    run_command(
+        [
+            sys.executable,
+            "-m",
+            "piptools",
+            "compile",
+            "--resolver=backtracking",
+            "--extra=dev",
+            "--output-file=requirements-dev.txt",
+            "pyproject.toml",
+        ]
+    )
 
     print("\n✅ All requirements files generated!")
     print("\nTo update dependencies:")

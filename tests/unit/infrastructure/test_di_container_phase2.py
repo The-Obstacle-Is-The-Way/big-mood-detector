@@ -42,7 +42,6 @@ class TestDIContainerPhase2:
             DATA_DIR=Path("test_data"),
         )
 
-
     def test_clinical_assessment_service_not_registered_by_default(self, container):
         """Test that ClinicalAssessmentService is not registered by default."""
         with pytest.raises(DependencyNotFoundError):
@@ -170,14 +169,15 @@ class TestDIContainerPhase2:
 
         # Then: It should be properly initialized with all services
         assert interpreter is not None
-        assert hasattr(interpreter, 'clinical_assessment_service')
-        assert hasattr(interpreter, 'longitudinal_assessment_service')
-        assert hasattr(interpreter, 'intervention_evaluation_service')
+        assert hasattr(interpreter, "clinical_assessment_service")
+        assert hasattr(interpreter, "longitudinal_assessment_service")
+        assert hasattr(interpreter, "intervention_evaluation_service")
 
     def test_setup_dependencies_includes_new_services(self, mock_settings):
         """Test that setup_dependencies registers our new services."""
         # Clear any existing container
         import big_mood_detector.infrastructure.di.container as di_module
+
         di_module._container = None
         di_module.get_container.cache_clear()
 
@@ -194,7 +194,9 @@ class TestDIContainerPhase2:
         except DependencyNotFoundError:
             pytest.fail("New services not registered in setup_dependencies")
 
-    def test_clinical_interpreter_methods_work_after_di(self, container, clinical_config):
+    def test_clinical_interpreter_methods_work_after_di(
+        self, container, clinical_config
+    ):
         """Test that ClinicalInterpreter methods work after DI resolution."""
         # Given: Full DI setup
         from big_mood_detector.domain.services.biomarker_interpreter import (

@@ -36,8 +36,7 @@ class TestBaselineRepositoryIntegration:
         """Test that AdvancedFeatureEngineer can be initialized with repository."""
         # Should accept baseline_repository parameter
         engineer = AdvancedFeatureEngineer(
-            config={},
-            baseline_repository=mock_repository
+            config={}, baseline_repository=mock_repository
         )
 
         assert engineer.baseline_repository == mock_repository
@@ -60,9 +59,7 @@ class TestBaselineRepositoryIntegration:
 
         # Initialize with user_id
         engineer = AdvancedFeatureEngineer(
-            config={},
-            baseline_repository=mock_repository,
-            user_id="test_user"
+            config={}, baseline_repository=mock_repository, user_id="test_user"
         )
 
         # Should have loaded baseline
@@ -75,11 +72,15 @@ class TestBaselineRepositoryIntegration:
 
     def test_persist_baselines_saves_to_repository(self, mock_repository):
         """Test that persist_baselines method saves to repository."""
+        # Set up mock to return None (no existing baseline)
+        mock_repository.get_baseline.return_value = None
+
         engineer = AdvancedFeatureEngineer(
-            config={},
-            baseline_repository=mock_repository,
-            user_id="test_user"
+            config={}, baseline_repository=mock_repository, user_id="test_user"
         )
+
+        # Initialize the engineer's baselines
+        engineer._load_baselines_from_repository()
 
         # Update some baselines
         engineer._update_individual_baseline("sleep", 7.5)
@@ -123,9 +124,7 @@ class TestBaselineRepositoryIntegration:
 
         # First engineer saves baselines
         engineer1 = AdvancedFeatureEngineer(
-            config={},
-            baseline_repository=repository,
-            user_id="test_user"
+            config={}, baseline_repository=repository, user_id="test_user"
         )
 
         # Add some data
@@ -137,9 +136,7 @@ class TestBaselineRepositoryIntegration:
 
         # Second engineer loads baselines
         engineer2 = AdvancedFeatureEngineer(
-            config={},
-            baseline_repository=repository,
-            user_id="test_user"
+            config={}, baseline_repository=repository, user_id="test_user"
         )
 
         # Should have loaded the saved baselines

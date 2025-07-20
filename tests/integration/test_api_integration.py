@@ -96,6 +96,7 @@ class TestLabelsAPI:
     def cleanup_database(self) -> Generator[None, None, None]:
         """Clean up test database before and after each test."""
         import os
+
         db_path = "labels.db"
         # Clean before test
         if os.path.exists(db_path):

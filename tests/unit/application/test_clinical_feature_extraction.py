@@ -42,8 +42,10 @@ class TestClinicalFeatureExtractorActivity:
             records.append(
                 ActivityRecord(
                     source_name="Apple Watch",
-                    start_date=datetime.combine(current_date, datetime.min.time()) + timedelta(hours=8),
-                    end_date=datetime.combine(current_date, datetime.min.time()) + timedelta(hours=9),
+                    start_date=datetime.combine(current_date, datetime.min.time())
+                    + timedelta(hours=8),
+                    end_date=datetime.combine(current_date, datetime.min.time())
+                    + timedelta(hours=9),
                     activity_type=ActivityType.STEP_COUNT,
                     value=3000.0,
                     unit="count",
@@ -54,8 +56,10 @@ class TestClinicalFeatureExtractorActivity:
             records.append(
                 ActivityRecord(
                     source_name="Apple Watch",
-                    start_date=datetime.combine(current_date, datetime.min.time()) + timedelta(hours=14),
-                    end_date=datetime.combine(current_date, datetime.min.time()) + timedelta(hours=16),
+                    start_date=datetime.combine(current_date, datetime.min.time())
+                    + timedelta(hours=14),
+                    end_date=datetime.combine(current_date, datetime.min.time())
+                    + timedelta(hours=16),
                     activity_type=ActivityType.STEP_COUNT,
                     value=5000.0,
                     unit="count",
@@ -66,8 +70,10 @@ class TestClinicalFeatureExtractorActivity:
             records.append(
                 ActivityRecord(
                     source_name="Apple Watch",
-                    start_date=datetime.combine(current_date, datetime.min.time()) + timedelta(hours=19),
-                    end_date=datetime.combine(current_date, datetime.min.time()) + timedelta(hours=20),
+                    start_date=datetime.combine(current_date, datetime.min.time())
+                    + timedelta(hours=19),
+                    end_date=datetime.combine(current_date, datetime.min.time())
+                    + timedelta(hours=20),
                     activity_type=ActivityType.STEP_COUNT,
                     value=2000.0,
                     unit="count",
@@ -87,18 +93,26 @@ class TestClinicalFeatureExtractorActivity:
             records.append(
                 SleepRecord(
                     source_name="Apple Watch",
-                    start_date=datetime.combine(current_date, datetime.min.time()) + timedelta(hours=23),
-                    end_date=datetime.combine(current_date + timedelta(days=1), datetime.min.time()) + timedelta(hours=7),
+                    start_date=datetime.combine(current_date, datetime.min.time())
+                    + timedelta(hours=23),
+                    end_date=datetime.combine(
+                        current_date + timedelta(days=1), datetime.min.time()
+                    )
+                    + timedelta(hours=7),
                     state=SleepState.ASLEEP,
                 )
             )
 
         return records
 
-    def test_extract_activity_features(self, extractor, sample_activity_records, sample_sleep_records):
+    def test_extract_activity_features(
+        self, extractor, sample_activity_records, sample_sleep_records
+    ):
         """Test that activity features are extracted and non-null."""
         # Extract features for the last date in our sample data
-        target_date = date.today() - timedelta(days=1)  # Yesterday since our data goes up to yesterday
+        target_date = date.today() - timedelta(
+            days=1
+        )  # Yesterday since our data goes up to yesterday
         feature_set = extractor.extract_clinical_features(
             sleep_records=sample_sleep_records,
             activity_records=sample_activity_records,
@@ -120,7 +134,9 @@ class TestClinicalFeatureExtractorActivity:
         assert feature_set.seoul_features.sedentary_bout_mean is not None
         assert feature_set.seoul_features.activity_intensity_ratio is not None
 
-    def test_activity_features_calculation(self, extractor, sample_activity_records, sample_sleep_records):
+    def test_activity_features_calculation(
+        self, extractor, sample_activity_records, sample_sleep_records
+    ):
         """Test that activity features are calculated correctly."""
         # Extract features for the last date in our sample data
         target_date = date.today() - timedelta(days=1)
@@ -154,12 +170,18 @@ class TestClinicalFeatureExtractorActivity:
         # Activity features should have sensible defaults
         assert feature_set.seoul_features.total_steps == 0
         assert feature_set.seoul_features.activity_variance == 0
-        assert feature_set.seoul_features.sedentary_hours == 24.0  # Assume full sedentary if no data
+        assert (
+            feature_set.seoul_features.sedentary_hours == 24.0
+        )  # Assume full sedentary if no data
         assert feature_set.seoul_features.activity_fragmentation == 0
-        assert feature_set.seoul_features.sedentary_bout_mean == 1440  # 24 hours in minutes
+        assert (
+            feature_set.seoul_features.sedentary_bout_mean == 1440
+        )  # 24 hours in minutes
         assert feature_set.seoul_features.activity_intensity_ratio == 0
 
-    def test_activity_features_in_xgboost_vector(self, extractor, sample_activity_records, sample_sleep_records):
+    def test_activity_features_in_xgboost_vector(
+        self, extractor, sample_activity_records, sample_sleep_records
+    ):
         """Test that activity features are included in XGBoost feature vector."""
         target_date = date.today() - timedelta(days=1)
         feature_set = extractor.extract_clinical_features(
@@ -183,7 +205,9 @@ class TestClinicalFeatureExtractorActivity:
         # Specifically check total_steps (index 18)
         assert feature_vector[18] == 10000.0
 
-    def test_circadian_features_with_activity(self, extractor, sample_activity_records, sample_sleep_records):
+    def test_circadian_features_with_activity(
+        self, extractor, sample_activity_records, sample_sleep_records
+    ):
         """Test that circadian rhythm features use activity data."""
         target_date = date.today() - timedelta(days=1)
         feature_set = extractor.extract_clinical_features(

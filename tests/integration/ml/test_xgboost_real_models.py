@@ -85,6 +85,7 @@ class TestXGBoostRealModels:
 
         # Time the batch prediction
         import time
+
         start = time.time()
         predictions = loader.predict_batch(features_batch)
         elapsed = time.time() - start
@@ -104,15 +105,15 @@ class TestXGBoostRealModels:
         # Sleep percentage features (normalized around 0.3-0.4 for 7-8 hours)
         features[0] = 0.35  # sleep_percentage_MN
         features[1] = 0.05  # sleep_percentage_SD
-        features[2] = 0.0   # sleep_percentage_Z
+        features[2] = 0.0  # sleep_percentage_Z
 
         # Circadian features
-        features[30] = 0.8   # circadian_amplitude_MN
-        features[31] = 0.1   # circadian_amplitude_SD
-        features[32] = 0.0   # circadian_amplitude_Z
+        features[30] = 0.8  # circadian_amplitude_MN
+        features[31] = 0.1  # circadian_amplitude_SD
+        features[32] = 0.0  # circadian_amplitude_Z
         features[33] = 14.5  # circadian_phase_MN (2:30 PM peak)
-        features[34] = 1.2   # circadian_phase_SD
-        features[35] = 0.0   # circadian_phase_Z
+        features[34] = 1.2  # circadian_phase_SD
+        features[35] = 0.0  # circadian_phase_Z
 
         # Fill in other features with small random values
         for i in range(3, 30):

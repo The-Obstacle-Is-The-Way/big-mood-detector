@@ -30,6 +30,7 @@ class TestFileBaselineRepository:
         from big_mood_detector.infrastructure.repositories.file_baseline_repository import (
             FileBaselineRepository,
         )
+
         return FileBaselineRepository(temp_baseline_dir)
 
     def test_save_and_retrieve_baseline(self, repository):

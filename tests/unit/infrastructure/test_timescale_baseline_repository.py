@@ -46,7 +46,7 @@ class BaselineRepositoryContract:
             activity_std=2000.0,
             circadian_phase=22.0,
             last_updated=datetime(2024, 1, 15, 10, 30),
-            data_points=30
+            data_points=30,
         )
 
     def test_save_and_retrieve_baseline_with_hr_hrv(self):
@@ -67,7 +67,7 @@ class BaselineRepositoryContract:
             hrv_mean=55.0,
             hrv_std=8.0,
             last_updated=datetime(2024, 1, 15, 10, 30),
-            data_points=30
+            data_points=30,
         )
 
         # Save and retrieve
@@ -133,7 +133,7 @@ class BaselineRepositoryContract:
             activity_std=1800.0,
             circadian_phase=21.5,
             last_updated=datetime(2024, 1, 1, 10, 0),
-            data_points=28
+            data_points=28,
         )
 
         baseline2 = UserBaseline(
@@ -145,7 +145,7 @@ class BaselineRepositoryContract:
             activity_std=2000.0,
             circadian_phase=22.0,
             last_updated=datetime(2024, 1, 15, 10, 0),
-            data_points=30
+            data_points=30,
         )
 
         # Save in reverse chronological order to test sorting
@@ -192,14 +192,16 @@ class TestTimescaleBaselineRepository(BaselineRepositoryContract):
         try:
             from testcontainers.postgres import PostgresContainer
         except ImportError:
-            pytest.skip("testcontainers not available - run: pip install testcontainers")
+            pytest.skip(
+                "testcontainers not available - run: pip install testcontainers"
+            )
 
         # Use TimescaleDB image which includes PostgreSQL + TimescaleDB extension
         container = PostgresContainer(
             image="timescale/timescaledb:latest-pg16",
             username="test_user",
             password="test_password",
-            dbname="test_baselines"
+            dbname="test_baselines",
         )
 
         container.start()
@@ -223,7 +225,7 @@ class TestTimescaleBaselineRepository(BaselineRepositoryContract):
         # Create repository (this will initialize tables)
         repo = TimescaleBaselineRepository(
             connection_string=connection_string,
-            enable_feast_sync=False  # Disable Feast for pure repository tests
+            enable_feast_sync=False,  # Disable Feast for pure repository tests
         )
 
         return repo
@@ -277,7 +279,7 @@ class TestTimescaleBaselineRepository(BaselineRepositoryContract):
             activity_std=1800.0,
             circadian_phase=21.5,
             last_updated=datetime(2024, 1, 1, 10, 0),
-            data_points=28
+            data_points=28,
         )
 
         baseline2 = UserBaseline(
@@ -289,7 +291,7 @@ class TestTimescaleBaselineRepository(BaselineRepositoryContract):
             activity_std=2000.0,
             circadian_phase=22.0,
             last_updated=datetime(2024, 1, 15, 10, 0),
-            data_points=30
+            data_points=30,
         )
 
         # Save in reverse chronological order to test sorting
@@ -318,7 +320,7 @@ class TestTimescaleBaselineRepository(BaselineRepositoryContract):
                 activity_std=2000.0,
                 circadian_phase=22.0,
                 last_updated=datetime(2024, 1, 1 + day_offset, 10, 0),
-                data_points=30
+                data_points=30,
             )
             repository.save_baseline(baseline_copy)
 
@@ -329,6 +331,38 @@ class TestTimescaleBaselineRepository(BaselineRepositoryContract):
             assert retrieved is not None
             assert retrieved.user_id == user_id
             assert abs(retrieved.sleep_mean - (7.0 + day_offset * 0.1)) < 0.001
+
+    def test_save_and_retrieve_baseline_with_hr_hrv(self, repository):
+        """Test save and retrieve with optional HR/HRV fields"""
+        # Create baseline with HR/HRV data
+        baseline = UserBaseline(
+            user_id="test_user_hr",
+            baseline_date=date(2024, 1, 15),
+            sleep_mean=7.5,
+            sleep_std=1.2,
+            activity_mean=8000.0,
+            activity_std=2000.0,
+            circadian_phase=22.0,
+            heart_rate_mean=65.0,
+            heart_rate_std=5.0,
+            hrv_mean=55.0,
+            hrv_std=8.0,
+            last_updated=datetime(2024, 1, 15, 10, 30),
+            data_points=30,
+        )
+
+        # Save
+        repository.save_baseline(baseline)
+
+        # Retrieve
+        retrieved = repository.get_baseline(baseline.user_id)
+
+        # Verify all fields including HR/HRV
+        assert retrieved is not None
+        assert retrieved.heart_rate_mean == 65.0
+        assert retrieved.heart_rate_std == 5.0
+        assert retrieved.hrv_mean == 55.0
+        assert retrieved.hrv_std == 8.0
 
 
 @pytest.mark.integration
@@ -344,13 +378,15 @@ class TestBaselineRepositoryIntegration:
         try:
             from testcontainers.postgres import PostgresContainer
         except ImportError:
-            pytest.skip("testcontainers not available - run: pip install testcontainers")
+            pytest.skip(
+                "testcontainers not available - run: pip install testcontainers"
+            )
 
         container = PostgresContainer(
             image="timescale/timescaledb:latest-pg16",
             username="test_user",
             password="test_password",
-            dbname="test_baselines"
+            dbname="test_baselines",
         )
 
         container.start()
@@ -380,7 +416,7 @@ class TestBaselineRepositoryIntegration:
             file_repo = FileBaselineRepository(test_path)
             timescale_repo = TimescaleBaselineRepository(
                 connection_string=postgres_container.get_connection_url(),
-                enable_feast_sync=False
+                enable_feast_sync=False,
             )
 
             baseline = UserBaseline(
@@ -392,7 +428,7 @@ class TestBaselineRepositoryIntegration:
                 activity_std=2000.0,
                 circadian_phase=22.0,
                 last_updated=datetime(2024, 1, 15, 10, 30),
-                data_points=30
+                data_points=30,
             )
 
             # Both should handle the same data identically
@@ -407,9 +443,14 @@ class TestBaselineRepositoryIntegration:
             assert file_result.baseline_date == timescale_result.baseline_date
             assert abs(file_result.sleep_mean - timescale_result.sleep_mean) < 0.001
             assert abs(file_result.sleep_std - timescale_result.sleep_std) < 0.001
-            assert abs(file_result.activity_mean - timescale_result.activity_mean) < 0.001
+            assert (
+                abs(file_result.activity_mean - timescale_result.activity_mean) < 0.001
+            )
             assert abs(file_result.activity_std - timescale_result.activity_std) < 0.001
-            assert abs(file_result.circadian_phase - timescale_result.circadian_phase) < 0.001
+            assert (
+                abs(file_result.circadian_phase - timescale_result.circadian_phase)
+                < 0.001
+            )
             assert file_result.data_points == timescale_result.data_points
 
         finally:

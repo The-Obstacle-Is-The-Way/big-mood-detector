@@ -51,8 +51,12 @@ class TestEnsemblePipelineActivityFlow:
             sleep_records.append(
                 SleepRecord(
                     source_name="Apple Watch",
-                    start_date=datetime.combine(current_date, datetime.min.time()) + timedelta(hours=23),
-                    end_date=datetime.combine(current_date + timedelta(days=1), datetime.min.time()) + timedelta(hours=7),
+                    start_date=datetime.combine(current_date, datetime.min.time())
+                    + timedelta(hours=23),
+                    end_date=datetime.combine(
+                        current_date + timedelta(days=1), datetime.min.time()
+                    )
+                    + timedelta(hours=7),
                     is_main_sleep=True,
                     duration_hours=8.0,
                 )
@@ -63,8 +67,10 @@ class TestEnsemblePipelineActivityFlow:
             activity_records.append(
                 ActivityRecord(
                     source_name="Apple Watch",
-                    start_date=datetime.combine(current_date, datetime.min.time()) + timedelta(hours=7),
-                    end_date=datetime.combine(current_date, datetime.min.time()) + timedelta(hours=9),
+                    start_date=datetime.combine(current_date, datetime.min.time())
+                    + timedelta(hours=7),
+                    end_date=datetime.combine(current_date, datetime.min.time())
+                    + timedelta(hours=9),
                     activity_type=ActivityType.STEP_COUNT,
                     value=2000.0,
                     unit="count",
@@ -75,8 +81,10 @@ class TestEnsemblePipelineActivityFlow:
             activity_records.append(
                 ActivityRecord(
                     source_name="Apple Watch",
-                    start_date=datetime.combine(current_date, datetime.min.time()) + timedelta(hours=12),
-                    end_date=datetime.combine(current_date, datetime.min.time()) + timedelta(hours=13),
+                    start_date=datetime.combine(current_date, datetime.min.time())
+                    + timedelta(hours=12),
+                    end_date=datetime.combine(current_date, datetime.min.time())
+                    + timedelta(hours=13),
                     activity_type=ActivityType.STEP_COUNT,
                     value=1000.0,
                     unit="count",
@@ -88,19 +96,17 @@ class TestEnsemblePipelineActivityFlow:
             activity_records.append(
                 ActivityRecord(
                     source_name="Apple Watch",
-                    start_date=datetime.combine(current_date, datetime.min.time()) + timedelta(hours=17),
-                    end_date=datetime.combine(current_date, datetime.min.time()) + timedelta(hours=19),
+                    start_date=datetime.combine(current_date, datetime.min.time())
+                    + timedelta(hours=17),
+                    end_date=datetime.combine(current_date, datetime.min.time())
+                    + timedelta(hours=19),
                     activity_type=ActivityType.STEP_COUNT,
                     value=evening_steps,
                     unit="count",
                 )
             )
 
-        return {
-            "sleep": sleep_records,
-            "activity": activity_records,
-            "heart_rate": []
-        }
+        return {"sleep": sleep_records, "activity": activity_records, "heart_rate": []}
 
     @pytest.fixture
     def xgboost_predictor(self):
@@ -119,12 +125,15 @@ class TestEnsemblePipelineActivityFlow:
             return None
 
         from big_mood_detector.infrastructure.ml_models.pat_model import PATModel
+
         model = PATModel()
         if not model.load_pretrained_weights():
             return None
         return model
 
-    def test_direct_ensemble_with_activity(self, sample_records, xgboost_predictor, pat_model):
+    def test_direct_ensemble_with_activity(
+        self, sample_records, xgboost_predictor, pat_model
+    ):
         """Test ensemble prediction with activity data via direct call."""
         # Extract clinical features
         extractor = ClinicalFeatureExtractor()
@@ -153,7 +162,8 @@ class TestEnsemblePipelineActivityFlow:
         # Filter activity records for PAT
         target_date = date.today()
         relevant_activity = [
-            r for r in sample_records["activity"]
+            r
+            for r in sample_records["activity"]
             if (target_date - r.start_date.date()).days <= 7
         ]
 
@@ -198,7 +208,9 @@ class TestEnsemblePipelineActivityFlow:
         if "models_used" in result.metadata:
             assert "xgboost" in result.metadata["models_used"]
 
-    def test_api_vs_direct_consistency(self, sample_records, xgboost_predictor, pat_model):
+    def test_api_vs_direct_consistency(
+        self, sample_records, xgboost_predictor, pat_model
+    ):
         """Test that API and direct calls produce consistent results."""
         from fastapi.testclient import TestClient
 
@@ -222,7 +234,9 @@ class TestEnsemblePipelineActivityFlow:
         )
 
         direct_result = orchestrator.predict(
-            statistical_features=np.array(feature_set.to_xgboost_features(), dtype=np.float32),
+            statistical_features=np.array(
+                feature_set.to_xgboost_features(), dtype=np.float32
+            ),
             activity_records=sample_records["activity"][-168:],  # Last 7 days
             prediction_date=None,
         )
@@ -246,7 +260,9 @@ class TestEnsemblePipelineActivityFlow:
 
         assert abs(api_depression - direct_depression) < 0.01
 
-    def test_activity_improves_prediction_confidence(self, sample_records, xgboost_predictor):
+    def test_activity_improves_prediction_confidence(
+        self, sample_records, xgboost_predictor
+    ):
         """Test that including activity data improves prediction confidence."""
         extractor = ClinicalFeatureExtractor()
 
@@ -278,13 +294,17 @@ class TestEnsemblePipelineActivityFlow:
         )
 
         result_no_activity = orchestrator.predict(
-            statistical_features=np.array(features_no_activity.to_xgboost_features(), dtype=np.float32),
+            statistical_features=np.array(
+                features_no_activity.to_xgboost_features(), dtype=np.float32
+            ),
             activity_records=None,
             prediction_date=None,
         )
 
         result_with_activity = orchestrator.predict(
-            statistical_features=np.array(features_with_activity.to_xgboost_features(), dtype=np.float32),
+            statistical_features=np.array(
+                features_with_activity.to_xgboost_features(), dtype=np.float32
+            ),
             activity_records=None,
             prediction_date=None,
         )
@@ -292,6 +312,6 @@ class TestEnsemblePipelineActivityFlow:
         # Activity data should affect the prediction
         # (Can't guarantee higher confidence, but predictions should differ)
         assert (
-            result_no_activity.ensemble_prediction.depression_risk !=
-            result_with_activity.ensemble_prediction.depression_risk
+            result_no_activity.ensemble_prediction.depression_risk
+            != result_with_activity.ensemble_prediction.depression_risk
         )

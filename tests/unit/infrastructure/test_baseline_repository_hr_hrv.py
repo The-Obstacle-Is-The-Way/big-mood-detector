@@ -1,6 +1,7 @@
 """
 Test baseline repositories handle HR/HRV fields correctly.
 """
+
 import shutil
 from datetime import date, datetime
 from pathlib import Path
@@ -47,11 +48,11 @@ class TestBaselineRepositoryHRHRV:
             activity_std=2000.0,
             circadian_phase=22.0,
             heart_rate_mean=75.0,  # Custom value
-            heart_rate_std=8.0,    # Custom value
-            hrv_mean=42.0,         # Custom value
-            hrv_std=12.0,          # Custom value
+            heart_rate_std=8.0,  # Custom value
+            hrv_mean=42.0,  # Custom value
+            hrv_std=12.0,  # Custom value
             last_updated=datetime(2024, 1, 15, 10, 0),
-            data_points=30
+            data_points=30,
         )
 
         # Save baseline
@@ -81,24 +82,31 @@ class TestBaselineRepositoryHRHRV:
             activity_std=2000.0,
             circadian_phase=22.0,
             last_updated=datetime(2024, 1, 15, 10, 0),
-            data_points=30
+            data_points=30,
         )
         repo.save_baseline(baseline)
 
         # Manually modify the saved file to simulate old format (no HR/HRV fields)
         import json
-        history_file = Path("./test_hr_hrv_baselines/backward_compat_user/baseline_history.json")
+
+        from big_mood_detector.infrastructure.security import hash_user_id
+
+        # Account for user ID hashing
+        hashed_user_id = hash_user_id("backward_compat_user")
+        history_file = Path(
+            f"./test_hr_hrv_baselines/{hashed_user_id}/baseline_history.json"
+        )
         with open(history_file) as f:
             data = json.load(f)
 
         # Remove HR/HRV fields to simulate old format
         for entry in data:
-            entry.pop('heart_rate_mean', None)
-            entry.pop('heart_rate_std', None)
-            entry.pop('hrv_mean', None)
-            entry.pop('hrv_std', None)
+            entry.pop("heart_rate_mean", None)
+            entry.pop("heart_rate_std", None)
+            entry.pop("hrv_mean", None)
+            entry.pop("hrv_std", None)
 
-        with open(history_file, 'w') as f:
+        with open(history_file, "w") as f:
             json.dump(data, f, indent=2)
 
         # Try to load the old format baseline
@@ -107,6 +115,6 @@ class TestBaselineRepositoryHRHRV:
         # Should use default values for missing HR/HRV fields
         assert retrieved is not None
         assert retrieved.heart_rate_mean == 70.0  # Default
-        assert retrieved.heart_rate_std == 10.0   # Default
-        assert retrieved.hrv_mean == 50.0        # Default
-        assert retrieved.hrv_std == 15.0         # Default
+        assert retrieved.heart_rate_std == 10.0  # Default
+        assert retrieved.hrv_mean == 50.0  # Default
+        assert retrieved.hrv_std == 15.0  # Default

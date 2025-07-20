@@ -4,7 +4,6 @@ Test Episode Mapper
 Tests for the EpisodeMapper utility that handles episode type conversions.
 """
 
-
 from big_mood_detector.domain.utils.episode_mapper import EpisodeMapper
 
 
@@ -37,7 +36,10 @@ class TestEpisodeMapper:
 
     def test_to_treatment_episode_type_depressive(self):
         """Test mapping depressive_episode to treatment format."""
-        assert EpisodeMapper.to_treatment_episode_type("depressive_episode") == "depressive"
+        assert (
+            EpisodeMapper.to_treatment_episode_type("depressive_episode")
+            == "depressive"
+        )
 
     def test_to_treatment_episode_type_manic(self):
         """Test mapping manic_episode to treatment format."""
@@ -45,7 +47,9 @@ class TestEpisodeMapper:
 
     def test_to_treatment_episode_type_hypomanic(self):
         """Test mapping hypomanic_episode to treatment format."""
-        assert EpisodeMapper.to_treatment_episode_type("hypomanic_episode") == "hypomanic"
+        assert (
+            EpisodeMapper.to_treatment_episode_type("hypomanic_episode") == "hypomanic"
+        )
 
     def test_to_treatment_episode_type_mixed(self):
         """Test mapping mixed_episode to treatment format."""
@@ -53,8 +57,14 @@ class TestEpisodeMapper:
 
     def test_to_treatment_episode_type_with_features(self):
         """Test mapping episodes with mixed features."""
-        assert EpisodeMapper.to_treatment_episode_type("depressive_with_mixed_features") == "depressive_mixed"
-        assert EpisodeMapper.to_treatment_episode_type("manic_with_mixed_features") == "manic_mixed"
+        assert (
+            EpisodeMapper.to_treatment_episode_type("depressive_with_mixed_features")
+            == "depressive_mixed"
+        )
+        assert (
+            EpisodeMapper.to_treatment_episode_type("manic_with_mixed_features")
+            == "manic_mixed"
+        )
 
     def test_bidirectional_mapping(self):
         """Test that mappings can go both ways."""
@@ -62,7 +72,9 @@ class TestEpisodeMapper:
         assert EpisodeMapper.to_dsm5_episode_type("depressive_episode") == "depressive"
 
         # From DSM-5 back to clinical diagnosis
-        assert EpisodeMapper.from_dsm5_episode_type("depressive") == "depressive_episode"
+        assert (
+            EpisodeMapper.from_dsm5_episode_type("depressive") == "depressive_episode"
+        )
 
         # Round trip
         diagnosis = "manic_episode"

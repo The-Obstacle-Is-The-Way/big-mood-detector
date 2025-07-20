@@ -5,6 +5,7 @@ Apple Health assigns sleep to the date you wake up, with a 3pm cutoff.
 Sleep that ends before 3pm is assigned to that day.
 Sleep that ends after 3pm is assigned to the next day.
 """
+
 from datetime import date, datetime
 
 from big_mood_detector.domain.entities.sleep_record import SleepRecord, SleepState
@@ -27,7 +28,7 @@ class TestSleepAggregatorApple3PM:
         sleep = SleepRecord(
             source_name="Apple Watch",
             start_date=datetime(2024, 1, 1, 22, 0),  # 10pm Jan 1
-            end_date=datetime(2024, 1, 2, 6, 0),     # 6am Jan 2
+            end_date=datetime(2024, 1, 2, 6, 0),  # 6am Jan 2
             state=SleepState.ASLEEP,
         )
 
@@ -46,7 +47,7 @@ class TestSleepAggregatorApple3PM:
         nap = SleepRecord(
             source_name="Apple Watch",
             start_date=datetime(2024, 1, 2, 10, 0),  # 10am
-            end_date=datetime(2024, 1, 2, 13, 0),    # 1pm (before 3pm)
+            end_date=datetime(2024, 1, 2, 13, 0),  # 1pm (before 3pm)
             state=SleepState.ASLEEP,
         )
 
@@ -65,7 +66,7 @@ class TestSleepAggregatorApple3PM:
         nap = SleepRecord(
             source_name="Apple Watch",
             start_date=datetime(2024, 1, 2, 14, 0),  # 2pm
-            end_date=datetime(2024, 1, 2, 16, 0),    # 4pm (after 3pm)
+            end_date=datetime(2024, 1, 2, 16, 0),  # 4pm (after 3pm)
             state=SleepState.ASLEEP,
         )
 
@@ -84,7 +85,7 @@ class TestSleepAggregatorApple3PM:
         nap = SleepRecord(
             source_name="Apple Watch",
             start_date=datetime(2024, 1, 2, 13, 0),  # 1pm
-            end_date=datetime(2024, 1, 2, 15, 0),    # Exactly 3pm
+            end_date=datetime(2024, 1, 2, 15, 0),  # Exactly 3pm
             state=SleepState.ASLEEP,
         )
 
@@ -101,8 +102,8 @@ class TestSleepAggregatorApple3PM:
         """
         shift_sleep = SleepRecord(
             source_name="Apple Watch",
-            start_date=datetime(2024, 1, 2, 8, 0),   # 8am
-            end_date=datetime(2024, 1, 2, 16, 0),    # 4pm (after 3pm)
+            start_date=datetime(2024, 1, 2, 8, 0),  # 8am
+            end_date=datetime(2024, 1, 2, 16, 0),  # 4pm (after 3pm)
             state=SleepState.ASLEEP,
         )
 
@@ -161,7 +162,7 @@ class TestSleepAggregatorApple3PM:
         long_sleep = SleepRecord(
             source_name="Apple Watch",
             start_date=datetime(2024, 1, 1, 22, 0),  # 10pm Jan 1
-            end_date=datetime(2024, 1, 2, 17, 0),    # 5pm Jan 2 (after 3pm)
+            end_date=datetime(2024, 1, 2, 17, 0),  # 5pm Jan 2 (after 3pm)
             state=SleepState.ASLEEP,
         )
 

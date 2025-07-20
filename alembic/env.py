@@ -1,8 +1,7 @@
 import os
 from logging.config import fileConfig
 
-from sqlalchemy import engine_from_config
-from sqlalchemy import pool
+from sqlalchemy import engine_from_config, pool
 
 from alembic import context
 
@@ -17,10 +16,14 @@ if config.config_file_name is not None:
 
 # add your model's MetaData object here
 # for 'autogenerate' support
-import sys
+import sys  # noqa: E402
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
-from big_mood_detector.infrastructure.repositories.timescale_baseline_repository import Base
+from big_mood_detector.infrastructure.repositories.timescale_baseline_repository import (  # noqa: E402
+    Base,
+)
+
 target_metadata = Base.metadata
 
 # other values from the config, defined by the needs of env.py,
@@ -64,7 +67,7 @@ def run_migrations_online() -> None:
     # Allow DATABASE_URL env var to override config file
     if "DATABASE_URL" in os.environ:
         configuration["sqlalchemy.url"] = os.environ["DATABASE_URL"]
-    
+
     connectable = engine_from_config(
         configuration,
         prefix="sqlalchemy.",

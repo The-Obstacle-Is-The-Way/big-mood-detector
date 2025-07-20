@@ -4,6 +4,7 @@ Test TimescaleDB baseline repository handles HR/HRV fields correctly.
 This ensures the production database can store and retrieve heart rate
 and heart rate variability baselines for personal calibration.
 """
+
 from datetime import date
 
 import pytest
@@ -34,7 +35,7 @@ class TestTimescaleBaselineHRHRV:
         # Use the test engine's connection string
         return TimescaleBaselineRepository(
             connection_string="sqlite:///:memory:",
-            enable_feast_sync=False  # Disable Feast for unit tests
+            enable_feast_sync=False,  # Disable Feast for unit tests
         )
 
     def test_save_baseline_with_hr_hrv_data(self, repository):
@@ -141,7 +142,9 @@ class TestTimescaleBaselineHRHRV:
         hr_means = [70.0, 68.0, 65.0]  # HR improving over time
         hrv_means = [45.0, 48.0, 52.0]  # HRV improving over time
 
-        for i, (baseline_date, hr_mean, hrv_mean) in enumerate(zip(dates, hr_means, hrv_means, strict=False)):
+        for i, (baseline_date, hr_mean, hrv_mean) in enumerate(
+            zip(dates, hr_means, hrv_means, strict=False)
+        ):
             baseline = UserBaseline(
                 user_id="improving_user",
                 baseline_date=baseline_date,
@@ -199,13 +202,18 @@ class TestTimescaleBaselineHRHRV:
         assert retrieved.heart_rate_mean == 62.0
         assert retrieved.hrv_mean == 58.0
 
-    @pytest.mark.parametrize("hr_mean,hrv_mean,expected_hr,expected_hrv", [
-        (None, None, None, None),  # No data
-        (70.0, None, 70.0, None),  # Only HR
-        (None, 50.0, None, 50.0),  # Only HRV
-        (65.0, 55.0, 65.0, 55.0),  # Both
-    ])
-    def test_partial_hr_hrv_data(self, repository, hr_mean, hrv_mean, expected_hr, expected_hrv):
+    @pytest.mark.parametrize(
+        "hr_mean,hrv_mean,expected_hr,expected_hrv",
+        [
+            (None, None, None, None),  # No data
+            (70.0, None, 70.0, None),  # Only HR
+            (None, 50.0, None, 50.0),  # Only HRV
+            (65.0, 55.0, 65.0, 55.0),  # Both
+        ],
+    )
+    def test_partial_hr_hrv_data(
+        self, repository, hr_mean, hrv_mean, expected_hr, expected_hrv
+    ):
         """Test handling partial HR/HRV data."""
         baseline = UserBaseline(
             user_id=f"partial_user_{hr_mean}_{hrv_mean}",

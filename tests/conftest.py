@@ -40,7 +40,9 @@ def pytest_configure(config):
     config.addinivalue_line("markers", "ml: Machine learning model tests")
     config.addinivalue_line("markers", "clinical: Clinical validation tests")
     config.addinivalue_line("markers", "slow: Slow tests (can be skipped in CI)")
-    config.addinivalue_line("markers", "heavy: Tests that load real model weights or large data")
+    config.addinivalue_line(
+        "markers", "heavy: Tests that load real model weights or large data"
+    )
 
 
 def pytest_collection_modifyitems(config, items):
@@ -98,12 +100,14 @@ class DummyBooster:
     Following Eugene Yan's advice: mock at the API boundary,
     not at the algorithm boundary.
     """
+
     def __init__(self, probability=0.42):
         self.probability = probability
 
     def predict(self, X, **kwargs):
         """Mock predict method returning consistent probabilities."""
         import numpy as np
+
         # Return single probability value per sample
         if len(X.shape) == 1:
             return np.array([self.probability])
@@ -113,6 +117,7 @@ class DummyBooster:
     def predict_proba(self, X, **kwargs):
         """Mock predict_proba for sklearn compatibility."""
         import numpy as np
+
         # Return probability array with shape (n_samples, 2)
         # First column is 1-probability, second is probability
         if len(X.shape) == 1:
@@ -282,6 +287,7 @@ def clinical_config_factory(clinical_config_dict):
             depression={'phq_cutoffs': {'moderate': {'min': 15}}}
         )
     """
+
     def _factory(**section_overrides):
         config_dict = deepcopy(clinical_config_dict)
 
@@ -291,7 +297,7 @@ def clinical_config_factory(clinical_config_dict):
                 _deep_update(config_dict[section], overrides)
 
         # Write to temporary file and load
-        with NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
+        with NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
             yaml.dump(config_dict, f)
             temp_path = Path(f.name)
 

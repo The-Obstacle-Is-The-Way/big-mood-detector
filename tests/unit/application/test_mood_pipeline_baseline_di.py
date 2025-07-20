@@ -3,6 +3,7 @@ Test MoodPredictionPipeline baseline repository dependency injection.
 
 TDD approach: Write failing tests first, then make them pass.
 """
+
 from unittest.mock import create_autospec
 
 from big_mood_detector.application.use_cases.process_health_data_use_case import (
@@ -51,10 +52,7 @@ class TestMoodPipelineBaselineDI:
         config.user_id = "test_user"
 
         # This should now work!
-        pipeline = MoodPredictionPipeline(
-            config=config,
-            baseline_repository=mock_repo
-        )
+        pipeline = MoodPredictionPipeline(config=config, baseline_repository=mock_repo)
 
         # Verify the clinical extractor uses our mock repository
         assert pipeline.clinical_extractor.baseline_repository is mock_repo
@@ -74,10 +72,7 @@ class TestMoodPipelineBaselineDI:
         config.user_id = "test_user"
 
         # This should now work!
-        pipeline = MoodPredictionPipeline(
-            config=config,
-            di_container=container
-        )
+        pipeline = MoodPredictionPipeline(config=config, di_container=container)
 
         # Verify the clinical extractor uses the repository from DI container
         assert pipeline.clinical_extractor.baseline_repository is mock_repo

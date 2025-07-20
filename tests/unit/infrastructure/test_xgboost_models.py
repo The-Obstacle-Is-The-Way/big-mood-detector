@@ -101,7 +101,7 @@ class TestXGBoostModels:
         loader = XGBoostModelLoader()
 
         # Mock the load_model method to simulate successful loading
-        with patch.object(loader, 'load_model') as mock_load:
+        with patch.object(loader, "load_model") as mock_load:
             # Mock successful loads
             mock_load.side_effect = [True, True, True]
 

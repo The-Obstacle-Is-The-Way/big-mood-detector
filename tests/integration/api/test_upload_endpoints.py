@@ -24,6 +24,7 @@ class TestUploadEndpoints:
         # Need to reimport to pick up env var
         import importlib
         import sys
+
         if "big_mood_detector.interfaces.api.main" in sys.modules:
             importlib.reload(sys.modules["big_mood_detector.interfaces.api.main"])
 

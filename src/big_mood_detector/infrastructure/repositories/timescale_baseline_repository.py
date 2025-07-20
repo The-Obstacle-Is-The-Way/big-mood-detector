@@ -129,7 +129,9 @@ class TimescaleBaselineRepository(BaselineRepositoryInterface):
             FeatureStoreProtocol,
         )
 
-        self.feast_client: FeatureStoreProtocol | None = None  # Will be feast.FeatureStore if available
+        self.feast_client: FeatureStoreProtocol | None = (
+            None  # Will be feast.FeatureStore if available
+        )
         if enable_feast_sync:
             try:
                 import feast  # type: ignore[import-not-found]

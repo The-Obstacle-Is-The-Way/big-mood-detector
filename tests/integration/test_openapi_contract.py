@@ -40,7 +40,9 @@ class TestOpenAPIContract:
         ]
 
         for endpoint in critical_endpoints:
-            assert endpoint in paths, f"Critical endpoint {endpoint} missing from OpenAPI spec"
+            assert (
+                endpoint in paths
+            ), f"Critical endpoint {endpoint} missing from OpenAPI spec"
 
     def test_upload_endpoints_conditional(self, client: TestClient):
         """Test that upload endpoints are only present when enabled."""
@@ -60,10 +62,14 @@ class TestOpenAPIContract:
         # Check based on environment variable
         if os.environ.get("ENABLE_ASYNC_UPLOAD", "false").lower() == "true":
             for endpoint in upload_endpoints:
-                assert endpoint in paths, f"Upload endpoint {endpoint} should be present when enabled"
+                assert (
+                    endpoint in paths
+                ), f"Upload endpoint {endpoint} should be present when enabled"
         else:
             for endpoint in upload_endpoints:
-                assert endpoint not in paths, f"Upload endpoint {endpoint} should not be present when disabled"
+                assert (
+                    endpoint not in paths
+                ), f"Upload endpoint {endpoint} should not be present when disabled"
 
     def test_endpoint_methods_correct(self, client: TestClient):
         """Test that endpoints have the correct HTTP methods."""
@@ -73,10 +79,18 @@ class TestOpenAPIContract:
 
         # Check specific methods
         assert "get" in paths.get("/health", {}), "Health check should support GET"
-        assert "post" in paths.get("/api/v1/features/extract", {}), "Feature extract should support POST"
-        assert "post" in paths.get("/api/v1/predictions/predict", {}), "Predictions should support POST"
-        assert "get" in paths.get("/api/v1/labels/episodes", {}), "Label listing should support GET"
-        assert "post" in paths.get("/api/v1/labels/episodes", {}), "Label creation should support POST"
+        assert "post" in paths.get(
+            "/api/v1/features/extract", {}
+        ), "Feature extract should support POST"
+        assert "post" in paths.get(
+            "/api/v1/predictions/predict", {}
+        ), "Predictions should support POST"
+        assert "get" in paths.get(
+            "/api/v1/labels/episodes", {}
+        ), "Label listing should support GET"
+        assert "post" in paths.get(
+            "/api/v1/labels/episodes", {}
+        ), "Label creation should support POST"
 
     def test_response_schemas_present(self, client: TestClient):
         """Test that response schemas are properly defined."""
@@ -97,7 +111,9 @@ class TestOpenAPIContract:
         ]
 
         for schema_name in important_schemas:
-            assert schema_name in schemas, f"Schema {schema_name} missing from OpenAPI spec"
+            assert (
+                schema_name in schemas
+            ), f"Schema {schema_name} missing from OpenAPI spec"
 
     def test_api_version_consistency(self, client: TestClient):
         """Test that all API endpoints use consistent versioning."""
@@ -108,4 +124,6 @@ class TestOpenAPIContract:
         # All API endpoints should start with /api/v1/
         api_paths = [p for p in paths if p.startswith("/api/")]
         for path in api_paths:
-            assert path.startswith("/api/v1/"), f"API endpoint {path} doesn't use v1 versioning"
+            assert path.startswith(
+                "/api/v1/"
+            ), f"API endpoint {path} doesn't use v1 versioning"

@@ -24,10 +24,16 @@ from big_mood_detector.infrastructure.parsers.xml.fast_streaming_parser import (
 
 @click.command()
 @click.argument("xml_file", type=click.Path(exists=True, path_type=Path))
-@click.option("--count-only", is_flag=True, help="Just count records without processing")
+@click.option(
+    "--count-only", is_flag=True, help="Just count records without processing"
+)
 @click.option("--start-date", type=str, help="Start date (YYYY-MM-DD)")
 @click.option("--end-date", type=str, help="End date (YYYY-MM-DD)")
-@click.option("--extract-to", type=click.Path(path_type=Path), help="Extract matching records to new XML file")
+@click.option(
+    "--extract-to",
+    type=click.Path(path_type=Path),
+    help="Extract matching records to new XML file",
+)
 def process_large_xml(
     xml_file: Path,
     count_only: bool,
@@ -57,15 +63,21 @@ def process_large_xml(
         for record_type, count in counts.items():
             click.echo(f"  {record_type}: {count:,}")
 
-        if counts['total'] > 0:
+        if counts["total"] > 0:
             # Estimate processing time
-            est_process_time = counts['total'] / (counts['total']/elapsed) * 3  # 3x for full processing
-            click.echo(f"\nEstimated full processing time: {int(est_process_time/60)} minutes")
+            est_process_time = (
+                counts["total"] / (counts["total"] / elapsed) * 3
+            )  # 3x for full processing
+            click.echo(
+                f"\nEstimated full processing time: {int(est_process_time/60)} minutes"
+            )
 
             if est_process_time > 300:  # > 5 minutes
                 click.echo("\n⚠️  RECOMMENDATIONS:")
                 click.echo("1. Use date filtering to reduce processing time")
-                click.echo("2. Consider using JSON export from Health Auto Export app instead")
+                click.echo(
+                    "2. Consider using JSON export from Health Auto Export app instead"
+                )
                 click.echo("3. Process in smaller date ranges and combine results")
 
         return
@@ -89,10 +101,7 @@ def process_large_xml(
         count = 0
 
         for entity in parser.parse_file(
-            xml_file,
-            entity_type=record_type,
-            start_date=start_date,
-            end_date=end_date
+            xml_file, entity_type=record_type, start_date=start_date, end_date=end_date
         ):
             all_records[record_type].append(entity)
             count += 1

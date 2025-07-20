@@ -3,6 +3,7 @@ Test for extending UserBaseline to include HR/HRV metrics.
 
 Following TDD - write failing test first, then implement.
 """
+
 from datetime import date, datetime
 
 from big_mood_detector.domain.repositories.baseline_repository_interface import (
@@ -33,7 +34,7 @@ class TestUserBaselineHRHRV:
             hrv_mean=45.0,
             hrv_std=10.0,
             last_updated=datetime(2024, 1, 15, 10, 0),
-            data_points=30
+            data_points=30,
         )
 
         # Verify all fields are set correctly
@@ -57,13 +58,13 @@ class TestUserBaselineHRHRV:
             activity_std=2000.0,
             circadian_phase=22.0,
             last_updated=datetime(2024, 1, 15, 10, 0),
-            data_points=30
+            data_points=30,
         )
 
         # Verify current fields exist
         assert baseline.sleep_mean == 7.5
         assert baseline.activity_mean == 8000.0
 
-        # Verify new fields exist with defaults
-        assert baseline.heart_rate_mean == 70.0  # Default value
-        assert baseline.hrv_mean == 50.0  # Default value
+        # Verify new fields are None (no magic defaults!)
+        assert baseline.heart_rate_mean is None
+        assert baseline.hrv_mean is None

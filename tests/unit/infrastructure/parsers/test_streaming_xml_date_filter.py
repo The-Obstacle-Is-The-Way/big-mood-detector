@@ -50,9 +50,7 @@ class TestStreamingXMLDateFilter:
             # Parse with date range
             records = list(
                 parser.iter_records(
-                    temp_path,
-                    start_date="2025-05-01",
-                    end_date="2025-05-31"
+                    temp_path, start_date="2025-05-01", end_date="2025-05-31"
                 )
             )
 
@@ -69,7 +67,9 @@ class TestStreamingXMLDateFilter:
         finally:
             temp_path.unlink()
 
-    def test_date_filter_excludes_out_of_range_records(self, sample_xml_with_dates: str):
+    def test_date_filter_excludes_out_of_range_records(
+        self, sample_xml_with_dates: str
+    ):
         """Test that records outside date range are excluded."""
         with tempfile.NamedTemporaryFile(mode="w", suffix=".xml", delete=False) as f:
             f.write(sample_xml_with_dates)
@@ -81,9 +81,7 @@ class TestStreamingXMLDateFilter:
             # Parse with narrow date range
             records = list(
                 parser.iter_records(
-                    temp_path,
-                    start_date="2025-03-01",
-                    end_date="2025-03-31"
+                    temp_path, start_date="2025-03-01", end_date="2025-03-31"
                 )
             )
 
@@ -108,7 +106,7 @@ class TestStreamingXMLDateFilter:
                 parser.iter_records(
                     temp_path,
                     start_date="2025-05-15",
-                    end_date="2025-05-15"  # Single day
+                    end_date="2025-05-15",  # Single day
                 )
             )
 
@@ -161,9 +159,7 @@ class TestStreamingXMLDateFilter:
             # Parse with date filter
             records = list(
                 parser.iter_records(
-                    temp_path,
-                    start_date="2025-01-01",
-                    end_date="2025-12-31"
+                    temp_path, start_date="2025-01-01", end_date="2025-12-31"
                 )
             )
 

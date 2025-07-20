@@ -25,17 +25,22 @@ def generate_license_report():
         import piplicenses  # noqa: F401
     except ImportError:
         print("Installing pip-licenses...")
-        subprocess.run([sys.executable, "-m", "pip", "install", "pip-licenses"], check=True)
+        subprocess.run(
+            [sys.executable, "-m", "pip", "install", "pip-licenses"], check=True
+        )
 
     # Generate markdown report
     output_file = licenses_dir / "python-dependencies.md"
 
     cmd = [
-        sys.executable, "-m", "piplicenses",
+        sys.executable,
+        "-m",
+        "piplicenses",
         "--format=markdown",
         "--with-urls",
         "--with-description",
-        "--output-file", str(output_file)
+        "--output-file",
+        str(output_file),
     ]
 
     result = subprocess.run(cmd, capture_output=True, text=True)
@@ -53,18 +58,25 @@ Last generated: {}
 
 ---
 
-""".format(subprocess.run(["date"], capture_output=True, text=True).stdout.strip())
+""".format(
+            subprocess.run(["date"], capture_output=True, text=True).stdout.strip()
+        )
 
         output_file.write_text(header + content)
 
         # Also generate a CSV for easier processing
         csv_file = licenses_dir / "python-dependencies.csv"
-        subprocess.run([
-            sys.executable, "-m", "piplicenses",
-            "--format=csv",
-            "--with-urls",
-            "--output-file", str(csv_file)
-        ])
+        subprocess.run(
+            [
+                sys.executable,
+                "-m",
+                "piplicenses",
+                "--format=csv",
+                "--with-urls",
+                "--output-file",
+                str(csv_file),
+            ]
+        )
         print(f"CSV report generated: {csv_file}")
 
     else:
@@ -90,13 +102,17 @@ def check_license_compatibility():
     issues = []
     with open(csv_file) as f:
         import csv
+
         reader = csv.DictReader(f)
         for row in reader:
             license_name = row.get("License", "")
             package = row.get("Name", "")
 
             for incomp in incompatible:
-                if incomp in license_name and "LGPL with exceptions" not in license_name:
+                if (
+                    incomp in license_name
+                    and "LGPL with exceptions" not in license_name
+                ):
                     issues.append(f"{package}: {license_name}")
 
     if issues:

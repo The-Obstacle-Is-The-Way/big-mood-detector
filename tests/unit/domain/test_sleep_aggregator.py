@@ -147,9 +147,9 @@ class TestSleepAggregator:
 
         # ASSERT
         assert len(result) == 1
-        assert date(2024, 1, 1) in result
+        assert date(2024, 1, 2) in result  # Sleep starting at 11pm on Jan 1 is assigned to Jan 2
 
-        summary = result[date(2024, 1, 1)]
+        summary = result[date(2024, 1, 2)]
         assert summary.total_time_in_bed_hours == 8.5
         assert summary.total_sleep_hours == 8.0
         assert summary.sleep_efficiency == pytest.approx(0.941, rel=0.01)
@@ -185,12 +185,12 @@ class TestSleepAggregator:
         result = aggregator.aggregate_daily(records)
 
         # ASSERT
-        summary = result[date(2024, 1, 1)]
+        summary = result[date(2024, 1, 2)]  # Sleep starting at 11pm on Jan 1 is assigned to Jan 2
         assert summary.sleep_fragmentation_index == pytest.approx(0.125, rel=0.01)
         # Total gap time = 1 hour, total period = 8 hours, index = 1/8 = 0.125
 
     def test_sleep_date_assignment_evening(self, aggregator):
-        """Test sleep starting in evening assigns to that date."""
+        """Test sleep starting in evening assigns to next date due to 3pm rule."""
         # ARRANGE - Sleep starting at 10 PM
         records = [
             SleepRecord(
@@ -205,11 +205,11 @@ class TestSleepAggregator:
         result = aggregator.aggregate_daily(records)
 
         # ASSERT
-        assert date(2024, 1, 1) in result
-        assert date(2024, 1, 2) not in result
+        assert date(2024, 1, 2) in result  # Sleep starting at 10pm on Jan 1 is assigned to Jan 2
+        assert date(2024, 1, 1) not in result
 
     def test_sleep_date_assignment_early_morning(self, aggregator):
-        """Test sleep starting early morning assigns to previous date."""
+        """Test sleep starting early morning assigns to that date (before 3pm)."""
         # ARRANGE - Sleep starting at 2 AM
         records = [
             SleepRecord(
@@ -224,8 +224,8 @@ class TestSleepAggregator:
         result = aggregator.aggregate_daily(records)
 
         # ASSERT
-        assert date(2024, 1, 1) in result
-        assert date(2024, 1, 2) not in result
+        assert date(2024, 1, 2) in result  # Sleep starting at 2am on Jan 2 stays on Jan 2
+        assert date(2024, 1, 1) not in result
 
     def test_circadian_markers(self, aggregator):
         """Test calculation of circadian rhythm markers."""
@@ -244,7 +244,7 @@ class TestSleepAggregator:
         result = aggregator.aggregate_daily(records)
 
         # ASSERT
-        summary = result[date(2024, 1, 1)]
+        summary = result[date(2024, 1, 2)]  # Sleep starting at 11:30pm on Jan 1 is assigned to Jan 2
         assert summary.earliest_bedtime == time(23, 30)
         assert summary.latest_wake_time == time(7, 30)
         assert summary.mid_sleep_time == datetime(2024, 1, 2, 3, 30, tzinfo=UTC)
@@ -269,7 +269,8 @@ class TestSleepAggregator:
 
         # ASSERT
         assert len(result) == 3
-        for day in range(1, 4):
+        # Sleep starting at 11pm on day N is assigned to day N+1
+        for day in range(2, 5):  # Jan 2, 3, 4
             assert date(2024, 1, day) in result
             summary = result[date(2024, 1, day)]
             assert summary.total_sleep_hours == 8.0
