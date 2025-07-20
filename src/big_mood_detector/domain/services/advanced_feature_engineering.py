@@ -11,8 +11,6 @@ from typing import Any
 import numpy as np
 from structlog import get_logger
 
-logger = get_logger()
-
 from big_mood_detector.domain.services.activity_aggregator import DailyActivitySummary
 from big_mood_detector.domain.services.activity_feature_calculator import (
     ActivityFeatureCalculator,
@@ -28,6 +26,8 @@ from big_mood_detector.domain.services.sleep_feature_calculator import (
 from big_mood_detector.domain.services.temporal_feature_calculator import (
     TemporalFeatureCalculator,
 )
+
+logger = get_logger()
 
 
 @dataclass
@@ -401,7 +401,7 @@ class AdvancedFeatureEngineer:
         self._update_individual_baseline(
             "activity", activity.total_steps if activity else 0
         )
-        
+
         # SAFETY: Only update HR/HRV baselines with real data, not defaults
         # Default HR=70, HRV=50 would skew athlete baselines incorrectly
         if heart and heart.avg_resting_hr != 70.0:  # Skip default value
@@ -544,11 +544,11 @@ class AdvancedFeatureEngineer:
                 metric=metric,
                 user_id=self.user_id,
             )
-            
+
         if metric not in self.individual_baselines:
             self.individual_baselines[metric] = {
-                "values": [], 
-                "mean": 0.0, 
+                "values": [],
+                "mean": 0.0,
                 "std": 0.0,
                 "count": 0,
                 "sum": 0.0,
@@ -556,7 +556,7 @@ class AdvancedFeatureEngineer:
             }
 
         baseline = self.individual_baselines[metric]
-        
+
         # If we have a loaded baseline with existing statistics but no values,
         # initialize the incremental stats from the loaded mean/std
         if baseline.get("count", 0) == 0 and baseline["mean"] != 0:
@@ -570,7 +570,7 @@ class AdvancedFeatureEngineer:
             # Variance = std^2, and sum_sq can be derived from variance formula
             variance = baseline["std"] ** 2
             baseline["sum_sq"] = (variance * estimated_count) + (baseline["sum"] ** 2 / estimated_count)
-        
+
         # Add new value to baseline
         values_list = baseline["values"]
         if not isinstance(values_list, list):
@@ -582,7 +582,7 @@ class AdvancedFeatureEngineer:
         baseline["count"] = baseline.get("count", 0) + 1
         baseline["sum"] = baseline.get("sum", 0.0) + value
         baseline["sum_sq"] = baseline.get("sum_sq", 0.0) + (value ** 2)
-        
+
         # Calculate new mean and std using incremental formulas
         count = baseline["count"]
         if count > 0:
@@ -595,7 +595,7 @@ class AdvancedFeatureEngineer:
                 baseline["std"] = float(np.sqrt(variance))
             else:
                 baseline["std"] = 0.0
-        
+
         # Keep last 30 values for inspection (but don't use for calculation)
         if len(values_list) > 30:
             values_list.pop(0)
@@ -689,12 +689,12 @@ class AdvancedFeatureEngineer:
             len(sleep_baseline.get("values", [])),
             len(activity_baseline.get("values", [])),
         )
-        
+
         # Add to previous data points if we loaded a baseline
         previous_data_points = 0
         if hasattr(self, "_loaded_baseline") and self._loaded_baseline:
             previous_data_points = self._loaded_baseline.data_points
-        
+
         data_points = previous_data_points + current_data_points
 
         # Create UserBaseline object

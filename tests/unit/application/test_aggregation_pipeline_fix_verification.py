@@ -1,22 +1,20 @@
 """
 Test to verify the aggregation pipeline fix is actually being used.
 
-This test verifies that the sleep duration calculation in the 
+This test verifies that the sleep duration calculation in the
 aggregation pipeline now correctly uses SleepAggregator.
 """
-import pytest
-from datetime import datetime, date, timedelta
-from unittest.mock import Mock, patch, MagicMock
+from datetime import date, datetime
 
+from big_mood_detector.application.services.aggregation_pipeline import (
+    AggregationPipeline,
+)
 from big_mood_detector.domain.entities.sleep_record import SleepRecord, SleepState
-from big_mood_detector.domain.entities.activity_record import ActivityRecord, ActivityType
-from big_mood_detector.domain.entities.heart_rate_record import HeartRateRecord
-from big_mood_detector.application.services.aggregation_pipeline import AggregationPipeline
 
 
 class TestAggregationPipelineFix:
     """Verify the sleep duration fix is working."""
-    
+
     def test_aggregation_pipeline_uses_sleep_aggregator(self):
         """
         Test that _calculate_features_with_stats uses SleepAggregator
@@ -24,7 +22,7 @@ class TestAggregationPipelineFix:
         """
         # Create pipeline
         pipeline = AggregationPipeline()
-        
+
         # Create test sleep records for 7.5 hours
         sleep_records = [
             SleepRecord(
@@ -34,7 +32,7 @@ class TestAggregationPipelineFix:
                 state=SleepState.ASLEEP
             )
         ]
-        
+
         # Create minimal test data
         current_date = date(2024, 1, 1)
         daily_metrics = {
@@ -51,7 +49,7 @@ class TestAggregationPipelineFix:
                 "short_wt": 0.0,
             }
         }
-        
+
         sleep_window = [daily_metrics["sleep"]]
         circadian_window = []
         activity_metrics = {
@@ -62,7 +60,7 @@ class TestAggregationPipelineFix:
             "sedentary_bout_mean": 2.0,
             "activity_intensity_ratio": 0.3,
         }
-        
+
         # Call the method
         features = pipeline._calculate_features_with_stats(
             current_date,
@@ -72,26 +70,26 @@ class TestAggregationPipelineFix:
             activity_metrics,
             sleep_records,  # Pass the sleep records
         )
-        
+
         # Verify the fix worked
         assert features is not None
         assert features.seoul_features is not None
-        
+
         # The key test: sleep_duration_hours should be 7.5, not 4.5
         assert features.seoul_features.sleep_duration_hours == 7.5, (
             f"Expected 7.5 hours, got {features.seoul_features.sleep_duration_hours}. "
             "The fix should use SleepAggregator, not sleep_percentage * 24!"
         )
-        
+
         print(f"✅ SUCCESS: Sleep duration correctly calculated as {features.seoul_features.sleep_duration_hours} hours")
-    
+
     def test_aggregation_pipeline_handles_no_sleep_data(self):
         """Test that the pipeline handles days with no sleep data."""
         pipeline = AggregationPipeline()
-        
+
         # Empty sleep records
         sleep_records = []
-        
+
         # Create test data
         current_date = date(2024, 1, 1)
         daily_metrics = {
@@ -108,7 +106,7 @@ class TestAggregationPipelineFix:
                 "short_wt": 0.0,
             }
         }
-        
+
         features = pipeline._calculate_features_with_stats(
             current_date,
             daily_metrics,
@@ -118,6 +116,6 @@ class TestAggregationPipelineFix:
              "activity_fragmentation": 0, "sedentary_bout_mean": 24, "activity_intensity_ratio": 0},
             sleep_records,
         )
-        
+
         assert features is not None
         assert features.seoul_features.sleep_duration_hours == 0.0

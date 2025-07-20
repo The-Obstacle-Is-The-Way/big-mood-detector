@@ -129,12 +129,12 @@ class SleepAggregator:
         - Sleep is assigned to the date you wake up
         - If you wake up before 3pm, it's assigned to that day
         - If you wake up after 3pm, it's assigned to the next day
-        
+
         This matches how Apple Health exports data and ensures consistency.
         """
         # Get the wake time (end of sleep)
         wake_time = record.end_date
-        
+
         # If wake time is at or before 3pm (15:00), assign to wake date
         # Using <= 15 to include 3:00-3:59pm as same day
         if wake_time.hour < 15 or (wake_time.hour == 15 and wake_time.minute == 0):
@@ -142,13 +142,13 @@ class SleepAggregator:
         else:  # After 3pm
             # Assign to next day
             assigned_date = (wake_time + timedelta(days=1)).date()
-        
+
         logger.debug(
             f"Sleep {record.start_date.strftime('%Y-%m-%d %H:%M')} to "
             f"{record.end_date.strftime('%Y-%m-%d %H:%M')} "
             f"(duration {record.duration_hours:.1f}h) -> assigned to {assigned_date}"
         )
-        
+
         return assigned_date
 
     def _create_daily_summary(
@@ -175,7 +175,7 @@ class SleepAggregator:
         earliest_bed, latest_wake, mid_sleep = self._calculate_circadian_markers(
             records
         )
-        
+
         logger.debug(
             f"Summary for {day}: "
             f"sleep={total_sleep_time:.1f}h, "

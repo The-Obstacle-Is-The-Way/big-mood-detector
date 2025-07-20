@@ -313,13 +313,13 @@ class AggregationPipeline:
             # Add activity metrics to daily_metrics
             if daily_metrics:
                 daily_metrics["activity"] = activity_metrics
-                
+
                 # FIX: Add accurate sleep duration to daily_metrics
                 # This overwrites the bogus sleep_percentage * 24 calculation
                 if "sleep" in daily_metrics:
                     accurate_hours = self._get_actual_sleep_duration(sleep_records, current_date)
                     daily_metrics["sleep"]["sleep_duration_hours"] = accurate_hours
-                    
+
                     # WARNING: sleep_percentage is ONLY the fraction of day asleep
                     # DO NOT use sleep_percentage * 24 for duration calculations!
                     # Always use sleep_duration_hours instead
@@ -865,7 +865,7 @@ class AggregationPipeline:
             sedentary_bout_mean=activity_metrics.get("sedentary_bout_mean", 24.0),
             activity_intensity_ratio=activity_metrics.get("activity_intensity_ratio", 0.0),
         )
-    
+
     def _get_actual_sleep_duration(
         self,
         sleep_records: list[SleepRecord],
@@ -873,23 +873,23 @@ class AggregationPipeline:
     ) -> float:
         """
         Get actual sleep duration for a date using SleepAggregator.
-        
+
         This fixes the bug where we were using sleep_percentage * 24,
         which only counted sleep windows and missed fragmented sleep.
-        
+
         Args:
             sleep_records: All sleep records
             target_date: Date to get sleep duration for
-        
+
         Returns:
             Total sleep hours for the date
         """
         # Use SleepAggregator to get accurate total sleep
         summaries = self.sleep_aggregator.aggregate_daily(sleep_records)
-        
+
         # Get the summary for the target date
         if target_date in summaries:
             return summaries[target_date].total_sleep_hours
-        
+
         # Default to 0 if no sleep data
         return 0.0

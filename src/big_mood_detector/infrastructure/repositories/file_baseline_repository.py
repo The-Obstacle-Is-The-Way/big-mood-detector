@@ -8,6 +8,7 @@ Following KISS principle - perfect for MVP with hundreds of users.
 import json
 from datetime import date, datetime
 from pathlib import Path
+
 import filelock
 
 from big_mood_detector.domain.repositories.baseline_repository_interface import (
@@ -109,7 +110,7 @@ class FileBaselineRepository(BaselineRepositoryInterface):
 
         # Convert to UserBaseline objects
         baselines = [self._dict_to_baseline(d) for d in history]
-        
+
         # Sort by baseline_date chronologically (oldest first) and limit
         baselines.sort(key=lambda b: b.baseline_date)
         baselines = baselines[-limit:] if limit else baselines

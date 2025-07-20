@@ -3,15 +3,16 @@ Test for extending UserBaseline to include HR/HRV metrics.
 
 Following TDD - write failing test first, then implement.
 """
-import pytest
 from datetime import date, datetime
 
-from big_mood_detector.domain.repositories.baseline_repository_interface import UserBaseline
+from big_mood_detector.domain.repositories.baseline_repository_interface import (
+    UserBaseline,
+)
 
 
 class TestUserBaselineHRHRV:
     """Test that UserBaseline can store HR/HRV metrics."""
-    
+
     def test_user_baseline_should_include_hr_hrv_metrics(self):
         """
         Test that UserBaseline includes heart rate and HRV baselines.
@@ -34,13 +35,13 @@ class TestUserBaselineHRHRV:
             last_updated=datetime(2024, 1, 15, 10, 0),
             data_points=30
         )
-        
+
         # Verify all fields are set correctly
         assert baseline.heart_rate_mean == 70.0
         assert baseline.heart_rate_std == 5.0
         assert baseline.hrv_mean == 45.0
         assert baseline.hrv_std == 10.0
-    
+
     def test_baseline_repository_interface_compatible_with_extended_baseline(self):
         """
         Test that repository interface can handle extended baselines.
@@ -58,11 +59,11 @@ class TestUserBaselineHRHRV:
             last_updated=datetime(2024, 1, 15, 10, 0),
             data_points=30
         )
-        
+
         # Verify current fields exist
         assert baseline.sleep_mean == 7.5
         assert baseline.activity_mean == 8000.0
-        
+
         # Verify new fields exist with defaults
         assert baseline.heart_rate_mean == 70.0  # Default value
         assert baseline.hrv_mean == 50.0  # Default value

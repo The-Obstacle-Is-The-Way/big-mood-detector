@@ -233,29 +233,29 @@ class ClinicalFeatureExtractor:
     """
 
     def __init__(
-        self, 
+        self,
         baseline_repository: Any = None,  # BaselineRepositoryInterface
         user_id: str | None = None,
     ) -> None:
         """Initialize with all required domain services.
-        
+
         Args:
             baseline_repository: Optional repository for baseline persistence
             user_id: Optional user ID for personal calibration
         """
         self.baseline_repository = baseline_repository
         self.user_id = user_id
-        
+
         self.sleep_window_analyzer = SleepWindowAnalyzer()
         self.activity_sequence_extractor = ActivitySequenceExtractor()
         self.dlmo_calculator = DLMOCalculator()
-        
+
         # Pass calibration params to advanced feature engineer
         self.advanced_feature_engineer = AdvancedFeatureEngineer(
             baseline_repository=baseline_repository,
             user_id=user_id,
         )
-        
+
         self.pat_sequence_builder = PATSequenceBuilder(self.activity_sequence_extractor)
 
     def extract_seoul_features(

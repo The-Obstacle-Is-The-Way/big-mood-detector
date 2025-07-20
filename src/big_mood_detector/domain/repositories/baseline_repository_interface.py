@@ -33,7 +33,7 @@ class UserBaseline:
     hrv_std: float = 15.0
     last_updated: datetime = None  # Will be set in __post_init__
     data_points: int = 30  # Number of days used in calculation
-    
+
     def __post_init__(self):
         """Set default values for datetime fields."""
         if self.last_updated is None:

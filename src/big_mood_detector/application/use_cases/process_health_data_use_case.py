@@ -120,7 +120,7 @@ class MoodPredictionPipeline:
         self.circadian_analyzer = circadian_analyzer or CircadianRhythmAnalyzer()
         self.dlmo_calculator = dlmo_calculator or DLMOCalculator()
         self.sparse_handler = sparse_handler or SparseDataHandler()
-        
+
         # Create ClinicalFeatureExtractor with personal calibration support
         # Use injected baseline repository or get from DI container or create default
         if self.config.enable_personal_calibration and self.config.user_id:
@@ -135,22 +135,23 @@ class MoodPredictionPipeline:
                 self.baseline_repository = di_container.resolve(BaselineRepositoryInterface)
             else:
                 # Fallback to creating FileBaselineRepository for backward compatibility
+                from pathlib import Path
+
                 from big_mood_detector.infrastructure.repositories.file_baseline_repository import (
                     FileBaselineRepository,
                 )
-                from pathlib import Path
-                
+
                 baselines_dir = Path("data/baselines")
                 baselines_dir.mkdir(parents=True, exist_ok=True)
                 self.baseline_repository = FileBaselineRepository(baselines_dir)
         else:
             self.baseline_repository = None
-        
+
         self.clinical_extractor = ClinicalFeatureExtractor(
             baseline_repository=self.baseline_repository,
             user_id=self.config.user_id if self.config.enable_personal_calibration else None,
         )
-        
+
         self.mood_predictor = MoodPredictor(model_dir=self.config.model_dir)
         self.xgboost_predictor = None  # Will be loaded separately for ensemble
 
@@ -483,7 +484,7 @@ class MoodPredictionPipeline:
                     include_pat_sequence=self.config.include_pat_sequences,
                 )
                 features[current_date] = feature_set
-                    
+
             except Exception as e:
                 # Log error but continue processing other dates
                 logger.error(
@@ -495,7 +496,7 @@ class MoodPredictionPipeline:
                 features[current_date] = None
 
             current_date += timedelta(days=1)
-        
+
         # Persist baselines ONCE after processing all dates
         if self.config.enable_personal_calibration and self.config.user_id and features:
             self.clinical_extractor.persist_baselines()

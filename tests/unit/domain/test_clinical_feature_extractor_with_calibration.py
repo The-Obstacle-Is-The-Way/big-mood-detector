@@ -10,8 +10,14 @@ from unittest.mock import Mock
 
 import pytest
 
-from big_mood_detector.domain.entities.activity_record import ActivityRecord, ActivityType
-from big_mood_detector.domain.entities.heart_rate_record import HeartRateRecord, HeartMetricType
+from big_mood_detector.domain.entities.activity_record import (
+    ActivityRecord,
+    ActivityType,
+)
+from big_mood_detector.domain.entities.heart_rate_record import (
+    HeartMetricType,
+    HeartRateRecord,
+)
 from big_mood_detector.domain.entities.sleep_record import SleepRecord, SleepState
 from big_mood_detector.domain.repositories.baseline_repository_interface import (
     BaselineRepositoryInterface,
@@ -29,7 +35,7 @@ class TestClinicalFeatureExtractorWithCalibration:
     def mock_baseline_repository(self):
         """Create mock baseline repository."""
         mock_repo = Mock(spec=BaselineRepositoryInterface)
-        
+
         # Mock baseline data that AdvancedFeatureEngineer expects
         mock_baseline = UserBaseline(
             user_id="test_user",
@@ -42,10 +48,10 @@ class TestClinicalFeatureExtractorWithCalibration:
             last_updated=datetime(2024, 1, 1, 0, 0),
             data_points=30
         )
-        
+
         mock_repo.get_baseline.return_value = mock_baseline
         mock_repo.save_baseline.return_value = None
-        
+
         return mock_repo
 
     @pytest.fixture
@@ -98,13 +104,13 @@ class TestClinicalFeatureExtractorWithCalibration:
     def test_feature_extractor_accepts_calibration_params(self):
         """Test that ClinicalFeatureExtractor can be initialized with calibration."""
         mock_repo = Mock(spec=BaselineRepositoryInterface)
-        
+
         # Should accept baseline_repository and user_id
         extractor = ClinicalFeatureExtractor(
             baseline_repository=mock_repo,
             user_id="test_user"
         )
-        
+
         assert extractor.baseline_repository == mock_repo
         assert extractor.user_id == "test_user"
 
@@ -113,7 +119,7 @@ class TestClinicalFeatureExtractorWithCalibration:
     ):
         """Test that personal baselines are used for Z-score calculation."""
         sleep_records, activity_records, heart_records = sample_records
-        
+
         # Mock existing baseline
         existing_baseline = UserBaseline(
             user_id="test_user",
@@ -127,13 +133,13 @@ class TestClinicalFeatureExtractorWithCalibration:
             data_points=30,
         )
         mock_baseline_repository.get_baseline.return_value = existing_baseline
-        
+
         # Create extractor with calibration
         extractor = ClinicalFeatureExtractor(
             baseline_repository=mock_baseline_repository,
             user_id="test_user"
         )
-        
+
         # Extract features
         features = extractor.extract_seoul_features(
             sleep_records=sleep_records,
@@ -141,10 +147,10 @@ class TestClinicalFeatureExtractorWithCalibration:
             heart_records=heart_records,
             target_date=date(2024, 1, 15),
         )
-        
+
         # Verify baseline was loaded
         mock_baseline_repository.get_baseline.assert_called_with("test_user")
-        
+
         # Z-scores should be calculated (not just 0)
         assert features.sleep_duration_zscore != 0.0
         assert features.activity_zscore != 0.0
@@ -154,13 +160,13 @@ class TestClinicalFeatureExtractorWithCalibration:
     ):
         """Test that baselines are persisted after feature extraction."""
         sleep_records, activity_records, heart_records = sample_records
-        
+
         # Create extractor with calibration
         extractor = ClinicalFeatureExtractor(
             baseline_repository=mock_baseline_repository,
             user_id="test_user"
         )
-        
+
         # Extract features
         extractor.extract_seoul_features(
             sleep_records=sleep_records,
@@ -168,20 +174,20 @@ class TestClinicalFeatureExtractorWithCalibration:
             heart_records=heart_records,
             target_date=date(2024, 1, 15),
         )
-        
+
         # Persist baselines
         extractor.persist_baselines()
-        
+
         # Verify baseline was saved
         assert mock_baseline_repository.save_baseline.called
 
     def test_works_without_calibration(self, sample_records):
         """Test backward compatibility without calibration."""
         sleep_records, activity_records, heart_records = sample_records
-        
+
         # Create extractor without calibration params
         extractor = ClinicalFeatureExtractor()
-        
+
         # Should work normally
         features = extractor.extract_seoul_features(
             sleep_records=sleep_records,
@@ -189,7 +195,7 @@ class TestClinicalFeatureExtractorWithCalibration:
             heart_records=heart_records,
             target_date=date(2024, 1, 15),
         )
-        
+
         assert features is not None
         # Z-scores will be 0 without baselines
         assert features.sleep_duration_zscore == 0.0
