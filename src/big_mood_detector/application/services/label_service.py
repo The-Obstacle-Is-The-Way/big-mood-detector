@@ -177,7 +177,7 @@ class LabelService:
         if not label:
             return False
 
-        # TODO: Check if label is in use by any records
+        # TODO(gh-100): Check if label is in use by any records
         # This would involve checking with other repositories
 
         self.repository.delete(label_id)
