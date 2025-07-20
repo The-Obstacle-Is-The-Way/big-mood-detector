@@ -68,6 +68,16 @@ repos:
         match: ^src/
         args: [--convention=google]
 
+  # Custom TODO format check
+  - repo: local
+    hooks:
+      - id: check-todo-format
+        name: Check TODO format
+        entry: python scripts/check_todo_format.py
+        language: system
+        types: [python]
+        pass_filenames: false
+
 ci:
   autofix_commit_msg: |
     [pre-commit.ci] auto fixes from pre-commit.com hooks
