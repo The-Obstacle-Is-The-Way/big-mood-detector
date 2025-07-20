@@ -99,30 +99,41 @@ class TestProgressIndication:
         params = list(sig.parameters.keys())
         assert 'progress_callback' in params
 
-    @patch('big_mood_detector.application.services.data_parsing_service.FastStreamingXMLParser')
-    def test_data_parsing_service_propagates_progress(self, mock_parser_class):
+    def test_data_parsing_service_propagates_progress(self):
         """Test that DataParsingService propagates progress to parser."""
+        import tempfile
+        import os
+        
         service = DataParsingService()
-        mock_parser = Mock()
-        mock_parser_class.return_value = mock_parser
-        
-        # Set up mock to return empty lists
-        mock_parser.parse_file.return_value = []
-        
         progress_callback = Mock()
         
-        # Call parse_xml_export with progress callback
-        service.parse_xml_export(
-            Path('test.xml'),
-            progress_callback=progress_callback
-        )
+        # Create a minimal test XML
+        test_xml = '''<?xml version="1.0" encoding="UTF-8"?>
+        <HealthData>
+            <Record type="HKQuantityTypeIdentifierStepCount" 
+                    startDate="2024-01-01 10:00:00 -0500" 
+                    endDate="2024-01-01 10:05:00 -0500" 
+                    value="100"/>
+        </HealthData>'''
         
-        # Verify parser was called with progress callback
-        mock_parser.parse_file.assert_called()
-        call_args = mock_parser.parse_file.call_args
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.xml', delete=False) as tf:
+            tf.write(test_xml)
+            tf.flush()
+            temp_path = tf.name
         
-        # The service should pass through the progress callback
-        # or create a wrapper that calls both its own and the provided callback
+        try:
+            # Call parse_xml_export with progress callback
+            result = service.parse_xml_export(
+                Path(temp_path),
+                progress_callback=progress_callback
+            )
+            
+            # Verify progress was reported
+            assert progress_callback.called
+            # Should get at least one progress update
+            assert progress_callback.call_count >= 1
+        finally:
+            os.unlink(temp_path)
 
     def test_pipeline_accepts_progress_callback(self):
         """Test that MoodPredictionPipeline accepts progress callback."""
