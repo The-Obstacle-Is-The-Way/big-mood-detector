@@ -287,7 +287,7 @@ AdvancedFeatures.to_ml_features() → np.array(shape=(36,))
 **Current**: Simple sleep duration calculation
 **Needed**: Window classification with 3.75h threshold
 ```python
-# TODO: Implement in SleepAggregator
+# TODO(gh-107): Implement in SleepAggregator
 def _create_sleep_windows(self, records: List[SleepRecord]) -> List[SleepWindow]:
     # 1. Merge episodes <10min apart
     # 2. Group windows <1h apart
@@ -299,7 +299,7 @@ def _create_sleep_windows(self, records: List[SleepRecord]) -> List[SleepWindow]
 **Current**: Time-bounded records (e.g., 1000 steps from 10-11am)
 **Needed**: 10,080 minute array
 ```python
-# TODO: Create new ActivitySequenceExtractor
+# TODO(gh-108): Create new ActivitySequenceExtractor
 def extract_minute_sequence(self, records: List[ActivityRecord], days: int = 7) -> np.array:
     # 1. Create empty 10,080 minute array
     # 2. Distribute each record's value across its time bounds
@@ -311,7 +311,7 @@ def extract_minute_sequence(self, records: List[ActivityRecord], days: int = 7) 
 **Current**: Simple phase calculation
 **Needed**: Mathematical CBT model
 ```python
-# TODO: Implement CircadianPacemakerModel
+# TODO(gh-109): Implement CircadianPacemakerModel
 def estimate_circadian_rhythm(self, sleep_wake_pattern: List[bool]) -> CircadianMetrics:
     # 1. Convert sleep/wake to light profile (250/0 lux)
     # 2. Run pacemaker differential equations

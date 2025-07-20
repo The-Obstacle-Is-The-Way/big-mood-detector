@@ -59,7 +59,7 @@ dependencies = [
     "prometheus-client>=0.19.0",
     
     # Security (⚠️ SECURITY REVIEW NEEDED BEFORE PRODUCTION ⚠️)
-    # TODO: python-jose has known CVEs (CVE-2024-33664, CVE-2024-33663) - no fixes available
+    # TODO(gh-105): python-jose has known CVEs (CVE-2024-33664, CVE-2024-33663) - no fixes available
     # Alternative: pyjwt + cryptography (more secure, actively maintained)
     "pyjwt>=2.8.0",                    # Secure JWT library (maintained)
     "cryptography>=41.0.0",            # Modern crypto primitives

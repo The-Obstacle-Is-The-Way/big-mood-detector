@@ -28,6 +28,7 @@ class Settings(BaseSettings):
     PROJECT_NAME: str = "Big Mood Detector"
     VERSION: str = "0.1.0"
     ENVIRONMENT: Literal["local", "staging", "production"] = "local"
+    LOG_LEVEL: Literal["DEBUG", "INFO", "WARNING", "ERROR"] = "INFO"
 
     # Paths
     # Support both DATA_DIR and BIGMOOD_DATA_DIR for flexibility

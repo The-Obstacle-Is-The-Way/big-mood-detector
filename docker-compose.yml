@@ -45,7 +45,7 @@ services:
           cpus: '1'
           memory: 2G
 
-  # TODO: Add background worker when custom TaskWorker is fully implemented
+  # TODO(gh-106): Add background worker when custom TaskWorker is fully implemented
   # For now, using FastAPI's BackgroundTasks which runs in the same process
 
   # PostgreSQL for data persistence

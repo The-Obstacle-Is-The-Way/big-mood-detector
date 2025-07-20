@@ -109,6 +109,42 @@ def validate_ensemble_requirements(ensemble: bool, model_dir: Path | None) -> No
             click.echo("   Using default model weights (may not include PAT)")
 
 
+def validate_user_id(user_id: str | None) -> None:
+    """Validate user ID format and provide warnings."""
+    if user_id:
+        # Check for common formatting issues
+        if " " in user_id:
+            raise click.BadParameter(
+                f"User ID cannot contain spaces: '{user_id}'\n"
+                "Use underscores or hyphens instead (e.g., 'john_doe' or 'user-123')"
+            )
+        
+        if len(user_id) < 3:
+            raise click.BadParameter(
+                f"User ID too short: '{user_id}'\n"
+                "Please use at least 3 characters for user identification"
+            )
+        
+        if len(user_id) > 64:
+            raise click.BadParameter(
+                f"User ID too long: '{user_id}'\n"
+                "Please use 64 characters or less"
+            )
+        
+        # Warn about potential PII
+        if "@" in user_id:
+            click.echo("⚠️  User ID contains '@' - avoid using email addresses")
+            click.echo("   User IDs will be hashed for privacy protection")
+        
+        # Validate characters (alphanumeric, dash, underscore)
+        import re
+        if not re.match(r'^[a-zA-Z0-9_\-]+$', user_id):
+            raise click.BadParameter(
+                f"Invalid user ID format: '{user_id}'\n"
+                "Use only letters, numbers, underscores, and hyphens"
+            )
+
+
 def format_risk_level(risk_score: float) -> str:
     """Format risk score with clinical level."""
     if risk_score >= 0.7:
@@ -450,6 +486,7 @@ def predict_command(
         input_path_obj = Path(input_path)
         validate_input_path(input_path_obj)
         validate_date_range(start_date, end_date)
+        validate_user_id(user_id)
 
         model_dir_obj = Path(model_dir) if model_dir else None
         validate_ensemble_requirements(ensemble, model_dir_obj)

@@ -60,6 +60,10 @@ def train_command(model_type: str, user_id: str, data: str, labels: str) -> None
     """Train a personalized model using ``PersonalCalibrator``."""
     import numpy as np
     import pandas as pd
+    
+    # Validate user ID
+    from big_mood_detector.interfaces.cli.commands import validate_user_id
+    validate_user_id(user_id)
 
     # Check if PAT is requested but not available
     if model_type.lower() == "pat":
