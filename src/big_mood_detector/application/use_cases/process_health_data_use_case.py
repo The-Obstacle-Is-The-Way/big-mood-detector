@@ -135,8 +135,6 @@ class MoodPredictionPipeline:
                 self.baseline_repository = di_container.resolve(BaselineRepositoryInterface)
             else:
                 # Fallback to creating FileBaselineRepository for backward compatibility
-                from pathlib import Path
-
                 from big_mood_detector.infrastructure.repositories.file_baseline_repository import (
                     FileBaselineRepository,
                 )

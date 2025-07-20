@@ -49,6 +49,38 @@ class BaselineRepositoryContract:
             data_points=30
         )
 
+    def test_save_and_retrieve_baseline_with_hr_hrv(self):
+        """Test save and retrieve with optional HR/HRV fields"""
+        repository = self.get_repository()
+
+        # Create baseline with HR/HRV data
+        baseline = UserBaseline(
+            user_id="test_user_hr",
+            baseline_date=date(2024, 1, 15),
+            sleep_mean=7.5,
+            sleep_std=1.2,
+            activity_mean=8000.0,
+            activity_std=2000.0,
+            circadian_phase=22.0,
+            heart_rate_mean=65.0,
+            heart_rate_std=5.0,
+            hrv_mean=55.0,
+            hrv_std=8.0,
+            last_updated=datetime(2024, 1, 15, 10, 30),
+            data_points=30
+        )
+
+        # Save and retrieve
+        repository.save_baseline(baseline)
+        retrieved = repository.get_baseline(baseline.user_id)
+
+        # Verify HR/HRV fields
+        assert retrieved is not None
+        assert retrieved.heart_rate_mean == 65.0
+        assert retrieved.heart_rate_std == 5.0
+        assert retrieved.hrv_mean == 55.0
+        assert retrieved.hrv_std == 8.0
+
     def test_save_and_retrieve_baseline(self):
         """Test basic save and retrieve operations"""
         repository = self.get_repository()

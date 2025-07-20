@@ -11,6 +11,8 @@ Architecture:
 Raw Data → TimescaleDB Hypertable → Continuous Aggregates → Feast → Redis
 """
 
+from collections.abc import Iterator
+from contextlib import contextmanager
 from datetime import UTC, date, datetime
 from pathlib import Path
 from typing import Any
@@ -24,6 +26,7 @@ from sqlalchemy import (
     String,
     create_engine,
 )
+from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import declarative_base, sessionmaker
 from sqlalchemy.sql import text
 from structlog import get_logger
@@ -135,36 +138,37 @@ class TimescaleBaselineRepository(BaselineRepositoryInterface):
                    connection=connection_string,
                    feast_enabled=self.enable_feast_sync)
 
-    def save_baseline(self, baseline: UserBaseline) -> None:
+    @contextmanager
+    def _get_session(self) -> Iterator[Any]:
         """
-        Save baseline with bitemporal versioning and Feast sync.
+        Context manager for proper session lifecycle.
 
-        Creates immutable records with effective_ts for audit trails.
-        Triggers Feast materialization for online serving.
+        Ensures sessions are always closed, even on exceptions.
         """
         session = self.SessionLocal()
         try:
+            yield session
+            session.commit()
+        except Exception:
+            session.rollback()
+            raise
+        finally:
+            session.close()
+
+    def save_baseline(self, baseline: UserBaseline) -> None:
+        """
+        Save baseline with atomic UPSERT operations.
+
+        Uses PostgreSQL's INSERT ... ON CONFLICT for race-condition-free updates.
+        Creates immutable records with effective_ts for audit trails.
+        """
+        with self._get_session() as session:
             effective_time = datetime.now(UTC)
 
-            # Save individual metrics as raw records
-            metrics = [
-                ("sleep_mean", baseline.sleep_mean),
-                ("sleep_std", baseline.sleep_std),
-                ("activity_mean", baseline.activity_mean),
-                ("activity_std", baseline.activity_std),
-                ("circadian_phase", baseline.circadian_phase),
-            ]
+            # Prepare metrics
+            metrics = self._prepare_metrics(baseline)
 
-            # Add HR/HRV metrics if available
-            if baseline.heart_rate_mean is not None:
-                metrics.append(("heart_rate_mean", baseline.heart_rate_mean))
-            if baseline.heart_rate_std is not None:
-                metrics.append(("heart_rate_std", baseline.heart_rate_std))
-            if baseline.hrv_mean is not None:
-                metrics.append(("hrv_mean", baseline.hrv_mean))
-            if baseline.hrv_std is not None:
-                metrics.append(("hrv_std", baseline.hrv_std))
-
+            # Save raw records (always insert for bitemporal pattern)
             for metric_name, value in metrics:
                 raw_record = BaselineRawRecord(
                     user_id=baseline.user_id,
@@ -177,49 +181,66 @@ class TimescaleBaselineRepository(BaselineRepositoryInterface):
                 )
                 session.add(raw_record)
 
-            # Save each metric as separate aggregate records for proper retrieval
-            # First, delete existing records for this user/date to handle updates
-            session.query(BaselineAggregateRecord).filter(
-                BaselineAggregateRecord.user_id == baseline.user_id,
-                BaselineAggregateRecord.as_of == baseline.baseline_date
-            ).delete()
-
+            # Use PostgreSQL UPSERT for aggregate records
             for metric_name, value in metrics:
-                aggregate_record = BaselineAggregateRecord(
+                stmt = insert(BaselineAggregateRecord).values(
                     user_id=baseline.user_id,
                     feature_name=metric_name,
                     window="30d",
                     as_of=baseline.baseline_date,
                     mean=value,
-                    std=0.0,  # Individual metrics don't have std in this context
+                    std=0.0,
                     n=baseline.data_points,
                     created_at=effective_time
                 )
-                session.add(aggregate_record)
 
-            session.commit()
+                # ON CONFLICT update everything except primary keys
+                stmt = stmt.on_conflict_do_update(
+                    index_elements=['user_id', 'feature_name', 'window', 'as_of'],
+                    set_={
+                        'mean': stmt.excluded.mean,
+                        'std': stmt.excluded.std,
+                        'n': stmt.excluded.n,
+                        'created_at': stmt.excluded.created_at
+                    }
+                )
 
-            logger.info("baseline_saved",
+                session.execute(stmt)
+
+            logger.info("baseline_saved_atomically",
                        user_id=baseline.user_id,
                        effective_ts=effective_time.isoformat(),
                        metrics_count=len(metrics))
 
-            # Sync to Feast online store
+            # Sync to Feast if enabled
             if self.enable_feast_sync:
                 self._sync_to_feast(baseline)
 
-        except Exception as e:
-            session.rollback()
-            logger.error("baseline_save_failed",
-                        user_id=baseline.user_id,
-                        error=str(e))
-            raise
-        finally:
-            session.close()
+    def _prepare_metrics(self, baseline: UserBaseline) -> list[tuple[str, float]]:
+        """Prepare metrics list from baseline."""
+        metrics = [
+            ("sleep_mean", baseline.sleep_mean),
+            ("sleep_std", baseline.sleep_std),
+            ("activity_mean", baseline.activity_mean),
+            ("activity_std", baseline.activity_std),
+            ("circadian_phase", baseline.circadian_phase),
+        ]
+
+        # Add HR/HRV metrics if available
+        if baseline.heart_rate_mean is not None:
+            metrics.append(("heart_rate_mean", baseline.heart_rate_mean))
+        if baseline.heart_rate_std is not None:
+            metrics.append(("heart_rate_std", baseline.heart_rate_std))
+        if baseline.hrv_mean is not None:
+            metrics.append(("hrv_mean", baseline.hrv_mean))
+        if baseline.hrv_std is not None:
+            metrics.append(("hrv_std", baseline.hrv_std))
+
+        return metrics
 
     def get_baseline(self, user_id: str) -> UserBaseline | None:
         """
-        Retrieve latest baseline with Feast online store optimization.
+        Retrieve latest baseline with proper session management.
 
         Checks online store first for <1ms performance,
         falls back to TimescaleDB continuous aggregates.
@@ -240,13 +261,12 @@ class TimescaleBaselineRepository(BaselineRepositoryInterface):
 
     def get_baseline_history(self, user_id: str, limit: int = 10) -> list[UserBaseline]:
         """
-        Get historical baselines for trend analysis.
+        Get historical baselines with proper session management.
 
         Queries TimescaleDB continuous aggregates for temporal analysis.
         Perfect for detecting baseline drift over time.
         """
-        session = self.SessionLocal()
-        try:
+        with self._get_session() as session:
             # Query all baseline dates for this user
             baseline_dates = session.query(BaselineAggregateRecord.as_of).filter(
                 BaselineAggregateRecord.user_id == user_id
@@ -266,46 +286,49 @@ class TimescaleBaselineRepository(BaselineRepositoryInterface):
                     BaselineAggregateRecord.as_of == baseline_date
                 ).all()
 
-                # Reconstruct baseline from metrics
-                metric_values: dict[str, float] = {m.feature_name: m.mean for m in metrics}  # type: ignore[misc]
-
-                if metrics:  # Ensure we have at least some data
-                    baseline = UserBaseline(
-                        user_id=user_id,
-                        baseline_date=baseline_date,
-                        sleep_mean=metric_values.get("sleep_mean", 7.0),
-                        sleep_std=metric_values.get("sleep_std", 1.0),
-                        activity_mean=metric_values.get("activity_mean", 8000.0),
-                        activity_std=metric_values.get("activity_std", 2000.0),
-                        circadian_phase=metric_values.get("circadian_phase", 22.0),
-                        # HR/HRV fields - use None if not present (no magic defaults!)
-                        heart_rate_mean=metric_values.get("heart_rate_mean"),
-                        heart_rate_std=metric_values.get("heart_rate_std"),
-                        hrv_mean=metric_values.get("hrv_mean"),
-                        hrv_std=metric_values.get("hrv_std"),
-                        last_updated=metrics[0].created_at,  # type: ignore[arg-type]
-                        data_points=metrics[0].n  # type: ignore[arg-type]
-                    )
+                baseline = self._reconstruct_baseline(user_id, baseline_date, metrics)
+                if baseline:
                     baselines.append(baseline)
 
             logger.info("baseline_history_retrieved",
                        user_id=user_id,
-                       count=len(baselines),
-                       date_range=f"{baseline_dates[0][0]} to {baseline_dates[-1][0]}" if baseline_dates else "empty")
+                       count=len(baselines))
 
             return baselines
 
-        except Exception as e:
-            logger.error("baseline_history_retrieval_failed",
-                        user_id=user_id, error=str(e))
-            return []
-        finally:
-            session.close()
+    def _reconstruct_baseline(
+        self,
+        user_id: str,
+        baseline_date: date,
+        metrics: list[BaselineAggregateRecord]
+    ) -> UserBaseline | None:
+        """Reconstruct UserBaseline from aggregate records."""
+        if not metrics:
+            return None
+
+        # Build metric dictionary
+        metric_values: dict[str, float] = {m.feature_name: m.mean for m in metrics}  # type: ignore[misc]
+
+        return UserBaseline(
+            user_id=user_id,
+            baseline_date=baseline_date,
+            sleep_mean=metric_values.get("sleep_mean", 7.0),
+            sleep_std=metric_values.get("sleep_std", 1.0),
+            activity_mean=metric_values.get("activity_mean", 8000.0),
+            activity_std=metric_values.get("activity_std", 2000.0),
+            circadian_phase=metric_values.get("circadian_phase", 22.0),
+            # HR/HRV fields - use None if not present (no magic defaults!)
+            heart_rate_mean=metric_values.get("heart_rate_mean"),
+            heart_rate_std=metric_values.get("heart_rate_std"),
+            hrv_mean=metric_values.get("hrv_mean"),
+            hrv_std=metric_values.get("hrv_std"),
+            last_updated=metrics[0].created_at,  # type: ignore[arg-type]
+            data_points=metrics[0].n  # type: ignore[arg-type]
+        )
 
     def _get_from_timescale(self, user_id: str) -> UserBaseline | None:
-        """Retrieve baseline from TimescaleDB continuous aggregates."""
-        session = self.SessionLocal()
-        try:
+        """Retrieve baseline from TimescaleDB with session management."""
+        with self._get_session() as session:
             # Get the most recent baseline date for this user
             latest_date = session.query(BaselineAggregateRecord.as_of).filter(
                 BaselineAggregateRecord.user_id == user_id
@@ -326,37 +349,13 @@ class TimescaleBaselineRepository(BaselineRepositoryInterface):
             if not metrics:
                 return None
 
-            # Reconstruct baseline from metrics
-            metric_values: dict[str, float] = {m.feature_name: m.mean for m in metrics}  # type: ignore[misc]
-
-            baseline = UserBaseline(
-                user_id=user_id,
-                baseline_date=latest_date[0],
-                sleep_mean=metric_values.get("sleep_mean", 7.0),
-                sleep_std=metric_values.get("sleep_std", 1.0),
-                activity_mean=metric_values.get("activity_mean", 8000.0),
-                activity_std=metric_values.get("activity_std", 2000.0),
-                circadian_phase=metric_values.get("circadian_phase", 22.0),
-                # HR/HRV fields - use None if not present (no magic defaults!)
-                heart_rate_mean=metric_values.get("heart_rate_mean"),
-                heart_rate_std=metric_values.get("heart_rate_std"),
-                hrv_mean=metric_values.get("hrv_mean"),
-                hrv_std=metric_values.get("hrv_std"),
-                last_updated=metrics[0].created_at,  # type: ignore[arg-type]
-                data_points=metrics[0].n  # type: ignore[arg-type]
-            )
+            baseline = self._reconstruct_baseline(user_id, latest_date[0], metrics)
 
             logger.info("baseline_retrieved_timescale",
                        user_id=user_id,
                        as_of=str(latest_date[0]))
-            return baseline
 
-        except Exception as e:
-            logger.error("timescale_retrieval_failed",
-                        user_id=user_id, error=str(e))
-            return None
-        finally:
-            session.close()
+            return baseline
 
     def _sync_to_feast(self, baseline: UserBaseline) -> None:
         """Sync baseline to Feast online store for fast inference."""

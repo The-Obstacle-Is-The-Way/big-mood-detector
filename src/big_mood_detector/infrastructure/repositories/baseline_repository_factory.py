@@ -5,6 +5,7 @@ Provides a factory for creating baseline repositories based on configuration.
 Supports both file-based and TimescaleDB repositories.
 """
 import os
+import threading
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -63,6 +64,7 @@ class BaselineRepositoryFactory:
         self.base_path = base_path or Path("data/baselines")
         self.default_type = default_type
         self._singleton_instance: BaselineRepositoryInterface | None = None
+        self._singleton_lock = threading.Lock()
 
         logger.info(
             "baseline_repository_factory_initialized",
@@ -111,10 +113,13 @@ class BaselineRepositoryFactory:
         """
         Get singleton instance of baseline repository.
 
-        Returns the same instance on repeated calls.
+        Thread-safe: Returns the same instance on repeated calls.
         """
         if self._singleton_instance is None:
-            self._singleton_instance = self.create_repository()
+            with self._singleton_lock:
+                # Double-check pattern for thread safety
+                if self._singleton_instance is None:
+                    self._singleton_instance = self.create_repository()
         return self._singleton_instance
 
     def _create_file_repository(self) -> FileBaselineRepository:

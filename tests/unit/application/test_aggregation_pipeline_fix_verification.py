@@ -24,6 +24,7 @@ class TestAggregationPipelineFix:
         pipeline = AggregationPipeline()
 
         # Create test sleep records for 7.5 hours
+        # Sleep that ends on Jan 2 at 5:30am will be assigned to Jan 2
         sleep_records = [
             SleepRecord(
                 source_name="Apple Watch",
@@ -34,7 +35,7 @@ class TestAggregationPipelineFix:
         ]
 
         # Create minimal test data
-        current_date = date(2024, 1, 1)
+        current_date = date(2024, 1, 2)  # Changed to match sleep assignment
         daily_metrics = {
             "sleep": {
                 "sleep_percentage": 0.1875,  # 4.5/24 - window percentage
@@ -61,6 +62,13 @@ class TestAggregationPipelineFix:
             "activity_intensity_ratio": 0.3,
         }
 
+        heart_metrics = {
+            "avg_resting_hr": None,
+            "hrv_sdnn": None,
+            "hr_circadian_range": 0.0,
+            "hr_minimum_hour": 0.0,
+        }
+
         # Call the method
         features = pipeline._calculate_features_with_stats(
             current_date,
@@ -68,6 +76,7 @@ class TestAggregationPipelineFix:
             sleep_window,
             circadian_window,
             activity_metrics,
+            heart_metrics,
             sleep_records,  # Pass the sleep records
         )
 
@@ -114,6 +123,7 @@ class TestAggregationPipelineFix:
             [],
             {"daily_steps": 0, "activity_variance": 0, "sedentary_hours": 24,
              "activity_fragmentation": 0, "sedentary_bout_mean": 24, "activity_intensity_ratio": 0},
+            {"avg_resting_hr": None, "hrv_sdnn": None, "hr_circadian_range": 0.0, "hr_minimum_hour": 0.0},
             sleep_records,
         )
 

@@ -72,8 +72,8 @@ class TestSleepPercentageBug:
         aggregator = SleepAggregator()
         summaries = aggregator.aggregate_daily([sleep_record])
 
-        # Get the summary
-        summary = summaries[date(2024, 1, 1)]
+        # Get the summary - sleep ending at 5:30 AM on Jan 2 is assigned to Jan 2
+        summary = summaries[date(2024, 1, 2)]
 
         print("\n✅ CORRECT APPROACH:")
         print(f"   SleepAggregator result: {summary.total_sleep_hours:.1f} hours")
@@ -95,7 +95,7 @@ class TestSleepPercentageBug:
 
         mock_aggregator = Mock()
         mock_summary = DailySleepSummary(
-            date=date(2024, 1, 1),
+            date=date(2024, 1, 2),  # Sleep assigned to Jan 2
             total_time_in_bed_hours=8.0,
             total_sleep_hours=7.5,  # The CORRECT value
             sleep_efficiency=0.9375,
@@ -104,7 +104,7 @@ class TestSleepPercentageBug:
             sleep_fragmentation_index=0.0
         )
         mock_aggregator.aggregate_daily.return_value = {
-            date(2024, 1, 1): mock_summary
+            date(2024, 1, 2): mock_summary  # Sleep assigned to Jan 2
         }
         mock_aggregator_class.return_value = mock_aggregator
 
@@ -119,7 +119,7 @@ class TestSleepPercentageBug:
         # THE FIX: Pipeline should do this
         aggregator = SleepAggregator()
         summaries = aggregator.aggregate_daily([sleep_record])
-        sleep_duration = summaries[date(2024, 1, 1)].total_sleep_hours
+        sleep_duration = summaries[date(2024, 1, 2)].total_sleep_hours  # Sleep assigned to Jan 2
 
         print("\n🔧 THE FIX:")
         print("   Instead of: sleep_percentage * 24")
