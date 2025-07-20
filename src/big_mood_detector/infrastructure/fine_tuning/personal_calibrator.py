@@ -33,7 +33,7 @@ def load_population_model(model_path: str | None, model_type: str) -> Any:
     # This would load actual models in production
     # For now, it's a placeholder that will be mocked in tests
     if model_type == "xgboost":
-        import joblib  # type: ignore[import-untyped]  # type: ignore[import-untyped]
+        import joblib
 
         return joblib.load(model_path) if model_path else None
     elif model_type == "pat":
