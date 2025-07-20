@@ -225,3 +225,11 @@ docs/assets/backup/
 
 # Additional runtime artifacts
 processed/
+
+# Local artifacts
+.coverage*
+.hypothesis/
+.mypy_cache/
+.ruff_cache/
+*.DS_Store
+CACHEDIR.TAG
