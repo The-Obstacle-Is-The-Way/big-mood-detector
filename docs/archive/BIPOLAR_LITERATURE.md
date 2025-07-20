@@ -1,10 +1,3 @@
-Thanks for the detailed confirmation—I'll gather a curated set of 15–20 high-impact papers that are directly relevant to your bipolar mood detection system. These will include actionable research on feature engineering, model heuristics, clinical thresholds, and validation methods using Apple HealthKit-compatible signals like sleep, activity, and heart rate.
-
-I’ll organize them by thematic relevance—bipolar-specific biomarkers, wearable-derived features, circadian indicators, HRV and mood correlations, and clinical risk thresholds—focusing on studies with directly implementable algorithms or parameters.
-
-I’ll let you know once the literature set is ready for backend integration.
-
-
 **Target Literature Domains:** We will focus on **bipolar disorder** (primary) and closely related areas like major depression, circadian rhythm disruptions, and sleep/activity-based mood forecasting (secondary). These directly tie into our Apple HealthKit signals (sleep, activity, heart rate) and provide context for mood state detection.
 
 **Use-Case Driven Selection:** We should ingest papers that inform **four key areas** of our system: (1) **Wearable Feature Engineering** – how to extract meaningful features from HealthKit data (sleep duration, HRV, activity patterns, etc.), (2) **Clinical Thresholds & Rules** – established cutoffs or warning signs for mood episodes (e.g. scoring thresholds, sleep loss triggers), (3) **Modeling Heuristics** – proven algorithms or machine learning approaches for mood prediction, and (4) **Validation Evidence** – studies confirming that these features and models correlate with real clinical outcomes. Each paper must contain **actionable methods or findings** we can implement (e.g. specific features, algorithms, or decision rules).

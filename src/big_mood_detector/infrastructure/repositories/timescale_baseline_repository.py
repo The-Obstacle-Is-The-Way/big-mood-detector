@@ -11,6 +11,7 @@ Architecture:
 Raw Data → TimescaleDB Hypertable → Continuous Aggregates → Feast → Redis
 """
 
+import time
 from collections.abc import Iterator
 from contextlib import contextmanager
 from datetime import UTC, date, datetime
@@ -120,7 +121,7 @@ class TimescaleBaselineRepository(BaselineRepositoryInterface):
         self.SessionLocal = sessionmaker(bind=self.engine)
 
         # Initialize Feast client if enabled
-        self.feast_client = None
+        self.feast_client: Any | None = None  # Will be feast.FeatureStore if available
         if enable_feast_sync:
             try:
                 import feast  # type: ignore[import-not-found]
@@ -141,16 +142,18 @@ class TimescaleBaselineRepository(BaselineRepositoryInterface):
     @contextmanager
     def _get_session(self) -> Iterator[Any]:
         """
-        Context manager for proper session lifecycle.
+        Context manager for proper session lifecycle with explicit transactions.
 
-        Ensures sessions are always closed, even on exceptions.
+        Ensures sessions are always closed and transactions are properly handled.
+        Uses Session.begin() for explicit transaction control.
         """
         session = self.SessionLocal()
         try:
-            yield session
-            session.commit()
+            with session.begin():
+                yield session
+                # Transaction automatically commits if no exception
         except Exception:
-            session.rollback()
+            # Transaction automatically rolls back on exception
             raise
         finally:
             session.close()
@@ -307,7 +310,9 @@ class TimescaleBaselineRepository(BaselineRepositoryInterface):
             return None
 
         # Build metric dictionary
-        metric_values: dict[str, float] = {m.feature_name: m.mean for m in metrics}  # type: ignore[misc]
+        metric_values: dict[str, float] = {
+            str(m.feature_name): float(m.mean) for m in metrics
+        }
 
         return UserBaseline(
             user_id=user_id,
@@ -357,37 +362,58 @@ class TimescaleBaselineRepository(BaselineRepositoryInterface):
 
             return baseline
 
-    def _sync_to_feast(self, baseline: UserBaseline) -> None:
-        """Sync baseline to Feast online store for fast inference."""
+    def _sync_to_feast(self, baseline: UserBaseline, max_retries: int = 3) -> None:
+        """Sync baseline to Feast online store with retry logic.
+
+        Args:
+            baseline: UserBaseline to sync
+            max_retries: Maximum number of retry attempts
+        """
         if not self.feast_client:
             return
 
-        try:
-            import pandas as pd
+        # Retry with exponential backoff
+        for attempt in range(max_retries):
+            try:
+                import pandas as pd
 
-            # Convert baseline to Feast-compatible format
-            features_df = pd.DataFrame([{
-                "user_id": baseline.user_id,
-                "sleep_mean": baseline.sleep_mean,
-                "sleep_std": baseline.sleep_std,
-                "activity_mean": baseline.activity_mean,
-                "activity_std": baseline.activity_std,
-                "circadian_phase": baseline.circadian_phase,
-                "data_points": baseline.data_points,
-                "event_timestamp": baseline.last_updated
-            }])
+                # Convert baseline to Feast-compatible format
+                features_df = pd.DataFrame([{
+                    "user_id": baseline.user_id,
+                    "sleep_mean": baseline.sleep_mean,
+                    "sleep_std": baseline.sleep_std,
+                    "activity_mean": baseline.activity_mean,
+                    "activity_std": baseline.activity_std,
+                    "circadian_phase": baseline.circadian_phase,
+                    "data_points": baseline.data_points,
+                    "event_timestamp": baseline.last_updated
+                }])
 
-            # Push to online store
-            self.feast_client.push("user_baselines", features_df)
+                # Push to online store
+                self.feast_client.push("user_baselines", features_df)
 
-            logger.info("feast_sync_complete",
-                       user_id=baseline.user_id,
-                       features_count=len(features_df.columns))
+                logger.info("feast_sync_complete",
+                           user_id=baseline.user_id,
+                           features_count=len(features_df.columns))
+                return  # Success, exit
 
-        except Exception as e:
-            logger.error("feast_sync_failed",
-                        user_id=baseline.user_id, error=str(e))
-            # Don't raise - Feast sync is optional
+            except Exception as e:
+                if attempt < max_retries - 1:
+                    # Exponential backoff: 0.1s, 0.2s, 0.4s
+                    backoff_time = 0.1 * (2 ** attempt)
+                    logger.warning("feast_sync_retry",
+                                 user_id=baseline.user_id,
+                                 attempt=attempt + 1,
+                                 backoff=backoff_time,
+                                 error=str(e))
+                    time.sleep(backoff_time)
+                else:
+                    # Final attempt failed
+                    logger.error("feast_sync_failed_after_retries",
+                                user_id=baseline.user_id,
+                                attempts=max_retries,
+                                error=str(e))
+                    # Don't raise - Feast sync is optional
 
     def _get_from_feast(self, user_id: str) -> UserBaseline | None:
         """Retrieve baseline from Feast online store."""

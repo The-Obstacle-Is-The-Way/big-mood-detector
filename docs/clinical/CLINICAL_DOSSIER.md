@@ -1,3 +1,139 @@
+You are a senior ML systems architect and clinical informatics researcher.
+
+Objective  
+---------
+Produce a **spec-sheet + architectural dossier** for implementing a dual-pathway mood-disorder
+decision-support engine in the open-source repository
+`clarity-digital-twin/big-mood-detector` (Python 3.12, FastAPI, Pydantic settings).
+
+Clinical framing  
+----------------
+1. **Always-on depression track**  
+   • Model: *Pre-trained Actigraphy Transformer (PAT)*  
+   • Input: 7-day rolling window of minute-level activity, sleep-stage & light-exposure vectors  
+   • Outputs: PHQ-8–aligned probability + z-scored deviation from personal baseline  
+
+2. **Rule-out mania/bipolar track**  
+   • Model: *XGBoost circadian-sleep feature set* (“XGB-Mood”)  
+   • Input: 30-day window of daily sleep duration, midpoint, DLMO estimate, HRV & step counts  
+   • Outputs: Altman Self-Rating Mania Scale (ASRM) probability + risk tier
+
+3. **Ensemble orchestration layer**  
+   • Deterministic priority rules:  
+     – If either model’s input coverage < 60 % of required features → down-weight to 0.25  
+     – If PAT & XGB agree (same risk tier) → simple average  
+     – If conflict: use weighted average **wPAT = 0.4, wXGB = 0.6** (XGB higher AUC on
+       bipolar cohorts) *unless* patient has SSRI/SNRI tag (then flip weights)  
+   • Confidence calibration via isotonic regression on validation hold-out  
+   • Outputs a single `MoodRisk` protobuf: `depression_prob`, `mania_prob`, `overall_tier`
+
+4. **CDS layer**  
+   • Maps `overall_tier` to CANMAT guideline actions (monitor, adjust meds, urgent referral)  
+   • Logs to TimescaleDB + emits FHIR-compatible `CommunicationRequest` for clinician EHR  
+   • Auditable explanations: top 5 contributing features per model, last baseline update
+
+Deliverables  
+------------
+A. **System diagram** (flowchart + data contracts)  
+B. **Module-by-module spec**: filenames, function signatures, typing hints  
+C. **Pseudo-code** for the ensemble `risk_router.py`  
+D. **Evaluation plan**: metrics, cross-validation split by subject, target AUC/PPV/NPV  
+E. **Fail-safe design**: how to degrade gracefully if one model or data source is missing  
+F. **Regulatory & privacy notes**: HIPAA, GDPR, de-identification, audit logging
+
+Existing repository context to study  
+------------------------------------
+* `/src/big_mood_detector/application/services/aggregation_pipeline.py`
+* `/src/big_mood_detector/domain/services/sleep_aggregator.py`
+* New regression tests guarding sleep math & incremental stats
+* Wire-tap logging pattern (structlog) recently added
+
+Key reference papers (attach PDFs / Markdown)  
+---------------------------------------------
+1. **Pre-trained Actigraphy Transformer** – activity-only depression detection  
+2. **XGBoost-Mood** – circadian & sleep feature model (30-day window)  
+3. **CANMAT-MDD 2016/2023** – depression treatment thresholds  
+4. **CANMAT-Bipolar 2018 + 2021 update** – mania/hypomania action thresholds  
+5. **CDS-Bipolar-LLM** – clinical-decision-support framework for mood disorders  
+6. **AI-Bipolar Frontier review** – overview of digital biomarkers in bipolar disorder  
+7. (Optional) **clinical_references_to_read.md** – consolidated cut-offs & biomarkers
+
+Output format  
+-------------
+Return a structured Markdown dossier with code blocks, diagrams in Mermaid,
+and a bullet list of open engineering questions.
+
+
+LOOK AT THE CODE IN THE REPO AND NOT MD DOCS
+
+AS THEY HAVE BEEN PROVIDED TO YOU HERE
+
+
+AND EVALUATE IF WE SHOULD EVEN IMPLMEENT THIS DEPRESSSION / RULE OUT BIPOLAR SYSTEM, AND IF IT ACUTLALY MATCHES THE ML SCIENCE AND PSYCHAITRY CLINICAL SCIENCES, AND WOULD TRANSLATE TO REAL LIFE, AND FIT THE ML PAPER IMPLEMENTATION AS BEST AS POSSIBLE
+
+
+#
+Paper / Markdown file
+Why it’s essential
+1
+pretrained-actigraphy-transformer.md
+Defines PAT model architecture & 7-day window assumption
+2
+xgboost-mood.md
+Feature list, training regimen & performance of XGB-Mood
+3
+CANMAT-MDD.md
+Authoritative depression management thresholds
+4
+canmat-bipolar.md and CANMAT-BIPOLAR-UPDATE.md
+Guideline cut-offs for mania/hypomania escalation
+5
+CDS-bipolar-LLM.md
+Blueprint for integrating ML outputs into clinician-facing CDS
+6
+AI-Bipolar-Frontier.md
+Survey of digital biomarkers—context for future features
+7
+clinical_references_to_read.md
+Handy index of additional cut-offs, biomarkers, ethics
+
+/Users/ray/Desktop/CLARITY-DIGITAL-TWIN/big-mood-detector/docs/literature
+/Users/ray/Desktop/CLARITY-DIGITAL-TWIN/big-mood-detector/docs/literature/converted_markdown
+/Users/ray/Desktop/CLARITY-DIGITAL-TWIN/big-mood-detector/docs/literature/converted_markdown/ai-bipolar-frontier
+/Users/ray/Desktop/CLARITY-DIGITAL-TWIN/big-mood-detector/docs/literature/converted_markdown/canmat-bipolar
+/Users/ray/Desktop/CLARITY-DIGITAL-TWIN/big-mood-detector/docs/literature/converted_markdown/canmat-bipolar-update
+/Users/ray/Desktop/CLARITY-DIGITAL-TWIN/big-mood-detector/docs/literature/converted_markdown/canmat-mdd
+/Users/ray/Desktop/CLARITY-DIGITAL-TWIN/big-mood-detector/docs/literature/converted_markdown/cds-bipolar-llm
+/Users/ray/Desktop/CLARITY-DIGITAL-TWIN/big-mood-detector/docs/literature/converted_markdown/federated-fitness-tracking
+/Users/ray/Desktop/CLARITY-DIGITAL-TWIN/big-mood-detector/docs/literature/converted_markdown/federated-learning-healthcare
+/Users/ray/Desktop/CLARITY-DIGITAL-TWIN/big-mood-detector/docs/literature/converted_markdown/fitbit-bipolar-mood
+/Users/ray/Desktop/CLARITY-DIGITAL-TWIN/big-mood-detector/docs/literature/converted_markdown/melatonin-math
+/Users/ray/Desktop/CLARITY-DIGITAL-TWIN/big-mood-detector/docs/literature/converted_markdown/mobile-footprint
+/Users/ray/Desktop/CLARITY-DIGITAL-TWIN/big-mood-detector/docs/literature/converted_markdown/predicting-circadian-misalignment
+/Users/ray/Desktop/CLARITY-DIGITAL-TWIN/big-mood-detector/docs/literature/converted_markdown/pretrained-actigraphy-transformer
+/Users/ray/Desktop/CLARITY-DIGITAL-TWIN/big-mood-detector/docs/literature/converted_markdown/pretrained-actigraphy-transformer/_page_11_Figure_0.jpeg
+/Users/ray/Desktop/CLARITY-DIGITAL-TWIN/big-mood-detector/docs/literature/converted_markdown/pretrained-actigraphy-transformer/_page_17_Figure_1.jpeg
+/Users/ray/Desktop/CLARITY-DIGITAL-TWIN/big-mood-detector/docs/literature/converted_markdown/pretrained-actigraphy-transformer/_page_19_Figure_2.jpeg
+/Users/ray/Desktop/CLARITY-DIGITAL-TWIN/big-mood-detector/docs/literature/converted_markdown/pretrained-actigraphy-transformer/_page_36_Figure_1.jpeg
+/Users/ray/Desktop/CLARITY-DIGITAL-TWIN/big-mood-detector/docs/literature/converted_markdown/pretrained-actigraphy-transformer/_page_36_Figure_2.jpeg
+/Users/ray/Desktop/CLARITY-DIGITAL-TWIN/big-mood-detector/docs/literature/converted_markdown/pretrained-actigraphy-transformer/pretrained-actigraphy-transformer_meta.json
+/Users/ray/Desktop/CLARITY-DIGITAL-TWIN/big-mood-detector/docs/literature/converted_markdown/pretrained-actigraphy-transformer/pretrained-actigraphy-transformer.md
+/Users/ray/Desktop/CLARITY-DIGITAL-TWIN/big-mood-detector/docs/literature/converted_markdown/sleep-staging-psg
+/Users/ray/Desktop/CLARITY-DIGITAL-TWIN/big-mood-detector/docs/literature/converted_markdown/xgboost-mood
+/Users/ray/Desktop/CLARITY-DIGITAL-TWIN/big-mood-detector/docs/literature/converted_markdown/xgboost-mood/_page_0_Picture_3.jpeg
+/Users/ray/Desktop/CLARITY-DIGITAL-TWIN/big-mood-detector/docs/literature/converted_markdown/xgboost-mood/_page_1_Figure_2.jpeg
+/Users/ray/Desktop/CLARITY-DIGITAL-TWIN/big-mood-detector/docs/literature/converted_markdown/xgboost-mood/_page_1_Figure_4.jpeg
+/Users/ray/Desktop/CLARITY-DIGITAL-TWIN/big-mood-detector/docs/literature/converted_markdown/xgboost-mood/_page_3_Figure_2.jpeg
+/Users/ray/Desktop/CLARITY-DIGITAL-TWIN/big-mood-detector/docs/literature/converted_markdown/xgboost-mood/_page_5_Figure_2.jpeg
+/Users/ray/Desktop/CLARITY-DIGITAL-TWIN/big-mood-detector/docs/literature/converted_markdown/xgboost-mood/_page_6_Figure_1.jpeg
+/Users/ray/Desktop/CLARITY-DIGITAL-TWIN/big-mood-detector/docs/literature/converted_markdown/xgboost-mood/_page_6_Figure_3.jpeg
+/Users/ray/Desktop/CLARITY-DIGITAL-TWIN/big-mood-detector/docs/literature/converted_markdown/xgboost-mood/_page_7_Figure_2.jpeg
+/Users/ray/Desktop/CLARITY-DIGITAL-TWIN/big-mood-detector/docs/literature/converted_markdown/xgboost-mood/xgboost-mood_meta.json
+/Users/ray/Desktop/CLARITY-DIGITAL-TWIN/big-mood-detector/docs/literature/converted_markdown/xgboost-mood/xgboost-mood.md
+/Users/ray/Desktop/CLARITY-DIGITAL-TWIN/big-mood-detector/docs/literature/clinical_references_to_read.md
+
+REFERENCE PAPERS EXIST HERE
+
 # Clinical Dossier: Bipolar Disorder Digital Biomarkers and Treatment Guidelines
 
 This document serves as the single source of truth for all clinical decision-making thresholds, DSM-5 criteria, and implementation guidelines for the big-mood-detector system.

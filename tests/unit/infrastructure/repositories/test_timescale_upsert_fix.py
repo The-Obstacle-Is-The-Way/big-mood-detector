@@ -108,10 +108,15 @@ class TestTimescaleUpsertPattern:
         commit_called = False
 
         class MockSession:
+            def begin(self):
+                return self
+
             def __enter__(self):
                 return self
 
             def __exit__(self, *args):
+                nonlocal commit_called
+                commit_called = True
                 return False
 
             def add(self, obj):
@@ -121,8 +126,7 @@ class TestTimescaleUpsertPattern:
                 pass
 
             def commit(self):
-                nonlocal commit_called
-                commit_called = True
+                pass
 
             def rollback(self):
                 pass
@@ -141,10 +145,16 @@ class TestTimescaleUpsertPattern:
         rollback_called = False
 
         class MockSessionWithError:
+            def begin(self):
+                return self
+
             def __enter__(self):
                 return self
 
-            def __exit__(self, *args):
+            def __exit__(self, exc_type, exc_val, exc_tb):
+                if exc_type:
+                    nonlocal rollback_called
+                    rollback_called = True
                 return False
 
             def add(self, obj):
@@ -157,8 +167,7 @@ class TestTimescaleUpsertPattern:
                 pass
 
             def rollback(self):
-                nonlocal rollback_called
-                rollback_called = True
+                pass
 
             def close(self):
                 nonlocal close_called
