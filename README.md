@@ -4,11 +4,17 @@
 
 [![Tests](https://img.shields.io/badge/tests-695%20passing-brightgreen)](tests/)
 [![Coverage](https://img.shields.io/badge/coverage-91%25-brightgreen)](htmlcov/)
-[![Python](https://img.shields.io/badge/python-3.11%2B-blue)](pyproject.toml)
+[![Python](https://img.shields.io/badge/python-3.12%2B-blue)](pyproject.toml)
 [![Models](https://img.shields.io/badge/models-XGBoost%20%2B%20PAT-purple)](model_weights/)
 [![License](https://img.shields.io/badge/license-Apache%202.0-green)](LICENSE)
 
 A production-ready system for detecting mood episodes in bipolar disorder using wearable sensor data. Based on peer-reviewed research from Nature Digital Medicine, Harvard Medical School, and Dartmouth.
+
+## 📋 Requirements
+
+- Python 3.12 or higher
+- 8GB RAM minimum (16GB recommended for large datasets)
+- macOS, Linux, or Windows with WSL2
 
 ## 🚀 Quick Start
 
