@@ -103,39 +103,70 @@ class TestTimescaleUpsertPattern:
             data_points=10,
         )
 
-        # Track session lifecycle
-        sessions_created = []
-        sessions_closed = []
+        # Test 1: Normal operation - session should be closed
+        close_called = False
+        commit_called = False
 
-        class MockSession(MagicMock):
-            def __init__(self, *args, **kwargs):
-                super().__init__(*args, **kwargs)
-                sessions_created.append(self)
+        class MockSession:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *args):
+                return False
+
+            def add(self, obj):
+                pass
+
+            def execute(self, stmt):
+                pass
+
+            def commit(self):
+                nonlocal commit_called
+                commit_called = True
+
+            def rollback(self):
+                pass
 
             def close(self):
-                sessions_closed.append(self)
-                # Don't call super().close() on MagicMock
+                nonlocal close_called
+                close_called = True
 
-        # Replace SessionLocal with our tracking version
-        with patch.object(repository, 'SessionLocal') as mock_session_local:
-            mock_session_local.return_value = MockSession()
-            # Normal operation - session should be closed
+        with patch.object(repository, 'SessionLocal', return_value=MockSession()):
             repository.save_baseline(baseline)
-            assert len(sessions_created) == 1
-            assert len(sessions_closed) == 1
+            assert close_called, "Session should be closed after normal operation"
+            assert commit_called, "Session should be committed"
 
-            # Reset tracking
-            sessions_created.clear()
-            sessions_closed.clear()
+        # Test 2: Exception during operation - session should still be closed
+        close_called = False
+        rollback_called = False
 
-            # Operation with exception - session should still be closed
-            mock_session = MockSession()
-            mock_session.execute.side_effect = Exception("DB Error")
+        class MockSessionWithError:
+            def __enter__(self):
+                return self
 
-            with patch.object(repository, 'SessionLocal') as mock_session_local:
-                mock_session_local.return_value = mock_session
-                with pytest.raises(Exception, match="DB Error"):
-                    repository.save_baseline(baseline)
+            def __exit__(self, *args):
+                return False
 
-            assert len(sessions_created) == 1
-            assert len(sessions_closed) == 1  # Session closed even on error
+            def add(self, obj):
+                pass
+
+            def execute(self, stmt):
+                raise Exception("DB Error")
+
+            def commit(self):
+                pass
+
+            def rollback(self):
+                nonlocal rollback_called
+                rollback_called = True
+
+            def close(self):
+                nonlocal close_called
+                close_called = True
+
+        with patch.object(repository, 'SessionLocal', return_value=MockSessionWithError()):
+            with pytest.raises(Exception, match="DB Error"):
+                repository.save_baseline(baseline)
+
+            assert close_called, "Session should be closed even after exception"
+            assert rollback_called, "Session should be rolled back on exception"
