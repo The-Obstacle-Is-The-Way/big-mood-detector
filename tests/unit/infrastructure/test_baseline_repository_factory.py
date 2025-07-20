@@ -24,13 +24,13 @@ class TestBaselineRepositoryFactory:
         from big_mood_detector.infrastructure.repositories.baseline_repository_factory import (
             BaselineRepositoryFactory,
         )
-        
+
         with tempfile.TemporaryDirectory() as tmpdir:
             factory = BaselineRepositoryFactory(base_path=Path(tmpdir))
-            
+
             # Should create file repository by default
             repo = factory.create_repository()
-            
+
             assert isinstance(repo, BaselineRepositoryInterface)
             # Check it's specifically a FileBaselineRepository
             assert repo.__class__.__name__ == "FileBaselineRepository"
@@ -40,16 +40,16 @@ class TestBaselineRepositoryFactory:
         from big_mood_detector.infrastructure.repositories.baseline_repository_factory import (
             BaselineRepositoryFactory,
         )
-        
+
         with tempfile.TemporaryDirectory() as tmpdir:
             factory = BaselineRepositoryFactory(base_path=Path(tmpdir))
-            
+
             # Set environment variable
             with patch.dict(os.environ, {"BASELINE_REPOSITORY_TYPE": "timescale"}):
                 # Mock connection string
                 with patch.dict(os.environ, {"TIMESCALE_CONNECTION_STRING": "postgresql://test"}):
                     repo = factory.create_repository()
-            
+
             assert isinstance(repo, BaselineRepositoryInterface)
             # Check it's specifically a TimescaleBaselineRepository
             assert repo.__class__.__name__ == "TimescaleBaselineRepository"
@@ -59,14 +59,14 @@ class TestBaselineRepositoryFactory:
         from big_mood_detector.infrastructure.repositories.baseline_repository_factory import (
             BaselineRepositoryFactory,
         )
-        
+
         with tempfile.TemporaryDirectory() as tmpdir:
             factory = BaselineRepositoryFactory(base_path=Path(tmpdir))
-            
+
             # Create file repository explicitly
             file_repo = factory.create_repository(repository_type="file")
             assert file_repo.__class__.__name__ == "FileBaselineRepository"
-            
+
             # Create timescale repository explicitly
             with patch.dict(os.environ, {"TIMESCALE_CONNECTION_STRING": "postgresql://test"}):
                 ts_repo = factory.create_repository(repository_type="timescale")
@@ -77,10 +77,10 @@ class TestBaselineRepositoryFactory:
         from big_mood_detector.infrastructure.repositories.baseline_repository_factory import (
             BaselineRepositoryFactory,
         )
-        
+
         with tempfile.TemporaryDirectory() as tmpdir:
             factory = BaselineRepositoryFactory(base_path=Path(tmpdir))
-            
+
             with pytest.raises(ValueError, match="Unknown repository type"):
                 factory.create_repository(repository_type="invalid")
 
@@ -89,10 +89,10 @@ class TestBaselineRepositoryFactory:
         from big_mood_detector.infrastructure.repositories.baseline_repository_factory import (
             BaselineRepositoryFactory,
         )
-        
+
         with tempfile.TemporaryDirectory() as tmpdir:
             factory = BaselineRepositoryFactory(base_path=Path(tmpdir))
-            
+
             # Try to create TimescaleDB without connection string
             with pytest.raises(ValueError, match="TIMESCALE_CONNECTION_STRING"):
                 factory.create_repository(repository_type="timescale")
@@ -103,7 +103,7 @@ class TestBaselineRepositoryFactory:
             BaselineRepositoryFactory,
             BaselineRepositorySettings,
         )
-        
+
         with tempfile.TemporaryDirectory() as tmpdir:
             # Create settings
             settings = BaselineRepositorySettings(
@@ -112,10 +112,10 @@ class TestBaselineRepositoryFactory:
                 timescale_connection_string=None,
                 enable_feast_sync=False,
             )
-            
+
             factory = BaselineRepositoryFactory.from_settings(settings)
             repo = factory.create_repository()
-            
+
             assert repo.__class__.__name__ == "FileBaselineRepository"
 
     def test_singleton_pattern_returns_same_instance(self):
@@ -123,14 +123,14 @@ class TestBaselineRepositoryFactory:
         from big_mood_detector.infrastructure.repositories.baseline_repository_factory import (
             BaselineRepositoryFactory,
         )
-        
+
         with tempfile.TemporaryDirectory() as tmpdir:
             factory = BaselineRepositoryFactory(base_path=Path(tmpdir))
-            
+
             # Get repository twice
             repo1 = factory.get_repository()
             repo2 = factory.get_repository()
-            
+
             # Should be the same instance
             assert repo1 is repo2
 
@@ -139,15 +139,15 @@ class TestBaselineRepositoryFactory:
         from big_mood_detector.infrastructure.repositories.baseline_repository_factory import (
             BaselineRepositoryFactory,
         )
-        
+
         with tempfile.TemporaryDirectory() as tmpdir:
             factory = BaselineRepositoryFactory(base_path=Path(tmpdir))
-            
+
             # create_repository always returns new instance
             repo1 = factory.create_repository()
             repo2 = factory.create_repository()
             assert repo1 is not repo2
-            
+
             # get_repository returns singleton
             repo3 = factory.get_repository()
             repo4 = factory.get_repository()
