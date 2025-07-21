@@ -174,9 +174,15 @@ class TestFileBaselineRepository(BaselineRepositoryContract):
 
         yield  # Run the test
 
-        # Clean after test
+        # Clean after test with retry for OS locks
         if test_path.exists():
-            shutil.rmtree(test_path)
+            import time
+            for _ in range(3):
+                try:
+                    shutil.rmtree(test_path)
+                    break
+                except OSError:
+                    time.sleep(0.1)  # Wait for OS to release locks
 
     def get_repository(self) -> BaselineRepositoryInterface:
         return FileBaselineRepository(base_path=Path("./temp_test_baselines"))
