@@ -45,7 +45,7 @@ class FileBaselineRepository(BaselineRepositoryInterface):
         # Hash user ID for privacy
         hashed_user_id = hash_user_id(baseline.user_id)
         user_dir = self.base_path / hashed_user_id
-        user_dir.mkdir(exist_ok=True)
+        user_dir.mkdir(parents=True, exist_ok=True)
 
         history_file = user_dir / "baseline_history.json"
         lock_file = user_dir / "baseline_history.lock"
