@@ -7,14 +7,6 @@ from unittest.mock import MagicMock, Mock, patch
 
 import pytest
 
-from big_mood_detector.domain.repositories.baseline_repository_interface import (
-    UserBaseline,
-)
-from big_mood_detector.infrastructure.repositories.timescale_baseline_repository import (
-    TimescaleBaselineRepository,
-)
-
-
 class TestTimescaleConcurrency:
     """Test concurrent operations in TimescaleDB repository."""
 
@@ -70,6 +62,8 @@ class TestTimescaleConcurrency:
 
     def test_concurrent_save_baseline_same_user(self, repository):
         """Test that concurrent saves for the same user don't cause integrity errors."""
+        from big_mood_detector.domain.repositories.baseline_repository_interface import UserBaseline
+
         user_id = "test_user"
         baseline_date = date(2024, 1, 15)
 
@@ -142,6 +136,8 @@ class TestTimescaleConcurrency:
 
     def test_concurrent_save_different_users(self, repository):
         """Test that concurrent saves for different users work correctly."""
+        from big_mood_detector.domain.repositories.baseline_repository_interface import UserBaseline
+
         baselines = []
         for i in range(5):
             baseline = UserBaseline(
@@ -196,6 +192,8 @@ class TestTimescaleConcurrency:
 
     def test_concurrent_read_write(self, repository):
         """Test concurrent reads and writes don't interfere."""
+        from big_mood_detector.domain.repositories.baseline_repository_interface import UserBaseline
+
         user_id = "test_user"
         baseline = UserBaseline(
             user_id=user_id,

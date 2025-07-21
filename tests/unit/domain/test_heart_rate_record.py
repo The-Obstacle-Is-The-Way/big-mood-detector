@@ -8,18 +8,13 @@ from datetime import UTC, datetime
 
 import pytest
 
-from big_mood_detector.domain.entities.heart_rate_record import (
-    HeartMetricType,
-    HeartRateRecord,
-    MotionContext,
-)
-
-
 class TestHeartMetricType:
     """Test suite for HeartMetricType enum."""
 
     def test_heart_metric_type_from_healthkit_identifier(self):
         """Test conversion from HealthKit identifiers."""
+        from big_mood_detector.domain.entities.heart_rate_record import HeartMetricType
+
         # ARRANGE & ACT & ASSERT
         assert (
             HeartMetricType.from_healthkit_identifier(
@@ -42,39 +37,51 @@ class TestHeartMetricType:
 
     def test_invalid_healthkit_identifier_raises_error(self):
         """Test that invalid identifiers raise ValueError."""
+        from big_mood_detector.domain.entities.heart_rate_record import HeartMetricType
+
         with pytest.raises(ValueError, match="Unknown heart metric type"):
             HeartMetricType.from_healthkit_identifier("InvalidIdentifier")
 
     def test_is_hrv_metric(self):
         """Test HRV metric detection."""
+        from big_mood_detector.domain.entities.heart_rate_record import HeartMetricType
+
         assert HeartMetricType.HRV_SDNN.is_hrv_metric()
         assert not HeartMetricType.HEART_RATE.is_hrv_metric()
         assert not HeartMetricType.RESTING_HEART_RATE.is_hrv_metric()
-
 
 class TestMotionContext:
     """Test suite for MotionContext enum."""
 
     def test_motion_context_values(self):
         """Test motion context enum values."""
+        from big_mood_detector.domain.entities.heart_rate_record import MotionContext
+
         assert MotionContext.SEDENTARY.value == "sedentary"
         assert MotionContext.ACTIVE.value == "active"
         assert MotionContext.UNKNOWN.value == "unknown"
 
     def test_from_string(self):
         """Test creating motion context from string."""
+        from big_mood_detector.domain.entities.heart_rate_record import MotionContext
+
         assert MotionContext.from_string("sedentary") == MotionContext.SEDENTARY
         assert MotionContext.from_string("active") == MotionContext.ACTIVE
         assert MotionContext.from_string("") == MotionContext.UNKNOWN
         assert MotionContext.from_string(None) == MotionContext.UNKNOWN
         assert MotionContext.from_string("invalid") == MotionContext.UNKNOWN
 
-
 class TestHeartRateRecord:
     """Test suite for HeartRateRecord entity."""
 
     def test_create_valid_heart_rate_record(self):
         """Test creating a valid heart rate record."""
+        from big_mood_detector.domain.entities.heart_rate_record import (
+            HeartMetricType,
+            HeartRateRecord,
+            MotionContext,
+        )
+
         # ARRANGE
         timestamp = datetime(2024, 1, 1, 10, 0, tzinfo=UTC)
 
@@ -98,6 +105,11 @@ class TestHeartRateRecord:
 
     def test_heart_rate_record_is_immutable(self):
         """Test that heart rate record cannot be modified after creation."""
+        from big_mood_detector.domain.entities.heart_rate_record import (
+            HeartMetricType,
+            HeartRateRecord,
+        )
+
         # ARRANGE
         record = HeartRateRecord(
             source_name="Apple Watch",
@@ -113,6 +125,11 @@ class TestHeartRateRecord:
 
     def test_empty_source_name_raises_error(self):
         """Test that empty source name is not allowed."""
+        from big_mood_detector.domain.entities.heart_rate_record import (
+            HeartMetricType,
+            HeartRateRecord,
+        )
+
         # ACT & ASSERT
         with pytest.raises(ValueError, match="Source name is required"):
             HeartRateRecord(
@@ -125,6 +142,11 @@ class TestHeartRateRecord:
 
     def test_negative_heart_rate_raises_error(self):
         """Test that negative heart rate values are not allowed."""
+        from big_mood_detector.domain.entities.heart_rate_record import (
+            HeartMetricType,
+            HeartRateRecord,
+        )
+
         # ACT & ASSERT
         with pytest.raises(ValueError, match="Heart metric value cannot be negative"):
             HeartRateRecord(
@@ -137,6 +159,11 @@ class TestHeartRateRecord:
 
     def test_empty_unit_raises_error(self):
         """Test that empty unit is not allowed."""
+        from big_mood_detector.domain.entities.heart_rate_record import (
+            HeartMetricType,
+            HeartRateRecord,
+        )
+
         # ACT & ASSERT
         with pytest.raises(ValueError, match="Unit is required"):
             HeartRateRecord(
@@ -149,6 +176,12 @@ class TestHeartRateRecord:
 
     def test_is_high_heart_rate(self):
         """Test detection of abnormally high heart rate."""
+        from big_mood_detector.domain.entities.heart_rate_record import (
+            HeartMetricType,
+            HeartRateRecord,
+            MotionContext,
+        )
+
         # ARRANGE - High heart rate at rest
         high_hr = HeartRateRecord(
             source_name="Apple Watch",
@@ -174,6 +207,11 @@ class TestHeartRateRecord:
 
     def test_is_low_heart_rate(self):
         """Test detection of abnormally low heart rate."""
+        from big_mood_detector.domain.entities.heart_rate_record import (
+            HeartMetricType,
+            HeartRateRecord,
+        )
+
         # ARRANGE - Low heart rate
         low_hr = HeartRateRecord(
             source_name="Apple Watch",
@@ -197,6 +235,11 @@ class TestHeartRateRecord:
 
     def test_is_low_hrv(self):
         """Test detection of low HRV (autonomic dysfunction)."""
+        from big_mood_detector.domain.entities.heart_rate_record import (
+            HeartMetricType,
+            HeartRateRecord,
+        )
+
         # ARRANGE - Low HRV
         low_hrv = HeartRateRecord(
             source_name="Apple Watch",
@@ -220,6 +263,12 @@ class TestHeartRateRecord:
 
     def test_is_clinically_significant(self):
         """Test detection of clinically significant values."""
+        from big_mood_detector.domain.entities.heart_rate_record import (
+            HeartMetricType,
+            HeartRateRecord,
+            MotionContext,
+        )
+
         # ARRANGE
         high_hr = HeartRateRecord(
             source_name="Apple Watch",
@@ -253,6 +302,12 @@ class TestHeartRateRecord:
 
     def test_high_heart_rate_during_activity_not_significant(self):
         """Test that high HR during activity is not flagged as abnormal."""
+        from big_mood_detector.domain.entities.heart_rate_record import (
+            HeartMetricType,
+            HeartRateRecord,
+            MotionContext,
+        )
+
         # ARRANGE
         active_hr = HeartRateRecord(
             source_name="Apple Watch",
@@ -269,6 +324,11 @@ class TestHeartRateRecord:
 
     def test_instantaneous_property(self):
         """Test that heart rate records are always instantaneous."""
+        from big_mood_detector.domain.entities.heart_rate_record import (
+            HeartMetricType,
+            HeartRateRecord,
+        )
+
         # ARRANGE
         record = HeartRateRecord(
             source_name="Apple Watch",
@@ -283,6 +343,11 @@ class TestHeartRateRecord:
 
     def test_is_same_type(self):
         """Test checking if two records are same type."""
+        from big_mood_detector.domain.entities.heart_rate_record import (
+            HeartMetricType,
+            HeartRateRecord,
+        )
+
         # ARRANGE
         hr1 = HeartRateRecord(
             source_name="Apple Watch",

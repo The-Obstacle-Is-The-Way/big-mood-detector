@@ -15,8 +15,6 @@ from unittest.mock import MagicMock, patch
 import numpy as np
 import pytest
 
-from big_mood_detector.domain.services.pat_sequence_builder import PATSequence
-
 HAS_TENSORFLOW = importlib.util.find_spec("tensorflow") is not None
 
 # Skip all tests in this module if TensorFlow is not available
@@ -25,14 +23,14 @@ pytestmark = pytest.mark.skipif(
     reason="TensorFlow not installed - PAT model tests skipped"
 )
 
-
 class TestPATModel:
     """Test the PAT model wrapper for inference."""
 
     def test_model_initialization(self):
         """Test basic model initialization."""
-        # Import will fail initially (TDD)
         from big_mood_detector.infrastructure.ml_models.pat_model import PATModel
+
+        # Import will fail initially (TDD)
 
         model = PATModel(model_size="medium")
 
@@ -114,6 +112,7 @@ class TestPATModel:
     @patch("tensorflow.keras.models.load_model")
     def test_extract_features_from_sequence(self, mock_load_model, mock_exists):
         """Test extracting features from a PAT sequence."""
+        from big_mood_detector.domain.services.pat_sequence_builder import PATSequence
         from big_mood_detector.infrastructure.ml_models.pat_model import PATModel
 
         # Mock file exists
@@ -148,6 +147,7 @@ class TestPATModel:
 
     def test_extract_features_without_loaded_model(self):
         """Test that feature extraction fails gracefully without loaded model."""
+        from big_mood_detector.domain.services.pat_sequence_builder import PATSequence
         from big_mood_detector.infrastructure.ml_models.pat_model import PATModel
 
         model = PATModel(model_size="medium")
@@ -169,6 +169,7 @@ class TestPATModel:
     @patch("tensorflow.keras.models.load_model")
     def test_batch_feature_extraction(self, mock_load_model, mock_exists):
         """Test extracting features from multiple sequences."""
+        from big_mood_detector.domain.services.pat_sequence_builder import PATSequence
         from big_mood_detector.infrastructure.ml_models.pat_model import PATModel
 
         # Mock file exists
@@ -207,6 +208,7 @@ class TestPATModel:
 
     def test_prepare_input_for_model(self):
         """Test input preparation matches PAT paper requirements."""
+        from big_mood_detector.domain.services.pat_sequence_builder import PATSequence
         from big_mood_detector.infrastructure.ml_models.pat_model import PATModel
 
         model = PATModel(model_size="medium")
@@ -237,7 +239,6 @@ class TestPATModel:
         # Method should exist
         assert hasattr(model, "get_attention_weights")
 
-
 class TestPATModelIntegration:
     """Test integration with the mood prediction pipeline."""
 
@@ -248,6 +249,7 @@ class TestPATModelIntegration:
     @patch("tensorflow.keras.models.load_model")
     def test_pat_features_for_mood_prediction(self, mock_load_model, mock_exists):
         """Test that PAT features can be used for mood prediction."""
+        from big_mood_detector.domain.services.pat_sequence_builder import PATSequence
         from big_mood_detector.infrastructure.ml_models.pat_model import PATModel
 
         # Mock file exists

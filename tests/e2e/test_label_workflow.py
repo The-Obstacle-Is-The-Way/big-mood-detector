@@ -13,9 +13,6 @@ import pandas as pd
 import pytest
 from click.testing import CliRunner
 
-from big_mood_detector.interfaces.cli.main import cli
-
-
 class TestLabelWorkflowE2E:
     """End-to-end tests for the complete label workflow."""
 
@@ -42,6 +39,8 @@ class TestLabelWorkflowE2E:
         When they create episodes, baselines, and export data
         Then the workflow should complete successfully with persisted data
         """
+        from big_mood_detector.interfaces.cli.main import cli
+
         # Given: A fresh database
         assert temp_db.exists()
 
@@ -159,6 +158,8 @@ class TestLabelWorkflowE2E:
         When they each add their assessments
         Then the system should track rater attribution
         """
+        from big_mood_detector.interfaces.cli.main import cli
+
         # Given: Two different raters
         rater1 = "dr_smith"
         rater2 = "dr_jones"
@@ -223,6 +224,8 @@ class TestLabelWorkflowE2E:
 
         Note: Undo only works within the same session, not for database-loaded episodes
         """
+        from big_mood_detector.interfaces.cli.main import cli
+
         # Given: Start a session without a database (in-memory only)
         with tempfile.NamedTemporaryFile(suffix=".csv", delete=False) as f:
             csv_path = Path(f.name)
@@ -265,6 +268,8 @@ class TestLabelWorkflowE2E:
         When user exports in JSON format
         Then the export should be valid JSON with all fields
         """
+        from big_mood_detector.interfaces.cli.main import cli
+
         # Given: A labeled episode
         runner.invoke(
             cli,
@@ -326,6 +331,8 @@ class TestLabelWorkflowE2E:
         When user tries to label overlapping dates
         Then the system should detect and handle conflicts
         """
+        from big_mood_detector.interfaces.cli.main import cli
+
         # Given: An existing episode
         runner.invoke(
             cli,

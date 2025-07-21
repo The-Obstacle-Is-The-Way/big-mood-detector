@@ -8,14 +8,13 @@ from unittest.mock import patch
 import pytest
 from pydantic import ValidationError
 
-from big_mood_detector.infrastructure.settings.config import Settings, get_settings
-
-
 class TestSettings:
     """Test Settings configuration."""
 
     def test_default_settings(self):
         """Test default settings values."""
+        from big_mood_detector.infrastructure.settings.config import Settings
+
         settings = Settings()
 
         assert settings.PROJECT_NAME == "Big Mood Detector"
@@ -27,6 +26,8 @@ class TestSettings:
 
     def test_environment_variable_override(self):
         """Test that environment variables override defaults."""
+        from big_mood_detector.infrastructure.settings.config import Settings
+
         with patch.dict(os.environ, {
             "LOG_LEVEL": "DEBUG",
             "USER_ID_SALT": "custom-salt-123",
@@ -42,6 +43,8 @@ class TestSettings:
 
     def test_production_salt_warning(self):
         """Test warning when using default salt in production."""
+        from big_mood_detector.infrastructure.settings.config import Settings
+
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
 
@@ -53,6 +56,8 @@ class TestSettings:
 
     def test_ensemble_weights_validation(self):
         """Test that ensemble weights must sum to 1.0."""
+        from big_mood_detector.infrastructure.settings.config import Settings
+
         # Valid weights
         settings = Settings(ENSEMBLE_XGBOOST_WEIGHT=0.7, ENSEMBLE_PAT_WEIGHT=0.3)
         assert settings.ENSEMBLE_XGBOOST_WEIGHT == 0.7
@@ -64,6 +69,8 @@ class TestSettings:
 
     def test_path_expansion(self):
         """Test that paths are expanded correctly."""
+        from big_mood_detector.infrastructure.settings.config import Settings
+
         settings = Settings(DATA_DIR="~/test_data")
 
         # Should expand home directory
@@ -72,6 +79,8 @@ class TestSettings:
 
     def test_validation_constraints(self):
         """Test field validation constraints."""
+        from big_mood_detector.infrastructure.settings.config import Settings
+
         # Valid values
         settings = Settings(
             DEPRESSION_THRESHOLD=0.7,
@@ -96,6 +105,8 @@ class TestSettings:
 
     def test_log_level_validation(self):
         """Test that only valid log levels are accepted."""
+        from big_mood_detector.infrastructure.settings.config import Settings
+
         # Valid levels
         for level in ["DEBUG", "INFO", "WARNING", "ERROR"]:
             settings = Settings(LOG_LEVEL=level)
@@ -107,6 +118,8 @@ class TestSettings:
 
     def test_environment_validation(self):
         """Test that only valid environments are accepted."""
+        from big_mood_detector.infrastructure.settings.config import Settings
+
         # Valid environments
         for env in ["local", "staging", "production"]:
             settings = Settings(ENVIRONMENT=env)
@@ -118,6 +131,8 @@ class TestSettings:
 
     def test_get_settings_singleton(self):
         """Test that get_settings returns a singleton."""
+        from big_mood_detector.infrastructure.settings.config import get_settings
+
         settings1 = get_settings()
         settings2 = get_settings()
 

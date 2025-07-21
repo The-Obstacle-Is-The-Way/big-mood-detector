@@ -9,16 +9,6 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from big_mood_detector.application.services.aggregation_pipeline import (
-    AggregationPipeline,
-)
-from big_mood_detector.domain.entities.sleep_record import SleepRecord, SleepState
-from big_mood_detector.domain.services.sleep_aggregator import (
-    DailySleepSummary,
-    SleepAggregator,
-)
-
-
 class TestSleepPercentageBug:
     """Prove that aggregation_pipeline calculates sleep wrong."""
 
@@ -28,6 +18,8 @@ class TestSleepPercentageBug:
 
         This test mocks the internal calculation to show the bug.
         """
+        from big_mood_detector.application.services.aggregation_pipeline import AggregationPipeline
+
         pipeline = AggregationPipeline()
 
         # Mock sleep windows with known values
@@ -63,6 +55,12 @@ class TestSleepPercentageBug:
         """
         GREEN TEST: Show how it SHOULD work using SleepAggregator.
         """
+        from big_mood_detector.domain.entities.sleep_record import (
+            SleepRecord,
+            SleepState,
+        )
+        from big_mood_detector.domain.services.sleep_aggregator import SleepAggregator
+
         # Create a proper 7.5 hour sleep record
         sleep_record = SleepRecord(
             source_name="Apple Watch",
@@ -91,6 +89,15 @@ class TestSleepPercentageBug:
         "big_mood_detector.application.services.aggregation_pipeline.SleepAggregator"
     )
     def test_pipeline_should_use_aggregator_not_windows(
+        from big_mood_detector.domain.entities.sleep_record import (
+            SleepRecord,
+            SleepState,
+        )
+        from big_mood_detector.domain.services.sleep_aggregator import (
+            DailySleepSummary,
+            SleepAggregator,
+        )
+
         self, mock_aggregator_class, mock_analyzer_class
     ):
         """

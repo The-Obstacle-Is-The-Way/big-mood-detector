@@ -10,19 +10,14 @@ from pathlib import Path
 
 import pytest
 
-from big_mood_detector.domain.services.advanced_feature_engineering import (
-    AdvancedFeatureEngineer,
-)
-from big_mood_detector.infrastructure.repositories.baseline_repository_factory import (
-    BaselineRepositoryFactory,
-)
-
-
 class TestRepositoryFactoryWithFeatureEngineering:
     """Test repository factory integration with feature engineering."""
 
     def test_feature_engineer_uses_factory_repository(self):
         """Test that AdvancedFeatureEngineer can use factory-created repository."""
+        from big_mood_detector.infrastructure.repositories.baseline_repository_factory import BaselineRepositoryFactory
+        from big_mood_detector.domain.services.advanced_feature_engineering import AdvancedFeatureEngineer
+
         with tempfile.TemporaryDirectory() as tmpdir:
             # Create factory and get repository
             factory = BaselineRepositoryFactory(base_path=Path(tmpdir))
@@ -58,6 +53,9 @@ class TestRepositoryFactoryWithFeatureEngineering:
 
     def test_factory_supports_multiple_users(self):
         """Test that factory-created repository supports multiple users."""
+        from big_mood_detector.infrastructure.repositories.baseline_repository_factory import BaselineRepositoryFactory
+        from big_mood_detector.domain.services.advanced_feature_engineering import AdvancedFeatureEngineer
+
         with tempfile.TemporaryDirectory() as tmpdir:
             factory = BaselineRepositoryFactory(base_path=Path(tmpdir))
             repository = factory.get_repository()
@@ -96,6 +94,8 @@ class TestRepositoryFactoryWithFeatureEngineering:
 
     def test_environment_variable_configuration(self):
         """Test that factory respects environment variables."""
+        from big_mood_detector.infrastructure.repositories.baseline_repository_factory import BaselineRepositoryFactory
+
         import os
         from unittest.mock import patch
 

@@ -10,16 +10,6 @@ from io import StringIO
 
 import pytest
 
-from big_mood_detector.domain.services.feature_extraction_service import (
-    FeatureExtractionService,
-)
-from big_mood_detector.infrastructure.parsers.xml import (
-    ActivityParser,
-    HeartRateParser,
-    SleepParser,
-)
-
-
 class TestHealthDataIntegration:
     """Integration tests for the complete health data pipeline."""
 
@@ -79,6 +69,13 @@ class TestHealthDataIntegration:
 
     def test_full_pipeline_integration(self, sample_health_xml):
         """Test the complete flow from XML parsing to feature extraction."""
+        from big_mood_detector.domain.services.feature_extraction_service import FeatureExtractionService
+        from big_mood_detector.infrastructure.parsers.xml import (
+            ActivityParser,
+            HeartRateParser,
+            SleepParser,
+        )
+
         # ARRANGE
         sleep_parser = SleepParser()
         activity_parser = ActivityParser()
@@ -131,6 +128,13 @@ class TestHealthDataIntegration:
 
     def test_missing_data_types_handling(self):
         """Test handling when some data types are missing."""
+        from big_mood_detector.domain.services.feature_extraction_service import FeatureExtractionService
+        from big_mood_detector.infrastructure.parsers.xml import (
+            ActivityParser,
+            HeartRateParser,
+            SleepParser,
+        )
+
         # ARRANGE
         xml_content = """<?xml version="1.0" encoding="UTF-8"?>
 <HealthData locale="en_US">
@@ -171,6 +175,13 @@ class TestHealthDataIntegration:
 
     def test_clinical_edge_cases(self, sample_health_xml):
         """Test detection of clinical edge cases in integrated data."""
+        from big_mood_detector.domain.services.feature_extraction_service import FeatureExtractionService
+        from big_mood_detector.infrastructure.parsers.xml import (
+            ActivityParser,
+            HeartRateParser,
+            SleepParser,
+        )
+
         # ARRANGE
         parsers = {
             "sleep": SleepParser(),
@@ -207,6 +218,12 @@ class TestHealthDataIntegration:
 
     def test_data_quality_and_completeness(self):
         """Test that the integration handles incomplete or poor quality data."""
+        from big_mood_detector.domain.services.feature_extraction_service import FeatureExtractionService
+        from big_mood_detector.infrastructure.parsers.xml import (
+            ActivityParser,
+            SleepParser,
+        )
+
         # ARRANGE
         xml_content = """<?xml version="1.0" encoding="UTF-8"?>
 <HealthData locale="en_US">

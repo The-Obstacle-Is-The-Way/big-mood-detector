@@ -9,11 +9,6 @@ from datetime import date, datetime
 
 import pytest
 
-from big_mood_detector.domain.repositories.baseline_repository_interface import (
-    UserBaseline,
-)
-
-
 class TestFileBaselineRepository:
     """Test file-based baseline repository implementation."""
 
@@ -27,14 +22,13 @@ class TestFileBaselineRepository:
     @pytest.fixture
     def repository(self, temp_baseline_dir):
         """Create repository instance."""
-        from big_mood_detector.infrastructure.repositories.file_baseline_repository import (
-            FileBaselineRepository,
-        )
 
         return FileBaselineRepository(temp_baseline_dir)
 
     def test_save_and_retrieve_baseline(self, repository):
         """Test saving and retrieving a baseline."""
+        from big_mood_detector.domain.repositories.baseline_repository_interface import UserBaseline
+
         # Given a baseline
         baseline = UserBaseline(
             user_id="user123",
@@ -65,6 +59,8 @@ class TestFileBaselineRepository:
 
     def test_update_baseline(self, repository):
         """Test updating an existing baseline."""
+        from big_mood_detector.domain.repositories.baseline_repository_interface import UserBaseline
+
         # Given an initial baseline
         baseline1 = UserBaseline(
             user_id="user123",
@@ -100,6 +96,8 @@ class TestFileBaselineRepository:
 
     def test_get_baseline_history(self, repository):
         """Test retrieving baseline history."""
+        from big_mood_detector.domain.repositories.baseline_repository_interface import UserBaseline
+
         # Given multiple baselines
         dates = [date(2024, 1, 1), date(2024, 1, 15), date(2024, 2, 1)]
         for i, baseline_date in enumerate(dates):
@@ -131,6 +129,8 @@ class TestFileBaselineRepository:
 
     def test_multiple_users(self, repository):
         """Test storing baselines for multiple users."""
+        from big_mood_detector.domain.repositories.baseline_repository_interface import UserBaseline
+
         # Given baselines for different users
         baseline1 = UserBaseline(
             user_id="user1",

@@ -17,25 +17,6 @@ from datetime import date, datetime, timedelta
 import numpy as np
 import pytest
 
-from big_mood_detector.application.use_cases.process_health_data_use_case import (
-    MoodPredictionPipeline,
-    PipelineConfig,
-)
-from big_mood_detector.domain.entities.activity_record import (
-    ActivityRecord,
-    ActivityType,
-)
-from big_mood_detector.domain.entities.heart_rate_record import (
-    HeartMetricType,
-    HeartRateRecord,
-    MotionContext,
-)
-from big_mood_detector.domain.entities.sleep_record import SleepRecord, SleepState
-from big_mood_detector.infrastructure.repositories.file_baseline_repository import (
-    FileBaselineRepository,
-)
-
-
 class TestBaselinePersistencePipeline:
     """Test that baselines persist and improve predictions over time."""
 
@@ -49,6 +30,8 @@ class TestBaselinePersistencePipeline:
     @pytest.fixture
     def baseline_repository(self, test_data_dir):
         """Create a file baseline repository."""
+        from big_mood_detector.infrastructure.repositories.file_baseline_repository import FileBaselineRepository
+
         baselines_dir = test_data_dir / "baselines"
         return FileBaselineRepository(baselines_dir)
 
@@ -140,6 +123,11 @@ class TestBaselinePersistencePipeline:
         - Week 2: Baselines should be more accurate
         - Week 3: Predictions should be most accurate
         """
+        from big_mood_detector.application.use_cases.process_health_data_use_case import (
+            MoodPredictionPipeline,
+            PipelineConfig,
+        )
+
         # User's true personal patterns
         user_pattern = {
             "sleep_mean": 7.2,  # This user sleeps less than average
@@ -286,6 +274,14 @@ class TestBaselinePersistencePipeline:
     )
     def test_baseline_persistence_after_pipeline_restart(self, baseline_repository):
         """Test that baselines persist when pipeline is restarted."""
+        from big_mood_detector.domain.entities.activity_record import ActivityRecord
+        from big_mood_detector.application.use_cases.process_health_data_use_case import (
+            MoodPredictionPipeline,
+            PipelineConfig,
+        )
+        from big_mood_detector.domain.entities.heart_rate_record import HeartRateRecord
+        from big_mood_detector.domain.entities.sleep_record import SleepRecord
+
         # Create first pipeline instance
         config = PipelineConfig()
         config.enable_personal_calibration = True

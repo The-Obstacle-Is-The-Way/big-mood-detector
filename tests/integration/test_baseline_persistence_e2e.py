@@ -10,24 +10,6 @@ from datetime import date, datetime, timedelta
 import numpy as np
 import pytest
 
-from big_mood_detector.application.use_cases.process_health_data_use_case import (
-    MoodPredictionPipeline,
-    PipelineConfig,
-)
-from big_mood_detector.domain.entities.activity_record import (
-    ActivityRecord,
-    ActivityType,
-)
-from big_mood_detector.domain.entities.heart_rate_record import (
-    HeartMetricType,
-    HeartRateRecord,
-)
-from big_mood_detector.domain.entities.sleep_record import SleepRecord, SleepState
-from big_mood_detector.infrastructure.repositories.file_baseline_repository import (
-    FileBaselineRepository,
-)
-
-
 class TestBaselinePersistenceE2E:
     """The ultimate test - personal baselines that persist and improve predictions!"""
 
@@ -149,6 +131,11 @@ class TestBaselinePersistenceE2E:
 
         This is what makes mental health predictions PERSONAL!
         """
+        from big_mood_detector.application.use_cases.process_health_data_use_case import (
+            MoodPredictionPipeline,
+            PipelineConfig,
+        )
+
         # User profile: An athlete with specific patterns
         user_sleep_avg = 7.5  # Athletes often need less sleep
         user_steps_avg = 15000  # Very active
@@ -313,6 +300,11 @@ class TestBaselinePersistenceE2E:
 
     def test_different_users_have_different_baselines(self, baseline_repository):
         """Test that different users maintain separate baselines."""
+        from big_mood_detector.application.use_cases.process_health_data_use_case import (
+            MoodPredictionPipeline,
+            PipelineConfig,
+        )
+
         config1 = PipelineConfig()
         config1.enable_personal_calibration = True
         config1.user_id = "night_owl_developer"

@@ -10,22 +10,17 @@ from unittest.mock import Mock, patch
 import numpy as np
 import pandas as pd
 
-from big_mood_detector.application.use_cases.process_health_data_use_case import (
-    MoodPredictionPipeline,
-    PipelineConfig,
-)
-from big_mood_detector.domain.entities.sleep_record import SleepRecord, SleepState
-from big_mood_detector.domain.services.mood_predictor import MoodPrediction
-from big_mood_detector.infrastructure.fine_tuning.personal_calibrator import (
-    PersonalCalibrator,
-)
-
-
 class TestPipelinePersonalCalibration:
     """Test PersonalCalibrator integration with MoodPredictionPipeline."""
 
     def test_pipeline_can_use_personal_calibrator(self):
         """Test that pipeline can be configured with a personal calibrator."""
+        from big_mood_detector.infrastructure.fine_tuning.personal_calibrator import PersonalCalibrator
+        from big_mood_detector.application.use_cases.process_health_data_use_case import (
+            MoodPredictionPipeline,
+            PipelineConfig,
+        )
+
         # Given a personal calibrator
         calibrator = PersonalCalibrator(user_id="test_user")
 
@@ -43,6 +38,11 @@ class TestPipelinePersonalCalibration:
 
     def test_pipeline_loads_personal_model_if_exists(self, tmp_path):
         """Test pipeline loads existing personal model."""
+        from big_mood_detector.application.use_cases.process_health_data_use_case import (
+            MoodPredictionPipeline,
+            PipelineConfig,
+        )
+
         # Given a saved personal model
         user_id = "test_user"
         model_dir = tmp_path / "models"
@@ -80,6 +80,11 @@ class TestPipelinePersonalCalibration:
     )
     def test_pipeline_continues_without_personal_model_if_not_found(self, mock_load):
         """Test pipeline continues with population model if personal model not found."""
+        from big_mood_detector.application.use_cases.process_health_data_use_case import (
+            MoodPredictionPipeline,
+            PipelineConfig,
+        )
+
         # Given loading personal model fails
         mock_load.side_effect = FileNotFoundError("No personal model")
 
@@ -96,6 +101,17 @@ class TestPipelinePersonalCalibration:
 
     def test_predictions_use_personal_baseline_deviations(self):
         """Test that predictions incorporate personal baseline deviations."""
+        from big_mood_detector.domain.services.mood_predictor import MoodPrediction
+        from big_mood_detector.application.use_cases.process_health_data_use_case import (
+            MoodPredictionPipeline,
+            PipelineConfig,
+        )
+        from big_mood_detector.infrastructure.fine_tuning.personal_calibrator import PersonalCalibrator
+        from big_mood_detector.domain.entities.sleep_record import (
+            SleepRecord,
+            SleepState,
+        )
+
         # Given a calibrator with established baseline
         calibrator = PersonalCalibrator(user_id="test_user")
         calibrator.baseline = {
@@ -148,6 +164,8 @@ class TestPipelinePersonalCalibration:
 
     def test_calibrator_adjusts_prediction_probabilities(self):
         """Test that calibrator adjusts overconfident predictions."""
+        from big_mood_detector.infrastructure.fine_tuning.personal_calibrator import PersonalCalibrator
+
         # Given a calibrator with calibration data
         calibrator = PersonalCalibrator(user_id="test_user")
 
@@ -167,6 +185,13 @@ class TestPipelinePersonalCalibration:
 
     def test_pipeline_saves_predictions_with_personal_context(self, tmp_path):
         """Test pipeline saves predictions with personal calibration metadata."""
+        from big_mood_detector.infrastructure.fine_tuning.personal_calibrator import PersonalCalibrator
+        from big_mood_detector.domain.services.mood_predictor import MoodPrediction
+        from big_mood_detector.application.use_cases.process_health_data_use_case import (
+            MoodPredictionPipeline,
+            PipelineConfig,
+        )
+
         # Given a calibrated pipeline
         calibrator = PersonalCalibrator(user_id="test_user")
         calibrator.baseline = {"mean_sleep_duration": 420}
@@ -212,6 +237,12 @@ class TestPipelinePersonalCalibration:
     @patch("big_mood_detector.infrastructure.ml_models.pat_model.PATModel")
     def test_ensemble_uses_personal_calibration(self, mock_pat_class):
         """Test that ensemble predictions also use personal calibration."""
+        from big_mood_detector.infrastructure.fine_tuning.personal_calibrator import PersonalCalibrator
+        from big_mood_detector.application.use_cases.process_health_data_use_case import (
+            MoodPredictionPipeline,
+            PipelineConfig,
+        )
+
         # Mock PAT model to avoid loading real weights
         mock_pat = Mock()
         mock_pat.load_pretrained_weights.return_value = True
@@ -241,6 +272,12 @@ class TestPipelinePersonalCalibration:
 
     def test_pipeline_updates_personal_model_with_new_labels(self):
         """Test pipeline can update personal model with new labeled data."""
+        from big_mood_detector.infrastructure.fine_tuning.personal_calibrator import PersonalCalibrator
+        from big_mood_detector.application.use_cases.process_health_data_use_case import (
+            MoodPredictionPipeline,
+            PipelineConfig,
+        )
+
         # Given a pipeline with calibrator
         calibrator = PersonalCalibrator(user_id="test_user", model_type="xgboost")
 
@@ -272,6 +309,17 @@ class TestPipelinePersonalCalibration:
 
     def test_personal_calibration_improves_early_warning(self):
         """Test that personal calibration enables earlier episode detection."""
+        from big_mood_detector.domain.services.mood_predictor import MoodPrediction
+        from big_mood_detector.application.use_cases.process_health_data_use_case import (
+            MoodPredictionPipeline,
+            PipelineConfig,
+        )
+        from big_mood_detector.infrastructure.fine_tuning.personal_calibrator import PersonalCalibrator
+        from big_mood_detector.domain.entities.sleep_record import (
+            SleepRecord,
+            SleepState,
+        )
+
         # Given historical data showing pattern before episodes
         calibrator = PersonalCalibrator(user_id="test_user")
 

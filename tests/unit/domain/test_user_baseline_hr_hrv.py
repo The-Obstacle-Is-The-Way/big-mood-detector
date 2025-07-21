@@ -6,11 +6,6 @@ Following TDD - write failing test first, then implement.
 
 from datetime import date, datetime
 
-from big_mood_detector.domain.repositories.baseline_repository_interface import (
-    UserBaseline,
-)
-
-
 class TestUserBaselineHRHRV:
     """Test that UserBaseline can store HR/HRV metrics."""
 
@@ -19,6 +14,8 @@ class TestUserBaselineHRHRV:
         Test that UserBaseline includes heart rate and HRV baselines.
         This should PASS now after implementation.
         """
+        from big_mood_detector.domain.repositories.baseline_repository_interface import UserBaseline
+
         # Create baseline with HR/HRV metrics
         baseline = UserBaseline(
             user_id="test_user",
@@ -48,6 +45,8 @@ class TestUserBaselineHRHRV:
         Test that repository interface can handle extended baselines.
         This documents the desired behavior.
         """
+        from big_mood_detector.domain.repositories.baseline_repository_interface import UserBaseline
+
         # Create current baseline (without HR/HRV)
         baseline = UserBaseline(
             user_id="test_user",

@@ -12,12 +12,6 @@ import numpy as np
 import pytest
 from click.testing import CliRunner
 
-from big_mood_detector.domain.entities.activity_record import (
-    ActivityRecord,
-    ActivityType,
-)
-
-
 class TestEnsemblePredictions:
     """Test ensemble predictions across different scenarios."""
 
@@ -109,21 +103,20 @@ class TestEnsemblePredictions:
     @pytest.mark.skip(reason="Requires specific model files with matching feature names")
     def test_ensemble_with_pat_available(self, mock_features, mock_activity_data):
         """Test ensemble prediction when PAT is available."""
-        from big_mood_detector.infrastructure.ml_models import PAT_AVAILABLE
-
-        if not PAT_AVAILABLE:
-            pytest.skip("TensorFlow not installed")
-
+        from big_mood_detector.infrastructure.ml_models.xgboost_models import XGBoostMoodPredictor
         from big_mood_detector.application.use_cases.predict_mood_ensemble_use_case import (
             EnsembleConfig,
             EnsembleOrchestrator,
         )
+        from big_mood_detector.infrastructure.ml_models import (
+            PATModel,
+            PAT_AVAILABLE,
+        )
+
+        if not PAT_AVAILABLE:
+            pytest.skip("TensorFlow not installed")
 
         # Import is safe after checking PAT_AVAILABLE
-        from big_mood_detector.infrastructure.ml_models import PATModel
-        from big_mood_detector.infrastructure.ml_models.xgboost_models import (
-            XGBoostMoodPredictor,
-        )
 
         # Initialize models - use dummy models for testing
         xgboost_predictor = XGBoostMoodPredictor()
@@ -173,14 +166,13 @@ class TestEnsemblePredictions:
     )
     def test_ensemble_without_pat(self, mock_features):
         """Test ensemble prediction when PAT is not available."""
+        from big_mood_detector.application.use_cases.predict_mood_ensemble_use_case import (
+            EnsembleConfig,
+            EnsembleOrchestrator,
+        )
+        from big_mood_detector.infrastructure.ml_models.xgboost_models import XGBoostMoodPredictor
+
         with patch("big_mood_detector.infrastructure.ml_models.PAT_AVAILABLE", False):
-            from big_mood_detector.application.use_cases.predict_mood_ensemble_use_case import (
-                EnsembleConfig,
-                EnsembleOrchestrator,
-            )
-            from big_mood_detector.infrastructure.ml_models.xgboost_models import (
-                XGBoostMoodPredictor,
-            )
 
             # Initialize only XGBoost
             xgboost_predictor = XGBoostMoodPredictor()
@@ -219,8 +211,6 @@ class TestEnsemblePredictions:
         """Test the API ensemble endpoint."""
         from fastapi.testclient import TestClient
 
-        from big_mood_detector.interfaces.api.main import app
-
         client = TestClient(app)
 
         # Prepare test data
@@ -253,7 +243,6 @@ class TestEnsemblePredictions:
         )
 
         # Check response based on PAT availability
-        from big_mood_detector.infrastructure.ml_models import PAT_AVAILABLE
 
         if PAT_AVAILABLE:
             assert response.status_code == 200
@@ -269,6 +258,7 @@ class TestEnsemblePredictions:
 
     def test_cli_predict_ensemble(self, tmp_path):
         """Test CLI predict command with ensemble flag."""
+        from big_mood_detector.infrastructure.ml_models import PAT_AVAILABLE
         from big_mood_detector.interfaces.cli.commands import predict_command
 
         runner = CliRunner()
@@ -295,7 +285,6 @@ class TestEnsemblePredictions:
         )
 
         # Check result based on PAT availability
-        from big_mood_detector.infrastructure.ml_models import PAT_AVAILABLE
 
         if PAT_AVAILABLE:
             # Should succeed but may have warnings about empty data
@@ -310,9 +299,7 @@ class TestEnsemblePredictions:
             EnsembleConfig,
             EnsembleOrchestrator,
         )
-        from big_mood_detector.infrastructure.ml_models.xgboost_models import (
-            XGBoostMoodPredictor,
-        )
+        from big_mood_detector.infrastructure.ml_models.xgboost_models import XGBoostMoodPredictor
 
         # Create config with very short timeout
         config = EnsembleConfig(
@@ -343,13 +330,15 @@ class TestEnsemblePredictions:
     @pytest.mark.parametrize("model_size", ["small", "medium", "large"])
     def test_pat_model_sizes(self, model_size):
         """Test different PAT model sizes."""
-        from big_mood_detector.infrastructure.ml_models import PAT_AVAILABLE
+        from big_mood_detector.infrastructure.ml_models import (
+            PATModel,
+            PAT_AVAILABLE,
+        )
 
         if not PAT_AVAILABLE:
             pytest.skip("TensorFlow not installed")
 
         # Import is safe after checking PAT_AVAILABLE
-        from big_mood_detector.infrastructure.ml_models import PATModel
 
         pat_model = PATModel(model_size=model_size)
 

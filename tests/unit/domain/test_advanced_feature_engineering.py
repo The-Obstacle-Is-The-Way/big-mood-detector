@@ -8,19 +8,16 @@ from datetime import date, datetime, time, timedelta
 
 import numpy as np
 
-from big_mood_detector.domain.services.activity_aggregator import DailyActivitySummary
-from big_mood_detector.domain.services.advanced_feature_engineering import (
-    AdvancedFeatureEngineer,
-)
-from big_mood_detector.domain.services.heart_rate_aggregator import DailyHeartSummary
-from big_mood_detector.domain.services.sleep_aggregator import DailySleepSummary
-
-
 class TestAdvancedFeatureEngineer:
     """Test advanced feature engineering for mood prediction."""
 
     def test_extract_features_with_minimal_data(self):
         """Test feature extraction with minimal valid data."""
+        from big_mood_detector.domain.services.heart_rate_aggregator import DailyHeartSummary
+        from big_mood_detector.domain.services.sleep_aggregator import DailySleepSummary
+        from big_mood_detector.domain.services.activity_aggregator import DailyActivitySummary
+        from big_mood_detector.domain.services.advanced_feature_engineering import AdvancedFeatureEngineer
+
         engineer = AdvancedFeatureEngineer()
         current_date = date(2024, 1, 15)
 
@@ -103,6 +100,9 @@ class TestAdvancedFeatureEngineer:
 
     def test_sleep_regularity_calculation(self):
         """Test sleep regularity index calculation."""
+        from big_mood_detector.domain.services.sleep_aggregator import DailySleepSummary
+        from big_mood_detector.domain.services.advanced_feature_engineering import AdvancedFeatureEngineer
+
         engineer = AdvancedFeatureEngineer()
         current_date = date(2024, 1, 15)
 
@@ -182,6 +182,9 @@ class TestAdvancedFeatureEngineer:
 
     def test_circadian_phase_detection(self):
         """Test circadian phase advance/delay detection."""
+        from big_mood_detector.domain.services.sleep_aggregator import DailySleepSummary
+        from big_mood_detector.domain.services.advanced_feature_engineering import AdvancedFeatureEngineer
+
         engineer = AdvancedFeatureEngineer()
         current_date = date(2024, 1, 15)
 
@@ -258,6 +261,9 @@ class TestAdvancedFeatureEngineer:
 
     def test_clinical_indicators(self):
         """Test clinical indicator detection."""
+        from big_mood_detector.domain.services.sleep_aggregator import DailySleepSummary
+        from big_mood_detector.domain.services.advanced_feature_engineering import AdvancedFeatureEngineer
+
         engineer = AdvancedFeatureEngineer()
         current_date = date(2024, 1, 15)
 
@@ -331,6 +337,10 @@ class TestAdvancedFeatureEngineer:
 
     def test_temporal_features(self):
         """Test rolling window temporal features."""
+        from big_mood_detector.domain.services.sleep_aggregator import DailySleepSummary
+        from big_mood_detector.domain.services.activity_aggregator import DailyActivitySummary
+        from big_mood_detector.domain.services.advanced_feature_engineering import AdvancedFeatureEngineer
+
         engineer = AdvancedFeatureEngineer()
         current_date = date(2024, 1, 15)
 
@@ -387,6 +397,11 @@ class TestAdvancedFeatureEngineer:
 
     def test_individual_normalization(self):
         """Test Z-score normalization."""
+        from big_mood_detector.domain.services.heart_rate_aggregator import DailyHeartSummary
+        from big_mood_detector.domain.services.sleep_aggregator import DailySleepSummary
+        from big_mood_detector.domain.services.activity_aggregator import DailyActivitySummary
+        from big_mood_detector.domain.services.advanced_feature_engineering import AdvancedFeatureEngineer
+
         engineer = AdvancedFeatureEngineer()
 
         # Create consistent baseline data
@@ -502,6 +517,8 @@ class TestAdvancedFeatureEngineer:
 
     def test_empty_data_handling(self):
         """Test handling of missing data."""
+        from big_mood_detector.domain.services.advanced_feature_engineering import AdvancedFeatureEngineer
+
         engineer = AdvancedFeatureEngineer()
         current_date = date(2024, 1, 15)
 

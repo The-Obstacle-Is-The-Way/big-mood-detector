@@ -7,12 +7,6 @@ to clinical diagnoses, risk levels, and treatment recommendations.
 
 import pytest
 
-from big_mood_detector.application.services.prediction_interpreter import (
-    ClinicalInterpretation,
-    PredictionInterpreter,
-)
-
-
 class TestPredictionInterpreter:
     """Test the prediction interpreter service."""
 
@@ -23,6 +17,8 @@ class TestPredictionInterpreter:
 
     def test_interpret_severe_depression(self, interpreter):
         """Test interpretation of high depression probability."""
+        from big_mood_detector.application.services.prediction_interpreter import ClinicalInterpretation
+
         # Arrange
         ml_predictions = {
             "depression": 0.83,

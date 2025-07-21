@@ -9,18 +9,12 @@ from datetime import date, time, timedelta
 
 import pytest
 
-from big_mood_detector.domain.services.activity_aggregator import DailyActivitySummary
-
-
 class TestActivityFeatureCalculator:
     """Test activity feature calculations."""
 
     @pytest.fixture
     def calculator(self):
         """Create ActivityFeatureCalculator instance."""
-        from big_mood_detector.domain.services.activity_feature_calculator import (
-            ActivityFeatureCalculator,
-        )
 
         return ActivityFeatureCalculator()
 
@@ -219,6 +213,8 @@ class TestActivityFeatureCalculator:
 
     def test_single_day_handling(self, calculator):
         """Test handling of single day data."""
+        from big_mood_detector.domain.services.activity_aggregator import DailyActivitySummary
+
         single_day = [
             DailyActivitySummary(
                 date=date(2024, 1, 1),
@@ -245,6 +241,8 @@ class TestActivityFeatureCalculator:
 
     def test_calculate_step_acceleration(self, calculator):
         """Test step count acceleration/deceleration patterns."""
+        from big_mood_detector.domain.services.activity_aggregator import DailyActivitySummary
+
         # Create increasing step pattern (potential manic acceleration)
         summaries = []
         base_date = date(2024, 1, 1)

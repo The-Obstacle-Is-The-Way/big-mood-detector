@@ -8,14 +8,6 @@ from pathlib import Path
 
 import pytest
 
-from big_mood_detector.domain.repositories.baseline_repository_interface import (
-    UserBaseline,
-)
-from big_mood_detector.infrastructure.repositories.file_baseline_repository import (
-    FileBaselineRepository,
-)
-
-
 class TestBaselineRepositoryHRHRV:
     """Test that baseline repositories handle HR/HRV fields correctly."""
 
@@ -36,6 +28,9 @@ class TestBaselineRepositoryHRHRV:
 
     def test_file_repository_saves_and_retrieves_hr_hrv_fields(self):
         """Test FileBaselineRepository handles HR/HRV fields."""
+        from big_mood_detector.domain.repositories.baseline_repository_interface import UserBaseline
+        from big_mood_detector.infrastructure.repositories.file_baseline_repository import FileBaselineRepository
+
         repo = FileBaselineRepository(Path("./test_hr_hrv_baselines"))
 
         # Create baseline with specific HR/HRV values
@@ -70,6 +65,10 @@ class TestBaselineRepositoryHRHRV:
 
     def test_file_repository_backward_compatibility(self):
         """Test FileBaselineRepository handles old baselines without HR/HRV."""
+        from big_mood_detector.infrastructure.security import hash_user_id
+        from big_mood_detector.domain.repositories.baseline_repository_interface import UserBaseline
+        from big_mood_detector.infrastructure.repositories.file_baseline_repository import FileBaselineRepository
+
         repo = FileBaselineRepository(Path("./test_hr_hrv_baselines"))
 
         # Create and save a baseline with HR/HRV
@@ -88,8 +87,6 @@ class TestBaselineRepositoryHRHRV:
 
         # Manually modify the saved file to simulate old format (no HR/HRV fields)
         import json
-
-        from big_mood_detector.infrastructure.security import hash_user_id
 
         # Account for user ID hashing
         hashed_user_id = hash_user_id("backward_compat_user")

@@ -14,15 +14,6 @@ from pathlib import Path
 
 import pytest
 
-from big_mood_detector.domain.repositories.baseline_repository_interface import (
-    BaselineRepositoryInterface,
-    UserBaseline,
-)
-from big_mood_detector.infrastructure.repositories.file_baseline_repository import (
-    FileBaselineRepository,
-)
-
-
 class BaselineRepositoryContract:
     """
     Contract test for all BaselineRepository implementations.
@@ -51,6 +42,8 @@ class BaselineRepositoryContract:
 
     def test_save_and_retrieve_baseline_with_hr_hrv(self):
         """Test save and retrieve with optional HR/HRV fields"""
+        from big_mood_detector.domain.repositories.baseline_repository_interface import UserBaseline
+
         repository = self.get_repository()
 
         # Create baseline with HR/HRV data
@@ -121,6 +114,8 @@ class BaselineRepositoryContract:
 
     def test_get_baseline_history_returns_chronological_order(self):
         """Test baseline history is returned in chronological order (oldest first)"""
+        from big_mood_detector.domain.repositories.baseline_repository_interface import UserBaseline
+
         repository = self.get_repository()
 
         # Create baselines with different dates
@@ -159,7 +154,6 @@ class BaselineRepositoryContract:
         assert len(history) == 2
         assert history[0].baseline_date <= history[1].baseline_date
 
-
 class TestFileBaselineRepository(BaselineRepositoryContract):
     """Test FileBaselineRepository against the contract"""
 
@@ -180,7 +174,6 @@ class TestFileBaselineRepository(BaselineRepositoryContract):
 
     def get_repository(self) -> BaselineRepositoryInterface:
         return FileBaselineRepository(base_path=Path("./temp_test_baselines"))
-
 
 @pytest.mark.integration
 class TestTimescaleBaselineRepository(BaselineRepositoryContract):
@@ -216,9 +209,6 @@ class TestTimescaleBaselineRepository(BaselineRepositoryContract):
     @pytest.fixture
     def repository(self, postgres_container):
         """Create TimescaleBaselineRepository with test container"""
-        from big_mood_detector.infrastructure.repositories.timescale_baseline_repository import (
-            TimescaleBaselineRepository,
-        )
 
         connection_string = postgres_container.get_connection_url()
 
@@ -269,6 +259,8 @@ class TestTimescaleBaselineRepository(BaselineRepositoryContract):
 
     def test_get_baseline_history_returns_chronological_order(self, repository):
         """Test baseline history is returned in chronological order"""
+        from big_mood_detector.domain.repositories.baseline_repository_interface import UserBaseline
+
         # Create baselines with different dates
         baseline1 = UserBaseline(
             user_id="history_test_user_ts",
@@ -307,6 +299,8 @@ class TestTimescaleBaselineRepository(BaselineRepositoryContract):
 
     def test_hypertable_functionality(self, repository):
         """Test TimescaleDB-specific hypertable functionality"""
+        from big_mood_detector.domain.repositories.baseline_repository_interface import UserBaseline
+
         self.get_sample_baseline()
 
         # Save multiple baselines for different dates
@@ -334,6 +328,8 @@ class TestTimescaleBaselineRepository(BaselineRepositoryContract):
 
     def test_save_and_retrieve_baseline_with_hr_hrv(self, repository):
         """Test save and retrieve with optional HR/HRV fields"""
+        from big_mood_detector.domain.repositories.baseline_repository_interface import UserBaseline
+
         # Create baseline with HR/HRV data
         baseline = UserBaseline(
             user_id="test_user_hr",
@@ -363,7 +359,6 @@ class TestTimescaleBaselineRepository(BaselineRepositoryContract):
         assert retrieved.heart_rate_std == 5.0
         assert retrieved.hrv_mean == 55.0
         assert retrieved.hrv_std == 8.0
-
 
 @pytest.mark.integration
 class TestBaselineRepositoryIntegration:
@@ -401,9 +396,9 @@ class TestBaselineRepositoryIntegration:
         Integration test: Both implementations should behave identically
         for the same operations.
         """
-        from big_mood_detector.infrastructure.repositories.timescale_baseline_repository import (
-            TimescaleBaselineRepository,
-        )
+        from big_mood_detector.infrastructure.repositories.timescale_baseline_repository import TimescaleBaselineRepository
+        from big_mood_detector.domain.repositories.baseline_repository_interface import UserBaseline
+        from big_mood_detector.infrastructure.repositories.file_baseline_repository import FileBaselineRepository
 
         # Set up both repositories
         test_path = Path("./test_interop_data")

@@ -8,14 +8,13 @@ from datetime import UTC, datetime, timedelta
 
 import pytest
 
-from big_mood_detector.domain.value_objects.time_period import TimePeriod
-
-
 class TestTimePeriod:
     """Test suite for TimePeriod value object."""
 
     def test_create_valid_time_period(self):
         """Test creating a valid time period."""
+        from big_mood_detector.domain.value_objects.time_period import TimePeriod
+
         # ARRANGE
         start = datetime(2024, 1, 1, 9, 0, tzinfo=UTC)
         end = datetime(2024, 1, 1, 17, 0, tzinfo=UTC)
@@ -29,6 +28,8 @@ class TestTimePeriod:
 
     def test_time_period_is_immutable(self):
         """Test that time period cannot be modified after creation."""
+        from big_mood_detector.domain.value_objects.time_period import TimePeriod
+
         # ARRANGE
         period = TimePeriod(
             start=datetime(2024, 1, 1, 9, 0, tzinfo=UTC),
@@ -41,6 +42,8 @@ class TestTimePeriod:
 
     def test_invalid_time_period_raises_error(self):
         """Test that end must be after start."""
+        from big_mood_detector.domain.value_objects.time_period import TimePeriod
+
         # ARRANGE
         start = datetime(2024, 1, 1, 17, 0, tzinfo=UTC)
         end = datetime(2024, 1, 1, 9, 0, tzinfo=UTC)
@@ -51,6 +54,8 @@ class TestTimePeriod:
 
     def test_equal_start_end_raises_error(self):
         """Test that start and end cannot be equal."""
+        from big_mood_detector.domain.value_objects.time_period import TimePeriod
+
         # ARRANGE
         same_time = datetime(2024, 1, 1, 12, 0, tzinfo=UTC)
 
@@ -60,6 +65,8 @@ class TestTimePeriod:
 
     def test_duration_property(self):
         """Test duration calculation as timedelta."""
+        from big_mood_detector.domain.value_objects.time_period import TimePeriod
+
         # ARRANGE
         period = TimePeriod(
             start=datetime(2024, 1, 1, 9, 0, tzinfo=UTC),
@@ -71,6 +78,8 @@ class TestTimePeriod:
 
     def test_duration_hours_property(self):
         """Test duration calculation in hours."""
+        from big_mood_detector.domain.value_objects.time_period import TimePeriod
+
         # ARRANGE
         period = TimePeriod(
             start=datetime(2024, 1, 1, 9, 0, tzinfo=UTC),
@@ -82,6 +91,8 @@ class TestTimePeriod:
 
     def test_duration_minutes_property(self):
         """Test duration calculation in minutes."""
+        from big_mood_detector.domain.value_objects.time_period import TimePeriod
+
         # ARRANGE
         period = TimePeriod(
             start=datetime(2024, 1, 1, 9, 0, tzinfo=UTC),
@@ -93,6 +104,8 @@ class TestTimePeriod:
 
     def test_overlaps_with_overlapping_periods(self):
         """Test detection of overlapping periods."""
+        from big_mood_detector.domain.value_objects.time_period import TimePeriod
+
         # ARRANGE
         period1 = TimePeriod(
             start=datetime(2024, 1, 1, 9, 0, tzinfo=UTC),
@@ -109,6 +122,8 @@ class TestTimePeriod:
 
     def test_overlaps_with_non_overlapping_periods(self):
         """Test non-overlapping periods."""
+        from big_mood_detector.domain.value_objects.time_period import TimePeriod
+
         # ARRANGE
         period1 = TimePeriod(
             start=datetime(2024, 1, 1, 9, 0, tzinfo=UTC),
@@ -125,6 +140,8 @@ class TestTimePeriod:
 
     def test_overlaps_with_adjacent_periods(self):
         """Test adjacent periods don't overlap."""
+        from big_mood_detector.domain.value_objects.time_period import TimePeriod
+
         # ARRANGE
         period1 = TimePeriod(
             start=datetime(2024, 1, 1, 9, 0, tzinfo=UTC),
@@ -140,6 +157,8 @@ class TestTimePeriod:
 
     def test_contains_timestamp(self):
         """Test checking if timestamp is within period."""
+        from big_mood_detector.domain.value_objects.time_period import TimePeriod
+
         # ARRANGE
         period = TimePeriod(
             start=datetime(2024, 1, 1, 9, 0, tzinfo=UTC),
@@ -157,6 +176,8 @@ class TestTimePeriod:
 
     def test_merge_with_overlapping_periods(self):
         """Test merging overlapping periods."""
+        from big_mood_detector.domain.value_objects.time_period import TimePeriod
+
         # ARRANGE
         period1 = TimePeriod(
             start=datetime(2024, 1, 1, 9, 0, tzinfo=UTC),
@@ -177,6 +198,8 @@ class TestTimePeriod:
 
     def test_merge_with_adjacent_periods(self):
         """Test merging adjacent periods (within 1 minute)."""
+        from big_mood_detector.domain.value_objects.time_period import TimePeriod
+
         # ARRANGE
         period1 = TimePeriod(
             start=datetime(2024, 1, 1, 9, 0, tzinfo=UTC),
@@ -197,6 +220,8 @@ class TestTimePeriod:
 
     def test_merge_with_distant_periods(self):
         """Test merging fails for distant periods."""
+        from big_mood_detector.domain.value_objects.time_period import TimePeriod
+
         # ARRANGE
         period1 = TimePeriod(
             start=datetime(2024, 1, 1, 9, 0, tzinfo=UTC),
@@ -215,6 +240,8 @@ class TestTimePeriod:
 
     def test_string_representation(self):
         """Test human-readable string representation."""
+        from big_mood_detector.domain.value_objects.time_period import TimePeriod
+
         # ARRANGE
         period = TimePeriod(
             start=datetime(2024, 1, 1, 9, 0, tzinfo=UTC),

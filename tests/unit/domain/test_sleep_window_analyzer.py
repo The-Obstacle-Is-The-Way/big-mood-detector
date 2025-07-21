@@ -9,12 +9,6 @@ from datetime import datetime
 
 import pytest
 
-from big_mood_detector.domain.entities.sleep_record import SleepRecord, SleepState
-from big_mood_detector.domain.services.sleep_window_analyzer import (
-    SleepWindowAnalyzer,
-)
-
-
 class TestSleepWindowAnalyzer:
     """Test sleep window analysis following clinical guidelines."""
 
@@ -25,6 +19,11 @@ class TestSleepWindowAnalyzer:
 
     def test_single_sleep_episode_creates_one_window(self, analyzer):
         """Single sleep episode should create one window."""
+        from big_mood_detector.domain.entities.sleep_record import (
+            SleepRecord,
+            SleepState,
+        )
+
         # Arrange
         sleep_record = SleepRecord(
             source_name="test",
@@ -45,6 +44,11 @@ class TestSleepWindowAnalyzer:
 
     def test_close_episodes_merge_into_single_window(self, analyzer):
         """Episodes within 3.75 hours should merge."""
+        from big_mood_detector.domain.entities.sleep_record import (
+            SleepRecord,
+            SleepState,
+        )
+
         # Arrange - two naps 2 hours apart
         episode1 = SleepRecord(
             start_date=datetime(2024, 1, 1, 14, 0),
@@ -73,6 +77,11 @@ class TestSleepWindowAnalyzer:
 
     def test_distant_episodes_create_separate_windows(self, analyzer):
         """Episodes > 3.75 hours apart should not merge."""
+        from big_mood_detector.domain.entities.sleep_record import (
+            SleepRecord,
+            SleepState,
+        )
+
         # Arrange - night sleep and afternoon nap
         night_sleep = SleepRecord(
             start_date=datetime(2024, 1, 1, 23, 0),
@@ -97,6 +106,11 @@ class TestSleepWindowAnalyzer:
 
     def test_exactly_threshold_gap_merges(self, analyzer):
         """Episodes exactly 3.75 hours apart should merge."""
+        from big_mood_detector.domain.entities.sleep_record import (
+            SleepRecord,
+            SleepState,
+        )
+
         # Arrange
         episode1 = SleepRecord(
             start_date=datetime(2024, 1, 1, 10, 0),
@@ -120,6 +134,11 @@ class TestSleepWindowAnalyzer:
 
     def test_multiple_episodes_complex_merging(self, analyzer):
         """Complex pattern of multiple episodes."""
+        from big_mood_detector.domain.entities.sleep_record import (
+            SleepRecord,
+            SleepState,
+        )
+
         # Arrange - simulating fragmented sleep pattern
         episodes = [
             # First window: fragmented night sleep
@@ -170,6 +189,11 @@ class TestSleepWindowAnalyzer:
 
     def test_window_analysis_result(self, analyzer):
         """Test comprehensive analysis results."""
+        from big_mood_detector.domain.entities.sleep_record import (
+            SleepRecord,
+            SleepState,
+        )
+
         # Arrange
         episodes = [
             # Short fragmented night (< 6h total)
@@ -220,6 +244,12 @@ class TestSleepWindowAnalyzer:
 
     def test_custom_threshold(self):
         """Test analyzer with custom merge threshold."""
+        from big_mood_detector.domain.entities.sleep_record import (
+            SleepRecord,
+            SleepState,
+        )
+        from big_mood_detector.domain.services.sleep_window_analyzer import SleepWindowAnalyzer
+
         # Arrange - 2 hour threshold
         analyzer = SleepWindowAnalyzer(merge_threshold_hours=2.0)
 
@@ -246,6 +276,11 @@ class TestSleepWindowAnalyzer:
 
     def test_overlapping_episodes_handling(self, analyzer):
         """Handle overlapping sleep episodes (data quality issue)."""
+        from big_mood_detector.domain.entities.sleep_record import (
+            SleepRecord,
+            SleepState,
+        )
+
         # Arrange - overlapping episodes
         episodes = [
             SleepRecord(

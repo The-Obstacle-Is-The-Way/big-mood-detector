@@ -17,22 +17,6 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from big_mood_detector.application.use_cases.process_health_data_use_case import (
-    MoodPredictionPipeline,
-    PipelineConfig,
-)
-from big_mood_detector.domain.entities.activity_record import (
-    ActivityRecord,
-    ActivityType,
-)
-from big_mood_detector.domain.entities.heart_rate_record import (
-    HeartMetricType,
-    HeartRateRecord,
-    MotionContext,
-)
-from big_mood_detector.domain.entities.sleep_record import SleepRecord, SleepState
-
-
 class TestFullPipeline:
     """Test the complete pipeline integration."""
 
@@ -104,6 +88,11 @@ class TestFullPipeline:
 
     def test_pipeline_without_ensemble(self, sample_data):
         """Test basic pipeline without ensemble models."""
+        from big_mood_detector.application.use_cases.process_health_data_use_case import (
+            MoodPredictionPipeline,
+            PipelineConfig,
+        )
+
         # Configure pipeline
         config = PipelineConfig(
             min_days_required=5,
@@ -152,6 +141,11 @@ class TestFullPipeline:
     )
     def test_pipeline_with_ensemble(self, sample_data):
         """Test pipeline with ensemble models enabled."""
+        from big_mood_detector.application.use_cases.process_health_data_use_case import (
+            MoodPredictionPipeline,
+            PipelineConfig,
+        )
+
         # Configure pipeline with ensemble
         config = PipelineConfig(
             min_days_required=5,
@@ -189,6 +183,8 @@ class TestFullPipeline:
 
     def test_pipeline_with_sparse_data(self, sample_data):
         """Test pipeline handles sparse data correctly."""
+        from big_mood_detector.application.use_cases.process_health_data_use_case import MoodPredictionPipeline
+
         # Use only every other day
         sparse_sleep = sample_data["sleep"][::2]
         sparse_activity = sample_data["activity"][::2]
@@ -208,6 +204,8 @@ class TestFullPipeline:
 
     def test_pipeline_export_functionality(self, sample_data, tmp_path):
         """Test pipeline can export results."""
+        from big_mood_detector.application.use_cases.process_health_data_use_case import MoodPredictionPipeline
+
         pipeline = MoodPredictionPipeline()
 
         result = pipeline.process_health_data(
@@ -234,6 +232,8 @@ class TestFullPipeline:
 
     def test_pipeline_component_usage(self, sample_data):
         """Verify all major components are used in the pipeline."""
+        from big_mood_detector.application.use_cases.process_health_data_use_case import MoodPredictionPipeline
+
         pipeline = MoodPredictionPipeline()
 
         # Components to verify
@@ -261,6 +261,11 @@ class TestFullPipeline:
 
     def test_pipeline_with_environment_override(self, sample_data, monkeypatch):
         """Test PAT weights can be loaded from environment variable."""
+        from big_mood_detector.application.use_cases.process_health_data_use_case import (
+            MoodPredictionPipeline,
+            PipelineConfig,
+        )
+
         # Set environment variable
         custom_weights_dir = "/custom/path/to/weights"
         monkeypatch.setenv("BIG_MOOD_PAT_WEIGHTS_DIR", custom_weights_dir)
@@ -282,6 +287,8 @@ class TestFullPipeline:
 
     def test_pipeline_clinical_thresholds(self, sample_data):
         """Test that clinical thresholds are applied correctly."""
+        from big_mood_detector.application.use_cases.process_health_data_use_case import MoodPredictionPipeline
+
         pipeline = MoodPredictionPipeline()
 
         result = pipeline.process_health_data(

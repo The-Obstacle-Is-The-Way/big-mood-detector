@@ -9,14 +9,6 @@ from pathlib import Path
 
 import pytest
 
-from big_mood_detector.domain.services.feature_extraction_service import (
-    FeatureExtractionService,
-)
-from big_mood_detector.infrastructure.parsers.parser_factory import (
-    UnifiedHealthDataParser,
-)
-
-
 class TestAdvancedFeaturePipeline:
     """Test complete pipeline with advanced features."""
 
@@ -81,6 +73,9 @@ class TestAdvancedFeaturePipeline:
 
     def test_extract_advanced_features_from_xml(self, sample_xml_file):
         """Test extracting 36 research-based features from XML data."""
+        from big_mood_detector.domain.services.feature_extraction_service import FeatureExtractionService
+        from big_mood_detector.infrastructure.parsers.parser_factory import UnifiedHealthDataParser
+
         # Parse data
         parser = UnifiedHealthDataParser()
         parser.add_xml_export(sample_xml_file)
@@ -137,6 +132,9 @@ class TestAdvancedFeaturePipeline:
 
     def test_advanced_features_clinical_relevance(self, sample_xml_file):
         """Test that advanced features capture clinically relevant patterns."""
+        from big_mood_detector.domain.services.feature_extraction_service import FeatureExtractionService
+        from big_mood_detector.infrastructure.parsers.parser_factory import UnifiedHealthDataParser
+
         # Parse data
         parser = UnifiedHealthDataParser()
         parser.add_xml_export(sample_xml_file)
@@ -181,6 +179,9 @@ class TestAdvancedFeaturePipeline:
 
     def test_temporal_feature_evolution(self, sample_xml_file):
         """Test how features evolve over time."""
+        from big_mood_detector.domain.services.feature_extraction_service import FeatureExtractionService
+        from big_mood_detector.infrastructure.parsers.parser_factory import UnifiedHealthDataParser
+
         # Parse data
         parser = UnifiedHealthDataParser()
         parser.add_xml_export(sample_xml_file)

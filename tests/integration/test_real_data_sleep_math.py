@@ -9,16 +9,6 @@ from pathlib import Path
 
 import pytest
 
-from big_mood_detector.application.use_cases.process_health_data_use_case import (
-    MoodPredictionPipeline,
-    PipelineConfig,
-)
-from big_mood_detector.domain.services.sleep_aggregator import SleepAggregator
-from big_mood_detector.infrastructure.repositories.file_baseline_repository import (
-    FileBaselineRepository,
-)
-
-
 class TestRealDataSleepMath:
     """Trace the sleep math bug using REAL Apple Health exports."""
 
@@ -28,6 +18,14 @@ class TestRealDataSleepMath:
 
         We'll trace the math at every step!
         """
+        from big_mood_detector.application.use_cases.process_health_data_use_case import (
+            MoodPredictionPipeline,
+            PipelineConfig,
+        )
+        from big_mood_detector.infrastructure.repositories.file_baseline_repository import FileBaselineRepository
+        from big_mood_detector.domain.services.sleep_aggregator import SleepAggregator
+        from big_mood_detector.application.services.data_parsing_service import DataParsingService
+
         # Pick a real export file
         export_file = Path(
             "/Users/ray/Desktop/CLARITY-DIGITAL-TWIN/big-mood-detector/data/input/apple_export/export.xml"
@@ -39,9 +37,6 @@ class TestRealDataSleepMath:
         print(f"\n🔍 TRACING REAL DATA: {export_file}")
 
         # Step 1: Parse the raw data using DataParsingService
-        from big_mood_detector.application.services.data_parsing_service import (
-            DataParsingService,
-        )
 
         data_service = DataParsingService()
         parsed_data = data_service.parse_health_data(export_file)
@@ -126,6 +121,9 @@ class TestRealDataSleepMath:
 
     def test_single_day_detailed_trace(self, tmp_path):
         """Trace a single day's sleep calculation in detail."""
+        from big_mood_detector.domain.services.sleep_aggregator import SleepAggregator
+        from big_mood_detector.application.services.data_parsing_service import DataParsingService
+
         export_file = Path(
             "/Users/ray/Desktop/CLARITY-DIGITAL-TWIN/big-mood-detector/data/input/apple_export/export.xml"
         )
@@ -134,9 +132,6 @@ class TestRealDataSleepMath:
             pytest.skip("No real export file found")
 
         # Parse data using DataParsingService
-        from big_mood_detector.application.services.data_parsing_service import (
-            DataParsingService,
-        )
 
         data_service = DataParsingService()
         parsed_data = data_service.parse_health_data(export_file)

@@ -9,19 +9,12 @@ from datetime import date, datetime, time, timedelta
 
 import pytest
 
-from big_mood_detector.domain.services.activity_aggregator import DailyActivitySummary
-from big_mood_detector.domain.services.sleep_aggregator import DailySleepSummary
-
-
 class TestCircadianFeatureCalculator:
     """Test circadian rhythm feature calculations."""
 
     @pytest.fixture
     def calculator(self):
         """Create CircadianFeatureCalculator instance."""
-        from big_mood_detector.domain.services.circadian_feature_calculator import (
-            CircadianFeatureCalculator,
-        )
 
         return CircadianFeatureCalculator()
 
@@ -148,6 +141,8 @@ class TestCircadianFeatureCalculator:
 
     def test_calculate_phase_shifts_normal(self, calculator):
         """Test normal sleep phase detection."""
+        from big_mood_detector.domain.services.sleep_aggregator import DailySleepSummary
+
         # Create normal sleep pattern (11 PM - 7 AM)
         summaries = []
         base_date = date(2024, 1, 1)
@@ -229,6 +224,9 @@ class TestCircadianFeatureCalculator:
 
     def test_phase_angle_calculation(self, calculator):
         """Test phase angle between sleep and activity rhythms."""
+        from big_mood_detector.domain.services.sleep_aggregator import DailySleepSummary
+        from big_mood_detector.domain.services.activity_aggregator import DailyActivitySummary
+
         # Create misaligned sleep and activity patterns
         sleep_data = []
         activity_data = []

@@ -10,27 +10,6 @@ from unittest.mock import Mock
 
 import pytest
 
-from big_mood_detector.domain.repositories.activity_repository import (
-    ActivityRepositoryInterface,
-)
-from big_mood_detector.domain.repositories.heart_rate_repository import (
-    HeartRateRepositoryInterface,
-)
-from big_mood_detector.domain.repositories.sleep_repository import (
-    SleepRepositoryInterface,
-)
-from big_mood_detector.infrastructure.di.container import setup_dependencies
-from big_mood_detector.infrastructure.repositories.file_activity_repository import (
-    FileActivityRepository,
-)
-from big_mood_detector.infrastructure.repositories.file_heart_rate_repository import (
-    FileHeartRateRepository,
-)
-from big_mood_detector.infrastructure.repositories.file_sleep_repository import (
-    FileSleepRepository,
-)
-
-
 class TestRepositoryDependencyInjection:
     """Test DI container repository registrations."""
 
@@ -49,6 +28,14 @@ class TestRepositoryDependencyInjection:
 
     def test_repository_interfaces_resolve_to_implementations(self, mock_settings):
         """Test that repository interfaces resolve to their concrete implementations."""
+        from big_mood_detector.domain.repositories.heart_rate_repository import HeartRateRepositoryInterface
+        from big_mood_detector.domain.repositories.sleep_repository import SleepRepositoryInterface
+        from big_mood_detector.infrastructure.repositories.file_heart_rate_repository import FileHeartRateRepository
+        from big_mood_detector.infrastructure.repositories.file_activity_repository import FileActivityRepository
+        from big_mood_detector.domain.repositories.activity_repository import ActivityRepositoryInterface
+        from big_mood_detector.infrastructure.di.container import setup_dependencies
+        from big_mood_detector.infrastructure.repositories.file_sleep_repository import FileSleepRepository
+
         container = setup_dependencies(mock_settings)
 
         # Resolve interfaces
@@ -63,6 +50,9 @@ class TestRepositoryDependencyInjection:
 
     def test_concrete_repositories_are_singletons(self, mock_settings):
         """Test that concrete repositories are registered as singletons."""
+        from big_mood_detector.infrastructure.repositories.file_activity_repository import FileActivityRepository
+        from big_mood_detector.infrastructure.di.container import setup_dependencies
+
         container = setup_dependencies(mock_settings)
 
         # Resolve same type multiple times
@@ -74,6 +64,9 @@ class TestRepositoryDependencyInjection:
 
     def test_repository_data_directories_are_configured(self, mock_settings, temp_dir):
         """Test that repositories use the configured data directory."""
+        from big_mood_detector.infrastructure.repositories.file_activity_repository import FileActivityRepository
+        from big_mood_detector.infrastructure.di.container import setup_dependencies
+
         container = setup_dependencies(mock_settings)
 
         activity_repo = container.resolve(FileActivityRepository)

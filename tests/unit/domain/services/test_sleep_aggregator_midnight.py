@@ -7,10 +7,6 @@ which is the most common case for normal sleep patterns.
 
 from datetime import date, datetime, timedelta
 
-from big_mood_detector.domain.entities.sleep_record import SleepRecord, SleepState
-from big_mood_detector.domain.services.sleep_aggregator import SleepAggregator
-
-
 class TestSleepAggregatorMidnight:
     """Test sleep aggregation across midnight boundaries."""
 
@@ -24,6 +20,11 @@ class TestSleepAggregatorMidnight:
 
         This is the most common case and MUST work correctly.
         """
+        from big_mood_detector.domain.entities.sleep_record import (
+            SleepRecord,
+            SleepState,
+        )
+
         # Create sleep record from 10pm to 6am next day
         sleep_start = datetime(2024, 1, 1, 22, 0)  # 10pm
         sleep_end = datetime(2024, 1, 2, 6, 0)  # 6am next day
@@ -52,6 +53,11 @@ class TestSleepAggregatorMidnight:
 
         Some people sleep very late (after midnight).
         """
+        from big_mood_detector.domain.entities.sleep_record import (
+            SleepRecord,
+            SleepState,
+        )
+
         # Sleep from 2am to 10am same day
         sleep_start = datetime(2024, 1, 2, 2, 0)  # 2am
         sleep_end = datetime(2024, 1, 2, 10, 0)  # 10am same day
@@ -77,6 +83,11 @@ class TestSleepAggregatorMidnight:
 
         Example: Evening nap 8-9pm, then main sleep 11pm-7am.
         """
+        from big_mood_detector.domain.entities.sleep_record import (
+            SleepRecord,
+            SleepState,
+        )
+
         # Evening nap
         nap = SleepRecord(
             source_name="Apple Watch",
@@ -108,6 +119,11 @@ class TestSleepAggregatorMidnight:
         """
         Test sleep that starts or ends exactly at midnight.
         """
+        from big_mood_detector.domain.entities.sleep_record import (
+            SleepRecord,
+            SleepState,
+        )
+
         # Sleep from exactly midnight to 8am
         sleep1 = SleepRecord(
             source_name="Apple Watch",
@@ -139,6 +155,11 @@ class TestSleepAggregatorMidnight:
 
         This is rare but can happen with illness or medication.
         """
+        from big_mood_detector.domain.entities.sleep_record import (
+            SleepRecord,
+            SleepState,
+        )
+
         # Sleep for 36 hours straight (illness/recovery)
         marathon_sleep = SleepRecord(
             source_name="Apple Watch",
@@ -162,6 +183,11 @@ class TestSleepAggregatorMidnight:
 
         This ensures our aggregation works for real-world patterns.
         """
+        from big_mood_detector.domain.entities.sleep_record import (
+            SleepRecord,
+            SleepState,
+        )
+
         sleep_records = []
 
         # Create a week of sleep, each night 10:30pm to 6:30am (8 hours)
@@ -200,6 +226,11 @@ class TestSleepAggregatorMidnight:
 
         This guards against the sleep_percentage * 24 bug.
         """
+        from big_mood_detector.domain.entities.sleep_record import (
+            SleepRecord,
+            SleepState,
+        )
+
         # Create fragmented sleep that would trigger the bug
         sleep_records = []
         base_date = date(2024, 1, 1)

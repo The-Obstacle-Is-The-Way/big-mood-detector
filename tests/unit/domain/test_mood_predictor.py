@@ -5,12 +5,6 @@ Unit tests for Mood Predictor Service
 import numpy as np
 import pytest
 
-from big_mood_detector.domain.services.mood_predictor import (
-    MoodPrediction,
-    MoodPredictor,
-)
-
-
 class TestMoodPredictor:
     """Test mood prediction with XGBoost models."""
 
@@ -55,6 +49,8 @@ class TestMoodPredictor:
 
     def test_predict_single_sample(self, predictor, sample_features):
         """Test prediction on single feature vector."""
+        from big_mood_detector.domain.services.mood_predictor import MoodPrediction
+
         if not predictor.is_loaded:
             pytest.skip("Models not available")
 
@@ -73,6 +69,8 @@ class TestMoodPredictor:
 
     def test_predict_batch(self, predictor, sample_features):
         """Test batch prediction."""
+        from big_mood_detector.domain.services.mood_predictor import MoodPrediction
+
         if not predictor.is_loaded:
             pytest.skip("Models not available")
 
@@ -90,6 +88,8 @@ class TestMoodPredictor:
 
     def test_invalid_features(self, predictor):
         """Test handling of invalid features."""
+        from big_mood_detector.domain.services.mood_predictor import MoodPrediction
+
         if not predictor.is_loaded:
             pytest.skip("Models not available")
 

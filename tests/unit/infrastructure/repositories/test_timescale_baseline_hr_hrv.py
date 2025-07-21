@@ -10,21 +10,14 @@ from datetime import date
 import pytest
 from sqlalchemy import create_engine
 
-from big_mood_detector.domain.repositories.baseline_repository_interface import (
-    UserBaseline,
-)
-from big_mood_detector.infrastructure.repositories.timescale_baseline_repository import (
-    Base,
-    TimescaleBaselineRepository,
-)
-
-
 class TestTimescaleBaselineHRHRV:
     """Test HR/HRV support in TimescaleDB repository."""
 
     @pytest.fixture
     def test_db(self):
         """Create in-memory SQLite database for testing."""
+        from big_mood_detector.infrastructure.repositories.timescale_baseline_repository import Base
+
         engine = create_engine("sqlite:///:memory:")
         Base.metadata.create_all(engine)
         return engine
@@ -32,6 +25,8 @@ class TestTimescaleBaselineHRHRV:
     @pytest.fixture
     def repository(self, test_db):
         """Create repository with test database."""
+        from big_mood_detector.infrastructure.repositories.timescale_baseline_repository import TimescaleBaselineRepository
+
         # Use the test engine's connection string
         return TimescaleBaselineRepository(
             connection_string="sqlite:///:memory:",
@@ -40,6 +35,8 @@ class TestTimescaleBaselineHRHRV:
 
     def test_save_baseline_with_hr_hrv_data(self, repository):
         """Test saving baseline with HR/HRV data."""
+        from big_mood_detector.domain.repositories.baseline_repository_interface import UserBaseline
+
         baseline = UserBaseline(
             user_id="athlete_123",
             baseline_date=date.today(),
@@ -68,6 +65,8 @@ class TestTimescaleBaselineHRHRV:
 
     def test_save_baseline_without_hr_hrv_data(self, repository):
         """Test saving baseline without HR/HRV data (should be None)."""
+        from big_mood_detector.domain.repositories.baseline_repository_interface import UserBaseline
+
         baseline = UserBaseline(
             user_id="no_hr_user",
             baseline_date=date.today(),
@@ -96,6 +95,8 @@ class TestTimescaleBaselineHRHRV:
 
     def test_update_baseline_adds_hr_hrv_later(self, repository):
         """Test updating baseline to add HR/HRV data later."""
+        from big_mood_detector.domain.repositories.baseline_repository_interface import UserBaseline
+
         # First save without HR/HRV
         baseline1 = UserBaseline(
             user_id="progressive_user",
@@ -137,6 +138,8 @@ class TestTimescaleBaselineHRHRV:
 
     def test_baseline_history_preserves_hr_hrv(self, repository):
         """Test that baseline history includes HR/HRV fields."""
+        from big_mood_detector.domain.repositories.baseline_repository_interface import UserBaseline
+
         # Save multiple baselines over time
         dates = [date(2024, 1, 1), date(2024, 1, 8), date(2024, 1, 15)]
         hr_means = [70.0, 68.0, 65.0]  # HR improving over time
@@ -178,6 +181,8 @@ class TestTimescaleBaselineHRHRV:
 
     def test_raw_records_include_hr_hrv_metrics(self, repository):
         """Test that raw records properly store HR/HRV metrics."""
+        from big_mood_detector.domain.repositories.baseline_repository_interface import UserBaseline
+
         baseline = UserBaseline(
             user_id="raw_test_user",
             baseline_date=date.today(),
@@ -212,6 +217,8 @@ class TestTimescaleBaselineHRHRV:
         ],
     )
     def test_partial_hr_hrv_data(
+        from big_mood_detector.domain.repositories.baseline_repository_interface import UserBaseline
+
         self, repository, hr_mean, hrv_mean, expected_hr, expected_hrv
     ):
         """Test handling partial HR/HRV data."""

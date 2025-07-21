@@ -7,27 +7,13 @@ from datetime import date, datetime, timedelta
 
 import numpy as np
 
-from big_mood_detector.domain.entities.activity_record import (
-    ActivityRecord,
-    ActivityType,
-)
-from big_mood_detector.domain.entities.heart_rate_record import (
-    HeartMetricType,
-    HeartRateRecord,
-)
-from big_mood_detector.domain.entities.sleep_record import SleepRecord, SleepState
-from big_mood_detector.domain.services.clinical_feature_extractor import (
-    ClinicalFeatureExtractor,
-    ClinicalFeatureSet,
-    SeoulXGBoostFeatures,
-)
-
-
 class TestClinicalFeatureExtractor:
     """Test comprehensive clinical feature extraction for mood prediction."""
 
     def test_extractor_initialization(self):
         """Extractor should initialize with all required services."""
+        from big_mood_detector.domain.services.clinical_feature_extractor import ClinicalFeatureExtractor
+
         # Act
         extractor = ClinicalFeatureExtractor()
 
@@ -40,6 +26,11 @@ class TestClinicalFeatureExtractor:
 
     def test_extract_seoul_features_regular_sleeper(self):
         """Extract all 36 Seoul features for a regular sleeper."""
+        from big_mood_detector.domain.services.clinical_feature_extractor import (
+            ClinicalFeatureExtractor,
+            SeoulXGBoostFeatures,
+        )
+
         # Arrange
         extractor = ClinicalFeatureExtractor()
         sleep_records, activity_records, heart_records = (
@@ -84,6 +75,12 @@ class TestClinicalFeatureExtractor:
 
     def test_extract_with_missing_dlmo(self):
         """Should handle gracefully when DLMO calculation fails."""
+        from big_mood_detector.domain.services.clinical_feature_extractor import ClinicalFeatureExtractor
+        from big_mood_detector.domain.entities.sleep_record import (
+            SleepRecord,
+            SleepState,
+        )
+
         # Arrange
         extractor = ClinicalFeatureExtractor()
         # Only 1 day of data - insufficient for DLMO
@@ -112,6 +109,8 @@ class TestClinicalFeatureExtractor:
 
     def test_pat_sequence_extraction(self):
         """Extract PAT sequence for transformer input."""
+        from big_mood_detector.domain.services.clinical_feature_extractor import ClinicalFeatureExtractor
+
         # Arrange
         extractor = ClinicalFeatureExtractor()
         _, activity_records, _ = self._create_regular_sleeper_data()
@@ -137,6 +136,11 @@ class TestClinicalFeatureExtractor:
 
     def test_full_clinical_feature_set(self):
         """Extract complete clinical feature set including all domains."""
+        from big_mood_detector.domain.services.clinical_feature_extractor import (
+            ClinicalFeatureExtractor,
+            ClinicalFeatureSet,
+        )
+
         # Arrange
         extractor = ClinicalFeatureExtractor()
         sleep_records, activity_records, heart_records = (
@@ -176,6 +180,8 @@ class TestClinicalFeatureExtractor:
 
     def test_shift_worker_features(self):
         """Features should adapt to shift work patterns."""
+        from big_mood_detector.domain.services.clinical_feature_extractor import ClinicalFeatureExtractor
+
         # Arrange
         extractor = ClinicalFeatureExtractor()
         sleep_records, activity_records, heart_records = (
@@ -205,6 +211,12 @@ class TestClinicalFeatureExtractor:
 
     def test_clinical_significance_detection(self):
         """Should detect clinically significant patterns."""
+        from big_mood_detector.domain.services.clinical_feature_extractor import ClinicalFeatureExtractor
+        from big_mood_detector.domain.entities.sleep_record import (
+            SleepRecord,
+            SleepState,
+        )
+
         # Arrange
         extractor = ClinicalFeatureExtractor()
         # Create irregular sleep pattern
@@ -236,6 +248,12 @@ class TestClinicalFeatureExtractor:
 
     def test_feature_extraction_with_sparse_data(self):
         """Should handle sparse data gracefully."""
+        from big_mood_detector.domain.services.clinical_feature_extractor import ClinicalFeatureExtractor
+        from big_mood_detector.domain.entities.sleep_record import (
+            SleepRecord,
+            SleepState,
+        )
+
         # Arrange
         extractor = ClinicalFeatureExtractor()
         # Only 3 days of sleep data
@@ -269,6 +287,8 @@ class TestClinicalFeatureExtractor:
 
     def test_feature_vector_order_consistency(self):
         """Feature vector should maintain consistent order for XGBoost."""
+        from big_mood_detector.domain.services.clinical_feature_extractor import ClinicalFeatureExtractor
+
         # Arrange
         extractor = ClinicalFeatureExtractor()
         sleep_records, activity_records, heart_records = (

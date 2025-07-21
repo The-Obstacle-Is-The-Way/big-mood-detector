@@ -9,16 +9,6 @@ from pathlib import Path
 
 import pytest
 
-from big_mood_detector.application.use_cases.process_health_data_use_case import (
-    MoodPredictionPipeline,
-)
-from big_mood_detector.domain.services.clinical_assessment_service import (
-    ClinicalAssessmentService,
-)
-from big_mood_detector.domain.services.clinical_interpreter import ClinicalInterpreter
-from big_mood_detector.infrastructure.di.container import setup_dependencies
-
-
 @pytest.mark.integration
 class TestDIIntegrationSmoke:
     """Smoke tests for dependency injection setup."""
@@ -35,6 +25,9 @@ class TestDIIntegrationSmoke:
 
     def test_can_resolve_clinical_interpreter(self, settings):
         """Test that ClinicalInterpreter can be resolved with all dependencies."""
+        from big_mood_detector.domain.services.clinical_interpreter import ClinicalInterpreter
+        from big_mood_detector.infrastructure.di.container import setup_dependencies
+
         # Given: A configured DI container
         container = setup_dependencies(settings)
 
@@ -49,6 +42,9 @@ class TestDIIntegrationSmoke:
 
     def test_can_resolve_mood_prediction_pipeline(self, settings):
         """Test that the main use case can be resolved."""
+        from big_mood_detector.application.use_cases.process_health_data_use_case import MoodPredictionPipeline
+        from big_mood_detector.infrastructure.di.container import setup_dependencies
+
         # Given: A configured DI container
         container = setup_dependencies(settings)
 
@@ -61,6 +57,9 @@ class TestDIIntegrationSmoke:
 
     def test_clinical_assessment_service_integration(self, settings):
         """Test that ClinicalAssessmentService works end-to-end."""
+        from big_mood_detector.domain.services.clinical_assessment_service import ClinicalAssessmentService
+        from big_mood_detector.infrastructure.di.container import setup_dependencies
+
         # Given: A configured DI container
         container = setup_dependencies(settings)
         service = container.resolve(ClinicalAssessmentService)
@@ -84,6 +83,10 @@ class TestDIIntegrationSmoke:
 
     def test_all_services_are_singletons(self, settings):
         """Test that all services are registered as singletons."""
+        from big_mood_detector.domain.services.clinical_assessment_service import ClinicalAssessmentService
+        from big_mood_detector.domain.services.clinical_interpreter import ClinicalInterpreter
+        from big_mood_detector.infrastructure.di.container import setup_dependencies
+
         # Given: A configured DI container
         container = setup_dependencies(settings)
 
@@ -100,6 +103,8 @@ class TestDIIntegrationSmoke:
 
     def test_container_includes_logging(self, settings, capsys):
         """Test that container includes proper logging for config path resolution."""
+        from big_mood_detector.infrastructure.di.container import setup_dependencies
+
         # When: We setup dependencies
         container = setup_dependencies(settings)
 
@@ -118,18 +123,13 @@ class TestDIIntegrationSmoke:
 
     def test_feature_engineering_orchestrator_integration(self, settings):
         """Test that FeatureEngineeringOrchestrator can be resolved and used."""
-        from datetime import date, datetime, time
-
-        from big_mood_detector.domain.services.activity_aggregator import (
-            DailyActivitySummary,
-        )
-        from big_mood_detector.domain.services.feature_engineering_orchestrator import (
-            FeatureEngineeringOrchestrator,
-        )
-        from big_mood_detector.domain.services.heart_rate_aggregator import (
-            DailyHeartSummary,
-        )
+        from big_mood_detector.domain.services.heart_rate_aggregator import DailyHeartSummary
+        from big_mood_detector.domain.services.activity_aggregator import DailyActivitySummary
+        from big_mood_detector.domain.services.feature_engineering_orchestrator import FeatureEngineeringOrchestrator
+        from big_mood_detector.infrastructure.di.container import setup_dependencies
         from big_mood_detector.domain.services.sleep_aggregator import DailySleepSummary
+
+        from datetime import date, datetime, time
 
         # Given: A configured DI container
         container = setup_dependencies(settings)

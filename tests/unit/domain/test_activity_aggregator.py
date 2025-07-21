@@ -9,21 +9,13 @@ from datetime import UTC, date, datetime, time
 
 import pytest
 
-from big_mood_detector.domain.entities.activity_record import (
-    ActivityRecord,
-    ActivityType,
-)
-from big_mood_detector.domain.services.activity_aggregator import (
-    ActivityAggregator,
-    DailyActivitySummary,
-)
-
-
 class TestDailyActivitySummary:
     """Test suite for DailyActivitySummary value object."""
 
     def test_create_daily_activity_summary(self):
         """Test creating a daily activity summary."""
+        from big_mood_detector.domain.services.activity_aggregator import DailyActivitySummary
+
         # ARRANGE & ACT
         summary = DailyActivitySummary(
             date=date(2024, 1, 1),
@@ -47,6 +39,8 @@ class TestDailyActivitySummary:
 
     def test_daily_summary_is_immutable(self):
         """Test that daily summary cannot be modified."""
+        from big_mood_detector.domain.services.activity_aggregator import DailyActivitySummary
+
         # ARRANGE
         summary = DailyActivitySummary(
             date=date(2024, 1, 1),
@@ -59,6 +53,8 @@ class TestDailyActivitySummary:
 
     def test_clinically_significant_high_activity(self):
         """Test detection of manic-level activity."""
+        from big_mood_detector.domain.services.activity_aggregator import DailyActivitySummary
+
         # ARRANGE - Very high step count (>15000)
         summary = DailyActivitySummary(
             date=date(2024, 1, 1),
@@ -74,6 +70,8 @@ class TestDailyActivitySummary:
 
     def test_clinically_significant_low_activity(self):
         """Test detection of depressive-level activity."""
+        from big_mood_detector.domain.services.activity_aggregator import DailyActivitySummary
+
         # ARRANGE - Very low step count (<2000)
         summary = DailyActivitySummary(
             date=date(2024, 1, 1),
@@ -89,6 +87,8 @@ class TestDailyActivitySummary:
 
     def test_clinically_significant_erratic_pattern(self):
         """Test detection of erratic activity patterns."""
+        from big_mood_detector.domain.services.activity_aggregator import DailyActivitySummary
+
         # ARRANGE - High variance in activity
         summary = DailyActivitySummary(
             date=date(2024, 1, 1),
@@ -101,6 +101,8 @@ class TestDailyActivitySummary:
 
     def test_normal_activity_not_significant(self):
         """Test normal activity is not clinically significant."""
+        from big_mood_detector.domain.services.activity_aggregator import DailyActivitySummary
+
         # ARRANGE
         summary = DailyActivitySummary(
             date=date(2024, 1, 1),
@@ -114,7 +116,6 @@ class TestDailyActivitySummary:
         assert not summary.is_clinically_significant
         assert not summary.is_high_activity
         assert not summary.is_low_activity
-
 
 class TestActivityAggregator:
     """Test suite for ActivityAggregator service."""
@@ -192,6 +193,11 @@ class TestActivityAggregator:
 
     def test_aggregate_multiple_sources(self, aggregator):
         """Test aggregating from multiple sources."""
+        from big_mood_detector.domain.entities.activity_record import (
+            ActivityRecord,
+            ActivityType,
+        )
+
         # ARRANGE
         records = [
             ActivityRecord(
@@ -222,6 +228,11 @@ class TestActivityAggregator:
 
     def test_activity_variance_calculation(self, aggregator):
         """Test calculation of activity variance (erratic patterns)."""
+        from big_mood_detector.domain.entities.activity_record import (
+            ActivityRecord,
+            ActivityType,
+        )
+
         # ARRANGE - Highly variable activity
         day = datetime(2024, 1, 1, tzinfo=UTC)
         records = []
@@ -249,6 +260,11 @@ class TestActivityAggregator:
 
     def test_sedentary_vs_active_hours(self, aggregator):
         """Test calculation of sedentary vs active hours."""
+        from big_mood_detector.domain.entities.activity_record import (
+            ActivityRecord,
+            ActivityType,
+        )
+
         # ARRANGE
         day = datetime(2024, 1, 1, tzinfo=UTC)
         records = [
@@ -281,6 +297,11 @@ class TestActivityAggregator:
 
     def test_circadian_activity_markers(self, aggregator):
         """Test extraction of circadian rhythm markers."""
+        from big_mood_detector.domain.entities.activity_record import (
+            ActivityRecord,
+            ActivityType,
+        )
+
         # ARRANGE
         day = datetime(2024, 1, 1, tzinfo=UTC)
         records = [
@@ -312,6 +333,11 @@ class TestActivityAggregator:
 
     def test_multiple_days_aggregation(self, aggregator):
         """Test aggregating activity across multiple days."""
+        from big_mood_detector.domain.entities.activity_record import (
+            ActivityRecord,
+            ActivityType,
+        )
+
         # ARRANGE
         records = []
         for day_offset in range(3):
@@ -338,6 +364,11 @@ class TestActivityAggregator:
 
     def test_activity_type_aggregation(self, aggregator):
         """Test proper aggregation of different activity types."""
+        from big_mood_detector.domain.entities.activity_record import (
+            ActivityRecord,
+            ActivityType,
+        )
+
         # ARRANGE
         day = datetime(2024, 1, 1, tzinfo=UTC)
         records = [

@@ -6,10 +6,6 @@ This guards against the sleep_percentage * 24 bug at the domain level.
 
 from datetime import date, datetime, timedelta
 
-from big_mood_detector.domain.entities.sleep_record import SleepRecord, SleepState
-from big_mood_detector.domain.services.sleep_aggregator import SleepAggregator
-
-
 class TestSleepAggregatorRegression:
     """Regression tests to ensure sleep calculations remain reasonable."""
 
@@ -24,6 +20,11 @@ class TestSleepAggregatorRegression:
         This guards against calculation bugs that would produce
         unrealistic sleep durations.
         """
+        from big_mood_detector.domain.entities.sleep_record import (
+            SleepRecord,
+            SleepState,
+        )
+
         test_cases = [
             # (start_time, end_time, expected_hours, description)
             (
@@ -98,6 +99,11 @@ class TestSleepAggregatorRegression:
 
         This was the core of the sleep_percentage * 24 bug.
         """
+        from big_mood_detector.domain.entities.sleep_record import (
+            SleepRecord,
+            SleepState,
+        )
+
         # Create fragmented sleep pattern
         sleep_records = [
             # First sleep segment: 11pm-3am (4 hours)
@@ -141,6 +147,11 @@ class TestSleepAggregatorRegression:
         """
         Test that a week of sleep averages to reasonable values.
         """
+        from big_mood_detector.domain.entities.sleep_record import (
+            SleepRecord,
+            SleepState,
+        )
+
         sleep_records = []
 
         # Create a week of normal sleep (7.5 hours average)

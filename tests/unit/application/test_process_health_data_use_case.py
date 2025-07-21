@@ -7,27 +7,13 @@ from datetime import date, datetime, timedelta
 from pathlib import Path
 from unittest.mock import Mock, patch
 
-from big_mood_detector.application.use_cases.process_health_data_use_case import (
-    MoodPredictionPipeline,
-    PipelineConfig,
-    PipelineResult,
-)
-from big_mood_detector.domain.entities.activity_record import (
-    ActivityRecord,
-    ActivityType,
-)
-from big_mood_detector.domain.entities.heart_rate_record import (
-    HeartMetricType,
-    HeartRateRecord,
-)
-from big_mood_detector.domain.entities.sleep_record import SleepRecord, SleepState
-
-
 class TestMoodPredictionPipeline:
     """Test the complete mood prediction pipeline."""
 
     def test_pipeline_initialization(self):
         """Pipeline should initialize with default config."""
+        from big_mood_detector.application.use_cases.process_health_data_use_case import MoodPredictionPipeline
+
         pipeline = MoodPredictionPipeline()
 
         assert pipeline is not None
@@ -38,6 +24,11 @@ class TestMoodPredictionPipeline:
     @patch("big_mood_detector.infrastructure.ml_models.pat_model.PATModel")
     def test_pipeline_with_custom_config(self, mock_pat_class):
         """Pipeline should accept custom configuration."""
+        from big_mood_detector.application.use_cases.process_health_data_use_case import (
+            MoodPredictionPipeline,
+            PipelineConfig,
+        )
+
         # Mock PAT model to avoid loading real weights
         mock_pat = Mock()
         mock_pat.load_pretrained_weights.return_value = True
@@ -61,6 +52,8 @@ class TestMoodPredictionPipeline:
     )
     def test_process_apple_health_xml(self, mock_create_parser):
         """Process Apple Health XML export and generate predictions."""
+        from big_mood_detector.application.use_cases.process_health_data_use_case import MoodPredictionPipeline
+
         # Arrange
         mock_parser = Mock()
         mock_create_parser.return_value = mock_parser
@@ -103,6 +96,8 @@ class TestMoodPredictionPipeline:
 
     def test_batch_feature_extraction(self):
         """Extract features for multiple days efficiently."""
+        from big_mood_detector.application.use_cases.process_health_data_use_case import MoodPredictionPipeline
+
         pipeline = MoodPredictionPipeline()
 
         target_date = date(2025, 7, 16)
@@ -128,6 +123,8 @@ class TestMoodPredictionPipeline:
     @patch("big_mood_detector.domain.services.mood_predictor.MoodPredictor.predict")
     def test_prediction_with_insufficient_data(self, mock_predict):
         """Handle cases with insufficient data gracefully."""
+        from big_mood_detector.application.use_cases.process_health_data_use_case import MoodPredictionPipeline
+
         pipeline = MoodPredictionPipeline()
 
         # Only 3 days of data (less than min_days_required)
@@ -153,6 +150,8 @@ class TestMoodPredictionPipeline:
 
     def test_pipeline_with_sparse_data(self):
         """Handle sparse data with missing days."""
+        from big_mood_detector.application.use_cases.process_health_data_use_case import MoodPredictionPipeline
+
         pipeline = MoodPredictionPipeline()
 
         target_date = date(2025, 7, 16)
@@ -183,6 +182,8 @@ class TestMoodPredictionPipeline:
     )
     def test_pipeline_without_models(self, MockPredictor):
         """Handle missing ML models gracefully."""
+        from big_mood_detector.application.use_cases.process_health_data_use_case import MoodPredictionPipeline
+
         # Create mock predictor instance
         mock_predictor_instance = Mock()
         mock_predictor_instance.is_loaded = False
@@ -210,6 +211,11 @@ class TestMoodPredictionPipeline:
 
     def test_export_results_to_csv(self, tmp_path):
         """Export pipeline results to CSV format."""
+        from big_mood_detector.application.use_cases.process_health_data_use_case import (
+            MoodPredictionPipeline,
+            PipelineResult,
+        )
+
         pipeline = MoodPredictionPipeline()
 
         # Create mock result
@@ -252,6 +258,8 @@ class TestMoodPredictionPipeline:
 
     def test_pipeline_performance_metrics(self):
         """Track pipeline performance metrics."""
+        from big_mood_detector.application.use_cases.process_health_data_use_case import MoodPredictionPipeline
+
         pipeline = MoodPredictionPipeline()
 
         target_date = date(2025, 7, 16)
@@ -274,6 +282,11 @@ class TestMoodPredictionPipeline:
 
     # Helper methods
     def _create_test_sleep_records(
+        from big_mood_detector.domain.entities.sleep_record import (
+            SleepRecord,
+            SleepState,
+        )
+
         self, end_date: date, days: int
     ) -> list[SleepRecord]:
         """Create test sleep records."""
@@ -295,6 +308,11 @@ class TestMoodPredictionPipeline:
         return records
 
     def _create_test_activity_records(
+        from big_mood_detector.domain.entities.activity_record import (
+            ActivityRecord,
+            ActivityType,
+        )
+
         self, end_date: date, days: int
     ) -> list[ActivityRecord]:
         """Create test activity records."""
@@ -321,6 +339,11 @@ class TestMoodPredictionPipeline:
         return records
 
     def _create_test_heart_records(
+        from big_mood_detector.domain.entities.heart_rate_record import (
+            HeartMetricType,
+            HeartRateRecord,
+        )
+
         self, end_date: date, days: int
     ) -> list[HeartRateRecord]:
         """Create test heart rate records."""

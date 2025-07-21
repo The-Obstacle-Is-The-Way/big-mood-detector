@@ -8,10 +8,6 @@ Sleep that ends after 3pm is assigned to the next day.
 
 from datetime import date, datetime
 
-from big_mood_detector.domain.entities.sleep_record import SleepRecord, SleepState
-from big_mood_detector.domain.services.sleep_aggregator import SleepAggregator
-
-
 class TestSleepAggregatorApple3PM:
     """Test Apple Health 3pm cutoff convention for sleep date assignment."""
 
@@ -25,6 +21,11 @@ class TestSleepAggregatorApple3PM:
 
         This is the most common case.
         """
+        from big_mood_detector.domain.entities.sleep_record import (
+            SleepRecord,
+            SleepState,
+        )
+
         sleep = SleepRecord(
             source_name="Apple Watch",
             start_date=datetime(2024, 1, 1, 22, 0),  # 10pm Jan 1
@@ -44,6 +45,11 @@ class TestSleepAggregatorApple3PM:
 
         Example: 10am-1pm nap on Jan 2.
         """
+        from big_mood_detector.domain.entities.sleep_record import (
+            SleepRecord,
+            SleepState,
+        )
+
         nap = SleepRecord(
             source_name="Apple Watch",
             start_date=datetime(2024, 1, 2, 10, 0),  # 10am
@@ -63,6 +69,11 @@ class TestSleepAggregatorApple3PM:
 
         Example: 2pm-4pm nap on Jan 2.
         """
+        from big_mood_detector.domain.entities.sleep_record import (
+            SleepRecord,
+            SleepState,
+        )
+
         nap = SleepRecord(
             source_name="Apple Watch",
             start_date=datetime(2024, 1, 2, 14, 0),  # 2pm
@@ -82,6 +93,11 @@ class TestSleepAggregatorApple3PM:
 
         Convention: exactly 3pm should stay on same day.
         """
+        from big_mood_detector.domain.entities.sleep_record import (
+            SleepRecord,
+            SleepState,
+        )
+
         nap = SleepRecord(
             source_name="Apple Watch",
             start_date=datetime(2024, 1, 2, 13, 0),  # 1pm
@@ -100,6 +116,11 @@ class TestSleepAggregatorApple3PM:
 
         Example: Night shift worker sleeps 8am-4pm.
         """
+        from big_mood_detector.domain.entities.sleep_record import (
+            SleepRecord,
+            SleepState,
+        )
+
         shift_sleep = SleepRecord(
             source_name="Apple Watch",
             start_date=datetime(2024, 1, 2, 8, 0),  # 8am
@@ -119,6 +140,11 @@ class TestSleepAggregatorApple3PM:
 
         Example: Night sleep + morning nap + afternoon nap.
         """
+        from big_mood_detector.domain.entities.sleep_record import (
+            SleepRecord,
+            SleepState,
+        )
+
         # Night sleep: 11pm Jan 1 to 7am Jan 2
         night = SleepRecord(
             source_name="Apple Watch",
@@ -159,6 +185,11 @@ class TestSleepAggregatorApple3PM:
 
         Example: Sick day sleeping 10pm to 5pm next day.
         """
+        from big_mood_detector.domain.entities.sleep_record import (
+            SleepRecord,
+            SleepState,
+        )
+
         long_sleep = SleepRecord(
             source_name="Apple Watch",
             start_date=datetime(2024, 1, 1, 22, 0),  # 10pm Jan 1

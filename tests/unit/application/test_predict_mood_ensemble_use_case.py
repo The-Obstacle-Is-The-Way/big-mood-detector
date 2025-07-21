@@ -11,13 +11,6 @@ from unittest.mock import Mock
 import numpy as np
 import pytest
 
-from big_mood_detector.domain.entities.activity_record import (
-    ActivityRecord,
-    ActivityType,
-)
-from big_mood_detector.domain.services.mood_predictor import MoodPrediction
-
-
 class TestEnsembleOrchestrator:
     """Test the ensemble orchestrator functionality."""
 
@@ -62,9 +55,7 @@ class TestEnsembleOrchestrator:
 
     def test_orchestrator_initialization(self, mock_xgboost_predictor, mock_pat_model):
         """Test basic orchestrator initialization."""
-        from big_mood_detector.application.use_cases.predict_mood_ensemble_use_case import (
-            EnsembleOrchestrator,
-        )
+        from big_mood_detector.application.use_cases.predict_mood_ensemble_use_case import EnsembleOrchestrator
 
         orchestrator = EnsembleOrchestrator(
             xgboost_predictor=mock_xgboost_predictor, pat_model=mock_pat_model
@@ -94,9 +85,7 @@ class TestEnsembleOrchestrator:
 
     def test_xgboost_only_prediction(self, mock_xgboost_predictor):
         """Test prediction with only XGBoost (no PAT)."""
-        from big_mood_detector.application.use_cases.predict_mood_ensemble_use_case import (
-            EnsembleOrchestrator,
-        )
+        from big_mood_detector.application.use_cases.predict_mood_ensemble_use_case import EnsembleOrchestrator
 
         orchestrator = EnsembleOrchestrator(
             xgboost_predictor=mock_xgboost_predictor, pat_model=None  # No PAT model
@@ -112,12 +101,12 @@ class TestEnsembleOrchestrator:
         assert len(result.models_used) == 1
 
     def test_ensemble_prediction_both_models(
+        from big_mood_detector.application.use_cases.predict_mood_ensemble_use_case import EnsembleOrchestrator
+        from big_mood_detector.domain.services.mood_predictor import MoodPrediction
+
         self, mock_xgboost_predictor, mock_pat_model, sample_activity_records
     ):
         """Test ensemble prediction with both models."""
-        from big_mood_detector.application.use_cases.predict_mood_ensemble_use_case import (
-            EnsembleOrchestrator,
-        )
 
         # Setup PAT-enhanced prediction
         pat_enhanced_pred = MoodPrediction(
@@ -194,9 +183,7 @@ class TestEnsembleOrchestrator:
 
     def test_both_models_fail(self):
         """Test graceful degradation when both models fail."""
-        from big_mood_detector.application.use_cases.predict_mood_ensemble_use_case import (
-            EnsembleOrchestrator,
-        )
+        from big_mood_detector.application.use_cases.predict_mood_ensemble_use_case import EnsembleOrchestrator
 
         # Create failing predictors
         xgboost_predictor = Mock()
@@ -222,9 +209,7 @@ class TestEnsembleOrchestrator:
 
     def test_confidence_calculation(self, mock_xgboost_predictor, mock_pat_model):
         """Test confidence score calculation."""
-        from big_mood_detector.application.use_cases.predict_mood_ensemble_use_case import (
-            EnsembleOrchestrator,
-        )
+        from big_mood_detector.application.use_cases.predict_mood_ensemble_use_case import EnsembleOrchestrator
 
         orchestrator = EnsembleOrchestrator(
             xgboost_predictor=mock_xgboost_predictor, pat_model=mock_pat_model
@@ -239,9 +224,7 @@ class TestEnsembleOrchestrator:
 
     def test_processing_time_tracking(self, mock_xgboost_predictor):
         """Test that processing times are tracked."""
-        from big_mood_detector.application.use_cases.predict_mood_ensemble_use_case import (
-            EnsembleOrchestrator,
-        )
+        from big_mood_detector.application.use_cases.predict_mood_ensemble_use_case import EnsembleOrchestrator
 
         orchestrator = EnsembleOrchestrator(xgboost_predictor=mock_xgboost_predictor)
 
@@ -254,24 +237,19 @@ class TestEnsembleOrchestrator:
 
     def test_shutdown_cleanup(self, mock_xgboost_predictor):
         """Test proper resource cleanup."""
-        from big_mood_detector.application.use_cases.predict_mood_ensemble_use_case import (
-            EnsembleOrchestrator,
-        )
+        from big_mood_detector.application.use_cases.predict_mood_ensemble_use_case import EnsembleOrchestrator
 
         orchestrator = EnsembleOrchestrator(xgboost_predictor=mock_xgboost_predictor)
 
         # Should not raise any exceptions
         orchestrator.shutdown()
 
-
 class TestEnsembleConfig:
     """Test the ensemble configuration."""
 
     def test_default_config(self):
         """Test default configuration values."""
-        from big_mood_detector.application.use_cases.predict_mood_ensemble_use_case import (
-            EnsembleConfig,
-        )
+        from big_mood_detector.application.use_cases.predict_mood_ensemble_use_case import EnsembleConfig
 
         config = EnsembleConfig()
 
@@ -283,9 +261,7 @@ class TestEnsembleConfig:
 
     def test_custom_config(self):
         """Test custom configuration."""
-        from big_mood_detector.application.use_cases.predict_mood_ensemble_use_case import (
-            EnsembleConfig,
-        )
+        from big_mood_detector.application.use_cases.predict_mood_ensemble_use_case import EnsembleConfig
 
         config = EnsembleConfig(
             xgboost_weight=0.8,
@@ -299,16 +275,13 @@ class TestEnsembleConfig:
         assert config.use_pat_features is False
         assert config.min_confidence_threshold == 0.8
 
-
 class TestEnsemblePrediction:
     """Test the ensemble prediction dataclass."""
 
     def test_ensemble_prediction_creation(self):
         """Test creating ensemble prediction result."""
-        from big_mood_detector.application.use_cases.predict_mood_ensemble_use_case import (
-            EnsemblePrediction,
-        )
         from big_mood_detector.domain.services.mood_predictor import MoodPrediction
+        from big_mood_detector.application.use_cases.predict_mood_ensemble_use_case import EnsemblePrediction
 
         xgb_pred = MoodPrediction(
             depression_risk=0.3,

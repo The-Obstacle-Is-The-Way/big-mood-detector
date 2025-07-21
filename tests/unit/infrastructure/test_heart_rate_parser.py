@@ -7,14 +7,13 @@ Following Clean Architecture and SOLID principles.
 
 import pytest
 
-from big_mood_detector.infrastructure.parsers.xml import HeartRateParser
-
-
 class TestHeartRateParser:
     """Test suite for HeartRateParser - Apple HealthKit heart data extraction."""
 
     def test_heart_rate_parser_exists(self):
         """Test that HeartRateParser class can be instantiated."""
+        from big_mood_detector.infrastructure.parsers.xml import HeartRateParser
+
         # ARRANGE & ACT
         parser = HeartRateParser()
 
@@ -24,6 +23,8 @@ class TestHeartRateParser:
 
     def test_parse_accepts_xml_string(self):
         """Test that parse method accepts XML string input."""
+        from big_mood_detector.infrastructure.parsers.xml import HeartRateParser
+
         # ARRANGE
         parser = HeartRateParser()
         xml_data = "<HealthData></HealthData>"
@@ -37,6 +38,8 @@ class TestHeartRateParser:
 
     def test_parse_empty_xml_returns_empty_list(self):
         """Test parsing empty HealthData returns empty list."""
+        from big_mood_detector.infrastructure.parsers.xml import HeartRateParser
+
         # ARRANGE
         parser = HeartRateParser()
         xml_data = """<?xml version="1.0" encoding="UTF-8"?>
@@ -50,6 +53,8 @@ class TestHeartRateParser:
 
     def test_extract_heart_rate_record(self):
         """Test extraction of heart rate records."""
+        from big_mood_detector.infrastructure.parsers.xml import HeartRateParser
+
         # ARRANGE
         parser = HeartRateParser()
         xml_data = """<?xml version="1.0" encoding="UTF-8"?>
@@ -76,6 +81,8 @@ class TestHeartRateParser:
 
     def test_extract_heart_rate_variability_record(self):
         """Test extraction of HRV (SDNN) records."""
+        from big_mood_detector.infrastructure.parsers.xml import HeartRateParser
+
         # ARRANGE
         parser = HeartRateParser()
         xml_data = """<?xml version="1.0" encoding="UTF-8"?>
@@ -100,6 +107,8 @@ class TestHeartRateParser:
 
     def test_extract_resting_heart_rate_record(self):
         """Test extraction of resting heart rate records."""
+        from big_mood_detector.infrastructure.parsers.xml import HeartRateParser
+
         # ARRANGE
         parser = HeartRateParser()
         xml_data = """<?xml version="1.0" encoding="UTF-8"?>
@@ -123,6 +132,8 @@ class TestHeartRateParser:
 
     def test_extract_multiple_heart_metrics(self):
         """Test extraction of different heart metric types."""
+        from big_mood_detector.infrastructure.parsers.xml import HeartRateParser
+
         # ARRANGE
         parser = HeartRateParser()
         xml_data = """<?xml version="1.0" encoding="UTF-8"?>
@@ -159,6 +170,8 @@ class TestHeartRateParser:
 
     def test_parse_invalid_xml_raises_exception(self):
         """Test that invalid XML raises appropriate exception."""
+        from big_mood_detector.infrastructure.parsers.xml import HeartRateParser
+
         # ARRANGE
         parser = HeartRateParser()
         invalid_xml = "This is not valid XML"
@@ -169,6 +182,8 @@ class TestHeartRateParser:
 
     def test_filters_non_heart_records(self):
         """Test that non-heart records are filtered out."""
+        from big_mood_detector.infrastructure.parsers.xml import HeartRateParser
+
         # ARRANGE
         parser = HeartRateParser()
         xml_data = """<?xml version="1.0" encoding="UTF-8"?>
@@ -192,6 +207,8 @@ class TestHeartRateParser:
 
     def test_parse_to_entities(self):
         """Test parsing to domain entities."""
+        from big_mood_detector.infrastructure.parsers.xml import HeartRateParser
+
         # ARRANGE
         parser = HeartRateParser()
         xml_data = """<?xml version="1.0" encoding="UTF-8"?>
@@ -217,6 +234,8 @@ class TestHeartRateParser:
 
     def test_supported_heart_types_property(self):
         """Test that parser exposes supported heart metric types."""
+        from big_mood_detector.infrastructure.parsers.xml import HeartRateParser
+
         # ARRANGE
         parser = HeartRateParser()
 
@@ -232,6 +251,8 @@ class TestHeartRateParser:
 
     def test_heart_rate_context_extraction(self):
         """Test extraction of heart rate context (motion, workout)."""
+        from big_mood_detector.infrastructure.parsers.xml import HeartRateParser
+
         # ARRANGE
         parser = HeartRateParser()
         xml_data = """<?xml version="1.0" encoding="UTF-8"?>

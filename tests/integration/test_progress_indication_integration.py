@@ -9,14 +9,6 @@ from pathlib import Path
 
 import pytest
 
-from big_mood_detector.application.services.data_parsing_service import (
-    DataParsingService,
-)
-from big_mood_detector.application.use_cases.process_health_data_use_case import (
-    MoodPredictionPipeline,
-)
-
-
 class TestProgressIndicationIntegration:
     """Test progress indication through full pipeline."""
 
@@ -46,6 +38,8 @@ class TestProgressIndicationIntegration:
 
     def test_progress_indication_through_pipeline(self, sample_xml):
         """Test that progress callbacks are propagated through the entire pipeline."""
+        from big_mood_detector.application.use_cases.process_health_data_use_case import MoodPredictionPipeline
+
         try:
             # Track progress calls
             progress_calls = []
@@ -97,6 +91,8 @@ class TestProgressIndicationIntegration:
 
     def test_progress_indication_with_data_parsing_service(self, sample_xml):
         """Test progress indication at the service layer."""
+        from big_mood_detector.application.services.data_parsing_service import DataParsingService
+
         try:
             progress_calls = []
 
@@ -123,6 +119,8 @@ class TestProgressIndicationIntegration:
 
     def test_progress_callback_error_resilience(self, sample_xml):
         """Test that processing continues even if progress callback fails."""
+        from big_mood_detector.application.use_cases.process_health_data_use_case import MoodPredictionPipeline
+
         try:
             # Create a failing progress callback
             def failing_callback(message: str, progress: float):
@@ -144,6 +142,8 @@ class TestProgressIndicationIntegration:
 
     def test_progress_indication_large_file_simulation(self):
         """Test progress indication with simulated large file processing."""
+        from big_mood_detector.application.services.data_parsing_service import DataParsingService
+
         # Create a larger XML file to test progress intervals
         xml_header = '<?xml version="1.0" encoding="UTF-8"?>\n<HealthData>\n'
         xml_footer = '</HealthData>'

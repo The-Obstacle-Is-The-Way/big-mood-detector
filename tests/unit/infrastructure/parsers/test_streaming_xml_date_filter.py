@@ -5,11 +5,6 @@ from pathlib import Path
 
 import pytest
 
-from big_mood_detector.infrastructure.parsers.xml.streaming_adapter import (
-    StreamingXMLParser,
-)
-
-
 @pytest.fixture
 def sample_xml_with_dates() -> str:
     """Create sample XML with various dates."""
@@ -33,12 +28,13 @@ def sample_xml_with_dates() -> str:
             value="250"/>
 </HealthData>"""
 
-
 class TestStreamingXMLDateFilter:
     """Test date filtering functionality."""
 
     def test_date_filter_includes_in_range_records(self, sample_xml_with_dates: str):
         """Test that records within date range are included."""
+        from big_mood_detector.infrastructure.parsers.xml.streaming_adapter import StreamingXMLParser
+
         # Create temp file
         with tempfile.NamedTemporaryFile(mode="w", suffix=".xml", delete=False) as f:
             f.write(sample_xml_with_dates)
@@ -68,6 +64,8 @@ class TestStreamingXMLDateFilter:
             temp_path.unlink()
 
     def test_date_filter_excludes_out_of_range_records(
+        from big_mood_detector.infrastructure.parsers.xml.streaming_adapter import StreamingXMLParser
+
         self, sample_xml_with_dates: str
     ):
         """Test that records outside date range are excluded."""
@@ -93,6 +91,8 @@ class TestStreamingXMLDateFilter:
 
     def test_date_filter_handles_timezone_correctly(self, sample_xml_with_dates: str):
         """Test that timezone parsing works correctly."""
+        from big_mood_detector.infrastructure.parsers.xml.streaming_adapter import StreamingXMLParser
+
         with tempfile.NamedTemporaryFile(mode="w", suffix=".xml", delete=False) as f:
             f.write(sample_xml_with_dates)
             temp_path = Path(f.name)
@@ -119,6 +119,8 @@ class TestStreamingXMLDateFilter:
 
     def test_no_date_filter_returns_all_records(self, sample_xml_with_dates: str):
         """Test that no date filter returns all records."""
+        from big_mood_detector.infrastructure.parsers.xml.streaming_adapter import StreamingXMLParser
+
         with tempfile.NamedTemporaryFile(mode="w", suffix=".xml", delete=False) as f:
             f.write(sample_xml_with_dates)
             temp_path = Path(f.name)
@@ -137,6 +139,8 @@ class TestStreamingXMLDateFilter:
 
     def test_invalid_date_format_skips_record(self):
         """Test that records with invalid dates are skipped."""
+        from big_mood_detector.infrastructure.parsers.xml.streaming_adapter import StreamingXMLParser
+
         xml_content = """<?xml version="1.0" encoding="UTF-8"?>
 <HealthData>
     <Record type="HKCategoryTypeIdentifierSleepAnalysis"

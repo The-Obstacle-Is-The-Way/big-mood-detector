@@ -8,14 +8,13 @@ from datetime import UTC, datetime
 
 import pytest
 
-from big_mood_detector.domain.entities.sleep_record import SleepRecord, SleepState
-
-
 class TestSleepState:
     """Test suite for SleepState enum."""
 
     def test_sleep_state_from_healthkit_value(self):
         """Test conversion from HealthKit string values."""
+        from big_mood_detector.domain.entities.sleep_record import SleepState
+
         # ARRANGE & ACT & ASSERT
         assert (
             SleepState.from_healthkit_value("HKCategoryValueSleepAnalysisInBed")
@@ -36,15 +35,21 @@ class TestSleepState:
 
     def test_invalid_healthkit_value_raises_error(self):
         """Test that invalid values raise ValueError."""
+        from big_mood_detector.domain.entities.sleep_record import SleepState
+
         with pytest.raises(ValueError, match="Unknown sleep state"):
             SleepState.from_healthkit_value("InvalidValue")
-
 
 class TestSleepRecord:
     """Test suite for SleepRecord entity."""
 
     def test_create_valid_sleep_record(self):
         """Test creating a valid sleep record."""
+        from big_mood_detector.domain.entities.sleep_record import (
+            SleepRecord,
+            SleepState,
+        )
+
         # ARRANGE
         start = datetime(2024, 1, 1, 23, 0, tzinfo=UTC)
         end = datetime(2024, 1, 2, 7, 0, tzinfo=UTC)
@@ -65,6 +70,11 @@ class TestSleepRecord:
 
     def test_sleep_record_is_immutable(self):
         """Test that sleep record cannot be modified after creation."""
+        from big_mood_detector.domain.entities.sleep_record import (
+            SleepRecord,
+            SleepState,
+        )
+
         # ARRANGE
         record = SleepRecord(
             source_name="Apple Watch",
@@ -79,6 +89,11 @@ class TestSleepRecord:
 
     def test_invalid_date_range_raises_error(self):
         """Test that end date must be after start date."""
+        from big_mood_detector.domain.entities.sleep_record import (
+            SleepRecord,
+            SleepState,
+        )
+
         # ARRANGE
         start = datetime(2024, 1, 2, 7, 0, tzinfo=UTC)
         end = datetime(2024, 1, 1, 23, 0, tzinfo=UTC)
@@ -94,6 +109,11 @@ class TestSleepRecord:
 
     def test_empty_source_name_raises_error(self):
         """Test that empty source name is not allowed."""
+        from big_mood_detector.domain.entities.sleep_record import (
+            SleepRecord,
+            SleepState,
+        )
+
         # ARRANGE
         start = datetime(2024, 1, 1, 23, 0, tzinfo=UTC)
         end = datetime(2024, 1, 2, 7, 0, tzinfo=UTC)
@@ -106,6 +126,11 @@ class TestSleepRecord:
 
     def test_duration_hours_calculation(self):
         """Test duration calculation in hours."""
+        from big_mood_detector.domain.entities.sleep_record import (
+            SleepRecord,
+            SleepState,
+        )
+
         # ARRANGE
         start = datetime(2024, 1, 1, 23, 0, tzinfo=UTC)
         end = datetime(2024, 1, 2, 7, 30, tzinfo=UTC)
@@ -121,6 +146,11 @@ class TestSleepRecord:
 
     def test_is_actual_sleep_property(self):
         """Test identification of actual sleep vs in bed."""
+        from big_mood_detector.domain.entities.sleep_record import (
+            SleepRecord,
+            SleepState,
+        )
+
         # ARRANGE
         base_start = datetime(2024, 1, 1, 23, 0, tzinfo=UTC)
         base_end = datetime(2024, 1, 2, 7, 0, tzinfo=UTC)
@@ -143,6 +173,11 @@ class TestSleepRecord:
 
     def test_sleep_quality_indicator(self):
         """Test sleep quality categorization."""
+        from big_mood_detector.domain.entities.sleep_record import (
+            SleepRecord,
+            SleepState,
+        )
+
         # ARRANGE
         base_start = datetime(2024, 1, 1, 23, 0, tzinfo=UTC)
         base_end = datetime(2024, 1, 2, 7, 0, tzinfo=UTC)

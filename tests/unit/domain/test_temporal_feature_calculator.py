@@ -9,20 +9,12 @@ from datetime import date, timedelta
 
 import pytest
 
-from big_mood_detector.domain.services.activity_aggregator import DailyActivitySummary
-from big_mood_detector.domain.services.heart_rate_aggregator import DailyHeartSummary
-from big_mood_detector.domain.services.sleep_aggregator import DailySleepSummary
-
-
 class TestTemporalFeatureCalculator:
     """Test temporal feature calculations."""
 
     @pytest.fixture
     def calculator(self):
         """Create TemporalFeatureCalculator instance."""
-        from big_mood_detector.domain.services.temporal_feature_calculator import (
-            TemporalFeatureCalculator,
-        )
 
         return TemporalFeatureCalculator()
 
@@ -177,6 +169,8 @@ class TestTemporalFeatureCalculator:
 
     def test_calculate_anomaly_scores(self, calculator, stable_sleep_data):
         """Test anomaly score calculation."""
+        from big_mood_detector.domain.services.sleep_aggregator import DailySleepSummary
+
         # Add an anomalous day
         anomalous_data = stable_sleep_data.copy()
         anomalous_data[15] = DailySleepSummary(
@@ -209,6 +203,8 @@ class TestTemporalFeatureCalculator:
 
     def test_calculate_change_point_detection(self, calculator):
         """Test change point detection in patterns."""
+        from big_mood_detector.domain.services.activity_aggregator import DailyActivitySummary
+
         # Create data with a clear change point
         summaries = []
         base_date = date(2024, 1, 1)
@@ -300,6 +296,8 @@ class TestTemporalFeatureCalculator:
 
     def test_insufficient_data_handling(self, calculator):
         """Test handling of insufficient data for window."""
+        from big_mood_detector.domain.services.sleep_aggregator import DailySleepSummary
+
         # Only 3 days of data
         short_data = [
             DailySleepSummary(

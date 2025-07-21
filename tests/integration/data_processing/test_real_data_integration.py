@@ -7,16 +7,6 @@ from pathlib import Path
 
 import pytest
 
-from big_mood_detector.domain.services.feature_extraction_service import (
-    FeatureExtractionService,
-)
-from big_mood_detector.infrastructure.parsers.json import (
-    ActivityJSONParser,
-    HeartRateJSONParser,
-    SleepJSONParser,
-)
-
-
 class TestRealDataIntegration:
     """Integration tests using actual Apple Health export data."""
 
@@ -36,6 +26,8 @@ class TestRealDataIntegration:
 
     def test_complete_pipeline_with_real_data(self, data_path, parsers):
         """Test the complete data processing pipeline with real Apple Health data."""
+        from big_mood_detector.domain.services.feature_extraction_service import FeatureExtractionService
+
         # ARRANGE
         feature_service = FeatureExtractionService()
 

@@ -6,16 +6,6 @@ Ensures the refactored facade works correctly with extracted services.
 
 import pytest
 
-from big_mood_detector.domain.services.clinical_interpreter import (
-    ClinicalInterpreter,
-    EpisodeType,
-    RiskLevel,
-)
-from big_mood_detector.domain.services.clinical_thresholds import (
-    load_clinical_thresholds,
-)
-
-
 class TestClinicalInterpreterRefactored:
     """Test the refactored clinical interpreter facade."""
 
@@ -33,6 +23,11 @@ class TestClinicalInterpreterRefactored:
 
     def test_interpret_depression_delegates_correctly(self, interpreter):
         """Test that depression interpretation delegates to services."""
+        from big_mood_detector.domain.services.clinical_interpreter import (
+            EpisodeType,
+            RiskLevel,
+        )
+
         result = interpreter.interpret_depression_score(
             phq_score=12.0,
             sleep_hours=7.5,
@@ -47,6 +42,11 @@ class TestClinicalInterpreterRefactored:
 
     def test_interpret_mania_delegates_correctly(self, interpreter):
         """Test that mania interpretation delegates to services."""
+        from big_mood_detector.domain.services.clinical_interpreter import (
+            EpisodeType,
+            RiskLevel,
+        )
+
         result = interpreter.interpret_mania_score(
             asrm_score=8.0,
             sleep_hours=5.0,
@@ -81,6 +81,11 @@ class TestClinicalInterpreterRefactored:
 
     def test_treatment_recommendations_delegate(self, interpreter):
         """Test treatment recommendation delegation."""
+        from big_mood_detector.domain.services.clinical_interpreter import (
+            EpisodeType,
+            RiskLevel,
+        )
+
         recs = interpreter.get_treatment_recommendations(
             episode_type=EpisodeType.MANIC,
             severity=RiskLevel.HIGH,

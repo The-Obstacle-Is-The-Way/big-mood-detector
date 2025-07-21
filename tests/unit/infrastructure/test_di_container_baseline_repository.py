@@ -6,19 +6,6 @@ Tests for registering baseline repository in the dependency injection container.
 
 import pytest
 
-from big_mood_detector.domain.repositories.baseline_repository_interface import (
-    BaselineRepositoryInterface,
-)
-from big_mood_detector.infrastructure.di.container import (
-    Container,
-    DependencyNotFoundError,
-    setup_dependencies,
-)
-from big_mood_detector.infrastructure.repositories.file_baseline_repository import (
-    FileBaselineRepository,
-)
-
-
 class TestDIContainerBaselineRepository:
     """Test baseline repository registration in DI container."""
 
@@ -39,11 +26,17 @@ class TestDIContainerBaselineRepository:
 
     def test_baseline_repository_not_registered_by_default(self, container):
         """Test that BaselineRepository is not registered by default."""
+        from big_mood_detector.domain.repositories.baseline_repository_interface import BaselineRepositoryInterface
+        from big_mood_detector.infrastructure.di.container import DependencyNotFoundError
+
         with pytest.raises(DependencyNotFoundError):
             container.resolve(BaselineRepositoryInterface)
 
     def test_register_baseline_repository(self, container, tmp_path):
         """Test registering baseline repository."""
+        from big_mood_detector.domain.repositories.baseline_repository_interface import BaselineRepositoryInterface
+        from big_mood_detector.infrastructure.repositories.file_baseline_repository import FileBaselineRepository
+
         # Create baselines directory
         baselines_dir = tmp_path / "baselines"
         baselines_dir.mkdir()
@@ -64,6 +57,10 @@ class TestDIContainerBaselineRepository:
 
     def test_setup_dependencies_includes_baseline_repository(self, mock_settings):
         """Test that setup_dependencies registers baseline repository."""
+        from big_mood_detector.domain.repositories.baseline_repository_interface import BaselineRepositoryInterface
+        from big_mood_detector.infrastructure.repositories.file_baseline_repository import FileBaselineRepository
+        from big_mood_detector.infrastructure.di.container import setup_dependencies
+
         # Clear any existing container
         import big_mood_detector.infrastructure.di.container as di_module
 
@@ -80,6 +77,8 @@ class TestDIContainerBaselineRepository:
 
     def test_advanced_feature_engineer_with_repository(self, mock_settings):
         """Test that AdvancedFeatureEngineer gets baseline repository injected."""
+        from big_mood_detector.infrastructure.di.container import setup_dependencies
+
         # Setup dependencies
         import big_mood_detector.infrastructure.di.container as di_module
 
