@@ -91,15 +91,15 @@ class MoodPredictor:
 
                 settings = get_settings()
                 # Check in the root model_weights directory first, then in data directory
-                model_dir = Path("model_weights/xgboost/pretrained")
+                model_dir = Path("model_weights/xgboost/converted")
                 if not model_dir.exists():
                     model_dir = (
-                        settings.DATA_DIR / "model_weights" / "xgboost" / "pretrained"
+                        settings.DATA_DIR / "model_weights" / "xgboost" / "converted"
                     )
             except ImportError:
                 # Fallback for tests or when settings module is not available
                 model_path = os.environ.get(
-                    "XGBOOST_MODEL_PATH", "model_weights/xgboost/pretrained"
+                    "XGBOOST_MODEL_PATH", "model_weights/xgboost/converted"
                 )
                 if os.path.isabs(model_path):
                     model_dir = Path(model_path)
@@ -116,7 +116,11 @@ class MoodPredictor:
     def _load_models(self) -> None:
         """Load XGBoost models - prefer JSON format to avoid warnings."""
         # Check for JSON models first to avoid pickle warnings
-        converted_dir = self.model_dir.parent / "converted"
+        # If model_dir is already 'converted', use it; otherwise look for converted dir
+        if self.model_dir.name == "converted":
+            converted_dir = self.model_dir
+        else:
+            converted_dir = self.model_dir.parent / "converted"
         json_models = {
             "depression": "XGBoost_DE.json",
             "hypomanic": "XGBoost_HME.json",

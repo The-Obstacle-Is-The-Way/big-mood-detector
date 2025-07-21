@@ -34,10 +34,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Structlog logger initialization order
 - Application regression test now uses 3 days of data for statistics
 - TimescaleDB repository now handles baseline updates properly
+- Sleep duration calculation now caps at 24 hours to handle overlapping records
+- Episode deletion in SQLite repository now works correctly
+- XGBoost model loading now looks in correct directory (converted/ instead of pretrained/)
+- Fixed all deprecated datetime.utcnow() usage to use timezone-aware datetime.now(UTC)
+- Fixed deprecated datetime.utcfromtimestamp() to datetime.fromtimestamp(..., UTC)
 
 ### Removed
 - Magic HR/HRV defaults (70 bpm / 50 ms) that would skew personal baselines
 - Deprecated datetime.utcnow() usage throughout codebase
+
+### Technical Debt
+- Integration tests using outdated domain entity APIs marked as xfail (needs rewrite)
+- XGBoost Booster objects loaded from JSON lack predict_proba method (architectural issue)
+- Several integration tests need updating for current architecture
+- Repository pattern has some redundancy that needs review
 
 ## [0.1.0] - 2024-01-01
 
