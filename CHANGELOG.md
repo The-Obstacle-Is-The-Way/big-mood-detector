@@ -44,11 +44,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Magic HR/HRV defaults (70 bpm / 50 ms) that would skew personal baselines
 - Deprecated datetime.utcnow() usage throughout codebase
 
-### Technical Debt
-- Integration tests using outdated domain entity APIs marked as xfail (needs rewrite)
-- XGBoost Booster objects loaded from JSON lack predict_proba method (architectural issue)
-- Several integration tests need updating for current architecture
-- Repository pattern has some redundancy that needs review
+### Technical Debt (Tracked)
+- Issue #TBD-1: Streaming parser date filtering bug (test: test_memory_bounds.py)
+- Issue #TBD-2: Baseline persistence tests use legacy entity APIs (test: test_baseline_persistence_pipeline.py)
+- Issue #TBD-3: XGBoost JSON models lack predict_proba method (test: test_pipeline_with_ensemble)
+- All xfail tests have strict=True to alert when fixed
+- Nightly CI job added to monitor slow/xfail tests
+- Repository pattern redundancy needs review
+
+### Developer Notes
+- Run `./scripts/create-tech-debt-issues.sh` to create GitHub issues
+- Update issue numbers in xfail markers after creation
+- See `issues/` directory for detailed issue descriptions
 
 ## [0.1.0] - 2024-01-01
 

@@ -114,7 +114,7 @@ class TestBaselinePersistencePipeline:
         return sleep_records, activity_records, heart_rate_records
 
     @pytest.mark.xfail(
-        reason="Test uses outdated domain entity APIs - needs rewrite for current architecture",
+        reason="Issue #TBD-2: Test uses outdated domain entity APIs - see issues/baseline-persistence-legacy-api.md",
         strict=True
     )
     def test_baseline_persistence_improves_predictions(self, baseline_repository):
@@ -267,7 +267,7 @@ class TestBaselinePersistencePipeline:
         )
 
     @pytest.mark.xfail(
-        reason="Test uses outdated domain entity APIs - needs rewrite for current architecture",
+        reason="Issue #TBD-2: Test uses outdated domain entity APIs - see issues/baseline-persistence-legacy-api.md",
         strict=True
     )
     def test_baseline_persistence_after_pipeline_restart(self, baseline_repository):
