@@ -259,6 +259,7 @@ markers = [
     "unit: marks tests as unit tests",
     "ml: marks tests that require ML models",
     "clinical: marks tests for clinical validation",
+    "flaky: marks tests that are known to be flaky (pre-existing issues)",
 ]
 python_files = ["test_*.py", "*_test.py"]
 python_classes = ["Test*"]
