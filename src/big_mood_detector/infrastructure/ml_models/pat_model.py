@@ -12,7 +12,7 @@ learned representations from activity sequences for downstream tasks.
 import logging
 import os
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 
@@ -24,6 +24,11 @@ except ModuleNotFoundError:  # keeps CI green on slim images
     tf = None  # type: ignore
     keras = None  # type: ignore
     PAT_AVAILABLE = False
+
+if TYPE_CHECKING and PAT_AVAILABLE:
+    # Type annotations only, not executed at runtime
+    import tensorflow as tf
+    from tensorflow import keras
 
 from big_mood_detector.domain.services.pat_sequence_builder import PATSequence
 
@@ -295,7 +300,7 @@ class PATModel:
         # Add batch dimension
         return normalized.reshape(1, -1)
 
-    def _get_positional_embeddings(self, num_patches: int, embed_dim: int) -> tf.Tensor:
+    def _get_positional_embeddings(self, num_patches: int, embed_dim: int) -> Any:
         """
         Generate sine/cosine positional embeddings.
 
