@@ -12,8 +12,6 @@ from contextlib import contextmanager
 from functools import lru_cache, wraps
 from typing import (
     Any,
-    Generic,
-    TypeVar,
     cast,
     get_args,
     get_origin,
@@ -22,9 +20,6 @@ from typing import (
 from big_mood_detector.infrastructure.logging import get_module_logger
 
 logger = get_module_logger(__name__)
-
-T = TypeVar("T")
-
 
 class CircularDependencyError(Exception):
     """Raised when circular dependency is detected."""
@@ -38,7 +33,7 @@ class DependencyNotFoundError(Exception):
     pass
 
 
-class Lazy(Generic[T]):
+class Lazy[T]:
     """Lazy wrapper for dependencies."""
 
     def __init__(self, factory: Callable[[], T]):
@@ -64,7 +59,7 @@ class Lazy(Generic[T]):
 class Provide:
     """Marker for dependency injection in function parameters."""
 
-    def __class_getitem__(cls, item: type[T]) -> type[T]:
+    def __class_getitem__[T](cls, item: type[T]) -> type[T]:
         """Support Provide[ServiceType] syntax."""
         return item
 
@@ -102,7 +97,7 @@ class Scope:
         self.instances: dict[str, Any] = {}
         self._resolving: set[str] = set()  # Use string keys
 
-    def resolve(self, service_type: type[T], name: str | None = None) -> T:
+    def resolve[T](self, service_type: type[T], name: str | None = None) -> T:
         """Resolve a dependency within this scope."""
         key = self._get_key(service_type, name)
 
@@ -165,7 +160,7 @@ class Container:
         self._resolving: set[str] = set()  # Use string keys instead of types
         logger.info("container_initialized")
 
-    def register_singleton(
+    def register_singleton[T](
         self,
         service_type: type[T],
         implementation: type[T] | T | None = None,
@@ -179,7 +174,7 @@ class Container:
             "singleton_registered", service_type=service_type.__name__, name=name
         )
 
-    def register_transient(
+    def register_transient[T](
         self,
         service_type: type[T],
         implementation: type[T] | None = None,
@@ -193,7 +188,7 @@ class Container:
             "transient_registered", service_type=service_type.__name__, name=name
         )
 
-    def register_scoped(
+    def register_scoped[T](
         self,
         service_type: type[T],
         implementation: type[T] | None = None,
@@ -205,7 +200,7 @@ class Container:
         )
         logger.debug("scoped_registered", service_type=service_type.__name__, name=name)
 
-    def register_factory(
+    def register_factory[T](
         self,
         service_type: type[T],
         factory: Callable[[], T],
@@ -221,7 +216,7 @@ class Container:
             name=name,
         )
 
-    def resolve(self, service_type: type[T], name: str | None = None) -> T:
+    def resolve[T](self, service_type: type[T], name: str | None = None) -> T:
         """Resolve a dependency."""
         key = self._get_key(service_type, name)
 
@@ -281,7 +276,7 @@ class Container:
         # This should never happen, but satisfies type checker
         raise RuntimeError(f"Unknown lifetime: {descriptor.lifetime}")
 
-    def override(
+    def override[T](
         self, service_type: type[T], instance: T, name: str | None = None
     ) -> None:
         """Override a service for testing."""

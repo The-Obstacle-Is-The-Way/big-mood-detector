@@ -15,6 +15,19 @@ import pytest
 
 from big_mood_detector.domain.services.pat_sequence_builder import PATSequence
 
+# Check if TensorFlow is available
+try:
+    import tensorflow as tf
+    HAS_TENSORFLOW = True
+except ImportError:
+    HAS_TENSORFLOW = False
+
+# Skip all tests in this module if TensorFlow is not available
+pytestmark = pytest.mark.skipif(
+    not HAS_TENSORFLOW,
+    reason="TensorFlow not installed - PAT model tests skipped"
+)
+
 
 class TestPATModel:
     """Test the PAT model wrapper for inference."""

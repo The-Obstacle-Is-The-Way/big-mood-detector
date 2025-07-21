@@ -109,7 +109,8 @@ class TestEnsemblePredictions:
             EnsembleConfig,
             EnsembleOrchestrator,
         )
-        from big_mood_detector.infrastructure.ml_models.pat_model import PATModel
+        # Import is safe after checking PAT_AVAILABLE
+        from big_mood_detector.infrastructure.ml_models import PATModel
         from big_mood_detector.infrastructure.ml_models.xgboost_models import (
             XGBoostMoodPredictor,
         )
@@ -339,7 +340,8 @@ class TestEnsemblePredictions:
         if not PAT_AVAILABLE:
             pytest.skip("TensorFlow not installed")
 
-        from big_mood_detector.infrastructure.ml_models.pat_model import PATModel
+        # Import is safe after checking PAT_AVAILABLE
+        from big_mood_detector.infrastructure.ml_models import PATModel
 
         pat_model = PATModel(model_size=model_size)
 
