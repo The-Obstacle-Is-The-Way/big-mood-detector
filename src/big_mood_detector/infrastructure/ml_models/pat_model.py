@@ -17,13 +17,13 @@ from typing import Any
 import numpy as np
 
 try:
-    import tensorflow as tf
+    import tensorflow as tf  # type: ignore
     from tensorflow import keras
-except ImportError as e:
-    raise ImportError(
-        "TensorFlow is required for PAT model. "
-        "Install with: pip install tensorflow>=2.10.0"
-    ) from e
+    PAT_AVAILABLE = True
+except ModuleNotFoundError:  # keeps CI green on slim images
+    tf = None  # type: ignore
+    keras = None  # type: ignore
+    PAT_AVAILABLE = False
 
 from big_mood_detector.domain.services.pat_sequence_builder import PATSequence
 
@@ -76,6 +76,12 @@ class PATModel:
         Args:
             model_size: One of "small", "medium", or "large"
         """
+        if not PAT_AVAILABLE:
+            raise ImportError(
+                "TensorFlow is required for PAT model. "
+                "Install with: pip install tensorflow>=2.10.0"
+            )
+
         if model_size not in self.MODEL_CONFIGS:
             raise ValueError(
                 f"Invalid model size: {model_size}. "

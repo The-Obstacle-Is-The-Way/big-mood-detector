@@ -4,6 +4,7 @@ Dependency Injection Container
 Implements IoC container for dependency management.
 Following SOLID principles, especially Dependency Inversion.
 """
+from __future__ import annotations
 
 import inspect
 import threading
@@ -92,7 +93,7 @@ class ServiceDescriptor:
 class Scope:
     """Represents a dependency injection scope."""
 
-    def __init__(self, container: "Container"):
+    def __init__(self, container: Container):
         self.container = container
         self.instances: dict[str, Any] = {}
         self._resolving: set[str] = set()  # Use string keys
