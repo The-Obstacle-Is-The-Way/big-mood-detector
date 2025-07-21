@@ -6,6 +6,7 @@ Provides thread-safe storage for mood episode labels and baseline periods.
 
 import sqlite3
 import threading
+from datetime import date as date_type
 from datetime import datetime
 from pathlib import Path
 
@@ -36,7 +37,7 @@ class SQLiteEpisodeRepository:
             conn = sqlite3.connect(self.db_path)
             cursor = conn.cursor()
 
-            # Create episodes table
+            # Create episodes table with unique constraint
             cursor.execute(
                 """
                 CREATE TABLE IF NOT EXISTS episodes (
@@ -48,12 +49,13 @@ class SQLiteEpisodeRepository:
                     notes TEXT,
                     rater_id TEXT DEFAULT 'default',
                     labeled_at TEXT,
-                    duration_days INTEGER
+                    duration_days INTEGER,
+                    UNIQUE(start_date, end_date, episode_type, rater_id)
                 )
             """
             )
 
-            # Create baseline periods table
+            # Create baseline periods table with unique constraint
             cursor.execute(
                 """
                 CREATE TABLE IF NOT EXISTS baseline_periods (
@@ -63,7 +65,8 @@ class SQLiteEpisodeRepository:
                     notes TEXT,
                     rater_id TEXT DEFAULT 'default',
                     labeled_at TEXT,
-                    duration_days INTEGER
+                    duration_days INTEGER,
+                    UNIQUE(start_date, end_date, rater_id)
                 )
             """
             )
@@ -136,7 +139,7 @@ class SQLiteEpisodeRepository:
     def clear_and_save_labeler(self, labeler: EpisodeLabeler) -> None:
         """
         Clear all existing data and save the labeler's data.
-        
+
         This is used when we want to completely replace the data,
         such as after deleting an episode via the API.
         """
@@ -148,13 +151,13 @@ class SQLiteEpisodeRepository:
                 # Clear existing data first
                 cursor.execute("DELETE FROM episodes")
                 cursor.execute("DELETE FROM baseline_periods")
-                
+
                 # Then save the new data
                 self._save_labeler_data(cursor, labeler)
-                
+
                 conn.commit()
                 logger.info(
-                    f"Saved labeler data",
+                    "Saved labeler data",
                     episodes=len(labeler.episodes),
                     baselines=len(labeler.baseline_periods),
                 )
@@ -168,6 +171,9 @@ class SQLiteEpisodeRepository:
     def save_labeler(self, labeler: EpisodeLabeler) -> None:
         """Save all episodes and baselines from a labeler.
 
+        Uses INSERT OR REPLACE to update existing episodes and add new ones.
+        The unique constraints ensure no duplicates are created.
+
         Args:
             labeler: EpisodeLabeler containing episodes to save
         """
@@ -177,7 +183,7 @@ class SQLiteEpisodeRepository:
 
             try:
                 self._save_labeler_data(cursor, labeler)
-                
+
                 conn.commit()
                 logger.info(
                     "Saved labeler data",
@@ -232,6 +238,50 @@ class SQLiteEpisodeRepository:
                 episodes=len(labeler.episodes),
                 baselines=len(labeler.baseline_periods),
             )
+
+    def get_episodes_by_date_range(
+        self, start_date: str | date_type, end_date: str | date_type
+    ) -> list[dict]:
+        """Get all episodes within a date range.
+
+        Args:
+            start_date: Start date of range
+            end_date: End date of range
+
+        Returns:
+            List of episode dictionaries
+        """
+        # Convert dates to strings if needed
+        if isinstance(start_date, date_type):
+            start_date = start_date.isoformat()
+        if isinstance(end_date, date_type):
+            end_date = end_date.isoformat()
+
+        with self._lock:
+            conn = sqlite3.connect(self.db_path)
+            conn.row_factory = sqlite3.Row
+            cursor = conn.cursor()
+
+            # Get episodes that overlap with the date range
+            cursor.execute(
+                """
+                SELECT * FROM episodes
+                WHERE start_date <= ? AND end_date >= ?
+                ORDER BY start_date
+                """,
+                (end_date, start_date),
+            )
+
+            episodes = []
+            for row in cursor.fetchall():
+                episode = dict(row)
+                if episode["start_date"] == episode["end_date"]:
+                    episode["date"] = episode["start_date"]
+                episode.pop("id", None)
+                episodes.append(episode)
+
+            conn.close()
+            return episodes
 
     def get_episodes_by_rater(self, rater_id: str) -> list[dict]:
         """Get all episodes for a specific rater.
@@ -304,3 +354,4 @@ class SQLiteEpisodeRepository:
             conn.close()
 
             logger.info("Cleared all label data")
+

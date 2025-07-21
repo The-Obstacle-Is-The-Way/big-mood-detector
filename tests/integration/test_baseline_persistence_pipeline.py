@@ -14,8 +14,15 @@ from big_mood_detector.application.use_cases.process_health_data_use_case import
     MoodPredictionPipeline,
     PipelineConfig,
 )
-from big_mood_detector.domain.entities.activity_record import ActivityRecord, ActivityType
-from big_mood_detector.domain.entities.heart_rate_record import HeartRateRecord, HeartMetricType, MotionContext
+from big_mood_detector.domain.entities.activity_record import (
+    ActivityRecord,
+    ActivityType,
+)
+from big_mood_detector.domain.entities.heart_rate_record import (
+    HeartMetricType,
+    HeartRateRecord,
+    MotionContext,
+)
 from big_mood_detector.domain.entities.sleep_record import SleepRecord, SleepState
 from big_mood_detector.infrastructure.repositories.file_baseline_repository import (
     FileBaselineRepository,
@@ -114,7 +121,7 @@ class TestBaselinePersistencePipeline:
         return sleep_records, activity_records, heart_rate_records
 
     @pytest.mark.xfail(
-        reason="Issue #TBD-2: Test uses outdated domain entity APIs - see issues/baseline-persistence-legacy-api.md",
+        reason="Issue #39: Test uses outdated domain entity APIs - see issues/baseline-persistence-legacy-api.md",
         strict=True
     )
     def test_baseline_persistence_improves_predictions(self, baseline_repository):
@@ -267,7 +274,7 @@ class TestBaselinePersistencePipeline:
         )
 
     @pytest.mark.xfail(
-        reason="Issue #TBD-2: Test uses outdated domain entity APIs - see issues/baseline-persistence-legacy-api.md",
+        reason="Issue #39: Test uses outdated domain entity APIs - see issues/baseline-persistence-legacy-api.md",
         strict=True
     )
     def test_baseline_persistence_after_pipeline_restart(self, baseline_repository):

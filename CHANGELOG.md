@@ -45,12 +45,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Deprecated datetime.utcnow() usage throughout codebase
 
 ### Technical Debt (Tracked)
-- Issue #TBD-1: Streaming parser date filtering bug (test: test_memory_bounds.py)
-- Issue #TBD-2: Baseline persistence tests use legacy entity APIs (test: test_baseline_persistence_pipeline.py)
-- Issue #TBD-3: XGBoost JSON models lack predict_proba method (test: test_pipeline_with_ensemble)
+- Issue #38: Streaming parser date filtering bug (test: test_memory_bounds.py)
+- Issue #39: Baseline persistence tests use legacy entity APIs (test: test_baseline_persistence_pipeline.py)
+- Issue #40: XGBoost JSON models lack predict_proba method (test: test_pipeline_with_ensemble)
 - All xfail tests have strict=True to alert when fixed
 - Nightly CI job added to monitor slow/xfail tests
 - Repository pattern redundancy needs review
+- SQLite repository now uses unique constraints to prevent duplicate episodes
 
 ### Developer Notes
 - Run `./scripts/create-tech-debt-issues.sh` to create GitHub issues

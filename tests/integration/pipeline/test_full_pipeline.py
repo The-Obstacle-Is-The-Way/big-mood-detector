@@ -136,7 +136,7 @@ class TestFullPipeline:
             assert 0 <= prediction["manic_risk"] <= 1
 
     @pytest.mark.xfail(
-        reason="Issue #TBD-3: XGBoost Booster objects loaded from JSON lack predict_proba - see issues/xgboost-booster-predict-proba.md",
+        reason="Issue #40: XGBoost Booster objects loaded from JSON lack predict_proba - see issues/xgboost-booster-predict-proba.md",
         strict=True
     )
     @pytest.mark.skipif(

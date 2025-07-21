@@ -14,24 +14,24 @@ Run the script to create all issues at once:
 1. **streaming-parser-date-bug.md** - Streaming parser date filtering comparison bug
    - Affects: Large file processing with date filters
    - Test: `tests/integration/test_memory_bounds.py`
-   - Marker: `Issue #TBD-1`
+   - Marker: `Issue #38`
 
 2. **baseline-persistence-legacy-api.md** - Outdated domain entity APIs in tests
    - Affects: Personal baseline calibration tests
    - Tests: `tests/integration/test_baseline_persistence_pipeline.py`
-   - Marker: `Issue #TBD-2`
+   - Marker: `Issue #39`
 
 3. **xgboost-booster-predict-proba.md** - Missing predict_proba in JSON-loaded models
    - Affects: Ensemble predictions with JSON models
    - Test: `tests/integration/pipeline/test_full_pipeline.py::test_pipeline_with_ensemble`
-   - Marker: `Issue #TBD-3`
+   - Marker: `Issue #40`
 
 ## Updating Issue Numbers
 
-After creating the issues, update the test markers:
-1. Note the issue numbers created by the script
-2. Replace `#TBD-1`, `#TBD-2`, `#TBD-3` with actual issue numbers
-3. Commit the updated markers
+✅ Issues created and markers updated:
+- Issue #38: Streaming parser date filtering bug
+- Issue #39: Baseline persistence legacy API
+- Issue #40: XGBoost predict_proba missing
 
 ## @CLAUDE Integration
 

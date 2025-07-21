@@ -158,7 +158,7 @@ class SleepAggregator:
         # Calculate basic metrics
         total_bed_time = sum(r.duration_hours for r in records)
         total_sleep_time = sum(r.duration_hours for r in records if r.is_actual_sleep)
-        
+
         # Cap at 24 hours per day (can happen with overlapping records or timezone issues)
         if total_bed_time > 24.0:
             logger.warning(
