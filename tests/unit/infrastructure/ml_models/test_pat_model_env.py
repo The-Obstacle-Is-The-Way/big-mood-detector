@@ -2,12 +2,12 @@
 Test PAT model environment variable loading
 """
 
+# Check if TensorFlow is available
+import importlib.util
 from unittest.mock import Mock, patch
 
 import pytest
 
-# Check if TensorFlow is available
-import importlib.util
 HAS_TENSORFLOW = importlib.util.find_spec("tensorflow") is not None
 
 # Skip all tests in this module if TensorFlow is not available
