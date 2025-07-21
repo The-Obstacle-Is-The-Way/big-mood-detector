@@ -408,6 +408,7 @@ def process_command(
 
         # Create progress callback if requested
         progress_callback = None
+        pbar = None
         if progress:
             try:
                 from tqdm import tqdm
@@ -593,6 +594,7 @@ def predict_command(
             file_path=Path(input_path),
             start_date=start_date_param,
             end_date=end_date_param,
+            progress_callback=progress_callback,
         )
 
         # Handle output based on format
@@ -622,7 +624,14 @@ def predict_command(
             generate_clinical_report(result, report_path)
             click.echo(f"✅ Clinical report saved to: {report_path}")
 
+        # Close progress bar if it exists
+        if pbar:
+            pbar.close()
+
     except Exception as e:
+        # Close progress bar on error too
+        if pbar:
+            pbar.close()
         click.echo(f"❌ Error: {str(e)}", err=True)
         if verbose:
             import traceback

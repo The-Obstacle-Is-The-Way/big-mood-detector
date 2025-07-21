@@ -145,7 +145,7 @@ class TestProgressIndication:
         params = list(sig.parameters.keys())
         
         # Should accept progress_callback parameter
-        # This will fail initially, driving implementation
+        assert 'progress_callback' in params, "process_apple_health_file should accept progress_callback"
 
     def test_progress_callback_format(self):
         """Test the expected format of progress callbacks."""
