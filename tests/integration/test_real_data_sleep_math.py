@@ -39,9 +39,11 @@ class TestRealDataSleepMath:
 
         print(f"\n🔍 TRACING REAL DATA: {export_file}")
 
-        # Step 1: Parse the raw data
-        parser = ParserFactory.create_parser(export_file)
-        parsed_data = parser.parse_file(str(export_file))
+        # Step 1: Parse the raw data using DataParsingService
+        from big_mood_detector.application.services.data_parsing_service import DataParsingService
+        
+        data_service = DataParsingService()
+        parsed_data = data_service.parse_health_data(export_file)
 
         sleep_records = parsed_data["sleep_records"]
         activity_records = parsed_data["activity_records"]
