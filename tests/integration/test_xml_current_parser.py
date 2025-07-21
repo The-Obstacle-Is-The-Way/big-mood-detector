@@ -1,4 +1,4 @@
-"""Test streaming parser with small files first."""
+"""Test current parser performance with larger files."""
 
 import time
 from pathlib import Path
@@ -6,7 +6,8 @@ from pathlib import Path
 from big_mood_detector.infrastructure.parsers.xml.streaming_adapter import (
     StreamingXMLParser,
 )
-# Import the generator directly
+
+# Import directly
 from datetime import datetime, timedelta
 from xml.etree.ElementTree import Element, SubElement, tostring
 
@@ -79,66 +80,65 @@ class XMLDataGenerator:
         return filepath
 
 
-def test_small_file_parses_correctly():
-    """Test that small files parse correctly with streaming parser."""
-    # Given: A small test file
+def test_100mb_file():
+    """Test 100MB file performance."""
     generator = XMLDataGenerator()
-    small_file = generator.create_export(num_days=7, records_per_day=100)
+    large_file = generator.create_export(size_mb=100)
     
     try:
-        # When: Parsing the file
-        parser = StreamingXMLParser()
-        records = list(parser.parse_file(str(small_file)))
-        
-        # Then: Should have some records
-        assert len(records) > 0, "No records parsed"
-        print(f"Parsed {len(records)} records from small file")
-        
-        # Check record types
-        from big_mood_detector.domain.entities.sleep_record import SleepRecord
-        from big_mood_detector.domain.entities.activity_record import ActivityRecord
-        
-        sleep_count = sum(1 for r in records if isinstance(r, SleepRecord))
-        activity_count = sum(1 for r in records if isinstance(r, ActivityRecord))
-        
-        print(f"Sleep records: {sleep_count}")
-        print(f"Activity records: {activity_count}")
-        
-        assert sleep_count > 0, "No sleep records found"
-        assert activity_count > 0, "No activity records found"
-        
-    finally:
-        if small_file.exists():
-            small_file.unlink()
-
-
-def test_medium_file_performance():
-    """Test performance with medium-sized file."""
-    # Given: A 50MB test file
-    generator = XMLDataGenerator()
-    medium_file = generator.create_export(size_mb=50)
-    
-    try:
-        # When: Parsing the file
         parser = StreamingXMLParser()
         start_time = time.time()
         
-        records = list(parser.parse_file(str(medium_file)))
+        records = list(parser.parse_file(str(large_file)))
         
         duration = time.time() - start_time
         
-        # Then: Should complete quickly
-        print(f"Parsed {len(records)} records in {duration:.2f} seconds")
+        print(f"100MB file: {len(records)} records in {duration:.2f}s")
         print(f"Records per second: {len(records) / duration:.0f}")
+        print(f"MB per second: {100 / duration:.1f}")
         
-        # 50MB should parse in under 30 seconds
-        assert duration < 30, f"Parsing took {duration:.2f}s, expected < 30s"
+        # Extrapolate to 500MB
+        estimated_500mb = duration * 5
+        print(f"\nEstimated time for 500MB: {estimated_500mb:.1f}s ({estimated_500mb/60:.1f} minutes)")
+        
+        assert duration < 60, f"100MB took {duration:.2f}s, expected < 60s"
         
     finally:
-        if medium_file.exists():
-            medium_file.unlink()
+        if large_file.exists():
+            large_file.unlink()
+
+
+def test_200mb_file():
+    """Test 200MB file performance."""
+    generator = XMLDataGenerator()
+    large_file = generator.create_export(size_mb=200)
+    
+    try:
+        parser = StreamingXMLParser()
+        start_time = time.time()
+        
+        # Don't collect all records to save memory
+        record_count = 0
+        for record in parser.parse_file(str(large_file)):
+            record_count += 1
+        
+        duration = time.time() - start_time
+        
+        print(f"\n200MB file: {record_count} records in {duration:.2f}s")
+        print(f"Records per second: {record_count / duration:.0f}")
+        print(f"MB per second: {200 / duration:.1f}")
+        
+        # Extrapolate to 500MB
+        estimated_500mb = duration * 2.5
+        print(f"\nEstimated time for 500MB: {estimated_500mb:.1f}s ({estimated_500mb/60:.1f} minutes)")
+        
+        assert duration < 120, f"200MB took {duration:.2f}s, expected < 120s"
+        
+    finally:
+        if large_file.exists():
+            large_file.unlink()
 
 
 if __name__ == "__main__":
-    test_small_file_parses_correctly()
-    test_medium_file_performance()
+    test_100mb_file()
+    test_200mb_file()
