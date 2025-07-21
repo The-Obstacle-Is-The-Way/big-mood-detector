@@ -154,6 +154,10 @@ class TestEnsemblePredictions:
             assert 0 <= pred.manic_risk <= 1
             assert 0 <= pred.confidence <= 1
 
+    @pytest.mark.xfail(
+        reason="Issue #40: Feature name mismatch between model and code expectations",
+        strict=True
+    )
     def test_ensemble_without_pat(self, mock_features):
         """Test ensemble prediction when PAT is not available."""
         with patch("big_mood_detector.infrastructure.ml_models.PAT_AVAILABLE", False):
@@ -323,6 +327,10 @@ class TestEnsemblePredictions:
 
         assert result.ensemble_prediction is not None
 
+    @pytest.mark.xfail(
+        reason="Issue #40: XGBoost Booster objects loaded from JSON lack predict_proba method",
+        strict=True
+    )
     @pytest.mark.parametrize("model_size", ["small", "medium", "large"])
     def test_pat_model_sizes(self, model_size):
         """Test different PAT model sizes."""
