@@ -14,6 +14,7 @@ Design Principles:
 """
 
 import time
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import date, timedelta
 from pathlib import Path
@@ -245,6 +246,7 @@ class MoodPredictionPipeline:
         file_path: Path,
         start_date: date | None = None,
         end_date: date | None = None,
+        progress_callback: Callable[[str, float], None] | None = None,
     ) -> PipelineResult:
         """
         Process Apple Health export file and generate mood predictions.
@@ -253,6 +255,7 @@ class MoodPredictionPipeline:
             file_path: Path to export.xml or JSON directory
             start_date: Optional start date filter
             end_date: Optional end date filter
+            progress_callback: Optional callback for progress updates
 
         Returns:
             PipelineResult with predictions and metadata
@@ -263,6 +266,7 @@ class MoodPredictionPipeline:
             start_date=start_date,
             end_date=end_date,
             continue_on_error=True,
+            progress_callback=progress_callback,
         )
 
         # Extract records from parsed data

@@ -6,6 +6,8 @@ including loading pretrained weights and making predictions.
 Following TDD principles - tests written before implementation.
 """
 
+# Check if TensorFlow is available
+import importlib.util
 from datetime import date
 from pathlib import Path
 from unittest.mock import MagicMock, patch
@@ -14,6 +16,14 @@ import numpy as np
 import pytest
 
 from big_mood_detector.domain.services.pat_sequence_builder import PATSequence
+
+HAS_TENSORFLOW = importlib.util.find_spec("tensorflow") is not None
+
+# Skip all tests in this module if TensorFlow is not available
+pytestmark = pytest.mark.skipif(
+    not HAS_TENSORFLOW,
+    reason="TensorFlow not installed - PAT model tests skipped"
+)
 
 
 class TestPATModel:

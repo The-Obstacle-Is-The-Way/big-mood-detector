@@ -3,6 +3,13 @@ Integration test for baseline persistence in the mood prediction pipeline.
 
 This is the real deal - testing that personal baselines actually persist
 and improve predictions over time. This is what makes our system PERSONAL!
+
+XFAIL STATUS:
+- Issue #39: Test uses outdated domain entity APIs
+- Problem: Tests use legacy entity constructors that don't match current implementation
+- Impact: Cannot verify baseline persistence functionality end-to-end
+- Example: SleepRecord(...) constructor signature has changed
+- Resolution: Update tests to use current entity APIs or factory methods
 """
 
 from datetime import date, datetime, timedelta

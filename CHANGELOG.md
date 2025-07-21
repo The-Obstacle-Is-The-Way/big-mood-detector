@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.2] - In Development
+
+### Added
+- Progress indication for XML parsing operations (Issue #31)
+  - Progress callbacks throughout the pipeline from CLI to XML parser
+  - CLI `--progress` flag shows tqdm progress bars
+  - Error-resilient progress reporting
+  - Integration tests for progress indication functionality
+- Test data management with dedicated `tests/_data/` directory
+- Coverage configuration for parallel test runs
+- Documentation for xfail tests explaining technical debt
+
+### Changed
+- Improved error handling for tqdm import in CLI commands
+
+### Fixed
+- Progress bar cleanup on error conditions
+- Coverage warnings during parallel test execution
+
+### Developer Notes
+- All progress indication tests passing (16 unit + integration tests)
+- Feature branch ready for merge to development
+
 ## [0.2.1] - 2025-07-20
 
 ### Added
