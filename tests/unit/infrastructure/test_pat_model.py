@@ -17,7 +17,7 @@ from big_mood_detector.domain.services.pat_sequence_builder import PATSequence
 
 # Check if TensorFlow is available
 try:
-    import tensorflow as tf
+    import tensorflow
     HAS_TENSORFLOW = True
 except ImportError:
     HAS_TENSORFLOW = False

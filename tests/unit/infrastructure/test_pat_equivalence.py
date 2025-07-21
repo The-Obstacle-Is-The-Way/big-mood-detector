@@ -11,6 +11,8 @@ from pathlib import Path
 import numpy as np
 import pytest
 
+from big_mood_detector.domain.services.pat_sequence_builder import PATSequence
+
 # Check if TensorFlow is available
 try:
     import tensorflow as tf
@@ -24,8 +26,11 @@ pytestmark = pytest.mark.skipif(
     reason="TensorFlow not installed - PAT model tests skipped"
 )
 
-from big_mood_detector.domain.services.pat_sequence_builder import PATSequence
-from big_mood_detector.infrastructure.ml_models.pat_model import PATModel
+# Import PAT model after checking availability
+if HAS_TENSORFLOW:
+    from big_mood_detector.infrastructure.ml_models.pat_model import PATModel
+else:
+    PATModel = None  # type: ignore
 
 
 class TestPATEquivalence:

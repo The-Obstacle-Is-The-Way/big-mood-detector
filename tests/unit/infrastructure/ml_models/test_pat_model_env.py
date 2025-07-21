@@ -8,18 +8,22 @@ import pytest
 
 # Check if TensorFlow is available
 try:
-    import tensorflow as tf
+    import tensorflow
     HAS_TENSORFLOW = True
 except ImportError:
     HAS_TENSORFLOW = False
 
 # Skip all tests in this module if TensorFlow is not available
+# Import PAT model after checking availability
+if HAS_TENSORFLOW:
+    from big_mood_detector.infrastructure.ml_models.pat_model import PATModel
+else:
+    PATModel = None  # type: ignore
+
 pytestmark = pytest.mark.skipif(
     not HAS_TENSORFLOW,
     reason="TensorFlow not installed - PAT model tests skipped"
 )
-
-from big_mood_detector.infrastructure.ml_models.pat_model import PATModel
 
 
 class TestPATModelEnvironmentLoading:

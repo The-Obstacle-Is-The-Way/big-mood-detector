@@ -109,6 +109,7 @@ class TestEnsemblePredictions:
             EnsembleConfig,
             EnsembleOrchestrator,
         )
+
         # Import is safe after checking PAT_AVAILABLE
         from big_mood_detector.infrastructure.ml_models import PATModel
         from big_mood_detector.infrastructure.ml_models.xgboost_models import (
