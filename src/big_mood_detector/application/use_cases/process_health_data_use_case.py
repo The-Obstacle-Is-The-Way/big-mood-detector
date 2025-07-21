@@ -14,10 +14,11 @@ Design Principles:
 """
 
 import time
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import date, timedelta
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 import numpy as np
 import pandas as pd

@@ -422,7 +422,7 @@ def process_command(
             except ImportError:
                 # Fall back to simple text progress
                 click.echo("Note: Install tqdm for progress bars (pip install tqdm)")
-                
+
                 def progress_callback(message: str, progress: float) -> None:
                     percent = int(progress * 100)
                     click.echo(f"\r{message}: {percent}%", nl=False)
@@ -600,7 +600,6 @@ def predict_command(
             file_path=Path(input_path),
             start_date=start_date_param,
             end_date=end_date_param,
-            progress_callback=progress_callback,
         )
 
         # Handle output based on format
@@ -630,14 +629,7 @@ def predict_command(
             generate_clinical_report(result, report_path)
             click.echo(f"✅ Clinical report saved to: {report_path}")
 
-        # Close progress bar if it exists
-        if pbar:
-            pbar.close()
-
     except Exception as e:
-        # Close progress bar on error too
-        if pbar:
-            pbar.close()
         click.echo(f"❌ Error: {str(e)}", err=True)
         if verbose:
             import traceback

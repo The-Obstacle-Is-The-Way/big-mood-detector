@@ -213,13 +213,13 @@ class FastStreamingXMLParser:
         # Get file size for progress estimation
         file_path_obj = Path(file_path)
         file_size = file_path_obj.stat().st_size if file_path_obj.exists() else 0
-        
+
         # Estimate total records (rough estimate: ~500 bytes per record)
         estimated_records = file_size // 500 if file_size > 0 else 1
-        
+
         # Count records for progress
         record_count = 0
-        
+
         # Report initial progress
         if progress_callback:
             try:
@@ -237,13 +237,13 @@ class FastStreamingXMLParser:
             # Report progress every 10k records or at intervals
             if record_count % 10000 == 0:
                 logger.info(f"Processed {record_count:,} records...")
-                
+
                 if progress_callback:
                     try:
                         # Estimate progress (min 0.1 to show something is happening)
                         progress = max(0.1, min(0.9, record_count / estimated_records))
                         progress_callback(
-                            f"Processing {record_count:,} records", 
+                            f"Processing {record_count:,} records",
                             progress
                         )
                     except Exception as e:
@@ -274,7 +274,7 @@ class FastStreamingXMLParser:
                 continue
 
         logger.info(f"Completed parsing {record_count:,} records")
-        
+
         # Report completion
         if progress_callback:
             try:
