@@ -48,6 +48,32 @@ We use GitHub issues to track public bugs. Report a bug by [opening a new issue]
 * Run `make format` before committing
 * Run `make lint` to check for issues
 * Run `make test` to ensure tests pass
+
+## Git Hooks and CI/CD
+
+This project uses Git hooks to maintain code quality:
+
+### Pre-commit Hook
+- Runs automatically on every commit
+- Executes `ruff --fix` for automatic formatting
+- Checks for problematic imports in test files
+
+### Pre-push Hook (Lightweight)
+- Runs quick smoke tests before pushing (~30 seconds)
+- Includes: ruff check, mypy on core modules, fast unit tests
+- Full test suite runs in GitHub Actions CI
+
+### Bypassing Hooks (Emergency Use Only)
+If you need to bypass hooks in an emergency:
+```bash
+# Skip pre-commit hook
+git commit --no-verify -m "Emergency fix"
+
+# Skip pre-push hook
+git push --no-verify
+```
+
+**Note:** Use bypass only when necessary. CI will still run full checks.
 * Follow the existing code style (Clean Architecture patterns)
 
 ## 🎯 Current Priorities (v0.3.0)
