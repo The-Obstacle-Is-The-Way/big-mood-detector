@@ -14,7 +14,6 @@ from big_mood_detector.application.use_cases.process_health_data_use_case import
     PipelineConfig,
 )
 from big_mood_detector.domain.services.sleep_aggregator import SleepAggregator
-from big_mood_detector.infrastructure.parsers.parser_factory import ParserFactory
 from big_mood_detector.infrastructure.repositories.file_baseline_repository import (
     FileBaselineRepository,
 )
@@ -132,9 +131,11 @@ class TestRealDataSleepMath:
         if not export_file.exists():
             pytest.skip("No real export file found")
 
-        # Parse data
-        parser = ParserFactory.create_parser(export_file)
-        parsed_data = parser.parse_file(str(export_file))
+        # Parse data using DataParsingService
+        from big_mood_detector.application.services.data_parsing_service import DataParsingService
+        
+        data_service = DataParsingService()
+        parsed_data = data_service.parse_health_data(export_file)
 
         sleep_records = parsed_data["sleep_records"]
 

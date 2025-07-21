@@ -10,9 +10,7 @@ from datetime import date as date_type
 from datetime import datetime
 from pathlib import Path
 
-from big_mood_detector.infrastructure.fine_tuning.personal_calibrator import (
-    EpisodeLabeler,
-)
+from big_mood_detector.domain.services.episode_labeler import EpisodeLabeler
 from big_mood_detector.infrastructure.logging import get_module_logger
 
 logger = get_module_logger(__name__)
