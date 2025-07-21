@@ -1,14 +1,53 @@
 # 🧠 Big Mood Detector
 
+## ⚠️ CRITICAL MEDICAL DISCLAIMERS
+
+**This application is for RESEARCH and PERSONAL USE ONLY. It is NOT FDA-approved, NOT a medical device, and CANNOT diagnose mental health conditions. ALWAYS consult qualified healthcare professionals. If experiencing a mental health crisis, seek immediate help: Call 988 (US) or emergency services.**
+
+**[📋 PLEASE READ IMPORTANT INFORMATION FIRST](docs/IMPORTANT_PLEASE_READ.md)**
+
+---
+
 > **Clinical-grade bipolar mood prediction from Apple Health data using validated ML models**
 
 [![Tests](https://img.shields.io/badge/tests-695%20passing-brightgreen)](tests/)
 [![Coverage](https://img.shields.io/badge/coverage-91%25-brightgreen)](htmlcov/)
-[![Python](https://img.shields.io/badge/python-3.11%2B-blue)](pyproject.toml)
+[![Python](https://img.shields.io/badge/python-3.12%2B-blue)](pyproject.toml)
 [![Models](https://img.shields.io/badge/models-XGBoost%20%2B%20PAT-purple)](model_weights/)
 [![License](https://img.shields.io/badge/license-Apache%202.0-green)](LICENSE)
 
 A production-ready system for detecting mood episodes in bipolar disorder using wearable sensor data. Based on peer-reviewed research from Nature Digital Medicine, Harvard Medical School, and Dartmouth.
+
+## ⚠️ Important v0.2.0 Limitations
+
+**What Works Today:**
+- ✅ **XGBoost predictions** - Fully validated mood risk scores (0.80-0.98 AUC)
+- ✅ **Feature extraction** - Robust processing of Apple Health data
+- ✅ **PAT embeddings** - Adds signal to XGBoost features
+
+**Current Limitations:**
+- ❌ **Not a true ensemble** - Only XGBoost makes predictions
+- ❌ **PAT can't predict mood** - Outputs embeddings only (no classification heads)
+- ❌ **Single model dependency** - No redundancy from dual predictions
+
+**Coming in v0.3.0:** True dual-model ensemble with independent predictions. [See roadmap →](docs/ROADMAP_V0.3.0.md)
+
+**Note:** This implementation has not been clinically validated. For research and personal use only.
+
+## 🆕 What's New (v0.2.1)
+
+- ✅ **Date Range Filtering**: Process large XML files with `--days-back` or `--date-range` options
+- ✅ **Personal Baselines**: Adaptive predictions based on YOUR normal patterns
+- ✅ **Enhanced Features**: XGBoost predictions with PAT embeddings
+- ✅ **Clinical Reports**: DSM-5 aligned risk assessments with explanations
+- ✅ **Python 3.12**: Full support with performance improvements
+- ✅ **Enhanced Documentation**: Complete feature reference and math details
+
+## 📋 Requirements
+
+- Python 3.12 or higher
+- 8GB RAM minimum (16GB recommended for large datasets)
+- macOS, Linux, or Windows with WSL2
 
 ## 🚀 Quick Start
 
@@ -28,13 +67,22 @@ python src/big_mood_detector/main.py predict data/health_auto_export/ --report
 python src/big_mood_detector/main.py serve
 ```
 
-## 📊 What It Does
+## 📊 Clinical Performance
 
-Analyzes Apple Health data to predict risk of mood episodes with clinical-grade accuracy:
+XGBoost model validated on 168 patients over 44,787 observation days:
 
-- **Depression Detection**: AUC 0.80 (Seoul National study)
-- **Mania Detection**: AUC 0.98 (validated on 168 patients)
-- **Hypomania Detection**: AUC 0.95 (44,787 observation days)
+| Condition | Accuracy (AUC) | Prediction Window | Clinical Use |
+|-----------|----------------|-------------------|--------------|
+| **Mania** | **0.98** ⭐ | Next 24 hours | Rule out bipolar episodes |
+| **Hypomania** | **0.95** | Next 24 hours | Early warning system |
+| **Depression** | **0.80** | Next 24 hours | Preventive interventions |
+
+*Source: Nature Digital Medicine 2024 (Seoul National University)*
+
+**Important Notes:**
+- All predictions are **24-hour forecasts** (tomorrow's risk, not today's)
+- v0.2.0 uses XGBoost only (PAT provides embeddings, not predictions)
+- True ensemble with dual predictions coming in v0.3.0
 
 ### Sample Output
 ```
@@ -58,52 +106,81 @@ CLINICAL FLAGS:
 
 ## 🏗️ Architecture
 
+Clean Architecture with Domain-Driven Design:
+
 ```
+big-mood-detector/
 ├── src/big_mood_detector/
-│   ├── domain/              # Core business logic (Clean Architecture)
+│   ├── domain/              # Core business logic (no dependencies)
 │   ├── application/         # Use cases and orchestration
-│   ├── infrastructure/      # ML models, parsers, repositories
-│   └── interfaces/          # CLI and API endpoints
-├── model_weights/           # Pre-trained XGBoost + PAT models
-├── reference_repos/         # Academic implementations
-├── docs/literature/         # Research papers and clinical studies
-└── tests/                   # 695 comprehensive tests
+│   ├── infrastructure/      # External integrations (ML, DB, parsers)
+│   └── interfaces/          # User interfaces (CLI, API)
+├── model_weights/           # Pre-trained models (XGBoost + PAT)
+├── docs/                    # Comprehensive documentation
+│   ├── user/               # User guides and tutorials
+│   ├── clinical/           # Clinical validation and research
+│   ├── developer/          # Technical documentation
+│   └── models/             # ML model details and math
+└── tests/                   # 695 tests (91% coverage)
 ```
 
 ## 🧬 Key Features
 
-### 1. **Dual ML Pipeline**
-- **XGBoost Models**: 36 sleep/circadian features from Seoul National study
-- **PAT Transformer**: Activity sequence analysis (29,307 participants)
-- **Ensemble Predictions**: Combined accuracy exceeding individual models
+### 1. **ML Models (v0.2.0 Status)**
 
-### 2. **Clinical Features**
-- Sleep window analysis (3.75-hour merging algorithm)
-- Circadian rhythm calculation (phase, amplitude, stability)
-- Activity pattern extraction (1440-minute sequences)
-- Heart rate variability analysis
+- **XGBoost** ✅: Fully functional with 36 engineered features, validated predictions (0.80-0.98 AUC)
+- **PAT Transformer** ⚠️: Provides 96-dim embeddings to enhance XGBoost features (no independent predictions)
+- **Current "Ensemble"** 🔄: XGBoost with PAT-enhanced features (true ensemble coming v0.3.0)
 
-### 3. **Production Ready**
-- FastAPI server with async processing
-- Streaming parser for 500MB+ files
-- Background task queue (Celery + Redis)
-- Docker deployment ready
+### 2. **Personal Baseline System**
+- Learns YOUR normal patterns (not population average)
+- Adapts to chronotypes (night owls vs early birds)
+- Reduces false positives for athletes, shift workers
+- Updates continuously with new data
 
-### 4. **Personal Calibration**
-- Fine-tune models on individual data
-- Label historical episodes for training
-- Adaptive thresholds based on personal baselines
+### 3. **Clinical-Grade Analysis**
+- **Sleep Architecture**: Advanced 3.75-hour window merging
+- **Circadian Phase**: Gold-standard DLMO estimation
+- **Activity Patterns**: 1440-minute daily sequences
+- **Feature Engineering**: 36 validated biomarkers
+
+### 4. **Production Architecture**
+- **Performance**: <100ms predictions, handles 500MB+ files
+- **Scalable**: Async FastAPI, Redis queuing, Docker ready
+- **Privacy-First**: Local processing, no cloud dependencies
+- **Extensible**: Clean architecture for new models/features
 
 ## 📋 Commands
 
 | Command | Description | Example |
 |---------|-------------|---------|
 | `process` | Extract features from health data | `process data/ -o features.json` |
-| `predict` | Generate mood predictions | `predict data/ --ensemble --report` |
+| `predict` | Generate mood predictions | `predict data/ --report` |
 | `label` | Create ground truth annotations | `label episode --date-range 2024-01-01:2024-01-14` |
 | `train` | Fine-tune personalized model | `train --user-id patient_123 --data features.csv` |
 | `serve` | Start API server | `serve --port 8000 --reload` |
 | `watch` | Monitor directory for new files | `watch data/health_auto_export/` |
+
+### Date Range Filtering (New in v0.2.1)
+
+For large XML files (500MB+), you can now filter data by date to reduce processing time:
+
+```bash
+# Process only the last 90 days
+python src/big_mood_detector/main.py process export.xml --days-back 90
+
+# Process a specific date range
+python src/big_mood_detector/main.py process export.xml --date-range 2024-01-01:2024-03-31
+
+# Same options work for predict command
+python src/big_mood_detector/main.py predict export.xml --days-back 30 --report
+```
+
+This is especially useful for:
+- Large Apple Health exports (years of data)
+- Quick analysis of recent periods
+- Memory-constrained environments
+- Faster iteration during development
 
 ## 🔬 Research Foundation
 
@@ -164,11 +241,22 @@ results = requests.get(
 
 ## 📚 Documentation
 
-- **[Quick Start Guide](docs/user/QUICK_START_GUIDE.md)** - Get running in 5 minutes
+### For Users
+- **[Quick Start Guide](docs/user/QUICK_START_GUIDE.md)** ⭐ - Get running in 5 minutes
+- **[Application Workflow](docs/user-guide/APPLICATION_WORKFLOW.md)** - How it works
+- **[Apple Health Export](docs/user/APPLE_HEALTH_EXPORT.md)** - Data export guide
+
+### For Developers  
 - **[Architecture Overview](docs/developer/ARCHITECTURE_OVERVIEW.md)** - System design
 - **[API Reference](docs/developer/API_REFERENCE.md)** - REST endpoints
-- **[Clinical Documentation](docs/clinical/CLINICAL_DOSSIER.md)** - Thresholds and validation
-- **[Deployment Guide](docs/developer/DEPLOYMENT_GUIDE.md)** - Production setup
+- **[Model Mathematics](docs/models/)** - Feature formulas and model details
+
+### For Clinicians
+- **[Clinical Validation](docs/clinical/CLINICAL_DOSSIER.md)** - Research foundation
+- **[Feature Reference](docs/models/xgboost-features/FEATURE_REFERENCE.md)** - All 36 biomarkers
+- **[Literature Review](docs/literature/)** - Peer-reviewed papers
+
+### 📖 [Full Documentation](docs/README.md)
 
 ## 🧪 Testing
 
@@ -202,12 +290,16 @@ Key areas for contribution:
 - Performance optimizations
 - Documentation improvements
 
-## ⚠️ Disclaimers
+## ⚠️ Medical & Safety Disclaimers
 
-1. **Clinical Tool**: Provides risk assessments, not diagnoses
-2. **Professional Consultation**: Always consult healthcare providers
-3. **Research Use**: Validated in research settings
-4. **Individual Variability**: Requires personal calibration
+1. **NOT A DIAGNOSTIC TOOL**: Provides risk assessments only, cannot diagnose conditions
+2. **NOT FDA APPROVED**: This is research software, not a medical device
+3. **REQUIRES PROFESSIONAL CONSULTATION**: Always work with qualified healthcare providers
+4. **RESEARCH STATUS**: Based on validated papers but this implementation is not clinically tested
+5. **INDIVIDUAL VARIABILITY**: Accuracy varies by person and improves with calibration
+6. **EMERGENCY**: If in crisis, call 988 (US) or seek immediate professional help
+
+**[Full disclaimers and safety information](docs/IMPORTANT_PLEASE_READ.md)**
 
 ## 📄 License
 

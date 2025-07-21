@@ -112,9 +112,9 @@ class TestBaselineRepositoryHRHRV:
         # Try to load the old format baseline
         retrieved = repo.get_baseline("backward_compat_user")
 
-        # Should use default values for missing HR/HRV fields
+        # Should handle missing HR/HRV fields as None (no magic defaults)
         assert retrieved is not None
-        assert retrieved.heart_rate_mean == 70.0  # Default
-        assert retrieved.heart_rate_std == 10.0  # Default
-        assert retrieved.hrv_mean == 50.0  # Default
-        assert retrieved.hrv_std == 15.0  # Default
+        assert retrieved.heart_rate_mean is None  # No magic defaults
+        assert retrieved.heart_rate_std is None
+        assert retrieved.hrv_mean is None
+        assert retrieved.hrv_std is None

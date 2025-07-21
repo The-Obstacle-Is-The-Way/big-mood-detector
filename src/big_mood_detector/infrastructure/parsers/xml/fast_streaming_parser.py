@@ -9,7 +9,7 @@ Optimized for Apple Health export files with:
 """
 
 import logging
-from collections.abc import Generator
+from collections.abc import Callable, Generator
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -182,6 +182,7 @@ class FastStreamingXMLParser:
         entity_type: str = "all",
         start_date: str | None = None,
         end_date: str | None = None,
+        progress_callback: Callable[[str, float], None] | None = None,
     ) -> Generator[SleepRecord | ActivityRecord | HeartRateRecord, None, None]:
         """
         Parse file and yield domain entities with optimized performance.
@@ -209,8 +210,22 @@ class FastStreamingXMLParser:
         else:  # 'all'
             types_to_parse = self.all_types
 
+        # Get file size for progress estimation
+        file_path_obj = Path(file_path)
+        file_size = file_path_obj.stat().st_size if file_path_obj.exists() else 0
+
+        # Estimate total records (rough estimate: ~500 bytes per record)
+        estimated_records = file_size // 500 if file_size > 0 else 1
+
         # Count records for progress
         record_count = 0
+
+        # Report initial progress
+        if progress_callback:
+            try:
+                progress_callback("Starting XML parsing", 0.0)
+            except Exception as e:
+                logger.debug(f"Progress callback error: {e}")
 
         # Stream through records
         for record_dict in self.iter_records(
@@ -219,9 +234,20 @@ class FastStreamingXMLParser:
             record_type = record_dict.get("type")
             record_count += 1
 
-            # Log progress every 10k records
+            # Report progress every 10k records or at intervals
             if record_count % 10000 == 0:
                 logger.info(f"Processed {record_count:,} records...")
+
+                if progress_callback:
+                    try:
+                        # Estimate progress (min 0.1 to show something is happening)
+                        progress = max(0.1, min(0.9, record_count / estimated_records))
+                        progress_callback(
+                            f"Processing {record_count:,} records",
+                            progress
+                        )
+                    except Exception as e:
+                        logger.debug(f"Progress callback error: {e}")
 
             try:
                 # Convert to appropriate entity based on type
@@ -248,6 +274,13 @@ class FastStreamingXMLParser:
                 continue
 
         logger.info(f"Completed parsing {record_count:,} records")
+
+        # Report completion
+        if progress_callback:
+            try:
+                progress_callback(f"Completed: {record_count:,} records", 1.0)
+            except Exception as e:
+                logger.debug(f"Progress callback error: {e}")
 
     def parse_file_in_batches(
         self,

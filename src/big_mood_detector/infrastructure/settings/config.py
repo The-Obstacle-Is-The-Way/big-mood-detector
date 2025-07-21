@@ -8,7 +8,7 @@ import os
 from pathlib import Path
 from typing import Literal
 
-from pydantic import Field, computed_field, model_validator
+from pydantic import Field, computed_field, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -127,6 +127,15 @@ class Settings(BaseSettings):
         ge=0,
         description="Maximum retry attempts for Feast sync"
     )
+
+    @field_validator('DATA_DIR', 'MODEL_WEIGHTS_PATH', 'OUTPUT_DIR', 'UPLOAD_DIR', 'TEMP_DIR', 'FEAST_REPO_PATH')
+    @classmethod
+    def expand_paths(cls, v: Path | None) -> Path | None:
+        """Expand home directory in paths."""
+        if v is None:
+            return v
+        # Convert to string, expand, then back to Path
+        return Path(os.path.expanduser(str(v)))
 
     @model_validator(mode="after")
     def validate_ensemble_weights(self) -> "Settings":

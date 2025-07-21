@@ -154,11 +154,9 @@ nav:
     - Model Architecture: developer/MODEL_WEIGHT_ARCHITECTURE.md
     - Data Processing: developer/DATA_DOSSIER.md
     - Design Patterns: refactoring/DESIGN_PATTERNS_CATALOG.md
-    - Implementation Details:
-      - Domain Services Audit: architecture/domain_services_audit.md
+    - Current Architecture:
       - Pipeline Design: architecture/bulletproof_pipeline_summary.md
-      - Baseline Persistence: architecture/baseline_persistence_plan.md
-      - Ensemble Weights: architecture/ensemble_weights_config.md
+      - Ensemble Configuration: architecture/ensemble_weights_config.md
       - XML Optimization: architecture/xml_optimization_solution.md
   
   - Clinical Documentation:
@@ -183,13 +181,10 @@ nav:
       - Application: api/python/application.md
       - Infrastructure: api/python/infrastructure.md
   
-  - Model Integration:
+  - Models & ML:
+    - Feature Reference: models/xgboost-features/FEATURE_REFERENCE.md
+    - Ensemble Mathematics: models/ensemble/ENSEMBLE_MATHEMATICS.md
     - Integration Guide: developer/model_integration_guide.md
-    - Fine-Tuning:
-      - Overview: completed/FINE_TUNING_DOSSIER.md
-      - Implementation: completed/FINE_TUNING_IMPLEMENTATION.md
-      - Complete Spec: completed/FINE_TUNING_COMPLETE_SPEC.md
-    - PAT Integration: completed/PAT_INTEGRATION_COMPLETE.md
   
   - Operations:
     - Deployment Guide: developer/DEPLOYMENT_GUIDE.md
@@ -198,21 +193,10 @@ nav:
     - Git Workflow: developer/GIT_WORKFLOW.md
   
   - Development:
-    - Labeling CLI:
-      - Design: completed/LABELING_CLI_DESIGN.md
-      - Implementation: completed/LABELING_CLI_IMPLEMENTATION_PLAN.md
-    - Validation Reports:
-      - Pipeline Validation: completed/PIPELINE_VALIDATION_REPORT.md
-      - Complete Validation: completed/COMPLETE_VALIDATION_SUMMARY.md
-    - Refactoring:
-      - Complete Guide: refactoring/REFACTORING_COMPLETE.md
-      - Pipeline Analysis: refactoring/phase3-pipeline-analysis.md
+    - Contributing: ../CONTRIBUTING.md
+    - Refactoring Patterns: refactoring/DESIGN_PATTERNS_CATALOG.md
+    - Change Log: refactoring/CHANGELOG.md
   
   - Archive:
-    - Technical Documentation: archive/TECHNICAL_DOCUMENTATION.md
-    - Architecture (Legacy): archive/ARCHITECTURE.md
-    - Bipolar Literature: archive/BIPOLAR_LITERATURE.md
-    - Technical Debt: archive/TECHNICAL_DEBT.md
-    - Planning:
-      - Implementation Plan: archive/planning/IMPLEMENTATION_PLAN_FROM_REFERENCES.md
-      - Operationalization: archive/planning/OPERATIONALIZATION_PLAN.md
+    - Overview: archive/README.md
+    - Historical Docs: archive/

@@ -5,7 +5,7 @@ Data models for persistence layer that extend domain entities with storage metad
 """
 
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Any
 
 from big_mood_detector.domain.entities.activity_record import ActivityRecord
@@ -34,7 +34,7 @@ class StoredSleepRecord:
             # Make it filesystem safe
             record_id = record_id.replace(":", "-").replace("/", "-")
 
-        now = datetime.utcnow()
+        now = datetime.now(UTC)
         return cls(
             id=record_id, record=record, created_at=now, updated_at=now, metadata={}
         )
@@ -65,7 +65,7 @@ class StoredActivityRecord:
             # Make it filesystem safe
             record_id = record_id.replace(":", "-").replace("/", "-")
 
-        now = datetime.utcnow()
+        now = datetime.now(UTC)
         return cls(
             id=record_id, record=record, created_at=now, updated_at=now, metadata={}
         )
@@ -96,7 +96,7 @@ class StoredHeartRateRecord:
             # Make it filesystem safe
             record_id = record_id.replace(":", "-").replace("/", "-")
 
-        now = datetime.utcnow()
+        now = datetime.now(UTC)
         return cls(
             id=record_id, record=record, created_at=now, updated_at=now, metadata={}
         )

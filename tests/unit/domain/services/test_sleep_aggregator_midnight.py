@@ -151,7 +151,10 @@ class TestSleepAggregatorMidnight:
 
         # Should be assigned to wake date (Jan 3)
         assert date(2024, 1, 3) in summaries
-        assert summaries[date(2024, 1, 3)].total_sleep_hours == 36.0
+        # Sleep is capped at 24 hours per day to handle data anomalies
+        assert summaries[date(2024, 1, 3)].total_sleep_hours == 24.0
+        # But the longest sleep session should still be tracked as 36 hours
+        assert summaries[date(2024, 1, 3)].longest_sleep_hours == 36.0
 
     def test_week_of_normal_sleep_patterns(self):
         """

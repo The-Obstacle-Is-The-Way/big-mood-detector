@@ -24,9 +24,9 @@ COPY src/ ./src/
 RUN python -m venv /app/.venv
 ENV PATH="/app/.venv/bin:$PATH"
 
-# Install production dependencies only
+# Install dependencies - include dev for testing in CI
 RUN pip install --no-cache-dir --upgrade pip setuptools wheel && \
-    pip install --no-cache-dir -e . && \
+    pip install --no-cache-dir -e ".[dev]" && \
     pip install --no-cache-dir gunicorn
 
 # Stage 2: Runtime image (smaller, secure)

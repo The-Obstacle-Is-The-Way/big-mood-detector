@@ -7,7 +7,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.2] - In Development
+
 ### Added
+- Progress indication for XML parsing operations (Issue #31)
+  - Progress callbacks throughout the pipeline from CLI to XML parser
+  - CLI `--progress` flag shows tqdm progress bars
+  - Error-resilient progress reporting
+  - Integration tests for progress indication functionality
+- Test data management with dedicated `tests/_data/` directory
+- Coverage configuration for parallel test runs
+- Documentation for xfail tests explaining technical debt
+
+### Changed
+- Improved error handling for tqdm import in CLI commands
+
+### Fixed
+- Progress bar cleanup on error conditions
+- Coverage warnings during parallel test execution
+
+### Developer Notes
+- All progress indication tests passing (16 unit + integration tests)
+- Feature branch ready for merge to development
+
+## [0.2.1] - 2025-07-20
+
+### Added
+- Date range filtering for XML processing with `--days-back` and `--date-range` CLI options
+- Integration tests for date filtering and memory bounds
 - Wire-tap logging in SleepAggregator for debugging sleep date assignment
 - Property-based testing with hypothesis for incremental statistics
 - Heart rate aggregation in AggregationPipeline
@@ -30,10 +57,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Structlog logger initialization order
 - Application regression test now uses 3 days of data for statistics
 - TimescaleDB repository now handles baseline updates properly
+- Sleep duration calculation now caps at 24 hours to handle overlapping records
+- Episode deletion in SQLite repository now works correctly
+- XGBoost model loading now looks in correct directory (converted/ instead of pretrained/)
+- Fixed all deprecated datetime.utcnow() usage to use timezone-aware datetime.now(UTC)
+- Fixed deprecated datetime.utcfromtimestamp() to datetime.fromtimestamp(..., UTC)
 
 ### Removed
 - Magic HR/HRV defaults (70 bpm / 50 ms) that would skew personal baselines
 - Deprecated datetime.utcnow() usage throughout codebase
+
+### Technical Debt (Tracked)
+- Issue #38: Streaming parser date filtering bug (test: test_memory_bounds.py)
+- Issue #39: Baseline persistence tests use legacy entity APIs (test: test_baseline_persistence_pipeline.py)
+- Issue #40: XGBoost JSON models lack predict_proba method (test: test_pipeline_with_ensemble)
+- All xfail tests have strict=True to alert when fixed
+- Nightly CI job added to monitor slow/xfail tests
+- Repository pattern redundancy needs review
+- SQLite repository now uses unique constraints to prevent duplicate episodes
+
+### Developer Notes
+- Run `./scripts/create-tech-debt-issues.sh` to create GitHub issues
+- Update issue numbers in xfail markers after creation
+- See `issues/` directory for detailed issue descriptions
 
 ## [0.1.0] - 2024-01-01
 

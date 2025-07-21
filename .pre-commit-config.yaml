@@ -12,7 +12,7 @@ repos:
     rev: 23.11.0
     hooks:
       - id: black
-        language_version: python3.11
+        language_version: python3.12
 
   # Type checking
   - repo: https://github.com/pre-commit/mirrors-mypy
@@ -77,6 +77,13 @@ repos:
         language: system
         types: [python]
         pass_filenames: false
+      
+      - id: check-no-sleep-percentage
+        name: Check for sleep_percentage * 24 pattern
+        entry: bash scripts/check_no_sleep_percentage.sh
+        language: system
+        pass_filenames: false
+        always_run: true
 
 ci:
   autofix_commit_msg: |

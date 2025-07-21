@@ -1,6 +1,27 @@
 # 📚 Big Mood Detector Documentation
 
-Welcome to the comprehensive documentation for Big Mood Detector - a clinical-grade bipolar mood prediction system.
+Welcome to the comprehensive documentation for Big Mood Detector - a clinical-grade bipolar mood prediction system that analyzes Apple Health data using validated machine learning models to predict risk of mood episodes.
+
+## 🎯 Clinical Accuracy
+
+Based on peer-reviewed research with 168 patients and 44,787 observation days:
+
+| Condition | Model | Accuracy (AUC) | Key Reference |
+|-----------|-------|----------------|---------------|
+| **Mania** | XGBoost | **0.98** ⭐ | Nature Digital Medicine 2024 |
+| **Hypomania** | XGBoost | **0.95** | Nature Digital Medicine 2024 |
+| **Depression** | XGBoost | **0.80** | Nature Digital Medicine 2024 |
+| **Depression** | PAT | **0.77** | Dartmouth Study 2024 |
+
+The system combines both models for optimal performance across all mood states.
+
+## 🆕 New Documentation Highlights
+
+### Essential Reading
+- **[Application Workflow](user-guide/APPLICATION_WORKFLOW.md)** ⭐ - Understand how the system works from baseline to predictions
+- **[XGBoost Feature Reference](models/xgboost-features/FEATURE_REFERENCE.md)** ⭐ - All 36 features explained with formulas
+- **[Ensemble Mathematics](models/ensemble/ENSEMBLE_MATHEMATICS.md)** - How predictions combine mathematically
+- **[Documentation Plan](DOCUMENTATION_PLAN.md)** - Our comprehensive documentation strategy
 
 ## 🗺️ Documentation Structure
 
@@ -8,9 +29,17 @@ Welcome to the comprehensive documentation for Big Mood Detector - a clinical-gr
 **For users who want to analyze their health data**
 
 - **[Quick Start Guide](./user/QUICK_START_GUIDE.md)** ⭐ - Get running in 5 minutes
+- **[Application Workflow](user-guide/APPLICATION_WORKFLOW.md)** ⭐ - How it works end-to-end
 - **[Advanced Usage](./user/ADVANCED_USAGE.md)** - Power user features
 - **[Apple Health Export Guide](./user/APPLE_HEALTH_EXPORT.md)** - How to export your data
 - **[User Guide Overview](./user/README.md)** - Complete user documentation index
+
+### 🧮 [Model Documentation](./models/)
+**Deep dive into the ML models**
+
+- **[XGBoost Features](./models/xgboost-features/FEATURE_REFERENCE.md)** ⭐ - All 36 features with formulas
+- **[Ensemble Mathematics](./models/ensemble/ENSEMBLE_MATHEMATICS.md)** - Mathematical foundations
+- **[PAT Architecture](./models/pat-transformer/)** - Transformer model details (coming soon)
 
 ### 🏥 [Clinical Documentation](./clinical/)
 **Clinical knowledge and validation**
@@ -130,6 +159,6 @@ When adding or updating documentation:
 
 ---
 
-*Documentation last updated: 2025-07-18*
+*Documentation last updated: 2025-07-20*
 
 *For AI agents working with this codebase, see [CLAUDE.md](../CLAUDE.md) and [repo_map.json](../repo_map.json)*

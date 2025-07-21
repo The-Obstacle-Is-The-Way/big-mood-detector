@@ -231,12 +231,28 @@ class DataParsingService:
 
         # Single-pass parsing: parse all entity types in one iteration
         # This is 3x faster than the previous approach that made 3 separate passes
-        for entity in self._xml_parser.parse_file(
-            xml_path,
-            entity_type="all",
-            start_date=start_date_str,
-            end_date=end_date_str,
-        ):
+        # Check if parser supports progress_callback (FastStreamingXMLParser does, StreamingXMLParser doesn't)
+        from big_mood_detector.infrastructure.parsers.xml.fast_streaming_parser import (
+            FastStreamingXMLParser,
+        )
+
+        if isinstance(self._xml_parser, FastStreamingXMLParser):
+            parse_iterator = self._xml_parser.parse_file(
+                xml_path,
+                entity_type="all",
+                start_date=start_date_str,
+                end_date=end_date_str,
+                progress_callback=progress_callback,
+            )
+        else:
+            parse_iterator = self._xml_parser.parse_file(
+                xml_path,
+                entity_type="all",
+                start_date=start_date_str,
+                end_date=end_date_str,
+            )
+
+        for entity in parse_iterator:
             if isinstance(entity, SleepRecord):
                 sleep_records.append(entity)
             elif isinstance(entity, ActivityRecord):
