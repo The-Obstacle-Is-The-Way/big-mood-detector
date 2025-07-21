@@ -6,9 +6,9 @@ Provides absolute paths that work regardless of where the code is executed from.
 
 from pathlib import Path
 
-# Project root is 3 levels up from this file
-# src/big_mood_detector/core/paths.py -> project root
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+# Project root is 4 levels up from this file
+# src/big_mood_detector/core/paths.py -> src/big_mood_detector -> src -> project root
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 
 # Key directories
 MODEL_WEIGHTS_DIR = PROJECT_ROOT / "model_weights"

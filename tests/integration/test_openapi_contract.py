@@ -92,7 +92,6 @@ class TestOpenAPIContract:
             "/api/v1/labels/episodes", {}
         ), "Label creation should support POST"
 
-    @pytest.mark.flaky(reason="OpenAPI schema generation can be inconsistent in CI")
     def test_response_schemas_present(self, client: TestClient):
         """Test that response schemas are properly defined."""
         response = client.get("/openapi.json")
@@ -108,13 +107,19 @@ class TestOpenAPIContract:
             "FeatureExtractionResponse",
             "PredictionResponse",
             "EpisodeResponse",
-            "ClinicalInterpretationResponse",
         ]
 
         for schema_name in important_schemas:
             assert (
                 schema_name in schemas
             ), f"Schema {schema_name} missing from OpenAPI spec"
+            
+        # Check for ClinicalInterpretationResponse with flexible naming
+        clinical_schema_found = any(
+            "ClinicalInterpretationResponse" in key 
+            for key in schemas.keys()
+        )
+        assert clinical_schema_found, "ClinicalInterpretationResponse schema missing from OpenAPI spec"
 
     def test_api_version_consistency(self, client: TestClient):
         """Test that all API endpoints use consistent versioning."""

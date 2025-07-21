@@ -7,6 +7,7 @@ Uses minimal test data to verify integration.
 
 import json
 import subprocess
+import sys
 
 import pytest
 
@@ -68,7 +69,6 @@ class TestFullPipeline:
         ]
         return "\n".join(xml_lines)
 
-    @pytest.mark.flaky(reason="E2E pipeline tests can have timing issues in CI")
     def test_predict_command_e2e(self, sample_xml_data, tmp_path):
         """Test full pipeline: XML → features → predictions."""
         # Given: Sample XML data
@@ -78,9 +78,10 @@ class TestFullPipeline:
         output_file = tmp_path / "predictions.json"
 
         # When: Running predict command
+        import sys
         result = subprocess.run(
             [
-                "python",
+                sys.executable,
                 "-m",
                 "big_mood_detector.interfaces.cli.main",
                 "predict",
@@ -128,7 +129,6 @@ class TestFullPipeline:
         # Should analyze 7 days
         assert summary["days_analyzed"] == 7
 
-    @pytest.mark.flaky(reason="E2E pipeline tests can have timing issues in CI")
     def test_predict_with_insufficient_data(self, tmp_path):
         """Test pipeline handles insufficient data gracefully."""
         # Given: XML with only 2 days of data
@@ -162,7 +162,7 @@ class TestFullPipeline:
         # When: Running predict
         result = subprocess.run(
             [
-                "python",
+                sys.executable,
                 "-m",
                 "big_mood_detector.interfaces.cli.main",
                 "predict",
@@ -183,7 +183,6 @@ class TestFullPipeline:
         assert "Insufficient data" in result.stdout or "LOW" in result.stdout
         assert "Confidence:" in result.stdout
 
-    @pytest.mark.flaky(reason="Label import/export can have file system timing issues")
     def test_label_import_export_e2e(self, tmp_path):
         """Test label CLI import/export functionality."""
         # Given: CSV with labeled episodes
@@ -200,7 +199,7 @@ class TestFullPipeline:
         # When: Importing episodes
         import_result = subprocess.run(
             [
-                "python",
+                sys.executable,
                 "-m",
                 "big_mood_detector.interfaces.cli.main",
                 "label",
@@ -220,7 +219,7 @@ class TestFullPipeline:
         # When: Exporting from database
         export_result = subprocess.run(
             [
-                "python",
+                sys.executable,
                 "-m",
                 "big_mood_detector.interfaces.cli.main",
                 "label",
@@ -245,7 +244,6 @@ class TestFullPipeline:
         assert len(df) == 2
         assert set(df["label"]) == {"depressive", "manic"}
 
-    @pytest.mark.flaky(reason="Output format tests can have file system timing issues")
     @pytest.mark.parametrize("format,extension", [("json", "json"), ("csv", "csv")])
     def test_predict_output_formats(self, sample_xml_data, tmp_path, format, extension):
         """Test different output formats work correctly."""
@@ -257,7 +255,7 @@ class TestFullPipeline:
         # When: Running predict with specific format
         result = subprocess.run(
             [
-                "python",
+                sys.executable,
                 "-m",
                 "big_mood_detector.interfaces.cli.main",
                 "predict",

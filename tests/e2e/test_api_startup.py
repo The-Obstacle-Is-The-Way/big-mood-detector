@@ -17,79 +17,75 @@ import requests
 class TestAPIStartup:
     """Test API server startup with real model files."""
 
-    @pytest.mark.flaky(reason="API server binding can be flaky in CI environment")
     def test_api_server_starts_successfully(self):
         """Test that API server can start with existing model files."""
-
+        # Find an available port
+        import socket
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.bind(('', 0))
+            port = s.getsockname()[1]
+        
         # Start server in background
         env = os.environ.copy()
         env["DISABLE_RATE_LIMIT"] = "1"
+        
+        cmd = [
+            sys.executable,
+            "-m",
+            "uvicorn", 
+            "big_mood_detector.interfaces.api.main:app",
+            "--host", "127.0.0.1",
+            "--port", str(port),
+            "--workers", "1"
+        ]
 
         process = subprocess.Popen(
-            [
-                sys.executable,
-                "src/big_mood_detector/main.py",
-                "serve",
-                "--port",
-                "8002",
-            ],
+            cmd,
             env=env,
             stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,  # Capture both stdout and stderr
+            stderr=subprocess.PIPE,
             text=True,
-            bufsize=1,
         )
 
         try:
-            # Wait for server to start with better error checking
-            max_wait_time = 30  # seconds - ML models take time to load
-            wait_interval = 0.5
-            waited = 0.0
-
-            while waited < max_wait_time:
-                # Check if process is still running
+            # Give server time to start
+            max_wait = 30
+            interval = 1
+            waited = 0
+            
+            while waited < max_wait:
+                # Check if process died
                 if process.poll() is not None:
-                    # Process died, get the output
-                    stdout, _ = process.communicate()
-                    pytest.fail(f"Server failed to start. Output:\n{stdout}")
-
+                    stdout, stderr = process.communicate()
+                    pytest.fail(f"Server died. stdout:\n{stdout}\nstderr:\n{stderr}")
+                
                 # Try to connect
                 try:
-                    response = requests.get("http://127.0.0.1:8002/health", timeout=2)
+                    response = requests.get(f"http://127.0.0.1:{port}/health", timeout=2)
                     if response.status_code == 200:
-                        break  # Success!
-                except requests.exceptions.ConnectionError:
-                    pass  # Still starting up
-                except requests.exceptions.Timeout:
-                    pass  # Still starting up
-
-                time.sleep(wait_interval)
-                waited += wait_interval
+                        # Success!
+                        break
+                except:
+                    pass
+                
+                time.sleep(interval)
+                waited += interval
             else:
-                # Timeout reached
-                stdout, _ = process.communicate(timeout=5)
-                pytest.fail(
-                    f"Server did not start within {max_wait_time}s. Output:\n{stdout}"
-                )
-
-            # Server is responding, now test endpoints
-            response = requests.get("http://127.0.0.1:8002/health", timeout=5)
+                pytest.fail(f"Server didn't start in {max_wait}s")
+            
+            # Test the health endpoint
+            response = requests.get(f"http://127.0.0.1:{port}/health", timeout=5)
             assert response.status_code == 200
-
-            # Verify models are loaded via health check
-            health_data = response.json()
-            assert "status" in health_data
-            assert health_data["status"] == "healthy"
+            
+            data = response.json()
+            assert data["status"] == "healthy"
+            assert "version" in data
 
         finally:
             # Clean shutdown
             if process.poll() is None:
                 process.terminate()
-                try:
-                    process.wait(timeout=5)
-                except subprocess.TimeoutExpired:
-                    process.kill()
-                    process.wait()
+                process.wait(timeout=5)
 
     def test_model_files_exist_with_correct_names(self):
         """Test that expected model files exist."""

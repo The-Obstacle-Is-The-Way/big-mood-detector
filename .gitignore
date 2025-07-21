@@ -159,6 +159,13 @@ data/input/
 data/output/
 data/uploads/
 data/temp/
+data/baselines/
+data/nhanes/
+data/**/*.xml
+data/**/*.json
+data/**/*.csv
+!data/.gitkeep
+!data/*/README.md
 personal_data/
 health_exports/
 *.zip
