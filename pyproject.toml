@@ -248,7 +248,7 @@ ignore_missing_imports = true
 # Pytest Configuration
 [tool.pytest.ini_options]
 minversion = "7.0"
-addopts = "-v --strict-markers --strict-config -m 'not slow_finetune and not large and not heavy' --tb=short"
+addopts = "-v --strict-markers --strict-config -m 'not slow_finetune and not large and not heavy' --tb=short --timeout=300 --timeout-method=thread"
 testpaths = ["tests"]
 markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
