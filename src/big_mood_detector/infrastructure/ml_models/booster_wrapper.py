@@ -6,6 +6,7 @@ This is needed because Booster objects loaded from JSON don't have predict_proba
 """
 
 from typing import Any
+
 import numpy as np
 from numpy.typing import NDArray
 
