@@ -28,10 +28,6 @@ from tempfile import NamedTemporaryFile  # noqa: E402
 import pytest  # noqa: E402
 import yaml  # noqa: E402
 
-from big_mood_detector.domain.services.clinical_thresholds import (  # noqa: E402
-    load_clinical_thresholds,
-)
-
 
 def pytest_addoption(parser):
     """Add custom command line options."""
@@ -232,6 +228,7 @@ def _patch_pat_model(monkeypatch):
                 "patch_size": self.patch_size,
                 "num_patches": num_patches,
                 "parameters": params.get(self.model_size, 1300000),
+                "is_loaded": self.is_loaded,
             }
 
     pat_stub.PATModel = MockPATModel
@@ -274,6 +271,7 @@ def clinical_config(clinical_config_path):
 
     Returns a fresh instance for each test to ensure test isolation.
     """
+    from big_mood_detector.domain.services.clinical_thresholds import load_clinical_thresholds
     return load_clinical_thresholds(clinical_config_path)
 
 
@@ -299,6 +297,8 @@ def clinical_config_factory(clinical_config_dict):
     """
 
     def _factory(**section_overrides):
+        from big_mood_detector.domain.services.clinical_thresholds import load_clinical_thresholds
+        
         config_dict = deepcopy(clinical_config_dict)
 
         # Apply overrides at the section level

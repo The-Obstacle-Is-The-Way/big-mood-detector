@@ -340,10 +340,6 @@ class TestEnsemblePredictions:
 
         assert result.ensemble_prediction is not None
 
-    @pytest.mark.xfail(
-        reason="Issue #40: XGBoost Booster objects loaded from JSON lack predict_proba method",
-        strict=True
-    )
     @pytest.mark.parametrize("model_size", ["small", "medium", "large"])
     def test_pat_model_sizes(self, model_size):
         """Test different PAT model sizes."""
