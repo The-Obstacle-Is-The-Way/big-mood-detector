@@ -420,8 +420,14 @@ def process_command(
                     pbar.update(int(progress * 100) - pbar.n)
 
             except ImportError:
-                click.echo("Warning: tqdm not installed, progress bar disabled")
-                progress = False
+                # Fall back to simple text progress
+                click.echo("Note: Install tqdm for progress bars (pip install tqdm)")
+                
+                def progress_callback(message: str, progress: float) -> None:
+                    percent = int(progress * 100)
+                    click.echo(f"\r{message}: {percent}%", nl=False)
+                    if progress >= 1.0:
+                        click.echo()  # New line at completion
 
         # Initialize pipeline
         pipeline = MoodPredictionPipeline()

@@ -77,6 +77,13 @@ repos:
         language: system
         types: [python]
         pass_filenames: false
+      
+      - id: check-no-sleep-percentage
+        name: Check for sleep_percentage * 24 pattern
+        entry: bash scripts/check_no_sleep_percentage.sh
+        language: system
+        pass_filenames: false
+        always_run: true
 
 ci:
   autofix_commit_msg: |

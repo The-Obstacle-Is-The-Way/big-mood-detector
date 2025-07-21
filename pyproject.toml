@@ -269,6 +269,7 @@ asyncio_default_fixture_loop_scope = "function"
 # Coverage Configuration
 [tool.coverage.run]
 source = ["src/big_mood_detector"]
+parallel = true
 omit = [
     "*/tests/*",
     "*/migrations/*",

@@ -1,6 +1,13 @@
 """
 Integration test for full pipeline
 Verifies that all components are wired together correctly
+
+XFAIL STATUS:
+- Issue #40: XGBoost Booster objects loaded from JSON lack predict_proba method
+- Problem: JSON-loaded models return raw Booster objects without sklearn API
+- Impact: Ensemble predictions fail when using JSON model format
+- Workaround: Use pickle format or implement BoosterPredictProbaWrapper
+- Resolution: Wrap Booster objects or standardize on sklearn-compatible format
 """
 
 import json

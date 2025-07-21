@@ -2,6 +2,13 @@
 Memory bounds integration test.
 
 Tests that XML streaming parser stays within memory limits for large files.
+
+XFAIL STATUS:
+- Issue #38: Streaming parser date filtering has string/datetime comparison bug
+- Problem: Date filtering compares datetime objects to strings, causing TypeError
+- Impact: Cannot filter large XML files by date range efficiently
+- Workaround: Process entire file without date filtering (slower but works)
+- Resolution: Fix comparison logic in fast_streaming_parser.py
 """
 
 
