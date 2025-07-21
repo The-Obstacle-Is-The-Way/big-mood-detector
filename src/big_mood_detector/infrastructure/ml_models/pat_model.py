@@ -21,8 +21,8 @@ try:
     from tensorflow import keras
     PAT_AVAILABLE = True
 except ModuleNotFoundError:  # keeps CI green on slim images
-    tf = None  # type: ignore[assignment]
-    keras = None  # type: ignore[assignment]
+    tf = None
+    keras = None
     PAT_AVAILABLE = False
 
 if TYPE_CHECKING:

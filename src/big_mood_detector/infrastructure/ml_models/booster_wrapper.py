@@ -5,13 +5,15 @@ Wraps raw XGBoost Booster objects to provide scikit-learn compatible predict_pro
 This is needed because Booster objects loaded from JSON don't have predict_proba.
 """
 
+from typing import Any
 import numpy as np
+from numpy.typing import NDArray
 
 
 class BoosterPredictProbaWrapper:
     """Wrapper to add predict_proba to raw XGBoost Booster objects."""
 
-    def __init__(self, booster):
+    def __init__(self, booster: Any) -> None:
         """Initialize with a raw XGBoost Booster.
 
         Args:
@@ -19,7 +21,7 @@ class BoosterPredictProbaWrapper:
         """
         self.booster = booster
 
-    def predict(self, X):
+    def predict(self, X: Any) -> NDArray[np.float64]:
         """Raw prediction using the booster.
 
         Args:
@@ -34,9 +36,9 @@ class BoosterPredictProbaWrapper:
         if not isinstance(X, xgb.DMatrix):
             X = xgb.DMatrix(X)
 
-        return self.booster.predict(X)
+        return np.array(self.booster.predict(X), dtype=np.float64)
 
-    def predict_proba(self, X):
+    def predict_proba(self, X: Any) -> NDArray[np.float64]:
         """Predict class probabilities.
 
         For binary classification, returns probabilities for both classes.
@@ -61,6 +63,6 @@ class BoosterPredictProbaWrapper:
 
         return proba
 
-    def __getattr__(self, name):
+    def __getattr__(self, name: str) -> Any:
         """Delegate all other attributes to the wrapped booster."""
         return getattr(self.booster, name)
