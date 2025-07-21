@@ -78,6 +78,11 @@ class FastStreamingXMLParser:
         Based on Liza Daly's fast_iter pattern, optimized for date filtering.
         """
         for _event, elem in context:
+            # Only process Record elements
+            if elem.tag != "Record":
+                elem.clear()
+                continue
+
             # Early date filtering before processing
             if start_date or end_date:
                 date_str = elem.get("startDate")
@@ -144,8 +149,8 @@ class FastStreamingXMLParser:
         logger.info(f"Parsing XML with {'lxml' if HAS_LXML else 'stdlib'} parser")
 
         try:
-            # Create iterator context - only parse Record elements
-            context = etree.iterparse(str(file_path), events=("end",), tag="Record")
+            # Create iterator context
+            context = etree.iterparse(str(file_path), events=("end",))
 
             def process_element(elem: Any) -> dict[str, Any] | None:
                 """Process a single element and return its data."""

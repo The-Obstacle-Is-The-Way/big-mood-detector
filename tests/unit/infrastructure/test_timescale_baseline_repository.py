@@ -198,7 +198,7 @@ class TestTimescaleBaselineRepository(BaselineRepositoryContract):
 
         # Use TimescaleDB image which includes PostgreSQL + TimescaleDB extension
         container = PostgresContainer(
-            image="timescale/timescaledb:latest-pg16",
+            image="timescale/timescaledb:2.21.0-pg16",  # Pin version for reproducibility
             username="test_user",
             password="test_password",
             dbname="test_baselines",
@@ -383,7 +383,7 @@ class TestBaselineRepositoryIntegration:
             )
 
         container = PostgresContainer(
-            image="timescale/timescaledb:latest-pg16",
+            image="timescale/timescaledb:2.21.0-pg16",  # Pin version for reproducibility
             username="test_user",
             password="test_password",
             dbname="test_baselines",

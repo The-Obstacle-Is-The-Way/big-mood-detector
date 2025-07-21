@@ -222,7 +222,7 @@ Avoid loading:
 - CLI with 6 commands
 - FastAPI server
 - Docker deployment
-- 695 passing tests
+- 1067 passing tests (77% coverage)
 
 **🚧 In Progress:**
 - Web UI (Next.js)
