@@ -43,6 +43,8 @@ class AggregationConfig:
     enable_parallel: bool = False  # Parallel processing support
     lookback_days_circadian: int = 7  # Days for circadian analysis
     lookback_days_dlmo: int = 14  # Days for DLMO calculation
+    enable_dlmo_calculation: bool = True  # Enable expensive DLMO calculation
+    enable_circadian_analysis: bool = True  # Enable circadian rhythm analysis
 
 
 @dataclass
@@ -309,13 +311,17 @@ class AggregationPipeline:
                 heart_records, current_date
             )
 
-            # 5. Circadian Rhythm Analysis
-            circadian_metrics = self._calculate_circadian_metrics(
-                activity_records, current_date
-            )
+            # 5. Circadian Rhythm Analysis (optional - expensive)
+            circadian_metrics = None
+            if self.config.enable_circadian_analysis:
+                circadian_metrics = self._calculate_circadian_metrics(
+                    activity_records, current_date
+                )
 
-            # 4. DLMO Calculation
-            dlmo_result = self._calculate_dlmo(sleep_records, current_date)
+            # 6. DLMO Calculation (optional - very expensive)
+            dlmo_result = None
+            if self.config.enable_dlmo_calculation:
+                dlmo_result = self._calculate_dlmo(sleep_records, current_date)
 
             # 5. Extract daily metrics
             daily_metrics = self.calculate_daily_metrics(
