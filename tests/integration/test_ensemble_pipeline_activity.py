@@ -124,7 +124,8 @@ class TestEnsemblePipelineActivityFlow:
         if not PAT_AVAILABLE:
             return None
 
-        from big_mood_detector.infrastructure.ml_models.pat_model import PATModel
+        # Import is safe after checking PAT_AVAILABLE
+        from big_mood_detector.infrastructure.ml_models import PATModel
 
         model = PATModel()
         if not model.load_pretrained_weights():

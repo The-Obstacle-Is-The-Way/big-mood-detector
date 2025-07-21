@@ -6,7 +6,7 @@ This module contains all command implementations for the Big Mood Detector.
 """
 
 import sys
-from datetime import date, datetime
+from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
 from typing import Any, TypedDict
 
@@ -73,6 +73,12 @@ def validate_input_path(input_path: Path) -> None:
                 "   Processing may take 10+ minutes. Consider using smaller date ranges."
             )
             click.echo(
+                "   Consider using --days-back or --date-range to reduce processing time:"
+            )
+            click.echo(
+                "   Example: --days-back 90  or  --date-range 2024-01-01:2024-03-31"
+            )
+            click.echo(
                 "   Note: The app uses memory-efficient streaming for XML files."
             )
             click.echo(
@@ -131,18 +137,18 @@ def validate_user_id(user_id: str | None) -> None:
                 "Please use 64 characters or less"
             )
 
+        # Validate characters (alphanumeric, dash, underscore, @)
+        import re
+        if not re.match(r'^[a-zA-Z0-9_\-@]+$', user_id):
+            raise click.BadParameter(
+                f"Invalid user ID format: '{user_id}'\n"
+                "Use only letters, numbers, underscores, hyphens, and @"
+            )
+
         # Warn about potential PII
         if "@" in user_id:
             click.echo("⚠️  User ID contains '@' - avoid using email addresses")
             click.echo("   User IDs will be hashed for privacy protection")
-
-        # Validate characters (alphanumeric, dash, underscore)
-        import re
-        if not re.match(r'^[a-zA-Z0-9_\-]+$', user_id):
-            raise click.BadParameter(
-                f"Invalid user ID format: '{user_id}'\n"
-                "Use only letters, numbers, underscores, and hyphens"
-            )
 
 
 def format_risk_level(risk_score: float) -> str:
@@ -340,6 +346,16 @@ def generate_clinical_report(result: PipelineResult, output_path: Path) -> None:
     type=click.DateTime(formats=["%Y-%m-%d"]),
     help="End date for analysis (YYYY-MM-DD)",
 )
+@click.option(
+    "--days-back",
+    type=int,
+    help="Process only the last N days of data (reduces memory usage for large files)",
+)
+@click.option(
+    "--date-range",
+    type=str,
+    help="Date range in format YYYY-MM-DD:YYYY-MM-DD (e.g., 2024-01-01:2024-03-31)",
+)
 @click.option("--verbose", "-v", is_flag=True, help="Enable verbose output")
 @click.option("--progress", is_flag=True, help="Show progress bar for large files")
 @click.option(
@@ -350,6 +366,8 @@ def process_command(
     output: str | None,
     start_date: datetime | None,
     end_date: datetime | None,
+    days_back: int | None,
+    date_range: str | None,
     verbose: bool,
     progress: bool,
     max_records: int | None,
@@ -359,12 +377,38 @@ def process_command(
         # Validate inputs
         input_path_obj = Path(input_path)
         validate_input_path(input_path_obj)
+
+        # Handle date range parameters
+        if days_back and date_range:
+            raise click.BadParameter("Cannot use both --days-back and --date-range")
+
+        # Parse date range if provided
+        if date_range:
+            try:
+                date_parts = date_range.split(":")
+                if len(date_parts) != 2:
+                    raise ValueError()
+                start_date = datetime.strptime(date_parts[0], "%Y-%m-%d")
+                end_date = datetime.strptime(date_parts[1], "%Y-%m-%d")
+            except (ValueError, IndexError):
+                raise click.BadParameter(
+                    "Invalid date range format. Use YYYY-MM-DD:YYYY-MM-DD"
+                ) from None
+
+        # Calculate dates from days_back if provided
+        if days_back:
+            if days_back <= 0:
+                raise click.BadParameter("--days-back must be a positive number")
+            end_date = datetime.now(tz=UTC)
+            start_date = end_date - timedelta(days=days_back)
+
         validate_date_range(start_date, end_date)
 
         click.echo(f"Processing health data from: {input_path}")
 
         # Create progress callback if requested
         progress_callback = None
+        pbar = None
         if progress:
             try:
                 from tqdm import tqdm
@@ -376,8 +420,14 @@ def process_command(
                     pbar.update(int(progress * 100) - pbar.n)
 
             except ImportError:
-                click.echo("Warning: tqdm not installed, progress bar disabled")
-                progress = False
+                # Fall back to simple text progress
+                click.echo("Note: Install tqdm for progress bars (pip install tqdm)")
+
+                def progress_callback(message: str, progress: float) -> None:
+                    percent = int(progress * 100)
+                    click.echo(f"\r{message}: {percent}%", nl=False)
+                    if progress >= 1.0:
+                        click.echo()  # New line at completion
 
         # Initialize pipeline
         pipeline = MoodPredictionPipeline()
@@ -449,6 +499,16 @@ def process_command(
     help="End date for analysis (YYYY-MM-DD)",
 )
 @click.option(
+    "--days-back",
+    type=int,
+    help="Process only the last N days of data (reduces memory usage for large files)",
+)
+@click.option(
+    "--date-range",
+    type=str,
+    help="Date range in format YYYY-MM-DD:YYYY-MM-DD (e.g., 2024-01-01:2024-03-31)",
+)
+@click.option(
     "--ensemble/--no-ensemble",
     default=False,
     help="Use ensemble model (PAT + XGBoost)",
@@ -474,6 +534,8 @@ def predict_command(
     format: str,
     start_date: datetime | None,
     end_date: datetime | None,
+    days_back: int | None,
+    date_range: str | None,
     ensemble: bool,
     user_id: str | None,
     model_dir: str | None,
@@ -485,6 +547,31 @@ def predict_command(
         # Validate inputs
         input_path_obj = Path(input_path)
         validate_input_path(input_path_obj)
+
+        # Handle date range parameters
+        if days_back and date_range:
+            raise click.BadParameter("Cannot use both --days-back and --date-range")
+
+        # Parse date range if provided
+        if date_range:
+            try:
+                date_parts = date_range.split(":")
+                if len(date_parts) != 2:
+                    raise ValueError()
+                start_date = datetime.strptime(date_parts[0], "%Y-%m-%d")
+                end_date = datetime.strptime(date_parts[1], "%Y-%m-%d")
+            except (ValueError, IndexError):
+                raise click.BadParameter(
+                    "Invalid date range format. Use YYYY-MM-DD:YYYY-MM-DD"
+                ) from None
+
+        # Calculate dates from days_back if provided
+        if days_back:
+            if days_back <= 0:
+                raise click.BadParameter("--days-back must be a positive number")
+            end_date = datetime.now(tz=UTC)
+            start_date = end_date - timedelta(days=days_back)
+
         validate_date_range(start_date, end_date)
         validate_user_id(user_id)
 

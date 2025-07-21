@@ -2,11 +2,25 @@
 Test PAT model environment variable loading
 """
 
+# Check if TensorFlow is available
+import importlib.util
 from unittest.mock import Mock, patch
 
 import pytest
 
-from big_mood_detector.infrastructure.ml_models.pat_model import PATModel
+HAS_TENSORFLOW = importlib.util.find_spec("tensorflow") is not None
+
+# Skip all tests in this module if TensorFlow is not available
+# Import PAT model after checking availability
+if HAS_TENSORFLOW:
+    from big_mood_detector.infrastructure.ml_models.pat_model import PATModel
+else:
+    PATModel = None  # type: ignore
+
+pytestmark = pytest.mark.skipif(
+    not HAS_TENSORFLOW,
+    reason="TensorFlow not installed - PAT model tests skipped"
+)
 
 
 class TestPATModelEnvironmentLoading:

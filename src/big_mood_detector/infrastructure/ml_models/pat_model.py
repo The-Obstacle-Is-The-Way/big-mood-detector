@@ -12,18 +12,24 @@ learned representations from activity sequences for downstream tasks.
 import logging
 import os
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 
 try:
     import tensorflow as tf
     from tensorflow import keras
-except ImportError as e:
-    raise ImportError(
-        "TensorFlow is required for PAT model. "
-        "Install with: pip install tensorflow>=2.10.0"
-    ) from e
+    PAT_AVAILABLE = True
+except ModuleNotFoundError:  # keeps CI green on slim images
+    tf = None
+    keras = None
+    PAT_AVAILABLE = False
+
+if TYPE_CHECKING:
+    # Type annotations only, not executed at runtime
+    if PAT_AVAILABLE:
+        import tensorflow as tf
+        from tensorflow import keras
 
 from big_mood_detector.domain.services.pat_sequence_builder import PATSequence
 
@@ -76,6 +82,12 @@ class PATModel:
         Args:
             model_size: One of "small", "medium", or "large"
         """
+        if not PAT_AVAILABLE:
+            raise ImportError(
+                "TensorFlow is required for PAT model. "
+                "Install with: pip install tensorflow>=2.10.0"
+            )
+
         if model_size not in self.MODEL_CONFIGS:
             raise ValueError(
                 f"Invalid model size: {model_size}. "
@@ -289,7 +301,7 @@ class PATModel:
         # Add batch dimension
         return normalized.reshape(1, -1)
 
-    def _get_positional_embeddings(self, num_patches: int, embed_dim: int) -> tf.Tensor:
+    def _get_positional_embeddings(self, num_patches: int, embed_dim: int) -> Any:
         """
         Generate sine/cosine positional embeddings.
 
