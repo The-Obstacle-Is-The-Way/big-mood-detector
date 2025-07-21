@@ -17,18 +17,19 @@ from typing import TYPE_CHECKING, Any
 import numpy as np
 
 try:
-    import tensorflow as tf  # type: ignore
+    import tensorflow as tf
     from tensorflow import keras
     PAT_AVAILABLE = True
 except ModuleNotFoundError:  # keeps CI green on slim images
-    tf = None  # type: ignore
-    keras = None  # type: ignore
+    tf = None  # type: ignore[assignment]
+    keras = None  # type: ignore[assignment]
     PAT_AVAILABLE = False
 
-if TYPE_CHECKING and PAT_AVAILABLE:
+if TYPE_CHECKING:
     # Type annotations only, not executed at runtime
-    import tensorflow as tf
-    from tensorflow import keras
+    if PAT_AVAILABLE:
+        import tensorflow as tf
+        from tensorflow import keras
 
 from big_mood_detector.domain.services.pat_sequence_builder import PATSequence
 
