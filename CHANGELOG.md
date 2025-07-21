@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.3] - 2025-07-21
+
+### Added
+- Optimized aggregation pipeline with pre-indexing for O(n+m) performance
+- Configurable DLMO and circadian calculations via AggregationConfig
+- Performance tests with pytest markers for large XML files
+- XMLDataGenerator utility for creating test data
+
+### Fixed
+- XML processing timeouts for 500MB+ files (Issue #29)
+  - Aggregation now completes in 17.4s for 365 days (was timeout after 120s)
+  - 7x performance improvement by eliminating O(n×m) complexity
+- Directory creation race condition in FileBaselineRepository tests
+- Parent directory creation in FileBaselineRepository
+
+### Changed
+- Made expensive calculations (DLMO, circadian) optional for performance
+- Added 'performance' pytest marker to exclude heavy tests from default runs
+
 ## [0.2.2] - In Development
 
 ### Added
