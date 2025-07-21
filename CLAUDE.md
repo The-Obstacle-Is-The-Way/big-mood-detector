@@ -2,6 +2,8 @@
 
 This guide helps AI agents understand and work with the Big Mood Detector codebase effectively.
 
+**Last Updated**: July 21, 2025 (v0.2.3)
+
 ## Mission
 
 Build and maintain a clinical-grade bipolar mood prediction system that analyzes Apple Health data using validated ML models to provide actionable insights for mental health management.
@@ -72,8 +74,27 @@ Interfaces (CLI/API) → Application (Use Cases) → Domain (Business Logic) ←
 - Activity sequences: 1440 minutes/day
 - Model paths: Configured in settings
 - Clinical thresholds: Based on research papers
+- Performance: Use OptimizedAggregationPipeline for large datasets (v0.2.3)
 
 ## Critical Bug Fixes
+
+### XML Processing Timeout (Fixed in v0.2.3)
+**Problem:** XML processing timed out for 500MB+ files due to O(n×m) aggregation complexity.
+
+**Solution:** Created `OptimizedAggregationPipeline` with pre-indexing:
+```python
+# Use optimized pipeline for large datasets
+from big_mood_detector.application.services.optimized_aggregation_pipeline import OptimizedAggregationPipeline
+
+# Configure to skip expensive calculations
+config = AggregationConfig(
+    enable_dlmo_calculation=False,  # Skip expensive DLMO
+    enable_circadian_analysis=False  # Skip circadian when not needed
+)
+pipeline = OptimizedAggregationPipeline(config=config)
+```
+
+**Impact:** 7x performance improvement - 365 days now processes in 17.4s (was 120s+ timeout).
 
 ### Sleep Duration Calculation (Fixed)
 **Problem:** Sleep duration was incorrectly calculated as `sleep_percentage * 24`, which only counted merged sleep windows and missed fragmented sleep periods.
@@ -104,6 +125,7 @@ accurate_hours = self._get_actual_sleep_duration(sleep_records, current_date)
 - `pytest -m integration` - DB and parser tests
 - `pytest -m ml` - Model validation tests
 - `pytest -m clinical` - Clinical threshold tests
+- `pytest -m performance` - Performance tests (excluded from default runs)
 
 ## Performance Guidelines
 
@@ -112,8 +134,9 @@ accurate_hours = self._get_actual_sleep_duration(sleep_records, current_date)
 - Feature extraction: ~1KB per day per user
 - Model inference: <100ms per prediction
 
-**Processing targets:**
-- XML parsing: >40k records/second
+**Processing targets (v0.2.3):**
+- XML parsing: 33MB/s (>40k records/second)
+- Aggregation: 17.4s for 365 days (was 120s+)
 - Feature extraction: <1s per year of data
 - API response: <200ms average
 
@@ -147,10 +170,11 @@ accurate_hours = self._get_actual_sleep_duration(sleep_records, current_date)
 
 ### Improve Performance
 1. Profile with `cProfile` first
-2. Check for N+1 queries
-3. Use batch processing
-4. Consider caching (Redis)
-5. Optimize hot paths only
+2. Check for O(n×m) complexity (use pre-indexing)
+3. Use `OptimizedAggregationPipeline` for large datasets
+4. Configure expensive calculations (DLMO, circadian)
+5. Consider caching (Redis)
+6. Optimize hot paths only
 
 ### Enable Personal Calibration
 Personal baselines improve prediction accuracy by adapting to individual patterns:
@@ -222,7 +246,7 @@ Avoid loading:
 - CLI with 6 commands
 - FastAPI server
 - Docker deployment
-- 1067 passing tests (77% coverage)
+- 907 passing tests (90%+ coverage)
 
 **🚧 In Progress:**
 - Web UI (Next.js)
