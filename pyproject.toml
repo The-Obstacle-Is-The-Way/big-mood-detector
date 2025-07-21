@@ -279,7 +279,7 @@ omit = [
 disable_warnings = ["module-not-imported"]
 
 [tool.coverage.report]
-fail_under = 45  # Actual measured coverage level
+fail_under = 75  # Set just below actual coverage (77%) to allow some headroom
 exclude_lines = [
     "pragma: no cover",
     "def __repr__",
