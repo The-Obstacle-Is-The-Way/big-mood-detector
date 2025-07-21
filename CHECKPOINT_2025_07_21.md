@@ -1,4 +1,18 @@
-LOOK AT SLEEP CALCULATOR REGRESSION WARNING DURING MAKE TEST
+LOOK AT SLEEP CALCULATOR REGRESSION WARNING DURING MAKE TESTCursor shell integration activated
+
+🔍 Checking for sleep_percentage * 24 pattern...
+🔍 Checking for sleep_percentage * 24 pattern...
+✅ No sleep_percentage * 24 pattern found - code is clean!
+
+🔍 Checking for sleep_percentage usage without sleep_duration_hours...
+⚠️  WARNING: Found sleep_percentage usage without sleep_duration_hours:
+./src/big_mood_detector/application/services/aggregation_pipeline.py:    sleep_percentage_mean: float
+./src/big_mood_detector/application/services/aggregation_pipeline.py:    sleep_percentage_std: float
+./src/big_mood_detector/application/services/aggregation_pipeline.py:    sleep_percentage_zscore: float
+./src/big_mood_detector/application/services/aggregation_pipeline.py:            "sleep_percentage_MN": self.sleep_percentage_mean,
+./src/big_mood_detector/application/services/aggregation_pipeline.py:            "sleep_percentage_SD": self.sleep_percentage_std,
+
+Consider using sleep_duration_hours instead for clarity.
 
 # Checkpoint - July 21st, 2025
 
