@@ -16,6 +16,9 @@ import joblib  # type: ignore[import-untyped]
 import numpy as np
 
 from big_mood_detector.domain.services.mood_predictor import MoodPrediction
+from big_mood_detector.infrastructure.ml_models.booster_wrapper import (
+    BoosterPredictProbaWrapper,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -103,9 +106,10 @@ class XGBoostModelLoader:
             if model_path.suffix == ".json":
                 import xgboost as xgb
 
-                model = xgb.Booster()
-                model.load_model(str(model_path))
-                self.models[model_type] = model
+                booster = xgb.Booster()
+                booster.load_model(str(model_path))
+                # Wrap booster to provide predict_proba method
+                self.models[model_type] = BoosterPredictProbaWrapper(booster)
                 logger.info(
                     f"Successfully loaded {model_type} model from {model_path} (JSON format)"
                 )

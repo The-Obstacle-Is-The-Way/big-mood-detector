@@ -135,10 +135,6 @@ class TestFullPipeline:
             assert 0 <= prediction["hypomanic_risk"] <= 1
             assert 0 <= prediction["manic_risk"] <= 1
 
-    @pytest.mark.xfail(
-        reason="Issue #40: XGBoost Booster objects loaded from JSON lack predict_proba - see issues/xgboost-booster-predict-proba.md",
-        strict=True
-    )
     @pytest.mark.skipif(
         not Path("model_weights/pat/pretrained/PAT-M_29k_weights.h5").exists(),
         reason="PAT weights not available",
