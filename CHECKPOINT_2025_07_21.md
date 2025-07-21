@@ -1,3 +1,5 @@
+LOOK AT SLEEP CALCULATOR REGRESSION WARNING DURING MAKE TEST
+
 # Checkpoint - July 21st, 2025
 
 ## Current Status
