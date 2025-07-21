@@ -7,11 +7,8 @@ from unittest.mock import Mock, patch
 import pytest
 
 # Check if TensorFlow is available
-try:
-    import tensorflow
-    HAS_TENSORFLOW = True
-except ImportError:
-    HAS_TENSORFLOW = False
+import importlib.util
+HAS_TENSORFLOW = importlib.util.find_spec("tensorflow") is not None
 
 # Skip all tests in this module if TensorFlow is not available
 # Import PAT model after checking availability
