@@ -6,7 +6,7 @@ This module contains all command implementations for the Big Mood Detector.
 """
 
 import sys
-from datetime import date, datetime, timedelta, timezone
+from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
 from typing import Any, TypedDict
 
@@ -399,7 +399,7 @@ def process_command(
         if days_back:
             if days_back <= 0:
                 raise click.BadParameter("--days-back must be a positive number")
-            end_date = datetime.now(tz=timezone.utc)
+            end_date = datetime.now(tz=UTC)
             start_date = end_date - timedelta(days=days_back)
 
         validate_date_range(start_date, end_date)
@@ -562,7 +562,7 @@ def predict_command(
         if days_back:
             if days_back <= 0:
                 raise click.BadParameter("--days-back must be a positive number")
-            end_date = datetime.now(tz=timezone.utc)
+            end_date = datetime.now(tz=UTC)
             start_date = end_date - timedelta(days=days_back)
 
         validate_date_range(start_date, end_date)

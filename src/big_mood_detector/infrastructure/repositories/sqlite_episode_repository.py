@@ -94,6 +94,10 @@ class SQLiteEpisodeRepository:
             cursor = conn.cursor()
 
             try:
+                # Clear existing data first
+                cursor.execute("DELETE FROM episodes")
+                cursor.execute("DELETE FROM baseline_periods")
+                
                 # Save episodes
                 for episode in labeler.episodes:
                     # Handle both single-date and range episodes

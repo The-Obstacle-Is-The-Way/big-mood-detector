@@ -109,7 +109,7 @@ class TestHealthDataIntegration:
 
         # Verify feature extraction
         assert len(features) >= 1
-        
+
         # Debug: print all extracted features
         print(f"Extracted features for dates: {list(features.keys())}")
 

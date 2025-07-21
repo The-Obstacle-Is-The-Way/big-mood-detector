@@ -5,7 +5,7 @@ Tests the full API surface with TestClient to ensure proper wiring.
 """
 
 from collections.abc import Generator
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
@@ -114,7 +114,7 @@ class TestLabelsAPI:
     @pytest.fixture
     def sample_episode(self) -> dict[str, Any]:
         """Create sample episode payload."""
-        now = datetime.utcnow()
+        now = datetime.now(UTC)
         return {
             "start_date": (now - timedelta(days=7)).date().isoformat(),
             "end_date": (now - timedelta(days=3)).date().isoformat(),

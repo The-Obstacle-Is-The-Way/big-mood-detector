@@ -8,7 +8,7 @@ loads the weights without complex layer reconstruction.
 import logging
 from pathlib import Path
 
-import h5py
+import h5py  # type: ignore[import-untyped]
 import numpy as np
 import tensorflow as tf
 

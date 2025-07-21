@@ -12,7 +12,7 @@ import logging
 from pathlib import Path
 from typing import Any
 
-import joblib
+import joblib  # type: ignore[import-untyped]
 import numpy as np
 
 from big_mood_detector.domain.services.mood_predictor import MoodPrediction
