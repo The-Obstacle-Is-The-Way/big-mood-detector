@@ -34,8 +34,9 @@ A production-ready system for detecting mood episodes in bipolar disorder using 
 
 **Note:** This implementation has not been clinically validated. For research and personal use only.
 
-## 🆕 What's New (v0.2.0)
+## 🆕 What's New (v0.2.1)
 
+- ✅ **Date Range Filtering**: Process large XML files with `--days-back` or `--date-range` options
 - ✅ **Personal Baselines**: Adaptive predictions based on YOUR normal patterns
 - ✅ **Enhanced Features**: XGBoost predictions with PAT embeddings
 - ✅ **Clinical Reports**: DSM-5 aligned risk assessments with explanations
@@ -159,6 +160,27 @@ big-mood-detector/
 | `train` | Fine-tune personalized model | `train --user-id patient_123 --data features.csv` |
 | `serve` | Start API server | `serve --port 8000 --reload` |
 | `watch` | Monitor directory for new files | `watch data/health_auto_export/` |
+
+### Date Range Filtering (New in v0.2.1)
+
+For large XML files (500MB+), you can now filter data by date to reduce processing time:
+
+```bash
+# Process only the last 90 days
+python src/big_mood_detector/main.py process export.xml --days-back 90
+
+# Process a specific date range
+python src/big_mood_detector/main.py process export.xml --date-range 2024-01-01:2024-03-31
+
+# Same options work for predict command
+python src/big_mood_detector/main.py predict export.xml --days-back 30 --report
+```
+
+This is especially useful for:
+- Large Apple Health exports (years of data)
+- Quick analysis of recent periods
+- Memory-constrained environments
+- Faster iteration during development
 
 ## 🔬 Research Foundation
 

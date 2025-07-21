@@ -39,7 +39,11 @@ class TestTimescaleConcurrency:
             session.execute = Mock(return_value=None)
 
             # Mock query for baseline retrieval
-            session.query = Mock()
+            mock_query = Mock()
+            mock_first = Mock(return_value=None)  # No baseline found by default
+            mock_filter = Mock(return_value=Mock(order_by=Mock(return_value=Mock(first=mock_first))))
+            mock_query.return_value = Mock(filter=mock_filter)
+            session.query = mock_query
 
             return session
 

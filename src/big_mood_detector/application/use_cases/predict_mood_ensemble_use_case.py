@@ -224,10 +224,10 @@ class EnsembleOrchestrator:
         # Build PAT sequence
         if prediction_date:
             # Convert numpy datetime64 to date
-            from datetime import datetime
+            from datetime import UTC, datetime
 
-            date_obj = datetime.utcfromtimestamp(
-                prediction_date.astype("datetime64[s]").astype(int)
+            date_obj = datetime.fromtimestamp(
+                prediction_date.astype("datetime64[s]").astype(int), UTC
             ).date()
             sequence = self.pat_builder.build_sequence(
                 activity_records, end_date=date_obj

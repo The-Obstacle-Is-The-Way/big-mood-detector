@@ -169,7 +169,7 @@ class MoodPredictionPipeline:
             # Initialize XGBoost predictor for ensemble
             self.xgboost_predictor = XGBoostMoodPredictor()
             model_dir = self.config.model_dir or Path(
-                "model_weights/xgboost/pretrained"
+                "model_weights/xgboost/converted"
             )
             if self.xgboost_predictor.load_models(model_dir):
                 logger.info("XGBoost models loaded for ensemble")

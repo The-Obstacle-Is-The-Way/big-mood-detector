@@ -8,7 +8,7 @@ exclude = ["reference_repos"]
 
 [project]
 name = "big-mood-detector"
-version = "0.1.0"
+version = "0.2.1"
 description = "Clinical-grade bipolar mood detection backend using Apple HealthKit data"
 authors = [{name = "The-Obstacle-Is-The-Way", email = "The-Obstacle-Is-The-Way@users.noreply.github.com"}]
 license = {text = "Apache-2.0"}

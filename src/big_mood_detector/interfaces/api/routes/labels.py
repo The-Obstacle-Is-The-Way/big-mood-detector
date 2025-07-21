@@ -305,8 +305,11 @@ async def delete_episode(episode_id: int, response: Response) -> None:
         # Remove episode (1-indexed)
         labeler.episodes.pop(episode_id - 1)
 
-        # Save updated labeler
-        repository.save_labeler(labeler)
+        # Save updated labeler - use clear_and_save to ensure deletion works
+        if hasattr(repository, 'clear_and_save_labeler'):
+            repository.clear_and_save_labeler(labeler)
+        else:
+            repository.save_labeler(labeler)
 
         # Return 204 No Content
 
