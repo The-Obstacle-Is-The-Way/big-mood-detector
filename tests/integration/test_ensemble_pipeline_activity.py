@@ -6,7 +6,6 @@ and that predictions are consistent whether called via API or directly.
 """
 
 from datetime import date, datetime, timedelta
-from pathlib import Path
 
 import numpy as np
 import pytest
@@ -252,7 +251,7 @@ class TestEnsemblePipelineActivityFlow:
         # Create a mock feature input that includes activity
         # Use the seoul_features which has the actual values
         features_list = feature_set.seoul_features.to_xgboost_features()
-        
+
         # The API expects a dictionary with features
         response = client.post(
             "/api/v1/predictions/predict",
@@ -271,7 +270,7 @@ class TestEnsemblePipelineActivityFlow:
             # Results should be somewhat close (dummy models may vary)
             api_depression = api_result["predictions"].get("depression_risk", 0.5)
             direct_depression = direct_result.ensemble_prediction.depression_risk
-            
+
             # With dummy models, just check they're in valid range
             assert 0 <= api_depression <= 1
             assert 0 <= direct_depression <= 1
@@ -281,7 +280,7 @@ class TestEnsemblePipelineActivityFlow:
     ):
         """Test that including activity data improves prediction confidence."""
         extractor = ClinicalFeatureExtractor()
-        
+
         # Use a date that has data
         test_date = date.today() - timedelta(days=1)
 
@@ -332,7 +331,7 @@ class TestEnsemblePipelineActivityFlow:
         # With dummy models, predictions might be the same, so just verify structure
         assert result_no_activity.ensemble_prediction is not None
         assert result_with_activity.ensemble_prediction is not None
-        
+
         # At least verify both predictions were made successfully
         assert 0 <= result_no_activity.ensemble_prediction.depression_risk <= 1
         assert 0 <= result_with_activity.ensemble_prediction.depression_risk <= 1
