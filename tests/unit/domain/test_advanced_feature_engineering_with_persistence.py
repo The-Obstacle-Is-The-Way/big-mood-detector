@@ -9,6 +9,18 @@ from unittest.mock import Mock
 
 import pytest
 
+from big_mood_detector.domain.repositories.baseline_repository_interface import (
+    BaselineRepositoryInterface,
+    UserBaseline,
+)
+from big_mood_detector.domain.services.activity_aggregator import DailyActivitySummary
+from big_mood_detector.domain.services.advanced_feature_engineering import (
+    AdvancedFeatureEngineer,
+)
+from big_mood_detector.domain.services.heart_rate_aggregator import DailyHeartSummary
+from big_mood_detector.domain.services.sleep_aggregator import DailySleepSummary
+
+
 class TestAdvancedFeatureEngineeringWithPersistence:
     """Test baseline persistence integration with feature extraction."""
 
@@ -95,9 +107,6 @@ class TestAdvancedFeatureEngineeringWithPersistence:
         return sleep_data, activity_data, heart_data
 
     def test_baseline_persistence_on_feature_extraction(
-        from big_mood_detector.domain.repositories.baseline_repository_interface import UserBaseline
-        from big_mood_detector.domain.services.advanced_feature_engineering import AdvancedFeatureEngineer
-
         self, mock_baseline_repository, sample_data
     ):
         """Test that baselines are persisted when features are extracted."""
@@ -143,9 +152,6 @@ class TestAdvancedFeatureEngineeringWithPersistence:
         assert saved_baseline.data_points >= 1  # At least one data point
 
     def test_baseline_loading_for_zscore_calculation(
-        from big_mood_detector.domain.repositories.baseline_repository_interface import UserBaseline
-        from big_mood_detector.domain.services.advanced_feature_engineering import AdvancedFeatureEngineer
-
         self, mock_baseline_repository, sample_data
     ):
         """Test that existing baselines are loaded for Z-score calculation."""
@@ -191,8 +197,6 @@ class TestAdvancedFeatureEngineeringWithPersistence:
 
     def test_persist_baselines_method(self, mock_baseline_repository):
         """Test explicit persist_baselines method."""
-        from big_mood_detector.domain.services.advanced_feature_engineering import AdvancedFeatureEngineer
-
         # Set up mock to return None (no existing baseline)
         mock_baseline_repository.get_baseline.return_value = None
 

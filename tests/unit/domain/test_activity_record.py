@@ -8,13 +8,17 @@ from datetime import UTC, datetime, timedelta
 
 import pytest
 
+from big_mood_detector.domain.entities.activity_record import (
+    ActivityRecord,
+    ActivityType,
+)
+
+
 class TestActivityType:
     """Test suite for ActivityType enum."""
 
     def test_activity_type_from_healthkit_identifier(self):
         """Test conversion from HealthKit identifiers."""
-        from big_mood_detector.domain.entities.activity_record import ActivityType
-
         # ARRANGE & ACT & ASSERT
         assert (
             ActivityType.from_healthkit_identifier("HKQuantityTypeIdentifierStepCount")
@@ -29,21 +33,15 @@ class TestActivityType:
 
     def test_invalid_healthkit_identifier_raises_error(self):
         """Test that invalid identifiers raise ValueError."""
-        from big_mood_detector.domain.entities.activity_record import ActivityType
-
         with pytest.raises(ValueError, match="Unknown activity type"):
             ActivityType.from_healthkit_identifier("InvalidIdentifier")
+
 
 class TestActivityRecord:
     """Test suite for ActivityRecord entity."""
 
     def test_create_valid_activity_record(self):
         """Test creating a valid activity record."""
-        from big_mood_detector.domain.entities.activity_record import (
-            ActivityRecord,
-            ActivityType,
-        )
-
         # ARRANGE
         start = datetime(2024, 1, 1, 0, 0, tzinfo=UTC)
         end = datetime(2024, 1, 2, 0, 0, tzinfo=UTC)
@@ -68,11 +66,6 @@ class TestActivityRecord:
 
     def test_activity_record_is_immutable(self):
         """Test that activity record cannot be modified after creation."""
-        from big_mood_detector.domain.entities.activity_record import (
-            ActivityRecord,
-            ActivityType,
-        )
-
         # ARRANGE
         record = ActivityRecord(
             source_name="iPhone",
@@ -89,11 +82,6 @@ class TestActivityRecord:
 
     def test_invalid_date_range_raises_error(self):
         """Test that end date must be after or equal to start date."""
-        from big_mood_detector.domain.entities.activity_record import (
-            ActivityRecord,
-            ActivityType,
-        )
-
         # ARRANGE
         start = datetime(2024, 1, 2, tzinfo=UTC)
         end = datetime(2024, 1, 1, tzinfo=UTC)
@@ -111,11 +99,6 @@ class TestActivityRecord:
 
     def test_empty_source_name_raises_error(self):
         """Test that empty source name is not allowed."""
-        from big_mood_detector.domain.entities.activity_record import (
-            ActivityRecord,
-            ActivityType,
-        )
-
         # ACT & ASSERT
         with pytest.raises(ValueError, match="Source name is required"):
             ActivityRecord(
@@ -129,11 +112,6 @@ class TestActivityRecord:
 
     def test_negative_value_raises_error(self):
         """Test that negative activity values are not allowed."""
-        from big_mood_detector.domain.entities.activity_record import (
-            ActivityRecord,
-            ActivityType,
-        )
-
         # ACT & ASSERT
         with pytest.raises(ValueError, match="Activity value cannot be negative"):
             ActivityRecord(
@@ -147,11 +125,6 @@ class TestActivityRecord:
 
     def test_empty_unit_raises_error(self):
         """Test that empty unit is not allowed."""
-        from big_mood_detector.domain.entities.activity_record import (
-            ActivityRecord,
-            ActivityType,
-        )
-
         # ACT & ASSERT
         with pytest.raises(ValueError, match="Unit is required"):
             ActivityRecord(
@@ -165,11 +138,6 @@ class TestActivityRecord:
 
     def test_duration_hours_calculation(self):
         """Test duration calculation in hours."""
-        from big_mood_detector.domain.entities.activity_record import (
-            ActivityRecord,
-            ActivityType,
-        )
-
         # ARRANGE
         start = datetime(2024, 1, 1, 9, 0, tzinfo=UTC)
         end = datetime(2024, 1, 1, 17, 0, tzinfo=UTC)
@@ -187,11 +155,6 @@ class TestActivityRecord:
 
     def test_is_instantaneous_property(self):
         """Test detection of instantaneous measurements."""
-        from big_mood_detector.domain.entities.activity_record import (
-            ActivityRecord,
-            ActivityType,
-        )
-
         # ARRANGE
         same_time = datetime(2024, 1, 1, 12, 0, tzinfo=UTC)
         instant_record = ActivityRecord(
@@ -218,11 +181,6 @@ class TestActivityRecord:
 
     def test_intensity_per_hour_calculation(self):
         """Test intensity calculation for rate-based metrics."""
-        from big_mood_detector.domain.entities.activity_record import (
-            ActivityRecord,
-            ActivityType,
-        )
-
         # ARRANGE
         record = ActivityRecord(
             source_name="Apple Watch",
@@ -238,11 +196,6 @@ class TestActivityRecord:
 
     def test_is_high_activity_step_count(self):
         """Test high activity detection for step count."""
-        from big_mood_detector.domain.entities.activity_record import (
-            ActivityRecord,
-            ActivityType,
-        )
-
         # ARRANGE - High activity (>15000 steps/day rate)
         high_activity = ActivityRecord(
             source_name="Apple Watch",
@@ -268,11 +221,6 @@ class TestActivityRecord:
 
     def test_is_low_activity_step_count(self):
         """Test low activity detection for step count."""
-        from big_mood_detector.domain.entities.activity_record import (
-            ActivityRecord,
-            ActivityType,
-        )
-
         # ARRANGE - Low activity (<2000 steps/day rate)
         low_activity = ActivityRecord(
             source_name="Apple Watch",
@@ -288,11 +236,6 @@ class TestActivityRecord:
 
     def test_is_high_activity_energy(self):
         """Test high activity detection for energy burn."""
-        from big_mood_detector.domain.entities.activity_record import (
-            ActivityRecord,
-            ActivityType,
-        )
-
         # ARRANGE - High energy burn (>500 cal/day)
         high_energy = ActivityRecord(
             source_name="Apple Watch",
@@ -308,11 +251,6 @@ class TestActivityRecord:
 
     def test_can_aggregate_with_same_type(self):
         """Test aggregation compatibility check."""
-        from big_mood_detector.domain.entities.activity_record import (
-            ActivityRecord,
-            ActivityType,
-        )
-
         # ARRANGE
         record1 = ActivityRecord(
             source_name="Apple Watch",
@@ -337,11 +275,6 @@ class TestActivityRecord:
 
     def test_cannot_aggregate_different_types(self):
         """Test that different activity types cannot aggregate."""
-        from big_mood_detector.domain.entities.activity_record import (
-            ActivityRecord,
-            ActivityType,
-        )
-
         # ARRANGE
         steps = ActivityRecord(
             source_name="Apple Watch",
@@ -366,11 +299,6 @@ class TestActivityRecord:
 
     def test_cannot_aggregate_different_sources(self):
         """Test that different sources cannot aggregate."""
-        from big_mood_detector.domain.entities.activity_record import (
-            ActivityRecord,
-            ActivityType,
-        )
-
         # ARRANGE
         watch_record = ActivityRecord(
             source_name="Apple Watch",

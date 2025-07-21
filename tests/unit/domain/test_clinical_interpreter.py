@@ -9,6 +9,14 @@ from datetime import datetime, timedelta
 
 import pytest
 
+from big_mood_detector.domain.services.clinical_interpreter import (
+    ClinicalInterpretation,
+    ClinicalInterpreter,
+    EpisodeType,
+    RiskLevel,
+)
+
+
 class TestClinicalInterpreter:
     """Test clinical interpretation of mood predictions."""
 
@@ -19,11 +27,6 @@ class TestClinicalInterpreter:
 
     def test_depression_risk_stratification(self, interpreter):
         """Test depression risk level categorization based on PHQ scores."""
-        from big_mood_detector.domain.services.clinical_interpreter import (
-            EpisodeType,
-            RiskLevel,
-        )
-
         # Low risk
         result = interpreter.interpret_depression_score(
             phq_score=4,
@@ -70,11 +73,6 @@ class TestClinicalInterpreter:
 
     def test_mania_risk_stratification(self, interpreter):
         """Test mania/hypomania risk level categorization based on ASRM scores."""
-        from big_mood_detector.domain.services.clinical_interpreter import (
-            EpisodeType,
-            RiskLevel,
-        )
-
         # Low risk
         result = interpreter.interpret_mania_score(
             asrm_score=3,
@@ -115,8 +113,6 @@ class TestClinicalInterpreter:
 
     def test_mixed_features_detection(self, interpreter):
         """Test detection of mixed features based on DSM-5 criteria."""
-        from big_mood_detector.domain.services.clinical_interpreter import EpisodeType
-
         # Depression with mixed features
         result = interpreter.interpret_mixed_state(
             phq_score=15,
@@ -149,8 +145,6 @@ class TestClinicalInterpreter:
 
     def test_dsm5_duration_criteria(self, interpreter):
         """Test DSM-5 episode duration requirements."""
-        from big_mood_detector.domain.services.clinical_interpreter import EpisodeType
-
         # Too short for manic episode (< 7 days)
         result = interpreter.evaluate_episode_duration(
             episode_type=EpisodeType.MANIC,
@@ -251,11 +245,6 @@ class TestClinicalInterpreter:
 
     def test_treatment_recommendations(self, interpreter):
         """Test evidence-based treatment recommendations."""
-        from big_mood_detector.domain.services.clinical_interpreter import (
-            EpisodeType,
-            RiskLevel,
-        )
-
         # Acute mania recommendations
         recs = interpreter.get_treatment_recommendations(
             episode_type=EpisodeType.MANIC,
@@ -306,12 +295,6 @@ class TestClinicalInterpreter:
 
     def test_clinical_summary_generation(self, interpreter):
         """Test generation of clinical summaries."""
-        from big_mood_detector.domain.services.clinical_interpreter import (
-            ClinicalInterpretation,
-            EpisodeType,
-            RiskLevel,
-        )
-
         interpretation = ClinicalInterpretation(
             risk_level=RiskLevel.HIGH,
             episode_type=EpisodeType.DEPRESSIVE,
@@ -335,8 +318,6 @@ class TestClinicalInterpreter:
 
     def test_risk_trend_analysis(self, interpreter):
         """Test analysis of risk trends over time."""
-        from big_mood_detector.domain.services.clinical_interpreter import EpisodeType
-
         # Worsening trend
         trend = interpreter.analyze_risk_trend(
             risk_scores=[0.3, 0.4, 0.5, 0.65, 0.75],

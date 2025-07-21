@@ -9,6 +9,26 @@ from pathlib import Path
 
 import pytest
 
+from big_mood_detector.domain.services.feature_extraction_service import (
+    FeatureExtractionService,
+)
+from big_mood_detector.infrastructure.parsers.json import (
+    ActivityJSONParser,
+    HeartRateJSONParser,
+    SleepJSONParser,
+)
+from big_mood_detector.infrastructure.parsers.parser_factory import (
+    ParserFactory,
+    UnifiedHealthDataParser,
+)
+from big_mood_detector.infrastructure.parsers.xml import (
+    ActivityParser,
+    HeartRateParser,
+    SleepParser,
+    StreamingXMLParser,
+)
+
+
 class TestDualPipelineValidation:
     """Validate both JSON and XML pipelines with real data."""
 
@@ -29,8 +49,6 @@ class TestDualPipelineValidation:
 
     def test_xml_pipeline_smoke_test(self, xml_data_path):
         """Basic test that XML parsing works with real export.xml."""
-        from big_mood_detector.infrastructure.parsers.xml import StreamingXMLParser
-
         export_file = xml_data_path / "export.xml"
 
         if not export_file.exists():
@@ -76,17 +94,6 @@ class TestDualPipelineValidation:
 
     def test_compare_data_coverage(self, json_data_path, xml_data_path):
         """Compare data coverage between JSON and XML formats."""
-        from big_mood_detector.infrastructure.parsers.xml import (
-            ActivityParser,
-            HeartRateParser,
-            SleepParser,
-        )
-        from big_mood_detector.infrastructure.parsers.json import (
-            ActivityJSONParser,
-            HeartRateJSONParser,
-            SleepJSONParser,
-        )
-
         results = {
             "json": {"sleep": 0, "activity": 0, "heart_rate": 0, "dates": set()},
             "xml": {"sleep": 0, "activity": 0, "heart_rate": 0, "dates": set()},
@@ -168,9 +175,6 @@ class TestDualPipelineValidation:
 
     def test_unified_parser(self, json_data_path, xml_data_path):
         """Test the unified parser with both data sources."""
-        from big_mood_detector.domain.services.feature_extraction_service import FeatureExtractionService
-        from big_mood_detector.infrastructure.parsers.parser_factory import UnifiedHealthDataParser
-
         parser = UnifiedHealthDataParser()
 
         # Add JSON sources
@@ -224,8 +228,6 @@ class TestDualPipelineValidation:
 
     def test_parser_factory_format_detection(self, json_data_path, xml_data_path):
         """Test automatic format detection."""
-        from big_mood_detector.infrastructure.parsers.parser_factory import ParserFactory
-
         # Test JSON detection
         json_file = json_data_path / "Sleep Analysis.json"
         if json_file.exists():
@@ -242,9 +244,6 @@ class TestDualPipelineValidation:
 
     def test_clinical_insights_comparison(self, json_data_path, xml_data_path):
         """Compare clinical insights from both data sources."""
-        from big_mood_detector.domain.services.feature_extraction_service import FeatureExtractionService
-        from big_mood_detector.infrastructure.parsers.parser_factory import UnifiedHealthDataParser
-
         feature_service = FeatureExtractionService()
 
         # Get features from JSON only
@@ -324,8 +323,6 @@ class TestDualPipelineValidation:
     @pytest.mark.slow
     def test_performance_comparison(self, json_data_path, xml_data_path):
         """Compare parsing performance between formats."""
-        from big_mood_detector.infrastructure.parsers.parser_factory import UnifiedHealthDataParser
-
         import time
 
         # Time JSON parsing

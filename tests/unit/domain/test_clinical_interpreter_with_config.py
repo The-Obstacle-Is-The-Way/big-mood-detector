@@ -9,6 +9,16 @@ from pathlib import Path
 
 import pytest
 
+from big_mood_detector.domain.services.clinical_interpreter import (
+    ClinicalInterpreter,
+    EpisodeType,
+    RiskLevel,
+)
+from big_mood_detector.domain.services.clinical_thresholds import (
+    load_clinical_thresholds,
+)
+
+
 class TestClinicalInterpreterWithConfig:
     """Test clinical interpreter using configuration file."""
 
@@ -25,11 +35,6 @@ class TestClinicalInterpreterWithConfig:
 
     def test_interpreter_uses_config_for_depression(self, interpreter, config):
         """Test that interpreter uses configuration values for depression."""
-        from big_mood_detector.domain.services.clinical_interpreter import (
-            EpisodeType,
-            RiskLevel,
-        )
-
         # Test at the configured moderate threshold (PHQ=10)
         result = interpreter.interpret_depression_score(
             phq_score=config.depression.phq_cutoffs.moderate.min,
@@ -49,11 +54,6 @@ class TestClinicalInterpreterWithConfig:
 
     def test_interpreter_uses_config_for_mania(self, interpreter, config):
         """Test that interpreter uses configuration values for mania."""
-        from big_mood_detector.domain.services.clinical_interpreter import (
-            EpisodeType,
-            RiskLevel,
-        )
-
         # Test at the configured hypomanic threshold (ASRM=6)
         result = interpreter.interpret_mania_score(
             asrm_score=config.mania.asrm_cutoffs.hypomanic.min,
@@ -95,8 +95,6 @@ class TestClinicalInterpreterWithConfig:
 
     def test_interpreter_uses_dsm5_duration_config(self, interpreter, config):
         """Test that interpreter uses DSM-5 duration configuration."""
-        from big_mood_detector.domain.services.clinical_interpreter import EpisodeType
-
         # Test manic episode duration
         result = interpreter.evaluate_episode_duration(
             episode_type=EpisodeType.MANIC,
@@ -115,8 +113,6 @@ class TestClinicalInterpreterWithConfig:
 
     def test_interpreter_uses_mixed_features_config(self, interpreter, config):
         """Test that interpreter uses mixed features configuration."""
-        from big_mood_detector.domain.services.clinical_interpreter import EpisodeType
-
         # Count required symptoms from config
         # manic_symptoms = len(config.mixed_features.depression_with_mixed.required_manic_symptoms)
 
@@ -135,8 +131,6 @@ class TestClinicalInterpreterWithConfig:
 
     def test_configuration_validation(self):
         """Test that configuration is valid and complete."""
-        from big_mood_detector.domain.services.clinical_thresholds import load_clinical_thresholds
-
         config = load_clinical_thresholds(Path("config/clinical_thresholds.yaml"))
 
         # Verify threshold ordering

@@ -10,13 +10,14 @@ from unittest.mock import Mock, patch
 
 from click.testing import CliRunner
 
+from big_mood_detector.interfaces.cli.commands import process_command
+
+
 class TestDateRangeFiltering:
     """Test date range filtering functionality."""
 
     def test_days_back_parameter_added_to_cli(self):
         """Test that --days-back parameter is available."""
-        from big_mood_detector.interfaces.cli.commands import process_command
-
         runner = CliRunner()
         result = runner.invoke(process_command, ["--help"])
         assert result.exit_code == 0
@@ -25,8 +26,6 @@ class TestDateRangeFiltering:
 
     def test_date_range_parameter_added_to_cli(self):
         """Test that --date-range parameter is available."""
-        from big_mood_detector.interfaces.cli.commands import process_command
-
         runner = CliRunner()
         result = runner.invoke(process_command, ["--help"])
         assert result.exit_code == 0
@@ -36,8 +35,6 @@ class TestDateRangeFiltering:
     @patch("big_mood_detector.interfaces.cli.commands.MoodPredictionPipeline")
     def test_days_back_filters_data(self, mock_pipeline_class):
         """Test that --days-back correctly calculates date range."""
-        from big_mood_detector.interfaces.cli.commands import process_command
-
         import pandas as pd
 
         runner = CliRunner()
@@ -78,8 +75,6 @@ class TestDateRangeFiltering:
     @patch("big_mood_detector.interfaces.cli.commands.MoodPredictionPipeline")
     def test_date_range_parsing(self, mock_pipeline_class):
         """Test that --date-range correctly parses dates."""
-        from big_mood_detector.interfaces.cli.commands import process_command
-
         import pandas as pd
 
         runner = CliRunner()
@@ -112,8 +107,6 @@ class TestDateRangeFiltering:
 
     def test_invalid_date_range_format(self):
         """Test that invalid date range format shows error."""
-        from big_mood_detector.interfaces.cli.commands import process_command
-
         runner = CliRunner()
 
         with runner.isolated_filesystem():
@@ -132,8 +125,6 @@ class TestDateRangeFiltering:
 
     def test_days_back_and_date_range_conflict(self):
         """Test that using both --days-back and --date-range shows error."""
-        from big_mood_detector.interfaces.cli.commands import process_command
-
         runner = CliRunner()
 
         with runner.isolated_filesystem():
@@ -153,8 +144,6 @@ class TestDateRangeFiltering:
     @patch("big_mood_detector.interfaces.cli.commands.MoodPredictionPipeline")
     def test_no_date_filtering_by_default(self, mock_pipeline_class):
         """Test that no date filtering is applied by default."""
-        from big_mood_detector.interfaces.cli.commands import process_command
-
         import pandas as pd
 
         runner = CliRunner()
@@ -181,8 +170,6 @@ class TestDateRangeFiltering:
 
     def test_date_range_validation_start_after_end(self):
         """Test that start date after end date shows error."""
-        from big_mood_detector.interfaces.cli.commands import process_command
-
         runner = CliRunner()
 
         with runner.isolated_filesystem():
@@ -202,8 +189,6 @@ class TestDateRangeFiltering:
     @patch("big_mood_detector.interfaces.cli.commands.MoodPredictionPipeline")
     def test_large_file_warning_with_suggestion(self, mock_pipeline_class):
         """Test that large files show warning suggesting date filtering."""
-        from big_mood_detector.interfaces.cli.commands import process_command
-
         import pandas as pd
 
         runner = CliRunner()

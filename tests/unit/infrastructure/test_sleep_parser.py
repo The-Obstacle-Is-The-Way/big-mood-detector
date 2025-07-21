@@ -7,13 +7,14 @@ Following Clean Architecture principles.
 
 import pytest
 
+from big_mood_detector.infrastructure.parsers.xml import SleepParser
+
+
 class TestSleepParser:
     """Test suite for SleepParser - Apple HealthKit sleep data extraction."""
 
     def test_sleep_parser_exists(self):
         """Test that SleepParser class can be instantiated."""
-        from big_mood_detector.infrastructure.parsers.xml import SleepParser
-
         # ARRANGE & ACT
         parser = SleepParser()
 
@@ -23,8 +24,6 @@ class TestSleepParser:
 
     def test_parse_accepts_xml_string(self):
         """Test that parse method accepts XML string input."""
-        from big_mood_detector.infrastructure.parsers.xml import SleepParser
-
         # ARRANGE
         parser = SleepParser()
         xml_data = "<HealthData></HealthData>"
@@ -38,8 +37,6 @@ class TestSleepParser:
 
     def test_parse_empty_xml_returns_empty_list(self):
         """Test parsing empty HealthData returns empty list."""
-        from big_mood_detector.infrastructure.parsers.xml import SleepParser
-
         # ARRANGE
         parser = SleepParser()
         xml_data = """<?xml version="1.0" encoding="UTF-8"?>
@@ -53,8 +50,6 @@ class TestSleepParser:
 
     def test_extract_single_sleep_record(self, sample_sleep_xml):
         """Test extraction of sleep records from real XML structure."""
-        from big_mood_detector.infrastructure.parsers.xml import SleepParser
-
         # ARRANGE
         parser = SleepParser()
         single_record_xml = """<?xml version="1.0" encoding="UTF-8"?>
@@ -78,8 +73,6 @@ class TestSleepParser:
 
     def test_handles_inbed_vs_asleep_states(self):
         """Test distinction between InBed and Asleep states."""
-        from big_mood_detector.infrastructure.parsers.xml import SleepParser
-
         # ARRANGE
         parser = SleepParser()
         xml_data = """<?xml version="1.0" encoding="UTF-8"?>
@@ -106,8 +99,6 @@ class TestSleepParser:
 
     def test_parse_invalid_xml_raises_exception(self):
         """Test that invalid XML raises appropriate exception."""
-        from big_mood_detector.infrastructure.parsers.xml import SleepParser
-
         # ARRANGE
         parser = SleepParser()
         invalid_xml = "This is not valid XML"
@@ -118,8 +109,6 @@ class TestSleepParser:
 
     def test_parse_non_sleep_records_are_filtered(self):
         """Test that non-sleep records are filtered out."""
-        from big_mood_detector.infrastructure.parsers.xml import SleepParser
-
         # ARRANGE
         parser = SleepParser()
         xml_data = """<?xml version="1.0" encoding="UTF-8"?>

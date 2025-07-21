@@ -9,6 +9,12 @@ from pathlib import Path
 
 import pytest
 
+from big_mood_detector.domain.services.feature_extraction_service import (
+    FeatureExtractionService,
+)
+from big_mood_detector.infrastructure.parsers.xml import StreamingXMLParser
+
+
 @pytest.mark.large
 class TestStreamingLargeFiles:
     """Test streaming parser with large real-world files."""
@@ -26,8 +32,6 @@ class TestStreamingLargeFiles:
 
     def test_stream_large_export_xml(self, xml_data_path):
         """Test streaming through large export.xml file."""
-        from big_mood_detector.infrastructure.parsers.xml import StreamingXMLParser
-
         export_file = xml_data_path / "export.xml"
 
         if not export_file.exists():
@@ -79,12 +83,6 @@ class TestStreamingLargeFiles:
 
     def test_extract_features_from_large_file(self, xml_data_path):
         """Test feature extraction using streaming for large files."""
-        from big_mood_detector.infrastructure.parsers.xml import StreamingXMLParser
-        from big_mood_detector.domain.entities.activity_record import ActivityRecord
-        from big_mood_detector.domain.entities.heart_rate_record import HeartRateRecord
-        from big_mood_detector.domain.services.feature_extraction_service import FeatureExtractionService
-        from big_mood_detector.domain.entities.sleep_record import SleepRecord
-
         export_file = xml_data_path / "export.xml"
 
         if not export_file.exists():
@@ -107,6 +105,11 @@ class TestStreamingLargeFiles:
         # Stream and collect records
         for entity in streaming_parser.parse_file(export_file):
             # Check actual entity type
+            from big_mood_detector.domain.entities.activity_record import ActivityRecord
+            from big_mood_detector.domain.entities.heart_rate_record import (
+                HeartRateRecord,
+            )
+            from big_mood_detector.domain.entities.sleep_record import SleepRecord
 
             if isinstance(entity, SleepRecord):
                 sleep_records.append(entity)
@@ -158,8 +161,6 @@ class TestStreamingLargeFiles:
 
     def test_memory_efficiency(self, xml_data_path):
         """Test that streaming parser maintains low memory usage."""
-        from big_mood_detector.infrastructure.parsers.xml import StreamingXMLParser
-
         export_file = xml_data_path / "export.xml"
 
         if not export_file.exists():

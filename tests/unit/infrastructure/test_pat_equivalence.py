@@ -11,6 +11,8 @@ from pathlib import Path
 import numpy as np
 import pytest
 
+from big_mood_detector.domain.services.pat_sequence_builder import PATSequence
+
 # Check if TensorFlow is available
 try:
     import tensorflow as tf
@@ -26,22 +28,24 @@ pytestmark = pytest.mark.skipif(
 
 # Import PAT model after checking availability
 if HAS_TENSORFLOW:
-
+    from big_mood_detector.infrastructure.ml_models.pat_model import PATModel
 else:
     PATModel = None  # type: ignore
+
 
 class TestPATEquivalence:
     """Test suite for PAT model equivalence."""
 
     def test_sinusoidal_embeddings_match_original(self):
         """Test that our sinusoidal embeddings match the original implementation."""
-        from big_mood_detector.infrastructure.ml_models.pat_loader_direct import DirectPATModel
-
         # Test parameters from the paper
         num_patches = 560  # For medium model
         embed_dim = 96
 
         # Our implementation
+        from big_mood_detector.infrastructure.ml_models.pat_loader_direct import (
+            DirectPATModel,
+        )
 
         model = DirectPATModel("medium")
         our_embeddings = model._get_sinusoidal_embeddings(num_patches, embed_dim)
@@ -90,9 +94,6 @@ class TestPATEquivalence:
     )
     def test_model_output_shape(self):
         """Test that model outputs have correct shape."""
-        from big_mood_detector.domain.services.pat_sequence_builder import PATSequence
-        from big_mood_detector.infrastructure.ml_models.pat_model import PATModel
-
         # Load model
         pat = PATModel(model_size="medium")
         weights_path = Path("model_weights/pat/pretrained/PAT-M_29k_weights.h5")
@@ -118,9 +119,6 @@ class TestPATEquivalence:
 
     def test_model_deterministic(self):
         """Test that model produces deterministic outputs."""
-        from big_mood_detector.domain.services.pat_sequence_builder import PATSequence
-        from big_mood_detector.infrastructure.ml_models.pat_model import PATModel
-
         weights_path = Path("model_weights/pat/pretrained/PAT-M_29k_weights.h5")
         if not weights_path.exists():
             pytest.skip("PAT weights not downloaded")
@@ -151,9 +149,6 @@ class TestPATEquivalence:
 
     def test_batch_consistency(self):
         """Test that batch processing matches single processing."""
-        from big_mood_detector.domain.services.pat_sequence_builder import PATSequence
-        from big_mood_detector.infrastructure.ml_models.pat_model import PATModel
-
         weights_path = Path("model_weights/pat/pretrained/PAT-M_29k_weights.h5")
         if not weights_path.exists():
             pytest.skip("PAT weights not downloaded")

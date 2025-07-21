@@ -9,12 +9,20 @@ from datetime import date, datetime, time, timedelta
 
 import pytest
 
+from big_mood_detector.domain.services.activity_aggregator import DailyActivitySummary
+from big_mood_detector.domain.services.heart_rate_aggregator import DailyHeartSummary
+from big_mood_detector.domain.services.sleep_aggregator import DailySleepSummary
+
+
 class TestFeatureEngineeringOrchestrator:
     """Test the feature engineering orchestration service."""
 
     @pytest.fixture
     def orchestrator(self):
         """Create FeatureEngineeringOrchestrator instance."""
+        from big_mood_detector.domain.services.feature_engineering_orchestrator import (
+            FeatureEngineeringOrchestrator,
+        )
 
         return FeatureEngineeringOrchestrator()
 
@@ -222,7 +230,9 @@ class TestFeatureEngineeringOrchestrator:
 
     def test_configuration_injection(self):
         """Test configuration injection for all calculators."""
-        from big_mood_detector.domain.services.feature_engineering_orchestrator import FeatureEngineeringOrchestrator
+        from big_mood_detector.domain.services.feature_engineering_orchestrator import (
+            FeatureEngineeringOrchestrator,
+        )
 
         config = {
             "sleep_windows": {"short_sleep_threshold": 5.0},
@@ -306,8 +316,6 @@ class TestFeatureEngineeringOrchestrator:
             assert 0 <= value <= 1
 
     def test_anomaly_detection_integration(
-        from big_mood_detector.domain.services.sleep_aggregator import DailySleepSummary
-
         self, orchestrator, sample_sleep_data, sample_activity_data, sample_heart_data
     ):
         """Test integration with anomaly detection."""

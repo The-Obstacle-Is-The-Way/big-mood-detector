@@ -9,6 +9,10 @@ import numpy as np
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
+from big_mood_detector.domain.services.advanced_feature_engineering import (
+    AdvancedFeatureEngineer,
+)
+
 
 class TestIncrementalStatsProperty:
     """Property-based tests for incremental statistics using hypothesis."""
@@ -24,10 +28,6 @@ class TestIncrementalStatsProperty:
 
         Property: For any list of values, incremental mean == numpy mean
         """
-        from big_mood_detector.domain.services.advanced_feature_engineering import (
-            AdvancedFeatureEngineer,
-        )
-        
         engineer = AdvancedFeatureEngineer(user_id="test_user")
 
         for value in values:
@@ -52,10 +52,6 @@ class TestIncrementalStatsProperty:
 
         Property: For any list of values with n>=2, incremental std == numpy std
         """
-        from big_mood_detector.domain.services.advanced_feature_engineering import (
-            AdvancedFeatureEngineer,
-        )
-        
         engineer = AdvancedFeatureEngineer(user_id="test_user")
 
         for value in values:
@@ -91,10 +87,6 @@ class TestIncrementalStatsProperty:
 
         Property: count == len(values)
         """
-        from big_mood_detector.domain.services.advanced_feature_engineering import (
-            AdvancedFeatureEngineer,
-        )
-        
         engineer = AdvancedFeatureEngineer(user_id="test_user")
 
         for value in values:
@@ -113,10 +105,6 @@ class TestIncrementalStatsProperty:
         - std == 0
         - count == 1
         """
-        from big_mood_detector.domain.services.advanced_feature_engineering import (
-            AdvancedFeatureEngineer,
-        )
-        
         engineer = AdvancedFeatureEngineer(user_id="test_user")
 
         engineer._update_individual_baseline("single", value)
@@ -136,10 +124,6 @@ class TestIncrementalStatsProperty:
 
         Property: stats(values1 + values2) == stats(values2 + values1)
         """
-        from big_mood_detector.domain.services.advanced_feature_engineering import (
-            AdvancedFeatureEngineer,
-        )
-        
         # Forward order
         engineer1 = AdvancedFeatureEngineer(user_id="test_user")
 
@@ -173,10 +157,6 @@ class TestIncrementalStatsProperty:
 
         Property: Processing values one-by-one == processing all at once
         """
-        from big_mood_detector.domain.services.advanced_feature_engineering import (
-            AdvancedFeatureEngineer,
-        )
-        
         engineer = AdvancedFeatureEngineer(user_id="test_user")
 
         # Incremental
@@ -201,10 +181,6 @@ class TestIncrementalStatsProperty:
         - mean == constant
         - std == 0
         """
-        from big_mood_detector.domain.services.advanced_feature_engineering import (
-            AdvancedFeatureEngineer,
-        )
-        
         engineer = AdvancedFeatureEngineer(user_id="test_user")
 
         # Add same value 10 times
@@ -231,10 +207,6 @@ class TestIncrementalStatsProperty:
         if len(values) < 2:
             return  # Need at least 2 values for std
 
-        from big_mood_detector.domain.services.advanced_feature_engineering import (
-            AdvancedFeatureEngineer,
-        )
-        
         engineer = AdvancedFeatureEngineer(user_id="test_user")
 
         # Add all but last value
@@ -262,10 +234,6 @@ class TestIncrementalStatsProperty:
 
         Property: Algorithm should handle large numbers without overflow
         """
-        from big_mood_detector.domain.services.advanced_feature_engineering import (
-            AdvancedFeatureEngineer,
-        )
-        
         engineer = AdvancedFeatureEngineer(user_id="test_user")
 
         for value in values:
@@ -288,10 +256,6 @@ class TestIncrementalStatsProperty:
         - sum == np.sum(values)
         - sum_sq == np.sum(values**2)
         """
-        from big_mood_detector.domain.services.advanced_feature_engineering import (
-            AdvancedFeatureEngineer,
-        )
-        
         engineer = AdvancedFeatureEngineer(user_id="test_user")
 
         for value in values:
@@ -307,10 +271,6 @@ class TestIncrementalStatsProperty:
 
     def test_empty_baseline_behavior(self):
         """Test behavior with no values added."""
-        from big_mood_detector.domain.services.advanced_feature_engineering import (
-            AdvancedFeatureEngineer,
-        )
-        
         engineer = AdvancedFeatureEngineer(user_id="test_user")
 
         # Calculate z-score without any baseline

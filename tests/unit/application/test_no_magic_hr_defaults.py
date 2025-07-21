@@ -11,13 +11,30 @@ from pathlib import Path
 
 import pytest
 
+from big_mood_detector.application.services.aggregation_pipeline import (
+    AggregationPipeline,
+)
+from big_mood_detector.domain.entities.activity_record import (
+    ActivityRecord,
+    ActivityType,
+)
+from big_mood_detector.domain.entities.sleep_record import SleepRecord, SleepState
+from big_mood_detector.domain.repositories.baseline_repository_interface import (
+    UserBaseline,
+)
+from big_mood_detector.domain.services.advanced_feature_engineering import (
+    AdvancedFeatureEngineer,
+)
+from big_mood_detector.infrastructure.repositories.file_baseline_repository import (
+    FileBaselineRepository,
+)
+
+
 class TestNoMagicHRDefaults:
     """Test that HR/HRV values are not defaulted to magic numbers."""
 
     def test_user_baseline_no_hr_defaults(self):
         """Test UserBaseline doesn't have magic HR/HRV defaults."""
-        from big_mood_detector.domain.repositories.baseline_repository_interface import UserBaseline
-
         baseline = UserBaseline(
             user_id="test",
             baseline_date=date.today(),
@@ -36,9 +53,6 @@ class TestNoMagicHRDefaults:
 
     def test_file_repository_preserves_none_values(self):
         """Test FileBaselineRepository doesn't add magic defaults when loading."""
-        from big_mood_detector.domain.repositories.baseline_repository_interface import UserBaseline
-        from big_mood_detector.infrastructure.repositories.file_baseline_repository import FileBaselineRepository
-
         with tempfile.TemporaryDirectory() as tmpdir:
             repo = FileBaselineRepository(Path(tmpdir))
 
@@ -66,8 +80,6 @@ class TestNoMagicHRDefaults:
 
     def test_feature_engineering_no_magic_defaults(self):
         """Test AdvancedFeatureEngineer doesn't use magic HR values."""
-        from big_mood_detector.domain.services.advanced_feature_engineering import AdvancedFeatureEngineer
-
         engineer = AdvancedFeatureEngineer(user_id="test_user")
 
         # Should not update baselines with magic values
@@ -80,16 +92,6 @@ class TestNoMagicHRDefaults:
 
     def test_aggregation_pipeline_no_hr_defaults(self):
         """Test aggregation pipeline doesn't insert magic HR values."""
-        from big_mood_detector.domain.entities.activity_record import (
-            ActivityRecord,
-            ActivityType,
-        )
-        from big_mood_detector.domain.entities.sleep_record import (
-            SleepRecord,
-            SleepState,
-        )
-        from big_mood_detector.application.services.aggregation_pipeline import AggregationPipeline
-
         pipeline = AggregationPipeline()
 
         # Create minimal test data WITHOUT heart rate records
@@ -137,9 +139,6 @@ class TestNoMagicHRDefaults:
 
     def test_baseline_persistence_without_hr_data(self):
         """Test baseline persistence when user has no HR data."""
-        from big_mood_detector.infrastructure.repositories.file_baseline_repository import FileBaselineRepository
-        from big_mood_detector.domain.services.advanced_feature_engineering import AdvancedFeatureEngineer
-
         with tempfile.TemporaryDirectory() as tmpdir:
             repo = FileBaselineRepository(Path(tmpdir))
             engineer = AdvancedFeatureEngineer(
@@ -178,8 +177,9 @@ class TestNoMagicHRDefaults:
     )
     def test_baseline_update_logic(self, hr_value, hrv_value, should_update):
         """Test that baseline updates only with valid data."""
-        from big_mood_detector.domain.services.heart_rate_aggregator import DailyHeartSummary
-        from big_mood_detector.domain.services.advanced_feature_engineering import AdvancedFeatureEngineer
+        from big_mood_detector.domain.services.heart_rate_aggregator import (
+            DailyHeartSummary,
+        )
 
         engineer = AdvancedFeatureEngineer(user_id="test_user")
 

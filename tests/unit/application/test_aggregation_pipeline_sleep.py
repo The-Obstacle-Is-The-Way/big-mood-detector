@@ -7,8 +7,18 @@ MISSION: Prove the bug exists, then fix it like a pro!
 import logging
 from datetime import date, datetime
 
+from big_mood_detector.application.services.aggregation_pipeline import (
+    AggregationPipeline,
+)
+from big_mood_detector.domain.entities.activity_record import (
+    ActivityRecord,
+    ActivityType,
+)
+from big_mood_detector.domain.entities.sleep_record import SleepRecord, SleepState
+
 # Enable debug logging to see sleep assignment
 logging.basicConfig(level=logging.DEBUG)
+
 
 class TestAggregationPipelineSleep:
     """Test that the pipeline calculates sleep duration correctly."""
@@ -20,16 +30,6 @@ class TestAggregationPipelineSleep:
         NOTE: Apple Health assigns sleep to the date the user wakes up,
         unless they wake up after 3 PM (then it's assigned to next day).
         """
-        from big_mood_detector.domain.entities.activity_record import (
-            ActivityRecord,
-            ActivityType,
-        )
-        from big_mood_detector.domain.entities.sleep_record import (
-            SleepRecord,
-            SleepState,
-        )
-        from big_mood_detector.application.services.aggregation_pipeline import AggregationPipeline
-
         # Create 3 days of data so the pipeline has enough window data
         sleep_records = []
         activity_records = []
@@ -119,16 +119,6 @@ class TestAggregationPipelineSleep:
 
     def test_multiple_sleep_fragments(self):
         """Test that fragmented sleep is summed correctly."""
-        from big_mood_detector.domain.entities.activity_record import (
-            ActivityRecord,
-            ActivityType,
-        )
-        from big_mood_detector.domain.entities.sleep_record import (
-            SleepRecord,
-            SleepState,
-        )
-        from big_mood_detector.application.services.aggregation_pipeline import AggregationPipeline
-
         # Create multiple days of data for proper windowing
         sleep_records = []
         activity_records = []

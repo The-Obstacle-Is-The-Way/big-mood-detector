@@ -8,6 +8,13 @@ from datetime import date, datetime, timedelta
 
 import pytest
 
+from big_mood_detector.domain.entities.sleep_record import SleepRecord, SleepState
+from big_mood_detector.domain.services.dlmo_calculator import (
+    CircadianPhaseResult,
+    DLMOCalculator,
+)
+
+
 class TestDLMOCalculator:
     """Test DLMO calculation from sleep/wake patterns."""
 
@@ -92,8 +99,6 @@ class TestDLMOCalculator:
 
     def test_circadian_model_convergence(self, calculator):
         """Test that circadian model reaches stable state."""
-        from big_mood_detector.domain.services.dlmo_calculator import CircadianPhaseResult
-
         # Arrange - consistent sleep schedule
         base_date = date(2024, 1, 1)
         sleep_records = []
@@ -399,8 +404,6 @@ class TestDLMOCalculator:
 
     def test_offset_configuration_warning(self):
         """Test that non-standard offset triggers warning."""
-        from big_mood_detector.domain.services.dlmo_calculator import DLMOCalculator
-
         import os
         import warnings
 

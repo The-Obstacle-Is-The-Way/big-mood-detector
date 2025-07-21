@@ -6,17 +6,24 @@ Let's trace every single number through the system.
 
 from datetime import date, datetime, timedelta
 
+from big_mood_detector.domain.entities.sleep_record import SleepRecord, SleepState
+from big_mood_detector.domain.repositories.baseline_repository_interface import (
+    UserBaseline,
+)
+from big_mood_detector.domain.services.advanced_feature_engineering import (
+    AdvancedFeatureEngineer,
+)
+from big_mood_detector.domain.services.sleep_aggregator import SleepAggregator
+from big_mood_detector.infrastructure.repositories.file_baseline_repository import (
+    FileBaselineRepository,
+)
+
+
 class TestSleepMathDebug:
     """TRACE THE MATH BRO! Every number matters!"""
 
     def test_simple_7_5_hour_sleep(self):
         """Test case: Jane sleeps 22:00 → 05:30 = 7.5 hours EXACTLY"""
-        from big_mood_detector.domain.entities.sleep_record import (
-            SleepRecord,
-            SleepState,
-        )
-        from big_mood_detector.domain.services.sleep_aggregator import SleepAggregator
-
         print("\n🧮 MATH OLYMPIAD: Testing 7.5 hour sleep")
 
         # Create ONE sleep record: 22:00 → 05:30
@@ -55,12 +62,6 @@ class TestSleepMathDebug:
 
     def test_midnight_cross_assignment(self):
         """Test which day gets the sleep when crossing midnight"""
-        from big_mood_detector.domain.entities.sleep_record import (
-            SleepRecord,
-            SleepState,
-        )
-        from big_mood_detector.domain.services.sleep_aggregator import SleepAggregator
-
         print("\n🧮 MATH OLYMPIAD: Testing midnight cross date assignment")
 
         # Case 1: Sleep 22:00 → 05:30 (should be assigned to Jan 1)
@@ -90,12 +91,6 @@ class TestSleepMathDebug:
 
     def test_multiple_days_aggregation(self):
         """Test 3 days of 7.5 hour sleep each"""
-        from big_mood_detector.domain.entities.sleep_record import (
-            SleepRecord,
-            SleepState,
-        )
-        from big_mood_detector.domain.services.sleep_aggregator import SleepAggregator
-
         print("\n🧮 MATH OLYMPIAD: Testing 3 days aggregation")
 
         records = []
@@ -126,9 +121,6 @@ class TestSleepMathDebug:
 
     def test_baseline_calculation_simple(self, tmp_path):
         """Test baseline calculation with known values"""
-        from big_mood_detector.infrastructure.repositories.file_baseline_repository import FileBaselineRepository
-        from big_mood_detector.domain.services.advanced_feature_engineering import AdvancedFeatureEngineer
-
         print("\n🧮 MATH OLYMPIAD: Testing baseline calculation")
 
         # Create a baseline repository
@@ -163,9 +155,6 @@ class TestSleepMathDebug:
 
     def test_persist_and_reload_baseline(self, tmp_path):
         """Test that baselines persist correctly"""
-        from big_mood_detector.domain.repositories.baseline_repository_interface import UserBaseline
-        from big_mood_detector.infrastructure.repositories.file_baseline_repository import FileBaselineRepository
-
         print("\n🧮 MATH OLYMPIAD: Testing baseline persistence")
 
         repo = FileBaselineRepository(tmp_path / "baselines")

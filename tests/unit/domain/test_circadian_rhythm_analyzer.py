@@ -10,6 +10,15 @@ from datetime import date, timedelta
 import numpy as np
 import pytest
 
+from big_mood_detector.domain.services.activity_sequence_extractor import (
+    MinuteLevelSequence,
+)
+from big_mood_detector.domain.services.circadian_rhythm_analyzer import (
+    CircadianMetrics,
+    CircadianRhythmAnalyzer,
+)
+
+
 class TestCircadianRhythmAnalyzer:
     """Test circadian rhythm metric calculations."""
 
@@ -120,8 +129,6 @@ class TestCircadianRhythmAnalyzer:
 
     def test_intradaily_variability_fragmented_pattern(self, analyzer):
         """IV should be high for fragmented activity."""
-        from big_mood_detector.domain.services.activity_sequence_extractor import MinuteLevelSequence
-
         # Arrange - create fragmented pattern
         sequences = []
         for day in range(7):
@@ -160,8 +167,6 @@ class TestCircadianRhythmAnalyzer:
 
     def test_relative_amplitude_weak_rhythm(self, analyzer):
         """RA should be low for weak day/night differences."""
-        from big_mood_detector.domain.services.activity_sequence_extractor import MinuteLevelSequence
-
         # Arrange - constant low activity
         sequences = []
         for day in range(7):
@@ -181,8 +186,6 @@ class TestCircadianRhythmAnalyzer:
 
     def test_l5_m10_calculation(self, analyzer):
         """Test L5 (least active 5 hours) and M10 (most active 10 hours)."""
-        from big_mood_detector.domain.services.activity_sequence_extractor import MinuteLevelSequence
-
         # Arrange - clear pattern
         sequences = []
         for day in range(7):
@@ -228,8 +231,6 @@ class TestCircadianRhythmAnalyzer:
 
     def test_comprehensive_metrics(self, analyzer):
         """Test all metrics calculated together."""
-        from big_mood_detector.domain.services.circadian_rhythm_analyzer import CircadianMetrics
-
         # Arrange
         sequences = self._create_regular_pattern(date(2024, 1, 1), days=7)
 
@@ -262,8 +263,6 @@ class TestCircadianRhythmAnalyzer:
 
     def test_phase_shift_detection(self, analyzer):
         """Should detect phase shifts in activity patterns."""
-        from big_mood_detector.domain.services.activity_sequence_extractor import MinuteLevelSequence
-
         # Arrange - create phase shift
         sequences = []
         for day in range(14):

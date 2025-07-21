@@ -9,12 +9,18 @@ from datetime import date, datetime, time, timedelta
 
 import pytest
 
+from big_mood_detector.domain.services.sleep_aggregator import DailySleepSummary
+
+
 class TestSleepFeatureCalculator:
     """Test sleep-specific feature calculations."""
 
     @pytest.fixture
     def calculator(self):
         """Create SleepFeatureCalculator instance."""
+        from big_mood_detector.domain.services.sleep_feature_calculator import (
+            SleepFeatureCalculator,
+        )
 
         return SleepFeatureCalculator()
 
@@ -138,8 +144,6 @@ class TestSleepFeatureCalculator:
 
     def test_calculate_sleep_window_percentages(self, calculator):
         """Test calculation of short and long sleep window percentages."""
-        from big_mood_detector.domain.services.sleep_aggregator import DailySleepSummary
-
         # Create data with specific sleep durations
         summaries = []
         base_date = date(2024, 1, 1)
@@ -213,8 +217,6 @@ class TestSleepFeatureCalculator:
 
     def test_single_day_handling(self, calculator):
         """Test handling of single day data."""
-        from big_mood_detector.domain.services.sleep_aggregator import DailySleepSummary
-
         single_day = [
             DailySleepSummary(
                 date=date(2024, 1, 1),
@@ -237,8 +239,6 @@ class TestSleepFeatureCalculator:
 
     def test_late_night_sleep_handling(self, calculator):
         """Test handling of sleep times crossing midnight."""
-        from big_mood_detector.domain.services.sleep_aggregator import DailySleepSummary
-
         summaries = []
         base_date = date(2024, 1, 1)
 
@@ -274,8 +274,6 @@ class TestSleepFeatureCalculator:
 
     def test_regularity_excludes_daytime_naps(self, calculator):
         """Daytime naps should not affect sleep regularity calculations."""
-        from big_mood_detector.domain.services.sleep_aggregator import DailySleepSummary
-
         summaries = []
         base_date = date(2024, 1, 1)
 

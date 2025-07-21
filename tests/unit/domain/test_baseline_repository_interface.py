@@ -11,13 +11,17 @@ from datetime import date, datetime
 
 import pytest
 
+from big_mood_detector.domain.repositories.baseline_repository_interface import (
+    BaselineRepositoryInterface,
+    UserBaseline,
+)
+
+
 class TestBaselineRepositoryInterface:
     """Test the baseline repository interface contract."""
 
     def test_baseline_value_object(self):
         """Test that UserBaseline is a proper value object."""
-        from big_mood_detector.domain.repositories.baseline_repository_interface import UserBaseline
-
         baseline = UserBaseline(
             user_id="user123",
             baseline_date=date(2024, 1, 15),
@@ -41,8 +45,6 @@ class TestBaselineRepositoryInterface:
 
     def test_repository_interface_definition(self):
         """Test that interface is properly defined."""
-        from big_mood_detector.domain.repositories.baseline_repository_interface import BaselineRepositoryInterface
-
         # Should not be able to instantiate abstract class
         with pytest.raises(TypeError):
             BaselineRepositoryInterface()
@@ -54,10 +56,6 @@ class TestBaselineRepositoryInterface:
 
     def test_mock_implementation(self):
         """Test with a mock implementation to verify interface."""
-        from big_mood_detector.domain.repositories.baseline_repository_interface import (
-            BaselineRepositoryInterface,
-            UserBaseline,
-        )
 
         class MockBaselineRepository(BaselineRepositoryInterface):
             def __init__(self):

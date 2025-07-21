@@ -4,13 +4,18 @@ from unittest.mock import patch
 
 import pytest
 
+from big_mood_detector.infrastructure.security.privacy import (
+    PrivacyFilter,
+    hash_user_id,
+    redact_pii,
+)
+
+
 class TestHashUserId:
     """Test user ID hashing functionality."""
 
     def test_hash_user_id_consistent(self):
         """Test that same user ID produces same hash."""
-        from big_mood_detector.infrastructure.security.privacy import hash_user_id
-
         user_id = "alice@example.com"
         hash1 = hash_user_id(user_id)
         hash2 = hash_user_id(user_id)
@@ -20,8 +25,6 @@ class TestHashUserId:
 
     def test_hash_user_id_different_users(self):
         """Test that different user IDs produce different hashes."""
-        from big_mood_detector.infrastructure.security.privacy import hash_user_id
-
         hash1 = hash_user_id("alice@example.com")
         hash2 = hash_user_id("bob@example.com")
 
@@ -29,8 +32,6 @@ class TestHashUserId:
 
     def test_hash_user_id_with_salt(self):
         """Test that salt affects the hash."""
-        from big_mood_detector.infrastructure.security.privacy import hash_user_id
-
         user_id = "alice@example.com"
 
         # Hash with default salt
@@ -47,18 +48,15 @@ class TestHashUserId:
 
     def test_hash_user_id_empty_raises(self):
         """Test that empty user ID raises ValueError."""
-        from big_mood_detector.infrastructure.security.privacy import hash_user_id
-
         with pytest.raises(ValueError, match="user_id cannot be empty"):
             hash_user_id("")
+
 
 class TestRedactPII:
     """Test PII redaction functionality."""
 
     def test_redact_user_id(self):
         """Test user ID redaction shows partial hash."""
-        from big_mood_detector.infrastructure.security.privacy import redact_pii
-
         result = redact_pii("alice@example.com", "user_id")
 
         assert result.startswith("[REDACTED:")
@@ -68,8 +66,6 @@ class TestRedactPII:
 
     def test_redact_email(self):
         """Test email redaction."""
-        from big_mood_detector.infrastructure.security.privacy import redact_pii
-
         result = redact_pii("alice@example.com", "email")
 
         assert result == "[REDACTED]"
@@ -77,8 +73,6 @@ class TestRedactPII:
 
     def test_redact_name(self):
         """Test name redaction."""
-        from big_mood_detector.infrastructure.security.privacy import redact_pii
-
         result = redact_pii("Alice Smith", "name")
 
         assert result == "[REDACTED]"
@@ -87,8 +81,6 @@ class TestRedactPII:
 
     def test_redact_location_coordinates(self):
         """Test location coordinate rounding."""
-        from big_mood_detector.infrastructure.security.privacy import redact_pii
-
         # Latitude should be rounded to 2 decimal places
         lat_result = redact_pii(37.7749295, "latitude")
         assert lat_result == 37.77
@@ -99,27 +91,22 @@ class TestRedactPII:
 
     def test_no_redaction_for_safe_fields(self):
         """Test that non-PII fields are not redacted."""
-        from big_mood_detector.infrastructure.security.privacy import redact_pii
-
         assert redact_pii("some_value", "sleep_duration") == "some_value"
         assert redact_pii(42.5, "heart_rate") == 42.5
         assert redact_pii(True, "is_active") is True
 
     def test_case_insensitive_field_matching(self):
         """Test that field name matching is case-insensitive."""
-        from big_mood_detector.infrastructure.security.privacy import redact_pii
-
         assert redact_pii("alice@example.com", "USER_ID").startswith("[REDACTED:")
         assert redact_pii("alice@example.com", "Email") == "[REDACTED]"
         assert redact_pii("Alice Smith", "NAME") == "[REDACTED]"
+
 
 class TestPrivacyFilter:
     """Test privacy filter for logging."""
 
     def test_filter_redacts_pii_fields(self):
         """Test that filter redacts PII fields in log events."""
-        from big_mood_detector.infrastructure.security.privacy import PrivacyFilter
-
         filter = PrivacyFilter()
 
         event_dict = {
@@ -148,8 +135,6 @@ class TestPrivacyFilter:
 
     def test_filter_handles_nested_dicts(self):
         """Test that filter handles nested dictionaries."""
-        from big_mood_detector.infrastructure.security.privacy import PrivacyFilter
-
         filter = PrivacyFilter()
 
         event_dict = {
@@ -178,8 +163,6 @@ class TestPrivacyFilter:
 
     def test_filter_skips_internal_keys(self):
         """Test that filter skips internal structlog keys."""
-        from big_mood_detector.infrastructure.security.privacy import PrivacyFilter
-
         filter = PrivacyFilter()
 
         event_dict = {
@@ -197,6 +180,7 @@ class TestPrivacyFilter:
 
         # But user_id should still be redacted
         assert filtered["user_id"].startswith("[REDACTED:")
+
 
 class TestPrivacyIntegration:
     """Test privacy features in realistic scenarios."""

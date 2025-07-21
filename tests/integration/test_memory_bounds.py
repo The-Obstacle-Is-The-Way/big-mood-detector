@@ -11,7 +11,13 @@ XFAIL STATUS:
 - Resolution: Fix comparison logic in fast_streaming_parser.py
 """
 
+
 import pytest
+
+from big_mood_detector.infrastructure.parsers.xml.fast_streaming_parser import (
+    FastStreamingXMLParser,
+)
+
 
 @pytest.mark.integration
 @pytest.mark.slow
@@ -24,8 +30,6 @@ class TestMemoryBounds:
 
     def test_large_file_memory_usage(self, tmp_path):
         """Test that parser handles large files without excessive memory usage."""
-        from big_mood_detector.infrastructure.parsers.xml.fast_streaming_parser import FastStreamingXMLParser
-
         # This would create a large test file and verify memory stays bounded
         # For now, marking as xfail until the date filtering bug is fixed
 

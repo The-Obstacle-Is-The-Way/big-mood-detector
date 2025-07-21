@@ -9,6 +9,15 @@ from pathlib import Path
 import pytest
 import yaml
 
+from big_mood_detector.domain.services.clinical_thresholds import (
+    BiomarkerThresholds,
+    ClinicalThresholdsConfig,
+    DepressionThresholds,
+    ManiaThresholds,
+    load_clinical_thresholds,
+)
+
+
 class TestClinicalThresholdsConfig:
     """Test clinical thresholds configuration loading and validation."""
 
@@ -91,14 +100,6 @@ class TestClinicalThresholdsConfig:
 
     def test_load_valid_config(self, sample_config_path):
         """Test loading a valid configuration file."""
-        from big_mood_detector.domain.services.clinical_thresholds import (
-            BiomarkerThresholds,
-            ClinicalThresholdsConfig,
-            DepressionThresholds,
-            ManiaThresholds,
-            load_clinical_thresholds,
-        )
-
         config = load_clinical_thresholds(sample_config_path)
 
         assert isinstance(config, ClinicalThresholdsConfig)
@@ -108,8 +109,6 @@ class TestClinicalThresholdsConfig:
 
     def test_depression_thresholds(self, sample_config_path):
         """Test depression threshold values are loaded correctly."""
-        from big_mood_detector.domain.services.clinical_thresholds import load_clinical_thresholds
-
         config = load_clinical_thresholds(sample_config_path)
 
         # PHQ cutoffs
@@ -127,8 +126,6 @@ class TestClinicalThresholdsConfig:
 
     def test_mania_thresholds(self, sample_config_path):
         """Test mania threshold values are loaded correctly."""
-        from big_mood_detector.domain.services.clinical_thresholds import load_clinical_thresholds
-
         config = load_clinical_thresholds(sample_config_path)
 
         # ASRM cutoffs
@@ -146,8 +143,6 @@ class TestClinicalThresholdsConfig:
 
     def test_biomarker_thresholds(self, sample_config_path):
         """Test biomarker threshold values are loaded correctly."""
-        from big_mood_detector.domain.services.clinical_thresholds import load_clinical_thresholds
-
         config = load_clinical_thresholds(sample_config_path)
 
         # Circadian thresholds
@@ -161,8 +156,6 @@ class TestClinicalThresholdsConfig:
 
     def test_mixed_features_config(self, sample_config_path):
         """Test mixed features configuration is loaded correctly."""
-        from big_mood_detector.domain.services.clinical_thresholds import load_clinical_thresholds
-
         config = load_clinical_thresholds(sample_config_path)
 
         assert config.mixed_features.minimum_opposite_symptoms == 3
@@ -177,8 +170,6 @@ class TestClinicalThresholdsConfig:
 
     def test_dsm5_duration_config(self, sample_config_path):
         """Test DSM-5 duration requirements are loaded correctly."""
-        from big_mood_detector.domain.services.clinical_thresholds import load_clinical_thresholds
-
         config = load_clinical_thresholds(sample_config_path)
 
         assert config.dsm5_duration.manic_days == 7
@@ -187,15 +178,11 @@ class TestClinicalThresholdsConfig:
 
     def test_missing_config_file(self):
         """Test handling of missing configuration file."""
-        from big_mood_detector.domain.services.clinical_thresholds import load_clinical_thresholds
-
         with pytest.raises(FileNotFoundError):
             load_clinical_thresholds(Path("nonexistent.yaml"))
 
     def test_invalid_config_structure(self, tmp_path):
         """Test handling of invalid configuration structure."""
-        from big_mood_detector.domain.services.clinical_thresholds import load_clinical_thresholds
-
         invalid_config = tmp_path / "invalid.yaml"
         with open(invalid_config, "w") as f:
             yaml.dump({"invalid": "structure"}, f)
@@ -205,8 +192,6 @@ class TestClinicalThresholdsConfig:
 
     def test_missing_required_fields(self, tmp_path):
         """Test handling of missing required fields."""
-        from big_mood_detector.domain.services.clinical_thresholds import load_clinical_thresholds
-
         incomplete_config = tmp_path / "incomplete.yaml"
         with open(incomplete_config, "w") as f:
             yaml.dump({"depression": {"phq_cutoffs": {}}}, f)
@@ -216,8 +201,6 @@ class TestClinicalThresholdsConfig:
 
     def test_invalid_threshold_values(self, tmp_path, sample_config_path):
         """Test validation of threshold values."""
-        from big_mood_detector.domain.services.clinical_thresholds import load_clinical_thresholds
-
         invalid_config = tmp_path / "invalid_values.yaml"
         # First create a complete valid config
         with open(sample_config_path) as f:
@@ -236,11 +219,6 @@ class TestClinicalThresholdsConfig:
 
     def test_default_config_exists(self):
         """Test that default configuration file exists and is valid."""
-        from big_mood_detector.domain.services.clinical_thresholds import (
-            ClinicalThresholdsConfig,
-            load_clinical_thresholds,
-        )
-
         default_path = Path("config/clinical_thresholds.yaml")
         if default_path.exists():
             config = load_clinical_thresholds(default_path)

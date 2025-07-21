@@ -6,6 +6,16 @@ TDD approach: Write failing tests first, then make them pass.
 
 from unittest.mock import create_autospec
 
+from big_mood_detector.application.use_cases.process_health_data_use_case import (
+    MoodPredictionPipeline,
+    PipelineConfig,
+)
+from big_mood_detector.domain.repositories.baseline_repository_interface import (
+    BaselineRepositoryInterface,
+)
+from big_mood_detector.infrastructure.di.container import Container
+
+
 class TestMoodPipelineBaselineDI:
     """Test baseline repository dependency injection in MoodPredictionPipeline."""
 
@@ -14,11 +24,6 @@ class TestMoodPipelineBaselineDI:
         Document current behavior: pipeline creates FileBaselineRepository directly.
         This test should PASS, showing the problem we need to fix.
         """
-        from big_mood_detector.application.use_cases.process_health_data_use_case import (
-            MoodPredictionPipeline,
-            PipelineConfig,
-        )
-
         # Change to tmp directory to avoid polluting project
         monkeypatch.chdir(tmp_path)
 
@@ -39,12 +44,6 @@ class TestMoodPipelineBaselineDI:
         Test that pipeline accepts baseline_repository parameter.
         This should now PASS after our implementation.
         """
-        from big_mood_detector.domain.repositories.baseline_repository_interface import BaselineRepositoryInterface
-        from big_mood_detector.application.use_cases.process_health_data_use_case import (
-            MoodPredictionPipeline,
-            PipelineConfig,
-        )
-
         # Create mock repository
         mock_repo = create_autospec(BaselineRepositoryInterface)
 
@@ -63,13 +62,6 @@ class TestMoodPipelineBaselineDI:
         Test that pipeline uses DI container for baseline repository.
         This should now PASS after our implementation.
         """
-        from big_mood_detector.domain.repositories.baseline_repository_interface import BaselineRepositoryInterface
-        from big_mood_detector.application.use_cases.process_health_data_use_case import (
-            MoodPredictionPipeline,
-            PipelineConfig,
-        )
-        from big_mood_detector.infrastructure.di.container import Container
-
         # Setup DI container with mock repository
         mock_repo = create_autospec(BaselineRepositoryInterface)
         container = Container()

@@ -10,13 +10,14 @@ from pathlib import Path
 
 import pytest
 
+from big_mood_detector.infrastructure.parsers.xml import StreamingXMLParser
+
+
 class TestStreamingAdapter:
     """Test suite for StreamingXMLParser - memory-efficient XML parsing."""
 
     def test_streaming_parser_exists(self):
         """Test that StreamingXMLParser can be instantiated."""
-        from big_mood_detector.infrastructure.parsers.xml import StreamingXMLParser
-
         # ARRANGE & ACT
         parser = StreamingXMLParser()
 
@@ -26,8 +27,6 @@ class TestStreamingAdapter:
 
     def test_parse_small_file_streaming(self):
         """Test parsing a small XML file using streaming."""
-        from big_mood_detector.infrastructure.parsers.xml import StreamingXMLParser
-
         # ARRANGE
         xml_content = """<?xml version="1.0" encoding="UTF-8"?>
         <HealthData locale="en_US">
@@ -64,8 +63,6 @@ class TestStreamingAdapter:
 
     def test_parse_to_entities(self):
         """Test parsing to domain entities."""
-        from big_mood_detector.infrastructure.parsers.xml import StreamingXMLParser
-
         # ARRANGE
         xml_content = """<?xml version="1.0" encoding="UTF-8"?>
         <HealthData locale="en_US">
@@ -110,8 +107,6 @@ class TestStreamingAdapter:
 
     def test_memory_efficient_large_file(self):
         """Test that streaming parser is memory-efficient with large files."""
-        from big_mood_detector.infrastructure.parsers.xml import StreamingXMLParser
-
         # ARRANGE - Create a large XML file
         with tempfile.NamedTemporaryFile(mode="w", suffix=".xml", delete=False) as f:
             f.write('<?xml version="1.0" encoding="UTF-8"?>\n')
@@ -154,8 +149,6 @@ class TestStreamingAdapter:
 
     def test_parse_specific_entity_types(self):
         """Test parsing only specific entity types."""
-        from big_mood_detector.infrastructure.parsers.xml import StreamingXMLParser
-
         # ARRANGE
         xml_content = """<?xml version="1.0" encoding="UTF-8"?>
         <HealthData locale="en_US">
@@ -199,8 +192,6 @@ class TestStreamingAdapter:
 
     def test_batch_processing(self):
         """Test processing entities in batches."""
-        from big_mood_detector.infrastructure.parsers.xml import StreamingXMLParser
-
         # ARRANGE
         xml_content = """<?xml version="1.0" encoding="UTF-8"?>
         <HealthData locale="en_US">"""
@@ -238,8 +229,6 @@ class TestStreamingAdapter:
 
     def test_handle_missing_file(self):
         """Test handling of missing file."""
-        from big_mood_detector.infrastructure.parsers.xml import StreamingXMLParser
-
         # ARRANGE
         parser = StreamingXMLParser()
 
@@ -249,8 +238,6 @@ class TestStreamingAdapter:
 
     def test_heart_rate_motion_context(self):
         """Test extraction of heart rate motion context metadata."""
-        from big_mood_detector.infrastructure.parsers.xml import StreamingXMLParser
-
         # ARRANGE
         xml_content = """<?xml version="1.0" encoding="UTF-8"?>
         <HealthData locale="en_US">

@@ -9,13 +9,22 @@ from datetime import UTC, date, datetime
 
 import pytest
 
+from big_mood_detector.domain.entities.heart_rate_record import (
+    HeartMetricType,
+    HeartRateRecord,
+    MotionContext,
+)
+from big_mood_detector.domain.services.heart_rate_aggregator import (
+    DailyHeartSummary,
+    HeartRateAggregator,
+)
+
+
 class TestDailyHeartSummary:
     """Test suite for DailyHeartSummary value object."""
 
     def test_create_daily_heart_summary(self):
         """Test creating a daily heart summary."""
-        from big_mood_detector.domain.services.heart_rate_aggregator import DailyHeartSummary
-
         # ARRANGE & ACT
         summary = DailyHeartSummary(
             date=date(2024, 1, 1),
@@ -40,8 +49,6 @@ class TestDailyHeartSummary:
 
     def test_daily_summary_is_immutable(self):
         """Test that daily summary cannot be modified."""
-        from big_mood_detector.domain.services.heart_rate_aggregator import DailyHeartSummary
-
         # ARRANGE
         summary = DailyHeartSummary(
             date=date(2024, 1, 1),
@@ -54,8 +61,6 @@ class TestDailyHeartSummary:
 
     def test_clinically_significant_high_resting_hr(self):
         """Test detection of elevated resting heart rate."""
-        from big_mood_detector.domain.services.heart_rate_aggregator import DailyHeartSummary
-
         # ARRANGE - High resting HR (>90)
         summary = DailyHeartSummary(
             date=date(2024, 1, 1),
@@ -69,8 +74,6 @@ class TestDailyHeartSummary:
 
     def test_clinically_significant_low_hrv(self):
         """Test detection of low HRV (poor autonomic function)."""
-        from big_mood_detector.domain.services.heart_rate_aggregator import DailyHeartSummary
-
         # ARRANGE - Low HRV
         summary = DailyHeartSummary(
             date=date(2024, 1, 1),
@@ -84,8 +87,6 @@ class TestDailyHeartSummary:
 
     def test_clinically_significant_abnormal_circadian(self):
         """Test detection of abnormal circadian rhythm."""
-        from big_mood_detector.domain.services.heart_rate_aggregator import DailyHeartSummary
-
         # ARRANGE - Flat circadian rhythm
         summary = DailyHeartSummary(
             date=date(2024, 1, 1),
@@ -101,8 +102,6 @@ class TestDailyHeartSummary:
 
     def test_normal_heart_metrics_not_significant(self):
         """Test normal heart metrics are not clinically significant."""
-        from big_mood_detector.domain.services.heart_rate_aggregator import DailyHeartSummary
-
         # ARRANGE
         summary = DailyHeartSummary(
             date=date(2024, 1, 1),
@@ -117,6 +116,7 @@ class TestDailyHeartSummary:
         assert not summary.is_clinically_significant
         assert not summary.has_high_resting_hr
         assert not summary.has_low_hrv
+
 
 class TestHeartRateAggregator:
     """Test suite for HeartRateAggregator service."""
@@ -197,12 +197,6 @@ class TestHeartRateAggregator:
 
     def test_resting_hr_calculation(self, aggregator):
         """Test correct calculation of resting heart rate."""
-        from big_mood_detector.domain.entities.heart_rate_record import (
-            HeartMetricType,
-            HeartRateRecord,
-            MotionContext,
-        )
-
         # ARRANGE - Only sedentary measurements
         records = [
             HeartRateRecord(
@@ -225,12 +219,6 @@ class TestHeartRateAggregator:
 
     def test_exclude_active_from_resting_hr(self, aggregator):
         """Test that active HR is excluded from resting calculation."""
-        from big_mood_detector.domain.entities.heart_rate_record import (
-            HeartMetricType,
-            HeartRateRecord,
-            MotionContext,
-        )
-
         # ARRANGE
         records = [
             HeartRateRecord(
@@ -260,12 +248,6 @@ class TestHeartRateAggregator:
 
     def test_high_low_episode_counting(self, aggregator):
         """Test counting of high/low HR episodes."""
-        from big_mood_detector.domain.entities.heart_rate_record import (
-            HeartMetricType,
-            HeartRateRecord,
-            MotionContext,
-        )
-
         # ARRANGE
         records = []
         day = datetime(2024, 1, 1, tzinfo=UTC)
@@ -316,12 +298,6 @@ class TestHeartRateAggregator:
 
     def test_circadian_rhythm_calculation(self, aggregator):
         """Test calculation of circadian rhythm markers."""
-        from big_mood_detector.domain.entities.heart_rate_record import (
-            HeartMetricType,
-            HeartRateRecord,
-            MotionContext,
-        )
-
         # ARRANGE
         day = datetime(2024, 1, 1, tzinfo=UTC)
         records = [
@@ -356,11 +332,6 @@ class TestHeartRateAggregator:
 
     def test_hrv_aggregation(self, aggregator):
         """Test HRV SDNN aggregation."""
-        from big_mood_detector.domain.entities.heart_rate_record import (
-            HeartMetricType,
-            HeartRateRecord,
-        )
-
         # ARRANGE
         records = [
             HeartRateRecord(
@@ -382,12 +353,6 @@ class TestHeartRateAggregator:
 
     def test_multiple_days_aggregation(self, aggregator):
         """Test aggregating heart data across multiple days."""
-        from big_mood_detector.domain.entities.heart_rate_record import (
-            HeartMetricType,
-            HeartRateRecord,
-            MotionContext,
-        )
-
         # ARRANGE
         records = []
         for day_offset in range(3):

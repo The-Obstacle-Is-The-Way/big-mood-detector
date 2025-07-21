@@ -10,13 +10,20 @@ import json
 import tempfile
 from pathlib import Path
 
+from big_mood_detector.domain.entities.activity_record import (
+    ActivityType,
+)
+from big_mood_detector.domain.entities.sleep_record import SleepState
+
+
 class TestFlexibleJSONParser:
     """Test flexible JSON parsing for different formats."""
 
     def test_parse_simple_sleep_format(self):
         """Test parsing simple sleep JSON format."""
-        from big_mood_detector.domain.entities.sleep_record import SleepState
-        from big_mood_detector.infrastructure.parsers.json.json_parsers import SleepJSONParser
+        from big_mood_detector.infrastructure.parsers.json.json_parsers import (
+            SleepJSONParser,
+        )
 
         parser = SleepJSONParser()
 
@@ -42,7 +49,9 @@ class TestFlexibleJSONParser:
 
     def test_parse_health_auto_export_format(self):
         """Test parsing Health Auto Export nested format."""
-        from big_mood_detector.infrastructure.parsers.json.json_parsers import SleepJSONParser
+        from big_mood_detector.infrastructure.parsers.json.json_parsers import (
+            SleepJSONParser,
+        )
 
         parser = SleepJSONParser()
 
@@ -72,8 +81,9 @@ class TestFlexibleJSONParser:
 
     def test_parse_simple_activity_format(self):
         """Test parsing simple activity JSON format."""
-        from big_mood_detector.infrastructure.parsers.json.json_parsers import ActivityJSONParser
-        from big_mood_detector.domain.entities.activity_record import ActivityType
+        from big_mood_detector.infrastructure.parsers.json.json_parsers import (
+            ActivityJSONParser,
+        )
 
         parser = ActivityJSONParser()
 
@@ -100,7 +110,9 @@ class TestFlexibleJSONParser:
 
     def test_handle_empty_data(self):
         """Test handling empty data gracefully."""
-        from big_mood_detector.infrastructure.parsers.json.json_parsers import SleepJSONParser
+        from big_mood_detector.infrastructure.parsers.json.json_parsers import (
+            SleepJSONParser,
+        )
 
         parser = SleepJSONParser()
 
@@ -111,7 +123,9 @@ class TestFlexibleJSONParser:
 
     def test_handle_malformed_data(self):
         """Test handling malformed data gracefully."""
-        from big_mood_detector.infrastructure.parsers.json.json_parsers import SleepJSONParser
+        from big_mood_detector.infrastructure.parsers.json.json_parsers import (
+            SleepJSONParser,
+        )
 
         parser = SleepJSONParser()
 
@@ -131,7 +145,9 @@ class TestFlexibleJSONParser:
 
     def test_parse_file_integration(self):
         """Test parsing from actual file."""
-        from big_mood_detector.infrastructure.parsers.json.json_parsers import SleepJSONParser
+        from big_mood_detector.infrastructure.parsers.json.json_parsers import (
+            SleepJSONParser,
+        )
 
         parser = SleepJSONParser()
 
@@ -159,7 +175,9 @@ class TestFlexibleJSONParser:
 
     def test_timezone_handling(self):
         """Test proper timezone handling in dates."""
-        from big_mood_detector.infrastructure.parsers.json.json_parsers import SleepJSONParser
+        from big_mood_detector.infrastructure.parsers.json.json_parsers import (
+            SleepJSONParser,
+        )
 
         parser = SleepJSONParser()
 

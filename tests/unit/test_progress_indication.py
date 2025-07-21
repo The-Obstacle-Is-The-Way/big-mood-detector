@@ -9,13 +9,22 @@ from unittest.mock import Mock, patch
 
 import pytest
 
+from big_mood_detector.application.services.data_parsing_service import (
+    DataParsingService,
+)
+from big_mood_detector.application.use_cases.process_health_data_use_case import (
+    MoodPredictionPipeline,
+)
+from big_mood_detector.infrastructure.parsers.xml.fast_streaming_parser import (
+    FastStreamingXMLParser,
+)
+
+
 class TestProgressIndication:
     """Test progress indication across the pipeline."""
 
     def test_xml_parser_accepts_progress_callback(self):
         """Test that XML parser can accept a progress callback."""
-        from big_mood_detector.infrastructure.parsers.xml.fast_streaming_parser import FastStreamingXMLParser
-
         parser = FastStreamingXMLParser()
 
         # Should have a method that accepts progress_callback
@@ -32,8 +41,6 @@ class TestProgressIndication:
     @patch('big_mood_detector.infrastructure.parsers.xml.fast_streaming_parser.logger')
     def test_xml_parser_calls_progress_callback(self, mock_logger):
         """Test that XML parser calls progress callback during parsing."""
-        from big_mood_detector.infrastructure.parsers.xml.fast_streaming_parser import FastStreamingXMLParser
-
         import os
         import tempfile
 
@@ -81,8 +88,6 @@ class TestProgressIndication:
 
     def test_data_parsing_service_accepts_progress_callback(self):
         """Test that DataParsingService accepts and propagates progress callback."""
-        from big_mood_detector.application.services.data_parsing_service import DataParsingService
-
         service = DataParsingService()
 
         # Check parse_xml_export accepts progress_callback
@@ -93,8 +98,6 @@ class TestProgressIndication:
 
     def test_data_parsing_service_propagates_progress(self):
         """Test that DataParsingService propagates progress to parser."""
-        from big_mood_detector.application.services.data_parsing_service import DataParsingService
-
         import os
         import tempfile
 
@@ -131,8 +134,6 @@ class TestProgressIndication:
 
     def test_pipeline_accepts_progress_callback(self):
         """Test that MoodPredictionPipeline accepts progress callback."""
-        from big_mood_detector.application.use_cases.process_health_data_use_case import MoodPredictionPipeline
-
         pipeline = MoodPredictionPipeline()
 
         # Check process_apple_health_file method
@@ -169,8 +170,6 @@ class TestProgressIndication:
 
     def test_file_size_estimation(self):
         """Test that parser can estimate progress based on file size."""
-        from big_mood_detector.infrastructure.parsers.xml.fast_streaming_parser import FastStreamingXMLParser
-
         # For XML files, we can estimate progress by file position
         FastStreamingXMLParser()
 
@@ -218,8 +217,6 @@ class TestProgressIndication:
 
     def test_progress_callback_error_handling(self):
         """Test that processing continues if progress callback fails."""
-        from big_mood_detector.infrastructure.parsers.xml.fast_streaming_parser import FastStreamingXMLParser
-
         FastStreamingXMLParser()
 
         # Create a failing progress callback

@@ -5,6 +5,14 @@ from datetime import UTC, date, datetime
 
 import pytest
 
+from big_mood_detector.domain.repositories.baseline_repository_interface import (
+    UserBaseline,
+)
+from big_mood_detector.infrastructure.repositories.timescale_baseline_repository import (
+    TimescaleBaselineRepository,
+)
+
+
 @pytest.mark.integration
 @pytest.mark.skipif(
     "not config.getoption('--run-integration')",
@@ -27,8 +35,6 @@ class TestHRHRVEndToEnd:
     @pytest.fixture
     def repository(self, test_db_url):
         """Create TimescaleDB repository for testing."""
-        from big_mood_detector.infrastructure.repositories.timescale_baseline_repository import TimescaleBaselineRepository
-
         try:
             repo = TimescaleBaselineRepository(
                 connection_string=test_db_url,
@@ -40,8 +46,6 @@ class TestHRHRVEndToEnd:
 
     def test_full_hr_hrv_pipeline(self, repository):
         """Test complete HR/HRV pipeline from save to retrieve."""
-        from big_mood_detector.domain.repositories.baseline_repository_interface import UserBaseline
-
         # Create baseline with all HR/HRV fields
         test_user_id = f"hr_hrv_test_user_{int(time.time())}"
 
@@ -89,8 +93,6 @@ class TestHRHRVEndToEnd:
 
     def test_hr_hrv_optional_fields(self, repository):
         """Test that HR/HRV fields are optional and can be None."""
-        from big_mood_detector.domain.repositories.baseline_repository_interface import UserBaseline
-
         test_user_id = f"optional_hr_test_{int(time.time())}"
 
         # Create baseline without HR/HRV data
@@ -128,8 +130,6 @@ class TestHRHRVEndToEnd:
 
     def test_hr_hrv_history_tracking(self, repository):
         """Test that HR/HRV metrics are tracked in baseline history."""
-        from big_mood_detector.domain.repositories.baseline_repository_interface import UserBaseline
-
         test_user_id = f"history_hr_test_{int(time.time())}"
 
         # Create baselines over multiple days with evolving HR/HRV
@@ -224,8 +224,6 @@ class TestHRHRVEndToEnd:
 
     def test_user_id_hashing_with_hr_hrv(self, repository):
         """Test that user ID hashing works correctly with HR/HRV data."""
-        from big_mood_detector.domain.repositories.baseline_repository_interface import UserBaseline
-
         # Use a recognizable user ID
         plain_user_id = "test.user@example.com"
 

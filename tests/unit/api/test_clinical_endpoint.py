@@ -10,6 +10,9 @@ import pytest
 from fastapi import status
 from fastapi.testclient import TestClient
 
+from big_mood_detector.domain.services.mood_predictor import MoodPrediction
+
+
 class TestClinicalEndpoint:
     """Test the clinical interpretation endpoint."""
 
@@ -29,6 +32,11 @@ class TestClinicalEndpoint:
     def app_client(self, mock_predictor):
         """Create test client with mocked dependencies."""
         # Need to mock dependencies before importing
+        from big_mood_detector.interfaces.api.dependencies import (
+            get_ensemble_orchestrator,
+            get_mood_predictor,
+        )
+        from big_mood_detector.interfaces.api.main import app
 
         # Override dependency
         app.dependency_overrides[get_mood_predictor] = lambda: mock_predictor
@@ -131,10 +139,6 @@ class TestClinicalEndpoint:
 
     def test_clinical_endpoint_mixed_episode(self, app_client):
         """Test clinical endpoint with mixed episode scenario."""
-        from big_mood_detector.domain.services.mood_predictor import MoodPrediction
-        from big_mood_detector.interfaces.api.dependencies import get_mood_predictor
-        from big_mood_detector.interfaces.api.main import app
-
         # Arrange - Override mock to return mixed episode values
         mock_predictor = MagicMock()
         mock_predictor.predict.return_value = MoodPrediction(
@@ -143,6 +147,9 @@ class TestClinicalEndpoint:
             manic_risk=0.45,  # Also elevated mania
             confidence=0.75,
         )
+
+        from big_mood_detector.interfaces.api.dependencies import get_mood_predictor
+        from big_mood_detector.interfaces.api.main import app
 
         app.dependency_overrides[get_mood_predictor] = lambda: mock_predictor
 
@@ -188,10 +195,6 @@ class TestClinicalEndpoint:
         ],
     )
     def test_clinical_endpoint_various_scenarios(
-        from big_mood_detector.domain.services.mood_predictor import MoodPrediction
-        from big_mood_detector.interfaces.api.dependencies import get_mood_predictor
-        from big_mood_detector.interfaces.api.main import app
-
         self,
         app_client,
         depression,
@@ -209,6 +212,9 @@ class TestClinicalEndpoint:
             manic_risk=mania,
             confidence=0.80,
         )
+
+        from big_mood_detector.interfaces.api.dependencies import get_mood_predictor
+        from big_mood_detector.interfaces.api.main import app
 
         app.dependency_overrides[get_mood_predictor] = lambda: mock_predictor
 

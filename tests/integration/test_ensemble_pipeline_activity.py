@@ -10,6 +10,27 @@ from datetime import date, datetime, timedelta
 import numpy as np
 import pytest
 
+from big_mood_detector.application.use_cases.predict_mood_ensemble_use_case import (
+    EnsembleConfig,
+    EnsembleOrchestrator,
+)
+from big_mood_detector.application.use_cases.process_health_data_use_case import (
+    MoodPredictionPipeline,
+)
+from big_mood_detector.domain.entities.activity_record import (
+    ActivityRecord,
+    ActivityType,
+)
+from big_mood_detector.domain.entities.sleep_record import SleepRecord, SleepState
+from big_mood_detector.domain.services.clinical_feature_extractor import (
+    ClinicalFeatureExtractor,
+)
+from big_mood_detector.infrastructure.ml_models import PAT_AVAILABLE
+from big_mood_detector.infrastructure.ml_models.xgboost_models import (
+    XGBoostMoodPredictor,
+)
+
+
 class TestEnsemblePipelineActivityFlow:
     """Test activity data flow through ensemble pipeline."""
 
@@ -101,6 +122,7 @@ class TestEnsemblePipelineActivityFlow:
             return None
 
         # Import is safe after checking PAT_AVAILABLE
+        from big_mood_detector.infrastructure.ml_models import PATModel
 
         model = PATModel()
         if not model.load_pretrained_weights():
@@ -108,12 +130,6 @@ class TestEnsemblePipelineActivityFlow:
         return model
 
     def test_direct_ensemble_with_activity(
-        from big_mood_detector.application.use_cases.predict_mood_ensemble_use_case import (
-            EnsembleConfig,
-            EnsembleOrchestrator,
-        )
-        from big_mood_detector.domain.services.clinical_feature_extractor import ClinicalFeatureExtractor
-
         self, sample_records, xgboost_predictor, pat_model
     ):
         """Test ensemble prediction with activity data via direct call."""
@@ -170,8 +186,6 @@ class TestEnsemblePipelineActivityFlow:
 
     def test_pipeline_process_with_activity(self, sample_records, tmp_path):
         """Test full pipeline processing with activity data."""
-        from big_mood_detector.application.use_cases.process_health_data_use_case import MoodPredictionPipeline
-
         # Create pipeline
         pipeline = MoodPredictionPipeline()
 
@@ -198,17 +212,12 @@ class TestEnsemblePipelineActivityFlow:
             assert "xgboost" in result.metadata["models_used"]
 
     def test_api_vs_direct_consistency(
-        from big_mood_detector.application.use_cases.predict_mood_ensemble_use_case import (
-            EnsembleConfig,
-            EnsembleOrchestrator,
-        )
-        from big_mood_detector.domain.services.clinical_feature_extractor import ClinicalFeatureExtractor
-        from big_mood_detector.interfaces.api.main import app
-
         self, sample_records, xgboost_predictor, pat_model
     ):
         """Test that API and direct calls produce consistent results."""
         from fastapi.testclient import TestClient
+
+        from big_mood_detector.interfaces.api.main import app
 
         client = TestClient(app)
 
@@ -267,12 +276,6 @@ class TestEnsemblePipelineActivityFlow:
             assert 0 <= direct_depression <= 1
 
     def test_activity_improves_prediction_confidence(
-        from big_mood_detector.application.use_cases.predict_mood_ensemble_use_case import (
-            EnsembleConfig,
-            EnsembleOrchestrator,
-        )
-        from big_mood_detector.domain.services.clinical_feature_extractor import ClinicalFeatureExtractor
-
         self, sample_records, xgboost_predictor
     ):
         """Test that including activity data improves prediction confidence."""

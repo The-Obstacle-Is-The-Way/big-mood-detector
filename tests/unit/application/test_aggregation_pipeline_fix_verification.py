@@ -7,6 +7,12 @@ aggregation pipeline now correctly uses SleepAggregator.
 
 from datetime import date, datetime
 
+from big_mood_detector.application.services.aggregation_pipeline import (
+    AggregationPipeline,
+)
+from big_mood_detector.domain.entities.sleep_record import SleepRecord, SleepState
+
+
 class TestAggregationPipelineFix:
     """Verify the sleep duration fix is working."""
 
@@ -15,12 +21,6 @@ class TestAggregationPipelineFix:
         Test that _calculate_features_with_stats uses SleepAggregator
         for sleep duration calculation.
         """
-        from big_mood_detector.domain.entities.sleep_record import (
-            SleepRecord,
-            SleepState,
-        )
-        from big_mood_detector.application.services.aggregation_pipeline import AggregationPipeline
-
         # Create pipeline
         pipeline = AggregationPipeline()
 
@@ -97,8 +97,6 @@ class TestAggregationPipelineFix:
 
     def test_aggregation_pipeline_handles_no_sleep_data(self):
         """Test that the pipeline handles days with no sleep data."""
-        from big_mood_detector.application.services.aggregation_pipeline import AggregationPipeline
-
         pipeline = AggregationPipeline()
 
         # Empty sleep records

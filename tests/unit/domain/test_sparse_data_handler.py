@@ -10,16 +10,19 @@ from datetime import date, timedelta
 import numpy as np
 import pandas as pd
 
+from big_mood_detector.domain.services.sparse_data_handler import (
+    AlignmentStrategy,
+    DataDensity,
+    InterpolationMethod,
+    SparseDataHandler,
+)
+
+
 class TestDataQualityAssessment:
     """Test data quality and density assessment."""
 
     def test_identifies_dense_data(self):
         """Dense data should be identified correctly."""
-        from big_mood_detector.domain.services.sparse_data_handler import (
-            DataDensity,
-            SparseDataHandler,
-        )
-
         # Given: 7 consecutive days of data
         dates = [date(2025, 1, 1) + timedelta(days=i) for i in range(7)]
 
@@ -36,11 +39,6 @@ class TestDataQualityAssessment:
 
     def test_identifies_sparse_data(self):
         """Sparse data with gaps should be identified."""
-        from big_mood_detector.domain.services.sparse_data_handler import (
-            DataDensity,
-            SparseDataHandler,
-        )
-
         # Given: Data with gaps
         dates = [
             date(2025, 1, 1),
@@ -62,11 +60,6 @@ class TestDataQualityAssessment:
 
     def test_identifies_very_sparse_data(self):
         """Very sparse data should trigger warnings."""
-        from big_mood_detector.domain.services.sparse_data_handler import (
-            DataDensity,
-            SparseDataHandler,
-        )
-
         # Given: Very sparse data
         dates = [
             date(2025, 1, 1),
@@ -85,16 +78,12 @@ class TestDataQualityAssessment:
         assert density.max_gap_days > 7
         assert density.requires_special_handling is True
 
+
 class TestDataAlignment:
     """Test multi-sensor data alignment strategies."""
 
     def test_aligns_overlapping_sensors(self):
         """Should align data from sensors with different coverage."""
-        from big_mood_detector.domain.services.sparse_data_handler import (
-            AlignmentStrategy,
-            SparseDataHandler,
-        )
-
         # Given: Sleep and activity data with partial overlap
         sleep_dates = pd.date_range("2025-01-01", "2025-01-10", freq="D")
         activity_dates = pd.date_range("2025-01-05", "2025-01-15", freq="D")
@@ -124,11 +113,6 @@ class TestDataAlignment:
 
     def test_handles_misaligned_timestamps(self):
         """Should handle data with different time resolutions."""
-        from big_mood_detector.domain.services.sparse_data_handler import (
-            AlignmentStrategy,
-            SparseDataHandler,
-        )
-
         # Given: Hourly sleep data and daily activity data
         sleep_times = pd.date_range("2025-01-01", "2025-01-02", freq="h")
         activity_dates = pd.date_range("2025-01-01", "2025-01-05", freq="D")
@@ -160,11 +144,6 @@ class TestDataAlignment:
 
     def test_union_alignment_combines_all_timestamps(self):
         """UNION strategy should include all timestamps with NaN for missing values."""
-        from big_mood_detector.domain.services.sparse_data_handler import (
-            AlignmentStrategy,
-            SparseDataHandler,
-        )
-
         # Given: Sleep and activity data with partial overlap
         sleep_dates = pd.date_range("2025-01-01", "2025-01-05", freq="D")
         activity_dates = pd.date_range("2025-01-03", "2025-01-08", freq="D")
@@ -206,11 +185,6 @@ class TestDataAlignment:
 
     def test_union_alignment_handles_empty_sensors(self):
         """UNION strategy should handle empty sensor data gracefully."""
-        from big_mood_detector.domain.services.sparse_data_handler import (
-            AlignmentStrategy,
-            SparseDataHandler,
-        )
-
         # Given: One sensor with data, one empty
         sleep_dates = pd.date_range("2025-01-01", "2025-01-03", freq="D")
         sleep_data = pd.DataFrame({"date": sleep_dates, "sleep_hours": [8.0, 7.5, 8.2]})
@@ -232,11 +206,6 @@ class TestDataAlignment:
 
     def test_union_alignment_preserves_column_names(self):
         """UNION strategy should preserve original column names with sensor prefixes."""
-        from big_mood_detector.domain.services.sparse_data_handler import (
-            AlignmentStrategy,
-            SparseDataHandler,
-        )
-
         # Given: Multiple sensors with different column names
         sleep_data = pd.DataFrame(
             {
@@ -277,11 +246,6 @@ class TestDataAlignment:
 
     def test_interpolate_align_creates_common_grid(self):
         """INTERPOLATE_ALIGN should interpolate all data to a common time grid."""
-        from big_mood_detector.domain.services.sparse_data_handler import (
-            AlignmentStrategy,
-            SparseDataHandler,
-        )
-
         # Given: Sensors with different time resolutions
         # 6-hourly sleep data (2 days = 5 points: 00, 06, 12, 18 on day 1, 00 on day 2)
         sleep_times = pd.date_range("2025-01-01", "2025-01-02", freq="6h")
@@ -323,11 +287,6 @@ class TestDataAlignment:
 
     def test_interpolate_align_handles_mixed_resolutions(self):
         """INTERPOLATE_ALIGN should handle sensors with very different time resolutions."""
-        from big_mood_detector.domain.services.sparse_data_handler import (
-            AlignmentStrategy,
-            SparseDataHandler,
-        )
-
         # Given: High-frequency heart rate and low-frequency sleep
         hr_times = pd.date_range("2025-01-01 00:00", "2025-01-01 06:00", freq="h")
         hr_data = pd.DataFrame(
@@ -359,11 +318,6 @@ class TestDataAlignment:
 
     def test_interpolate_align_with_gaps(self):
         """INTERPOLATE_ALIGN should handle gaps in sensor data appropriately."""
-        from big_mood_detector.domain.services.sparse_data_handler import (
-            AlignmentStrategy,
-            SparseDataHandler,
-        )
-
         # Given: Sparse sensor data with gaps
         temp_times = pd.to_datetime(
             [
@@ -402,16 +356,12 @@ class TestDataAlignment:
         day2_temp = aligned.loc["2025-01-02", "temp_temperature"]
         assert pd.isna(day2_temp) or isinstance(day2_temp, int | float)
 
+
 class TestInterpolationStrategies:
     """Test different interpolation methods for sparse data."""
 
     def test_no_interpolation_for_large_gaps(self):
         """Should not interpolate gaps larger than threshold."""
-        from big_mood_detector.domain.services.sparse_data_handler import (
-            InterpolationMethod,
-            SparseDataHandler,
-        )
-
         # Given: Data with a large gap
         dates = [date(2025, 1, 1), date(2025, 1, 2), date(2025, 1, 10)]
         values = [100, 110, 200]
@@ -432,11 +382,6 @@ class TestInterpolationStrategies:
 
     def test_circadian_aware_interpolation(self):
         """Should use circadian patterns for activity interpolation."""
-        from big_mood_detector.domain.services.sparse_data_handler import (
-            InterpolationMethod,
-            SparseDataHandler,
-        )
-
         # Given: Activity data with small gaps
         times = pd.date_range("2025-01-01", periods=48, freq="h")
         # Create circadian pattern with gaps
@@ -461,11 +406,6 @@ class TestInterpolationStrategies:
 
     def test_forward_fill_for_sleep_states(self):
         """Should forward-fill categorical sleep states."""
-        from big_mood_detector.domain.services.sparse_data_handler import (
-            InterpolationMethod,
-            SparseDataHandler,
-        )
-
         # Given: Sleep state data with gaps
         times = pd.date_range("2025-01-01 22:00", periods=10, freq="h")
         states = [
@@ -495,13 +435,12 @@ class TestInterpolationStrategies:
         assert interpolated.iloc[4]["sleep_state"] == "DEEP"
         assert interpolated.iloc[6]["sleep_state"] == "REM"
 
+
 class TestMissingDataFeatures:
     """Test extraction of missingness patterns as features."""
 
     def test_extracts_missingness_features(self):
         """Should extract features from missing data patterns."""
-        from big_mood_detector.domain.services.sparse_data_handler import SparseDataHandler
-
         # Given: Data with known missing patterns
         dates = pd.date_range("2025-01-01", "2025-01-30", freq="D")
         values = np.random.randn(len(dates))
@@ -525,8 +464,6 @@ class TestMissingDataFeatures:
 
     def test_confidence_scores_based_on_density(self):
         """Should assign confidence scores based on data density."""
-        from big_mood_detector.domain.services.sparse_data_handler import SparseDataHandler
-
         # Given: Variable density data
         dense_dates = pd.date_range("2025-01-01", "2025-01-07", freq="D")
         sparse_dates = pd.date_range("2025-01-15", "2025-01-30", freq="3D")
@@ -543,13 +480,12 @@ class TestMissingDataFeatures:
         assert 0 <= dense_confidence <= 1
         assert 0 <= sparse_confidence <= 1
 
+
 class TestHybridPipeline:
     """Test adaptive pipeline that switches strategies based on data density."""
 
     def test_selects_appropriate_algorithm(self):
         """Should select algorithm based on data characteristics."""
-        from big_mood_detector.domain.services.sparse_data_handler import SparseDataHandler
-
         # Given: Mixed density dataset
         data_windows = {
             "dense_period": {
@@ -579,8 +515,6 @@ class TestHybridPipeline:
 
     def test_graceful_degradation(self):
         """Should gracefully degrade functionality with less data."""
-        from big_mood_detector.domain.services.sparse_data_handler import SparseDataHandler
-
         # Given: Progressively sparser data
         handler = SparseDataHandler()
 
@@ -607,13 +541,12 @@ class TestHybridPipeline:
         assert poor_count < excellent_count
         assert all("confidence" in fs for fs in feature_sets.values())
 
+
 class TestRealWorldScenarios:
     """Test with patterns from actual user data."""
 
     def test_handles_january_to_april_gap(self):
         """Should handle the actual gap in user's data."""
-        from big_mood_detector.domain.services.sparse_data_handler import SparseDataHandler
-
         # Given: User's actual data pattern
         sleep_dates = pd.date_range("2025-01-01", "2025-03-31", freq="D")
         activity_dates = pd.date_range("2025-04-15", "2025-07-14", freq="D")
@@ -633,8 +566,6 @@ class TestRealWorldScenarios:
 
     def test_handles_may_sparse_overlap(self):
         """Should handle sparse May overlap from user data."""
-        from big_mood_detector.domain.services.sparse_data_handler import SparseDataHandler
-
         # Given: Actual May overlap pattern
         overlap_dates = pd.to_datetime(
             [

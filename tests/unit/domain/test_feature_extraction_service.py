@@ -9,13 +9,27 @@ from datetime import UTC, date, datetime, timedelta
 
 import pytest
 
+from big_mood_detector.domain.entities.activity_record import (
+    ActivityRecord,
+    ActivityType,
+)
+from big_mood_detector.domain.entities.heart_rate_record import (
+    HeartMetricType,
+    HeartRateRecord,
+    MotionContext,
+)
+from big_mood_detector.domain.entities.sleep_record import SleepRecord, SleepState
+from big_mood_detector.domain.services.feature_extraction_service import (
+    ClinicalFeatures,
+    FeatureExtractionService,
+)
+
+
 class TestClinicalFeatures:
     """Test suite for ClinicalFeatures value object."""
 
     def test_create_clinical_features(self):
         """Test creating clinical features."""
-        from big_mood_detector.domain.services.feature_extraction_service import ClinicalFeatures
-
         # ARRANGE & ACT
         features = ClinicalFeatures(
             date=date(2024, 1, 1),
@@ -50,8 +64,6 @@ class TestClinicalFeatures:
 
     def test_clinical_features_is_immutable(self):
         """Test that clinical features cannot be modified."""
-        from big_mood_detector.domain.services.feature_extraction_service import ClinicalFeatures
-
         # ARRANGE
         features = ClinicalFeatures(
             date=date(2024, 1, 1),
@@ -64,8 +76,6 @@ class TestClinicalFeatures:
 
     def test_feature_vector_generation(self):
         """Test generation of ML-ready feature vector."""
-        from big_mood_detector.domain.services.feature_extraction_service import ClinicalFeatures
-
         # ARRANGE
         features = ClinicalFeatures(
             date=date(2024, 1, 1),
@@ -96,8 +106,6 @@ class TestClinicalFeatures:
 
     def test_clinical_significance_detection(self):
         """Test detection of clinically significant patterns."""
-        from big_mood_detector.domain.services.feature_extraction_service import ClinicalFeatures
-
         # ARRANGE - Multiple concerning patterns
         features = ClinicalFeatures(
             date=date(2024, 1, 1),
@@ -119,6 +127,7 @@ class TestClinicalFeatures:
         assert features.is_clinically_significant
         assert len(features.clinical_notes) == 4
         assert "sleep deprivation" in features.clinical_notes[0]
+
 
 class TestFeatureExtractionService:
     """Test suite for FeatureExtractionService."""
@@ -227,15 +236,6 @@ class TestFeatureExtractionService:
 
     def test_missing_data_handling(self, service):
         """Test handling of partial data (e.g., no heart rate data)."""
-        from big_mood_detector.domain.entities.activity_record import (
-            ActivityRecord,
-            ActivityType,
-        )
-        from big_mood_detector.domain.entities.sleep_record import (
-            SleepRecord,
-            SleepState,
-        )
-
         # ARRANGE
         sleep_records = [
             SleepRecord(
@@ -283,20 +283,6 @@ class TestFeatureExtractionService:
 
     def test_circadian_alignment_calculation(self, service):
         """Test calculation of circadian alignment score."""
-        from big_mood_detector.domain.entities.activity_record import (
-            ActivityRecord,
-            ActivityType,
-        )
-        from big_mood_detector.domain.entities.heart_rate_record import (
-            HeartMetricType,
-            HeartRateRecord,
-            MotionContext,
-        )
-        from big_mood_detector.domain.entities.sleep_record import (
-            SleepRecord,
-            SleepState,
-        )
-
         # ARRANGE - Well-aligned circadian rhythm
         day = datetime(2024, 1, 1, tzinfo=UTC)
 
@@ -366,20 +352,6 @@ class TestFeatureExtractionService:
 
     def test_clinical_significance_flagging(self, service):
         """Test flagging of clinically significant patterns."""
-        from big_mood_detector.domain.entities.activity_record import (
-            ActivityRecord,
-            ActivityType,
-        )
-        from big_mood_detector.domain.entities.heart_rate_record import (
-            HeartMetricType,
-            HeartRateRecord,
-            MotionContext,
-        )
-        from big_mood_detector.domain.entities.sleep_record import (
-            SleepRecord,
-            SleepState,
-        )
-
         # ARRANGE - Multiple concerning patterns
         day = datetime(2024, 1, 1, tzinfo=UTC)
 
@@ -445,11 +417,6 @@ class TestFeatureExtractionService:
 
     def test_multiple_days_feature_extraction(self, service):
         """Test feature extraction across multiple days."""
-        from big_mood_detector.domain.entities.sleep_record import (
-            SleepRecord,
-            SleepState,
-        )
-
         # ARRANGE
         records = []
         for day_offset in range(3):

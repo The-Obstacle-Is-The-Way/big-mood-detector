@@ -8,6 +8,21 @@ from datetime import date
 
 import pytest
 
+from big_mood_detector.domain.entities.activity_record import (
+    ActivityType,
+)
+from big_mood_detector.domain.entities.heart_rate_record import (
+    HeartMetricType,
+    MotionContext,
+)
+from big_mood_detector.domain.entities.sleep_record import SleepState
+from big_mood_detector.infrastructure.parsers.json import (
+    ActivityJSONParser,
+    HeartRateJSONParser,
+    SleepJSONParser,
+)
+
+
 class TestSleepJSONParser:
     """Test cases for Sleep JSON parser."""
 
@@ -56,8 +71,6 @@ class TestSleepJSONParser:
 
     def test_parse_sleep_data(self, parser, sleep_json_data):
         """Test parsing sleep data from JSON."""
-        from big_mood_detector.domain.entities.sleep_record import SleepState
-
         # ACT
         records = parser.parse(sleep_json_data)
 
@@ -110,6 +123,7 @@ class TestSleepJSONParser:
         assert len(records) == 1
         assert records[0].duration_hours == 8.0
 
+
 class TestHeartRateJSONParser:
     """Test cases for Heart Rate JSON parser."""
 
@@ -148,8 +162,6 @@ class TestHeartRateJSONParser:
 
     def test_parse_heart_rate_data(self, parser, heart_rate_json_data):
         """Test parsing heart rate data from JSON."""
-        from big_mood_detector.domain.entities.heart_rate_record import HeartMetricType
-
         # ACT
         records = parser.parse(heart_rate_json_data)
 
@@ -168,11 +180,6 @@ class TestHeartRateJSONParser:
 
     def test_parse_resting_heart_rate(self, parser):
         """Test parsing resting heart rate data."""
-        from big_mood_detector.domain.entities.heart_rate_record import (
-            HeartMetricType,
-            MotionContext,
-        )
-
         # ARRANGE
         resting_data = {
             "data": {
@@ -199,6 +206,7 @@ class TestHeartRateJSONParser:
         assert records[0].value == 58
         assert records[0].metric_type == HeartMetricType.HEART_RATE
         assert records[0].motion_context == MotionContext.SEDENTARY
+
 
 class TestActivityJSONParser:
     """Test cases for Activity JSON parser."""
@@ -234,8 +242,6 @@ class TestActivityJSONParser:
 
     def test_parse_step_count_data(self, parser, step_count_json_data):
         """Test parsing step count data from JSON."""
-        from big_mood_detector.domain.entities.activity_record import ActivityType
-
         # ACT
         records = parser.parse(step_count_json_data)
 
@@ -251,8 +257,6 @@ class TestActivityJSONParser:
 
     def test_parse_distance_data(self, parser):
         """Test parsing walking/running distance data."""
-        from big_mood_detector.domain.entities.activity_record import ActivityType
-
         # ARRANGE
         distance_data = {
             "data": {

@@ -10,6 +10,24 @@ from unittest.mock import Mock
 
 import pytest
 
+from big_mood_detector.domain.entities.activity_record import (
+    ActivityRecord,
+    ActivityType,
+)
+from big_mood_detector.domain.entities.heart_rate_record import (
+    HeartMetricType,
+    HeartRateRecord,
+)
+from big_mood_detector.domain.entities.sleep_record import SleepRecord, SleepState
+from big_mood_detector.domain.repositories.baseline_repository_interface import (
+    BaselineRepositoryInterface,
+    UserBaseline,
+)
+from big_mood_detector.domain.services.clinical_feature_extractor import (
+    ClinicalFeatureExtractor,
+)
+
+
 class TestClinicalFeatureExtractorWithCalibration:
     """Test personal calibration integration in feature extraction."""
 
@@ -89,9 +107,6 @@ class TestClinicalFeatureExtractorWithCalibration:
 
     def test_feature_extractor_accepts_calibration_params(self):
         """Test that ClinicalFeatureExtractor can be initialized with calibration."""
-        from big_mood_detector.domain.repositories.baseline_repository_interface import BaselineRepositoryInterface
-        from big_mood_detector.domain.services.clinical_feature_extractor import ClinicalFeatureExtractor
-
         mock_repo = Mock(spec=BaselineRepositoryInterface)
 
         # Should accept baseline_repository and user_id
@@ -103,9 +118,6 @@ class TestClinicalFeatureExtractorWithCalibration:
         assert extractor.user_id == "test_user"
 
     def test_uses_personal_baselines_for_zscores(
-        from big_mood_detector.domain.services.clinical_feature_extractor import ClinicalFeatureExtractor
-        from big_mood_detector.domain.repositories.baseline_repository_interface import UserBaseline
-
         self, mock_baseline_repository, sample_records
     ):
         """Test that personal baselines are used for Z-score calculation."""
@@ -147,8 +159,6 @@ class TestClinicalFeatureExtractorWithCalibration:
 
     def test_persists_updated_baselines(self, mock_baseline_repository, sample_records):
         """Test that baselines are persisted after feature extraction."""
-        from big_mood_detector.domain.services.clinical_feature_extractor import ClinicalFeatureExtractor
-
         sleep_records, activity_records, heart_records = sample_records
 
         # Create extractor with calibration
@@ -172,8 +182,6 @@ class TestClinicalFeatureExtractorWithCalibration:
 
     def test_works_without_calibration(self, sample_records):
         """Test backward compatibility without calibration."""
-        from big_mood_detector.domain.services.clinical_feature_extractor import ClinicalFeatureExtractor
-
         sleep_records, activity_records, heart_records = sample_records
 
         # Create extractor without calibration params

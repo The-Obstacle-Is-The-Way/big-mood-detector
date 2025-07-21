@@ -11,6 +11,9 @@ from pathlib import Path
 
 import pytest
 
+from big_mood_detector.domain.services.episode_labeler import EpisodeLabeler
+
+
 class TestSQLiteEpisodeRepository:
     """Test SQLite repository for episode persistence."""
 
@@ -28,13 +31,17 @@ class TestSQLiteEpisodeRepository:
 
     def test_repository_can_be_imported(self):
         """Test that SQLite repository can be imported."""
-        from big_mood_detector.infrastructure.repositories.sqlite_episode_repository import SQLiteEpisodeRepository
+        from big_mood_detector.infrastructure.repositories.sqlite_episode_repository import (
+            SQLiteEpisodeRepository,
+        )
 
         assert SQLiteEpisodeRepository is not None
 
     def test_create_repository_with_database(self, temp_db):
         """Test creating repository initializes database."""
-        from big_mood_detector.infrastructure.repositories.sqlite_episode_repository import SQLiteEpisodeRepository
+        from big_mood_detector.infrastructure.repositories.sqlite_episode_repository import (
+            SQLiteEpisodeRepository,
+        )
 
         _ = SQLiteEpisodeRepository(db_path=temp_db)
 
@@ -58,8 +65,9 @@ class TestSQLiteEpisodeRepository:
 
     def test_save_and_load_episodes(self, temp_db):
         """Test saving and loading episodes."""
-        from big_mood_detector.domain.services.episode_labeler import EpisodeLabeler
-        from big_mood_detector.infrastructure.repositories.sqlite_episode_repository import SQLiteEpisodeRepository
+        from big_mood_detector.infrastructure.repositories.sqlite_episode_repository import (
+            SQLiteEpisodeRepository,
+        )
 
         repo = SQLiteEpisodeRepository(db_path=temp_db)
 
@@ -94,8 +102,9 @@ class TestSQLiteEpisodeRepository:
 
     def test_save_and_load_baselines(self, temp_db):
         """Test saving and loading baseline periods."""
-        from big_mood_detector.domain.services.episode_labeler import EpisodeLabeler
-        from big_mood_detector.infrastructure.repositories.sqlite_episode_repository import SQLiteEpisodeRepository
+        from big_mood_detector.infrastructure.repositories.sqlite_episode_repository import (
+            SQLiteEpisodeRepository,
+        )
 
         repo = SQLiteEpisodeRepository(db_path=temp_db)
 
@@ -120,8 +129,9 @@ class TestSQLiteEpisodeRepository:
 
     def test_update_existing_episodes(self, temp_db):
         """Test updating existing episodes doesn't create duplicates."""
-        from big_mood_detector.domain.services.episode_labeler import EpisodeLabeler
-        from big_mood_detector.infrastructure.repositories.sqlite_episode_repository import SQLiteEpisodeRepository
+        from big_mood_detector.infrastructure.repositories.sqlite_episode_repository import (
+            SQLiteEpisodeRepository,
+        )
 
         repo = SQLiteEpisodeRepository(db_path=temp_db)
 
@@ -144,9 +154,11 @@ class TestSQLiteEpisodeRepository:
 
     def test_thread_safe_operations(self, temp_db):
         """Test repository is thread-safe."""
-        from big_mood_detector.infrastructure.repositories.sqlite_episode_repository import SQLiteEpisodeRepository
-
         import threading
+
+        from big_mood_detector.infrastructure.repositories.sqlite_episode_repository import (
+            SQLiteEpisodeRepository,
+        )
 
         repo = SQLiteEpisodeRepository(db_path=temp_db)
         errors = []
@@ -177,8 +189,9 @@ class TestSQLiteEpisodeRepository:
 
     def test_query_by_date_range(self, temp_db):
         """Test querying episodes by date range."""
-        from big_mood_detector.domain.services.episode_labeler import EpisodeLabeler
-        from big_mood_detector.infrastructure.repositories.sqlite_episode_repository import SQLiteEpisodeRepository
+        from big_mood_detector.infrastructure.repositories.sqlite_episode_repository import (
+            SQLiteEpisodeRepository,
+        )
 
         repo = SQLiteEpisodeRepository(db_path=temp_db)
 
@@ -203,8 +216,9 @@ class TestSQLiteEpisodeRepository:
 
     def test_get_episodes_by_rater(self, temp_db):
         """Test querying episodes by rater ID."""
-        from big_mood_detector.domain.services.episode_labeler import EpisodeLabeler
-        from big_mood_detector.infrastructure.repositories.sqlite_episode_repository import SQLiteEpisodeRepository
+        from big_mood_detector.infrastructure.repositories.sqlite_episode_repository import (
+            SQLiteEpisodeRepository,
+        )
 
         repo = SQLiteEpisodeRepository(db_path=temp_db)
 

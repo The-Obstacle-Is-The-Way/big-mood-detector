@@ -6,13 +6,19 @@ Following TDD principles - write tests first, then implement strategies.
 
 import pandas as pd
 
+from big_mood_detector.domain.services.interpolation_strategies import (
+    CircadianSplineInterpolationStrategy,
+    ForwardFillInterpolationStrategy,
+    LinearInterpolationStrategy,
+    NoInterpolationStrategy,
+)
+
+
 class TestInterpolationStrategy:
     """Test the InterpolationStrategy interface."""
 
     def test_interpolation_strategy_interface(self):
         """Test that InterpolationStrategy defines the correct interface."""
-        from big_mood_detector.domain.services.interpolation_strategies import LinearInterpolationStrategy
-
         # This test will fail initially - that's the point of TDD
         strategy = LinearInterpolationStrategy(max_gap_hours=24)
 
@@ -25,13 +31,12 @@ class TestInterpolationStrategy:
         assert isinstance(result, pd.DataFrame)
         assert result.shape == data.shape
 
+
 class TestLinearInterpolationStrategy:
     """Test linear interpolation strategy."""
 
     def test_linear_interpolation_fills_gaps(self):
         """Test that linear interpolation fills gaps correctly."""
-        from big_mood_detector.domain.services.interpolation_strategies import LinearInterpolationStrategy
-
         strategy = LinearInterpolationStrategy(max_gap_hours=48)  # 2 days
 
         # Create data with 1-day gap
@@ -48,8 +53,6 @@ class TestLinearInterpolationStrategy:
 
     def test_linear_interpolation_respects_max_gap(self):
         """Test that linear interpolation respects max gap limit."""
-        from big_mood_detector.domain.services.interpolation_strategies import LinearInterpolationStrategy
-
         strategy = LinearInterpolationStrategy(
             max_gap_hours=0
         )  # No interpolation allowed
@@ -63,13 +66,12 @@ class TestLinearInterpolationStrategy:
         # Should NOT interpolate any values due to limit = 0
         assert result["steps"].isna().sum() == 2  # 2 missing values should remain
 
+
 class TestForwardFillInterpolationStrategy:
     """Test forward fill interpolation strategy."""
 
     def test_forward_fill_categorical_data(self):
         """Test forward fill for categorical data."""
-        from big_mood_detector.domain.services.interpolation_strategies import ForwardFillInterpolationStrategy
-
         strategy = ForwardFillInterpolationStrategy(max_gap_hours=48)
 
         dates = pd.date_range("2024-01-01", periods=4, freq="D")
@@ -81,13 +83,12 @@ class TestForwardFillInterpolationStrategy:
         assert result["sleep_stage"].iloc[1] == "deep"
         assert result["sleep_stage"].iloc[2] == "deep"
 
+
 class TestCircadianSplineInterpolationStrategy:
     """Test circadian-aware spline interpolation."""
 
     def test_circadian_interpolation_preserves_rhythm(self):
         """Test that circadian interpolation preserves daily rhythms."""
-        from big_mood_detector.domain.services.interpolation_strategies import CircadianSplineInterpolationStrategy
-
         strategy = CircadianSplineInterpolationStrategy(max_gap_hours=48)
 
         # Create hourly activity data with missing values
@@ -109,13 +110,12 @@ class TestCircadianSplineInterpolationStrategy:
         assert interpolated_section.max() <= 110  # Should not go too high
         assert len(interpolated_section) == 24  # Should interpolate all missing values
 
+
 class TestNoInterpolationStrategy:
     """Test no interpolation strategy."""
 
     def test_no_interpolation_preserves_missing_values(self):
         """Test that no interpolation preserves missing values."""
-        from big_mood_detector.domain.services.interpolation_strategies import NoInterpolationStrategy
-
         strategy = NoInterpolationStrategy()
 
         dates = pd.date_range("2024-01-01", periods=4, freq="D")
@@ -128,18 +128,15 @@ class TestNoInterpolationStrategy:
         assert result["heart_rate"].iloc[0] == 70
         assert result["heart_rate"].iloc[3] == 75
 
+
 class TestInterpolationStrategyFactory:
     """Test factory for creating interpolation strategies."""
 
     def test_factory_creates_correct_strategy(self):
         """Test that factory creates the correct strategy type."""
         from big_mood_detector.domain.services.interpolation_strategies import (
-            CircadianSplineInterpolationStrategy,
-            ForwardFillInterpolationStrategy,
             InterpolationMethod,
             InterpolationStrategyFactory,
-            LinearInterpolationStrategy,
-            NoInterpolationStrategy,
         )
 
         # Test linear strategy creation

@@ -10,12 +10,22 @@ from unittest.mock import Mock
 
 import pytest
 
+from big_mood_detector.domain.entities.activity_record import (
+    ActivityRecord,
+    ActivityType,
+)
+from big_mood_detector.domain.entities.sleep_record import SleepRecord, SleepState
+
+
 class TestAggregationPipeline:
     """Test the feature aggregation pipeline extraction."""
 
     @pytest.fixture
     def aggregation_pipeline(self):
         """Create AggregationPipeline instance."""
+        from big_mood_detector.application.services.aggregation_pipeline import (
+            AggregationPipeline,
+        )
 
         return AggregationPipeline()
 
@@ -61,6 +71,9 @@ class TestAggregationPipeline:
     @pytest.fixture
     def sample_sleep_windows(self):
         """Create sample sleep window analysis results."""
+        from big_mood_detector.domain.services.sleep_window_analyzer import (
+            SleepWindow,
+        )
 
         # Mock sleep window with proper attributes
         window = Mock(spec=SleepWindow)
@@ -173,11 +186,6 @@ class TestAggregationPipeline:
 
     def test_feature_extraction_with_sparse_data(self, aggregation_pipeline):
         """Test handling of sparse/missing data."""
-        from big_mood_detector.domain.entities.sleep_record import (
-            SleepRecord,
-            SleepState,
-        )
-
         # Only 3 days of sleep data
         sparse_sleep = [
             SleepRecord(

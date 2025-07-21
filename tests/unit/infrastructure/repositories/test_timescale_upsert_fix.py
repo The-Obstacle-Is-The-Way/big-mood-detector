@@ -10,14 +10,21 @@ from unittest.mock import MagicMock, patch
 import pytest
 from sqlalchemy import create_engine
 
+from big_mood_detector.domain.repositories.baseline_repository_interface import (
+    UserBaseline,
+)
+from big_mood_detector.infrastructure.repositories.timescale_baseline_repository import (
+    Base,
+    TimescaleBaselineRepository,
+)
+
+
 class TestTimescaleUpsertPattern:
     """Test that repository uses atomic UPSERT operations."""
 
     @pytest.fixture
     def test_db(self):
         """Create in-memory SQLite database for testing."""
-        from big_mood_detector.infrastructure.repositories.timescale_baseline_repository import Base
-
         engine = create_engine("sqlite:///:memory:")
         Base.metadata.create_all(engine)
         return engine
@@ -25,8 +32,6 @@ class TestTimescaleUpsertPattern:
     @pytest.fixture
     def repository(self, test_db):
         """Create repository with test database."""
-        from big_mood_detector.infrastructure.repositories.timescale_baseline_repository import TimescaleBaselineRepository
-
         repo = TimescaleBaselineRepository(
             connection_string="sqlite:///:memory:", enable_feast_sync=False
         )
@@ -36,8 +41,6 @@ class TestTimescaleUpsertPattern:
 
     def test_save_baseline_uses_upsert_not_delete_insert(self, repository, monkeypatch):
         """Test that save_baseline uses UPSERT pattern for atomicity."""
-        from big_mood_detector.domain.repositories.baseline_repository_interface import UserBaseline
-
         # Create a baseline
         baseline = UserBaseline(
             user_id="test_user",
@@ -89,8 +92,6 @@ class TestTimescaleUpsertPattern:
 
     def test_session_management_prevents_leaks(self, repository):
         """Test that sessions are properly closed even on exceptions."""
-        from big_mood_detector.domain.repositories.baseline_repository_interface import UserBaseline
-
         baseline = UserBaseline(
             user_id="test_user",
             baseline_date=date.today(),

@@ -9,6 +9,17 @@ from datetime import date, datetime, timedelta
 
 import pytest
 
+from big_mood_detector.domain.entities.activity_record import (
+    ActivityRecord,
+    ActivityType,
+)
+from big_mood_detector.domain.entities.sleep_record import SleepRecord, SleepState
+from big_mood_detector.domain.services.clinical_feature_extractor import (
+    ClinicalFeatureExtractor,
+    ClinicalFeatureSet,
+)
+
+
 class TestClinicalFeatureExtractorActivity:
     """Test activity feature extraction in ClinicalFeatureExtractor."""
 
@@ -95,8 +106,6 @@ class TestClinicalFeatureExtractorActivity:
         return records
 
     def test_extract_activity_features(
-        from big_mood_detector.domain.services.clinical_feature_extractor import ClinicalFeatureSet
-
         self, extractor, sample_activity_records, sample_sleep_records
     ):
         """Test that activity features are extracted and non-null."""

@@ -6,6 +6,23 @@ Tests for registering the new services extracted from clinical_interpreter.
 
 import pytest
 
+from big_mood_detector.domain.services.clinical_assessment_service import (
+    ClinicalAssessmentService,
+)
+from big_mood_detector.domain.services.clinical_interpreter import ClinicalInterpreter
+from big_mood_detector.domain.services.intervention_evaluation_service import (
+    InterventionEvaluationService,
+)
+from big_mood_detector.domain.services.longitudinal_assessment_service import (
+    LongitudinalAssessmentService,
+)
+from big_mood_detector.infrastructure.di.container import (
+    Container,
+    DependencyNotFoundError,
+    setup_dependencies,
+)
+
+
 class TestDIContainerPhase2:
     """Test new service registrations for Phase 2."""
 
@@ -27,44 +44,36 @@ class TestDIContainerPhase2:
 
     def test_clinical_assessment_service_not_registered_by_default(self, container):
         """Test that ClinicalAssessmentService is not registered by default."""
-        from big_mood_detector.domain.services.clinical_assessment_service import ClinicalAssessmentService
-        from big_mood_detector.infrastructure.di.container import DependencyNotFoundError
-
         with pytest.raises(DependencyNotFoundError):
             container.resolve(ClinicalAssessmentService)
 
     def test_longitudinal_assessment_service_not_registered_by_default(self, container):
         """Test that LongitudinalAssessmentService is not registered by default."""
-        from big_mood_detector.domain.services.longitudinal_assessment_service import LongitudinalAssessmentService
-        from big_mood_detector.infrastructure.di.container import DependencyNotFoundError
-
         with pytest.raises(DependencyNotFoundError):
             container.resolve(LongitudinalAssessmentService)
 
     def test_intervention_evaluation_service_not_registered_by_default(self, container):
         """Test that InterventionEvaluationService is not registered by default."""
-        from big_mood_detector.domain.services.intervention_evaluation_service import InterventionEvaluationService
-        from big_mood_detector.infrastructure.di.container import DependencyNotFoundError
-
         with pytest.raises(DependencyNotFoundError):
             container.resolve(InterventionEvaluationService)
 
     def test_clinical_interpreter_not_registered_by_default(self, container):
         """Test that ClinicalInterpreter is not registered by default."""
-        from big_mood_detector.domain.services.clinical_interpreter import ClinicalInterpreter
-        from big_mood_detector.infrastructure.di.container import DependencyNotFoundError
-
         with pytest.raises(DependencyNotFoundError):
             container.resolve(ClinicalInterpreter)
 
     def test_register_clinical_assessment_service(self, container, clinical_config):
         """Test registering ClinicalAssessmentService as singleton."""
-        from big_mood_detector.domain.services.clinical_thresholds import ClinicalThresholdsConfig
-        from big_mood_detector.domain.services.dsm5_criteria_evaluator import DSM5CriteriaEvaluator
-        from big_mood_detector.domain.services.clinical_assessment_service import ClinicalAssessmentService
-        from big_mood_detector.domain.services.treatment_recommender import TreatmentRecommender
-
         # Given: Required dependencies are registered
+        from big_mood_detector.domain.services.clinical_thresholds import (
+            ClinicalThresholdsConfig,
+        )
+        from big_mood_detector.domain.services.dsm5_criteria_evaluator import (
+            DSM5CriteriaEvaluator,
+        )
+        from big_mood_detector.domain.services.treatment_recommender import (
+            TreatmentRecommender,
+        )
 
         container.register_singleton(ClinicalThresholdsConfig, clinical_config)
         container.register_singleton(DSM5CriteriaEvaluator)
@@ -82,15 +91,19 @@ class TestDIContainerPhase2:
 
     def test_register_all_new_services(self, container, clinical_config):
         """Test registering all new services together."""
-        from big_mood_detector.domain.services.clinical_thresholds import ClinicalThresholdsConfig
-        from big_mood_detector.domain.services.clinical_assessment_service import ClinicalAssessmentService
-        from big_mood_detector.domain.services.early_warning_detector import EarlyWarningDetector
-        from big_mood_detector.domain.services.treatment_recommender import TreatmentRecommender
-        from big_mood_detector.domain.services.intervention_evaluation_service import InterventionEvaluationService
-        from big_mood_detector.domain.services.longitudinal_assessment_service import LongitudinalAssessmentService
-        from big_mood_detector.domain.services.dsm5_criteria_evaluator import DSM5CriteriaEvaluator
-
         # Given: Required dependencies
+        from big_mood_detector.domain.services.clinical_thresholds import (
+            ClinicalThresholdsConfig,
+        )
+        from big_mood_detector.domain.services.dsm5_criteria_evaluator import (
+            DSM5CriteriaEvaluator,
+        )
+        from big_mood_detector.domain.services.early_warning_detector import (
+            EarlyWarningDetector,
+        )
+        from big_mood_detector.domain.services.treatment_recommender import (
+            TreatmentRecommender,
+        )
 
         container.register_singleton(ClinicalThresholdsConfig, clinical_config)
         container.register_singleton(DSM5CriteriaEvaluator)
@@ -113,19 +126,28 @@ class TestDIContainerPhase2:
 
     def test_clinical_interpreter_with_dependencies(self, container, clinical_config):
         """Test ClinicalInterpreter can be resolved with all its dependencies."""
-        from big_mood_detector.domain.services.clinical_thresholds import ClinicalThresholdsConfig
-        from big_mood_detector.domain.services.clinical_assessment_service import ClinicalAssessmentService
-        from big_mood_detector.domain.services.early_warning_detector import EarlyWarningDetector
-        from big_mood_detector.domain.services.clinical_interpreter import ClinicalInterpreter
-        from big_mood_detector.domain.services.treatment_recommender import TreatmentRecommender
-        from big_mood_detector.domain.services.episode_interpreter import EpisodeInterpreter
-        from big_mood_detector.domain.services.longitudinal_assessment_service import LongitudinalAssessmentService
-        from big_mood_detector.domain.services.intervention_evaluation_service import InterventionEvaluationService
-        from big_mood_detector.domain.services.dsm5_criteria_evaluator import DSM5CriteriaEvaluator
-        from big_mood_detector.domain.services.biomarker_interpreter import BiomarkerInterpreter
-        from big_mood_detector.domain.services.risk_level_assessor import RiskLevelAssessor
-
         # Given: All required services are registered
+        from big_mood_detector.domain.services.biomarker_interpreter import (
+            BiomarkerInterpreter,
+        )
+        from big_mood_detector.domain.services.clinical_thresholds import (
+            ClinicalThresholdsConfig,
+        )
+        from big_mood_detector.domain.services.dsm5_criteria_evaluator import (
+            DSM5CriteriaEvaluator,
+        )
+        from big_mood_detector.domain.services.early_warning_detector import (
+            EarlyWarningDetector,
+        )
+        from big_mood_detector.domain.services.episode_interpreter import (
+            EpisodeInterpreter,
+        )
+        from big_mood_detector.domain.services.risk_level_assessor import (
+            RiskLevelAssessor,
+        )
+        from big_mood_detector.domain.services.treatment_recommender import (
+            TreatmentRecommender,
+        )
 
         # Register config first (dependency of many services)
         container.register_singleton(ClinicalThresholdsConfig, clinical_config)
@@ -153,15 +175,6 @@ class TestDIContainerPhase2:
 
     def test_setup_dependencies_includes_new_services(self, mock_settings):
         """Test that setup_dependencies registers our new services."""
-        from big_mood_detector.domain.services.clinical_assessment_service import ClinicalAssessmentService
-        from big_mood_detector.domain.services.clinical_interpreter import ClinicalInterpreter
-        from big_mood_detector.domain.services.intervention_evaluation_service import InterventionEvaluationService
-        from big_mood_detector.infrastructure.di.container import (
-            DependencyNotFoundError,
-            setup_dependencies,
-        )
-        from big_mood_detector.domain.services.longitudinal_assessment_service import LongitudinalAssessmentService
-
         # Clear any existing container
         import big_mood_detector.infrastructure.di.container as di_module
 
@@ -182,22 +195,31 @@ class TestDIContainerPhase2:
             pytest.fail("New services not registered in setup_dependencies")
 
     def test_clinical_interpreter_methods_work_after_di(
-        from big_mood_detector.domain.services.clinical_thresholds import ClinicalThresholdsConfig
-        from big_mood_detector.domain.services.clinical_assessment_service import ClinicalAssessmentService
-        from big_mood_detector.domain.services.early_warning_detector import EarlyWarningDetector
-        from big_mood_detector.domain.services.clinical_interpreter import ClinicalInterpreter
-        from big_mood_detector.domain.services.treatment_recommender import TreatmentRecommender
-        from big_mood_detector.domain.services.episode_interpreter import EpisodeInterpreter
-        from big_mood_detector.domain.services.longitudinal_assessment_service import LongitudinalAssessmentService
-        from big_mood_detector.domain.services.intervention_evaluation_service import InterventionEvaluationService
-        from big_mood_detector.domain.services.dsm5_criteria_evaluator import DSM5CriteriaEvaluator
-        from big_mood_detector.domain.services.biomarker_interpreter import BiomarkerInterpreter
-        from big_mood_detector.domain.services.risk_level_assessor import RiskLevelAssessor
-
         self, container, clinical_config
     ):
         """Test that ClinicalInterpreter methods work after DI resolution."""
         # Given: Full DI setup
+        from big_mood_detector.domain.services.biomarker_interpreter import (
+            BiomarkerInterpreter,
+        )
+        from big_mood_detector.domain.services.clinical_thresholds import (
+            ClinicalThresholdsConfig,
+        )
+        from big_mood_detector.domain.services.dsm5_criteria_evaluator import (
+            DSM5CriteriaEvaluator,
+        )
+        from big_mood_detector.domain.services.early_warning_detector import (
+            EarlyWarningDetector,
+        )
+        from big_mood_detector.domain.services.episode_interpreter import (
+            EpisodeInterpreter,
+        )
+        from big_mood_detector.domain.services.risk_level_assessor import (
+            RiskLevelAssessor,
+        )
+        from big_mood_detector.domain.services.treatment_recommender import (
+            TreatmentRecommender,
+        )
 
         container.register_singleton(ClinicalThresholdsConfig, clinical_config)
         container.register_singleton(EpisodeInterpreter)
@@ -229,8 +251,9 @@ class TestDIContainerPhase2:
 
     def test_register_feature_engineering_orchestrator(self, container):
         """Test registering FeatureEngineeringOrchestrator."""
-        from big_mood_detector.domain.services.feature_engineering_orchestrator import FeatureEngineeringOrchestrator
-        from big_mood_detector.infrastructure.di.container import DependencyNotFoundError
+        from big_mood_detector.domain.services.feature_engineering_orchestrator import (
+            FeatureEngineeringOrchestrator,
+        )
 
         # Should not be registered by default
         with pytest.raises(DependencyNotFoundError):

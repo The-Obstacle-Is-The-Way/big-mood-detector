@@ -18,6 +18,13 @@ from unittest.mock import Mock, patch
 import pandas as pd
 import pytest
 
+from big_mood_detector.application.use_cases.process_health_data_use_case import (
+    MoodPredictionPipeline,
+    PipelineConfig,
+)
+from big_mood_detector.domain.entities.sleep_record import SleepRecord, SleepState
+
+
 class TestEndToEndDataProcessing:
     """Test complete data processing pipeline with real-world scenarios."""
 
@@ -249,11 +256,6 @@ class TestEndToEndDataProcessing:
 
     def test_sparse_data_handling(self, pipeline_with_mocked_ml):
         """Test pipeline handles sparse data correctly."""
-        from big_mood_detector.domain.entities.sleep_record import (
-            SleepRecord,
-            SleepState,
-        )
-
         # Create sparse data (only 2 days in a week)
         sparse_records = {
             "sleep_records": [
@@ -295,8 +297,6 @@ class TestEndToEndDataProcessing:
 
     def test_export_to_csv_functionality(self, pipeline_with_mocked_ml):
         """Test exporting results to CSV format."""
-        from big_mood_detector.application.use_cases.process_health_data_use_case import PipelineResult
-
         # Create mock predictions
         predictions = {
             date(2024, 1, 1): {
@@ -314,6 +314,9 @@ class TestEndToEndDataProcessing:
         }
 
         # Create result
+        from big_mood_detector.application.use_cases.process_health_data_use_case import (
+            PipelineResult,
+        )
 
         result = PipelineResult(
             daily_predictions=predictions,
@@ -358,11 +361,6 @@ class TestEndToEndDataProcessing:
 
     def test_feature_aggregation_accuracy(self, pipeline_with_mocked_ml):
         """Test that feature aggregation produces correct statistics."""
-        from big_mood_detector.domain.entities.sleep_record import (
-            SleepRecord,
-            SleepState,
-        )
-
         # Create consistent sleep patterns for predictable aggregation
         sleep_records = []
         base_date = datetime(2024, 1, 1, 23, 0)
@@ -436,11 +434,6 @@ class TestEndToEndDataProcessing:
 
     def test_clinical_validation_integration(self, pipeline_with_mocked_ml):
         """Test that clinical validation is applied throughout pipeline."""
-        from big_mood_detector.domain.entities.sleep_record import (
-            SleepRecord,
-            SleepState,
-        )
-
         # Create data that should trigger clinical warnings
         sleep_records = [
             SleepRecord(

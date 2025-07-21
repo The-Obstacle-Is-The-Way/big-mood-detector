@@ -4,6 +4,19 @@ from datetime import date, datetime, timedelta
 
 import pytest
 
+from big_mood_detector.application.services.aggregation_pipeline import (
+    AggregationPipeline,
+)
+from big_mood_detector.domain.entities.activity_record import (
+    ActivityRecord,
+    ActivityType,
+)
+from big_mood_detector.domain.entities.sleep_record import SleepRecord, SleepState
+from big_mood_detector.domain.services.clinical_feature_extractor import (
+    ClinicalFeatureSet,
+)
+
+
 @pytest.fixture
 def sample_sleep_records():
     """Create sample sleep records."""
@@ -22,6 +35,7 @@ def sample_sleep_records():
         records.append(record)
 
     return records
+
 
 @pytest.fixture
 def sample_activity_records():
@@ -45,15 +59,14 @@ def sample_activity_records():
 
     return records
 
+
 @pytest.fixture
 def sample_heart_records():
     """Create sample heart rate records."""
     return []  # Empty for now, as other tests do
 
-def test_pipeline_returns_clinical_feature_set(
-    from big_mood_detector.application.services.aggregation_pipeline import AggregationPipeline
-    from big_mood_detector.domain.services.clinical_feature_extractor import ClinicalFeatureSet
 
+def test_pipeline_returns_clinical_feature_set(
     sample_sleep_records, sample_activity_records, sample_heart_records
 ):
     """Test that aggregation pipeline returns ClinicalFeatureSet instead of DailyFeatures."""

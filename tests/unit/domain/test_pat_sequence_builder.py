@@ -10,13 +10,24 @@ from datetime import UTC, date, datetime, timedelta
 import numpy as np
 import pytest
 
+from big_mood_detector.domain.entities.activity_record import (
+    ActivityRecord,
+    ActivityType,
+)
+from big_mood_detector.domain.services.activity_sequence_extractor import (
+    ActivitySequenceExtractor,
+)
+from big_mood_detector.domain.services.pat_sequence_builder import (
+    PATSequence,
+    PATSequenceBuilder,
+)
+
+
 class TestPATSequence:
     """Test the immutable PATSequence value object."""
 
     def test_sequence_properties(self):
         """Test basic properties of a PAT sequence."""
-        from big_mood_detector.domain.services.pat_sequence_builder import PATSequence
-
         end_date = date(2025, 5, 15)
         activity_values = np.zeros(10080)  # 7 days * 1440 minutes
         missing_days = []
@@ -37,8 +48,6 @@ class TestPATSequence:
 
     def test_incomplete_sequence(self):
         """Test sequence with missing days."""
-        from big_mood_detector.domain.services.pat_sequence_builder import PATSequence
-
         end_date = date(2025, 5, 15)
         activity_values = np.zeros(10080)
         missing_days = [date(2025, 5, 10), date(2025, 5, 12)]
@@ -57,8 +66,6 @@ class TestPATSequence:
 
     def test_to_patches(self):
         """Test converting sequence to patches for transformer input."""
-        from big_mood_detector.domain.services.pat_sequence_builder import PATSequence
-
         # Create sequence with known pattern
         activity_values = np.arange(10080)  # Sequential values for testing
         sequence = PATSequence(
@@ -81,8 +88,6 @@ class TestPATSequence:
 
     def test_normalization(self):
         """Test z-score normalization of sequences."""
-        from big_mood_detector.domain.services.pat_sequence_builder import PATSequence
-
         # Create sequence with known mean and std
         activity_values = np.array([1, 2, 3, 4, 5] * 2016)  # Mean=3, Std≈1.41
         sequence = PATSequence(
@@ -107,6 +112,7 @@ class TestPATSequence:
 
         normalized_constant = constant_sequence.get_normalized()
         assert np.all(normalized_constant == 0)  # All values should be 0
+
 
 class TestPATSequenceBuilder:
     """Test the PAT sequence builder."""
@@ -148,8 +154,6 @@ class TestPATSequenceBuilder:
 
     def test_build_complete_sequence(self, sample_activity_records):
         """Test building a complete 7-day sequence."""
-        from big_mood_detector.domain.services.pat_sequence_builder import PATSequenceBuilder
-
         builder = PATSequenceBuilder()
         end_date = date(2025, 5, 15)
 
@@ -169,12 +173,6 @@ class TestPATSequenceBuilder:
 
     def test_build_sequence_with_missing_days(self):
         """Test building sequence when some days have no data."""
-        from big_mood_detector.domain.entities.activity_record import (
-            ActivityRecord,
-            ActivityType,
-        )
-        from big_mood_detector.domain.services.pat_sequence_builder import PATSequenceBuilder
-
         # Create records for only 5 out of 7 days
         records = []
         dates_with_data = [9, 10, 12, 14, 15]  # Skip days 11 and 13
@@ -207,8 +205,6 @@ class TestPATSequenceBuilder:
 
     def test_build_multiple_sequences(self, sample_activity_records):
         """Test building multiple overlapping sequences."""
-        from big_mood_detector.domain.services.pat_sequence_builder import PATSequenceBuilder
-
         builder = PATSequenceBuilder()
 
         # Debug: Check what dates we have data for
@@ -255,8 +251,6 @@ class TestPATSequenceBuilder:
 
     def test_calculate_pat_features(self, sample_activity_records):
         """Test extracting PAT-specific features from a sequence."""
-        from big_mood_detector.domain.services.pat_sequence_builder import PATSequenceBuilder
-
         builder = PATSequenceBuilder()
         sequence = builder.build_sequence(
             activity_records=sample_activity_records,
@@ -283,8 +277,6 @@ class TestPATSequenceBuilder:
 
     def test_empty_activity_records(self):
         """Test handling of empty activity records."""
-        from big_mood_detector.domain.services.pat_sequence_builder import PATSequenceBuilder
-
         builder = PATSequenceBuilder()
         sequence = builder.build_sequence(
             activity_records=[],
@@ -298,12 +290,6 @@ class TestPATSequenceBuilder:
 
     def test_sequence_date_boundaries(self):
         """Test that sequences respect exact date boundaries."""
-        from big_mood_detector.domain.entities.activity_record import (
-            ActivityRecord,
-            ActivityType,
-        )
-        from big_mood_detector.domain.services.pat_sequence_builder import PATSequenceBuilder
-
         # Create activity only on specific days
         records = []
 
@@ -356,13 +342,6 @@ class TestPATSequenceBuilder:
 
     def test_custom_extractor_integration(self):
         """Test using a custom activity sequence extractor."""
-        from big_mood_detector.domain.entities.activity_record import (
-            ActivityRecord,
-            ActivityType,
-        )
-        from big_mood_detector.domain.services.activity_sequence_extractor import ActivitySequenceExtractor
-        from big_mood_detector.domain.services.pat_sequence_builder import PATSequenceBuilder
-
         # This tests that the builder can work with different extractors
         custom_extractor = ActivitySequenceExtractor()
         builder = PATSequenceBuilder(sequence_extractor=custom_extractor)
@@ -384,6 +363,7 @@ class TestPATSequenceBuilder:
 
         assert sequence is not None
         assert len(sequence.activity_values) == 10080
+
 
 class TestPATIntegrationWithPipeline:
     """Test integration of PAT sequences with the ML pipeline."""
@@ -425,8 +405,6 @@ class TestPATIntegrationWithPipeline:
 
     def test_pat_sequence_shape_for_transformer(self, sample_activity_records):
         """Test that sequences have correct shape for transformer models."""
-        from big_mood_detector.domain.services.pat_sequence_builder import PATSequenceBuilder
-
         builder = PATSequenceBuilder()
         sequence = builder.build_sequence(
             activity_records=sample_activity_records,
@@ -447,8 +425,6 @@ class TestPATIntegrationWithPipeline:
 
     def test_normalized_input_distribution(self, sample_activity_records):
         """Test that normalized inputs have appropriate distribution for models."""
-        from big_mood_detector.domain.services.pat_sequence_builder import PATSequenceBuilder
-
         builder = PATSequenceBuilder()
         sequence = builder.build_sequence(
             activity_records=sample_activity_records,

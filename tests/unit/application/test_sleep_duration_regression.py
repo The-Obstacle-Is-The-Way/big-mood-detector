@@ -6,6 +6,20 @@ This test guards against the sleep_percentage * 24 bug returning.
 
 from datetime import date, datetime, timedelta
 
+from big_mood_detector.application.services.aggregation_pipeline import (
+    AggregationPipeline,
+)
+from big_mood_detector.domain.entities.activity_record import (
+    ActivityRecord,
+    ActivityType,
+)
+from big_mood_detector.domain.entities.heart_rate_record import (
+    HeartMetricType,
+    HeartRateRecord,
+)
+from big_mood_detector.domain.entities.sleep_record import SleepRecord, SleepState
+
+
 class TestSleepDurationRegression:
     """Ensure sleep duration calculations remain reasonable."""
 
@@ -16,20 +30,6 @@ class TestSleepDurationRegression:
         Normal human sleep should be between 4-12 hours per day.
         We use a tighter bound [6,10] to catch calculation errors early.
         """
-        from big_mood_detector.domain.entities.activity_record import (
-            ActivityRecord,
-            ActivityType,
-        )
-        from big_mood_detector.domain.entities.heart_rate_record import (
-            HeartMetricType,
-            HeartRateRecord,
-        )
-        from big_mood_detector.domain.entities.sleep_record import (
-            SleepRecord,
-            SleepState,
-        )
-        from big_mood_detector.application.services.aggregation_pipeline import AggregationPipeline
-
         pipeline = AggregationPipeline()
 
         # Create various sleep patterns
@@ -166,20 +166,6 @@ class TestSleepDurationRegression:
 
     def test_multi_day_sleep_average_reasonable(self):
         """Test that multi-day averages are reasonable."""
-        from big_mood_detector.domain.entities.activity_record import (
-            ActivityRecord,
-            ActivityType,
-        )
-        from big_mood_detector.domain.entities.heart_rate_record import (
-            HeartMetricType,
-            HeartRateRecord,
-        )
-        from big_mood_detector.domain.entities.sleep_record import (
-            SleepRecord,
-            SleepState,
-        )
-        from big_mood_detector.application.services.aggregation_pipeline import AggregationPipeline
-
         pipeline = AggregationPipeline()
 
         # Create a week of normal sleep

@@ -8,13 +8,18 @@ from datetime import UTC, date, datetime, time, timedelta
 
 import pytest
 
+from big_mood_detector.domain.entities.sleep_record import SleepRecord, SleepState
+from big_mood_detector.domain.services.sleep_aggregator import (
+    DailySleepSummary,
+    SleepAggregator,
+)
+
+
 class TestDailySleepSummary:
     """Test suite for DailySleepSummary value object."""
 
     def test_create_daily_summary(self):
         """Test creating a daily sleep summary."""
-        from big_mood_detector.domain.services.sleep_aggregator import DailySleepSummary
-
         # ARRANGE & ACT
         summary = DailySleepSummary(
             date=date(2024, 1, 1),
@@ -37,8 +42,6 @@ class TestDailySleepSummary:
 
     def test_clinically_significant_too_little_sleep(self):
         """Test detection of clinically significant sleep deprivation."""
-        from big_mood_detector.domain.services.sleep_aggregator import DailySleepSummary
-
         # ARRANGE
         summary = DailySleepSummary(
             date=date(2024, 1, 1),
@@ -55,8 +58,6 @@ class TestDailySleepSummary:
 
     def test_clinically_significant_too_much_sleep(self):
         """Test detection of clinically significant hypersomnia."""
-        from big_mood_detector.domain.services.sleep_aggregator import DailySleepSummary
-
         # ARRANGE
         summary = DailySleepSummary(
             date=date(2024, 1, 1),
@@ -73,8 +74,6 @@ class TestDailySleepSummary:
 
     def test_clinically_significant_poor_efficiency(self):
         """Test detection of poor sleep efficiency."""
-        from big_mood_detector.domain.services.sleep_aggregator import DailySleepSummary
-
         # ARRANGE
         summary = DailySleepSummary(
             date=date(2024, 1, 1),
@@ -91,8 +90,6 @@ class TestDailySleepSummary:
 
     def test_clinically_significant_high_fragmentation(self):
         """Test detection of fragmented sleep."""
-        from big_mood_detector.domain.services.sleep_aggregator import DailySleepSummary
-
         # ARRANGE
         summary = DailySleepSummary(
             date=date(2024, 1, 1),
@@ -106,6 +103,7 @@ class TestDailySleepSummary:
 
         # ASSERT
         assert summary.is_clinically_significant
+
 
 class TestSleepAggregator:
     """Test suite for SleepAggregator service."""
@@ -160,11 +158,6 @@ class TestSleepAggregator:
 
     def test_fragmented_sleep_calculation(self, aggregator):
         """Test fragmentation index calculation."""
-        from big_mood_detector.domain.entities.sleep_record import (
-            SleepRecord,
-            SleepState,
-        )
-
         # ARRANGE - Multiple sleep sessions with gaps
         night = datetime(2024, 1, 1, 23, 0, tzinfo=UTC)
         records = [
@@ -198,11 +191,6 @@ class TestSleepAggregator:
 
     def test_sleep_date_assignment_evening(self, aggregator):
         """Test sleep starting in evening assigns to next date due to 3pm rule."""
-        from big_mood_detector.domain.entities.sleep_record import (
-            SleepRecord,
-            SleepState,
-        )
-
         # ARRANGE - Sleep starting at 10 PM
         records = [
             SleepRecord(
@@ -222,11 +210,6 @@ class TestSleepAggregator:
 
     def test_sleep_date_assignment_early_morning(self, aggregator):
         """Test sleep starting early morning assigns to that date (before 3pm)."""
-        from big_mood_detector.domain.entities.sleep_record import (
-            SleepRecord,
-            SleepState,
-        )
-
         # ARRANGE - Sleep starting at 2 AM
         records = [
             SleepRecord(
@@ -246,11 +229,6 @@ class TestSleepAggregator:
 
     def test_circadian_markers(self, aggregator):
         """Test calculation of circadian rhythm markers."""
-        from big_mood_detector.domain.entities.sleep_record import (
-            SleepRecord,
-            SleepState,
-        )
-
         # ARRANGE
         night = datetime(2024, 1, 1, 23, 30, tzinfo=UTC)
         records = [
@@ -273,11 +251,6 @@ class TestSleepAggregator:
 
     def test_multiple_days_aggregation(self, aggregator):
         """Test aggregating sleep across multiple days."""
-        from big_mood_detector.domain.entities.sleep_record import (
-            SleepRecord,
-            SleepState,
-        )
-
         # ARRANGE
         records = []
         for day in range(3):

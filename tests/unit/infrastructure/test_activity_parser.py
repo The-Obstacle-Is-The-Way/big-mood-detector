@@ -7,13 +7,14 @@ Following Clean Architecture and Uncle Bob's principles.
 
 import pytest
 
+from big_mood_detector.infrastructure.parsers.xml import ActivityParser
+
+
 class TestActivityParser:
     """Test suite for ActivityParser - Apple HealthKit activity data extraction."""
 
     def test_activity_parser_exists(self):
         """Test that ActivityParser class can be instantiated."""
-        from big_mood_detector.infrastructure.parsers.xml import ActivityParser
-
         # ARRANGE & ACT
         parser = ActivityParser()
 
@@ -23,8 +24,6 @@ class TestActivityParser:
 
     def test_parse_accepts_xml_string(self):
         """Test that parse method accepts XML string input."""
-        from big_mood_detector.infrastructure.parsers.xml import ActivityParser
-
         # ARRANGE
         parser = ActivityParser()
         xml_data = "<HealthData></HealthData>"
@@ -38,8 +37,6 @@ class TestActivityParser:
 
     def test_parse_empty_xml_returns_empty_list(self):
         """Test parsing empty HealthData returns empty list."""
-        from big_mood_detector.infrastructure.parsers.xml import ActivityParser
-
         # ARRANGE
         parser = ActivityParser()
         xml_data = """<?xml version="1.0" encoding="UTF-8"?>
@@ -53,8 +50,6 @@ class TestActivityParser:
 
     def test_extract_step_count_record(self):
         """Test extraction of step count records."""
-        from big_mood_detector.infrastructure.parsers.xml import ActivityParser
-
         # ARRANGE
         parser = ActivityParser()
         xml_data = """<?xml version="1.0" encoding="UTF-8"?>
@@ -81,8 +76,6 @@ class TestActivityParser:
 
     def test_extract_multiple_activity_types(self):
         """Test extraction of different activity types."""
-        from big_mood_detector.infrastructure.parsers.xml import ActivityParser
-
         # ARRANGE
         parser = ActivityParser()
         xml_data = """<?xml version="1.0" encoding="UTF-8"?>
@@ -119,8 +112,6 @@ class TestActivityParser:
 
     def test_parse_invalid_xml_raises_exception(self):
         """Test that invalid XML raises appropriate exception."""
-        from big_mood_detector.infrastructure.parsers.xml import ActivityParser
-
         # ARRANGE
         parser = ActivityParser()
         invalid_xml = "This is not valid XML"
@@ -131,8 +122,6 @@ class TestActivityParser:
 
     def test_filters_non_activity_records(self):
         """Test that non-activity records are filtered out."""
-        from big_mood_detector.infrastructure.parsers.xml import ActivityParser
-
         # ARRANGE
         parser = ActivityParser()
         xml_data = """<?xml version="1.0" encoding="UTF-8"?>
@@ -156,8 +145,6 @@ class TestActivityParser:
 
     def test_parse_to_entities(self):
         """Test parsing to domain entities."""
-        from big_mood_detector.infrastructure.parsers.xml import ActivityParser
-
         # ARRANGE
         parser = ActivityParser()
         xml_data = """<?xml version="1.0" encoding="UTF-8"?>
@@ -182,8 +169,6 @@ class TestActivityParser:
 
     def test_supported_activity_types_property(self):
         """Test that parser exposes supported activity types."""
-        from big_mood_detector.infrastructure.parsers.xml import ActivityParser
-
         # ARRANGE
         parser = ActivityParser()
 
@@ -198,8 +183,6 @@ class TestActivityParser:
 
     def test_instantaneous_vs_duration_records(self):
         """Test handling of instantaneous vs duration-based records."""
-        from big_mood_detector.infrastructure.parsers.xml import ActivityParser
-
         # ARRANGE
         parser = ActivityParser()
         xml_data = """<?xml version="1.0" encoding="UTF-8"?>

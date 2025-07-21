@@ -7,6 +7,9 @@ Tests for basic progress indicators during labeling operations.
 import pytest
 from click.testing import CliRunner
 
+from big_mood_detector.interfaces.cli.main import cli
+
+
 class TestSimpleProgress:
     """Test simple progress features in label CLI."""
 
@@ -17,8 +20,6 @@ class TestSimpleProgress:
 
     def test_episode_labeling_with_progress_flag(self, runner):
         """Test that --progress flag is accepted."""
-        from big_mood_detector.interfaces.cli.main import cli
-
         # When: Running with progress flag
         result = runner.invoke(
             cli,
@@ -40,14 +41,14 @@ class TestSimpleProgress:
 
     def test_export_with_verbose_output(self, runner, tmp_path):
         """Test that export can show verbose output."""
-        from big_mood_detector.domain.services.episode_labeler import EpisodeLabeler
-        from big_mood_detector.interfaces.cli.main import cli
-        from big_mood_detector.infrastructure.repositories.sqlite_episode_repository import SQLiteEpisodeRepository
-
         # Given: A database with episodes
         db_path = tmp_path / "test.db"
 
         # Create test data
+        from big_mood_detector.domain.services.episode_labeler import EpisodeLabeler
+        from big_mood_detector.infrastructure.repositories.sqlite_episode_repository import (
+            SQLiteEpisodeRepository,
+        )
 
         labeler = EpisodeLabeler()
         labeler.add_episode(
@@ -80,12 +81,12 @@ class TestSimpleProgress:
 
     def test_stats_with_detailed_flag(self, runner, tmp_path):
         """Test that stats can show detailed output."""
-        from big_mood_detector.interfaces.cli.main import cli
-        from big_mood_detector.infrastructure.repositories.sqlite_episode_repository import SQLiteEpisodeRepository
-
         # Given: A database that exists (even if empty)
         db_path = tmp_path / "test.db"
         # Create empty database
+        from big_mood_detector.infrastructure.repositories.sqlite_episode_repository import (
+            SQLiteEpisodeRepository,
+        )
 
         SQLiteEpisodeRepository(db_path)
 
@@ -108,8 +109,6 @@ class TestSimpleProgress:
 
     def test_import_shows_count_messages(self, runner, tmp_path):
         """Test that import shows count of imported episodes."""
-        from big_mood_detector.interfaces.cli.main import cli
-
         # Given: A CSV file with episodes
         csv_file = tmp_path / "episodes.csv"
         csv_content = """date,mood,severity
@@ -137,8 +136,6 @@ class TestSimpleProgress:
 
     def test_quiet_mode_suppresses_output(self, runner):
         """Test that --quiet flag suppresses output."""
-        from big_mood_detector.interfaces.cli.main import cli
-
         # When: Running with quiet flag
         result = runner.invoke(
             cli,

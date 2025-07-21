@@ -10,6 +10,15 @@ from unittest.mock import Mock
 
 import pytest
 
+from big_mood_detector.domain.repositories.baseline_repository_interface import (
+    BaselineRepositoryInterface,
+    UserBaseline,
+)
+from big_mood_detector.domain.services.advanced_feature_engineering import (
+    AdvancedFeatureEngineer,
+)
+
+
 class TestBaselineRepositoryIntegration:
     """Test integration of baseline repository with feature engineering."""
 
@@ -25,8 +34,6 @@ class TestBaselineRepositoryIntegration:
 
     def test_feature_engineer_accepts_repository(self, mock_repository):
         """Test that AdvancedFeatureEngineer can be initialized with repository."""
-        from big_mood_detector.domain.services.advanced_feature_engineering import AdvancedFeatureEngineer
-
         # Should accept baseline_repository parameter
         engineer = AdvancedFeatureEngineer(
             config={}, baseline_repository=mock_repository
@@ -36,9 +43,6 @@ class TestBaselineRepositoryIntegration:
 
     def test_loads_baseline_on_init_if_user_provided(self, mock_repository):
         """Test that baselines are loaded from repository on initialization."""
-        from big_mood_detector.domain.repositories.baseline_repository_interface import UserBaseline
-        from big_mood_detector.domain.services.advanced_feature_engineering import AdvancedFeatureEngineer
-
         # Mock existing baseline
         existing_baseline = UserBaseline(
             user_id="test_user",
@@ -68,9 +72,6 @@ class TestBaselineRepositoryIntegration:
 
     def test_persist_baselines_saves_to_repository(self, mock_repository):
         """Test that persist_baselines method saves to repository."""
-        from big_mood_detector.domain.repositories.baseline_repository_interface import UserBaseline
-        from big_mood_detector.domain.services.advanced_feature_engineering import AdvancedFeatureEngineer
-
         # Set up mock to return None (no existing baseline)
         mock_repository.get_baseline.return_value = None
 
@@ -105,8 +106,6 @@ class TestBaselineRepositoryIntegration:
 
     def test_no_persistence_without_repository(self):
         """Test that engineer works without repository (backward compatibility)."""
-        from big_mood_detector.domain.services.advanced_feature_engineering import AdvancedFeatureEngineer
-
         # Should work without repository
         engineer = AdvancedFeatureEngineer(config={})
 
@@ -117,8 +116,9 @@ class TestBaselineRepositoryIntegration:
 
     def test_integration_with_file_repository(self, temp_baseline_dir):
         """Test end-to-end integration with actual file repository."""
-        from big_mood_detector.infrastructure.repositories.file_baseline_repository import FileBaselineRepository
-        from big_mood_detector.domain.services.advanced_feature_engineering import AdvancedFeatureEngineer
+        from big_mood_detector.infrastructure.repositories.file_baseline_repository import (
+            FileBaselineRepository,
+        )
 
         repository = FileBaselineRepository(temp_baseline_dir)
 

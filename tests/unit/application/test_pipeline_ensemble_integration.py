@@ -8,6 +8,18 @@ from datetime import date
 from pathlib import Path
 from unittest.mock import Mock, PropertyMock, patch
 
+from big_mood_detector.application.use_cases.predict_mood_ensemble_use_case import (
+    EnsembleConfig,
+    EnsembleOrchestrator,
+    EnsemblePrediction,
+)
+from big_mood_detector.application.use_cases.process_health_data_use_case import (
+    MoodPredictionPipeline,
+    PipelineConfig,
+)
+from big_mood_detector.domain.services.mood_predictor import MoodPrediction
+
+
 class TestPipelineEnsembleIntegration:
     """Test that ensemble models are properly integrated."""
 
@@ -17,12 +29,6 @@ class TestPipelineEnsembleIntegration:
     @patch("big_mood_detector.infrastructure.ml_models.pat_model.PATModel")
     @patch("pathlib.Path.exists")
     def test_pipeline_uses_ensemble_when_configured(
-        from big_mood_detector.application.use_cases.predict_mood_ensemble_use_case import EnsembleOrchestrator
-        from big_mood_detector.application.use_cases.process_health_data_use_case import (
-            MoodPredictionPipeline,
-            PipelineConfig,
-        )
-
         self, mock_exists, mock_pat_class, mock_xgb_class
     ):
         """Test that pipeline uses ensemble orchestrator when enabled."""
@@ -66,21 +72,6 @@ class TestPipelineEnsembleIntegration:
     @patch("big_mood_detector.infrastructure.ml_models.pat_model.PATModel")
     @patch("pathlib.Path.exists")
     def test_pipeline_uses_ensemble_for_predictions(
-        from big_mood_detector.domain.services.mood_predictor import MoodPrediction
-        from big_mood_detector.application.use_cases.process_health_data_use_case import (
-            MoodPredictionPipeline,
-            PipelineConfig,
-        )
-        from big_mood_detector.domain.entities.sleep_record import (
-            SleepRecord,
-            SleepState,
-        )
-        from big_mood_detector.application.use_cases.predict_mood_ensemble_use_case import EnsemblePrediction
-        from big_mood_detector.domain.services.clinical_feature_extractor import (
-            ClinicalFeatureSet,
-            SeoulXGBoostFeatures,
-        )
-
         self, mock_exists, mock_pat_class, mock_xgb_class, mock_load_models
     ):
         """Test that predictions go through ensemble orchestrator."""
@@ -112,6 +103,11 @@ class TestPipelineEnsembleIntegration:
 
         # Mock the clinical feature extractor to return features
         import numpy as np
+
+        from big_mood_detector.domain.services.clinical_feature_extractor import (
+            ClinicalFeatureSet,
+            SeoulXGBoostFeatures,
+        )
 
         with (
             patch(
@@ -167,6 +163,11 @@ class TestPipelineEnsembleIntegration:
                 # Also need to provide some sleep records for date calculation
                 from datetime import datetime, timedelta
 
+                from big_mood_detector.domain.entities.sleep_record import (
+                    SleepRecord,
+                    SleepState,
+                )
+
                 target_date = date.today()
                 sleep_records = [
                     SleepRecord(
@@ -203,11 +204,6 @@ class TestPipelineEnsembleIntegration:
 
     def test_pipeline_falls_back_to_xgboost_when_pat_disabled(self):
         """Test fallback to XGBoost-only when PAT is disabled."""
-        from big_mood_detector.application.use_cases.process_health_data_use_case import (
-            MoodPredictionPipeline,
-            PipelineConfig,
-        )
-
         config = PipelineConfig(
             include_pat_sequences=False,  # Disable ensemble
             model_dir=Path("model_weights/xgboost/pretrained"),
@@ -231,13 +227,6 @@ class TestPipelineEnsembleIntegration:
     @patch("big_mood_detector.infrastructure.ml_models.pat_model.PATModel")
     @patch("pathlib.Path.exists")
     def test_ensemble_handles_pat_model_failure(
-        from big_mood_detector.domain.services.mood_predictor import MoodPrediction
-        from big_mood_detector.application.use_cases.process_health_data_use_case import (
-            MoodPredictionPipeline,
-            PipelineConfig,
-        )
-        from big_mood_detector.application.use_cases.predict_mood_ensemble_use_case import EnsemblePrediction
-
         self, mock_exists, mock_pat_class, mock_xgb_class, mock_load_models
     ):
         """Test that ensemble gracefully handles PAT model failures."""
@@ -320,12 +309,6 @@ class TestPipelineEnsembleIntegration:
     @patch("big_mood_detector.infrastructure.ml_models.pat_model.PATModel")
     @patch("pathlib.Path.exists")
     def test_ensemble_weight_configuration(
-        from big_mood_detector.application.use_cases.predict_mood_ensemble_use_case import EnsembleConfig
-        from big_mood_detector.application.use_cases.process_health_data_use_case import (
-            MoodPredictionPipeline,
-            PipelineConfig,
-        )
-
         self, mock_exists, mock_pat_class, mock_xgb_class
     ):
         """Test that ensemble weights can be configured."""
@@ -372,24 +355,13 @@ class TestPipelineEnsembleIntegration:
     @patch("big_mood_detector.infrastructure.ml_models.pat_model.PATModel")
     @patch("pathlib.Path.exists")
     def test_pipeline_passes_activity_data_to_ensemble(
-        from big_mood_detector.domain.services.mood_predictor import MoodPrediction
+        self, mock_exists, mock_pat_class, mock_xgb_class, mock_load_models
+    ):
+        """Test that activity records are passed to ensemble for PAT."""
         from big_mood_detector.domain.entities.activity_record import (
             ActivityRecord,
             ActivityType,
         )
-        from big_mood_detector.application.use_cases.process_health_data_use_case import (
-            MoodPredictionPipeline,
-            PipelineConfig,
-        )
-        from big_mood_detector.application.use_cases.predict_mood_ensemble_use_case import EnsemblePrediction
-        from big_mood_detector.domain.services.clinical_feature_extractor import (
-            ClinicalFeatureSet,
-            SeoulXGBoostFeatures,
-        )
-
-        self, mock_exists, mock_pat_class, mock_xgb_class, mock_load_models
-    ):
-        """Test that activity records are passed to ensemble for PAT."""
 
         # Mock file existence
         mock_exists.return_value = True
@@ -461,6 +433,11 @@ class TestPipelineEnsembleIntegration:
             ) as mock_extract:
                 # Create mock features
                 import numpy as np
+
+                from big_mood_detector.domain.services.clinical_feature_extractor import (
+                    ClinicalFeatureSet,
+                    SeoulXGBoostFeatures,
+                )
 
                 mock_features = Mock(spec=ClinicalFeatureSet)
                 mock_seoul = Mock(spec=SeoulXGBoostFeatures)

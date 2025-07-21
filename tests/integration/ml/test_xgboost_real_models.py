@@ -10,6 +10,13 @@ from pathlib import Path
 import numpy as np
 import pytest
 
+from big_mood_detector.domain.services.mood_predictor import MoodPrediction
+from big_mood_detector.infrastructure.ml_models.xgboost_models import (
+    XGBoostModelLoader,
+    XGBoostMoodPredictor,
+)
+
+
 @pytest.mark.heavy
 @pytest.mark.ml
 class TestXGBoostRealModels:
@@ -22,8 +29,6 @@ class TestXGBoostRealModels:
 
     def test_load_real_models(self, model_dir):
         """Test loading actual XGBoost model files."""
-        from big_mood_detector.infrastructure.ml_models.xgboost_models import XGBoostModelLoader
-
         if not model_dir.exists():
             pytest.skip(f"Model directory not found: {model_dir}")
 
@@ -41,9 +46,6 @@ class TestXGBoostRealModels:
 
     def test_real_model_predictions(self, model_dir):
         """Test predictions with real models on synthetic data."""
-        from big_mood_detector.infrastructure.ml_models.xgboost_models import XGBoostMoodPredictor
-        from big_mood_detector.domain.services.mood_predictor import MoodPrediction
-
         if not model_dir.exists():
             pytest.skip(f"Model directory not found: {model_dir}")
 
@@ -68,8 +70,6 @@ class TestXGBoostRealModels:
 
     def test_batch_predictions_performance(self, model_dir):
         """Test batch prediction performance with real models."""
-        from big_mood_detector.infrastructure.ml_models.xgboost_models import XGBoostModelLoader
-
         if not model_dir.exists():
             pytest.skip(f"Model directory not found: {model_dir}")
 
@@ -120,6 +120,7 @@ class TestXGBoostRealModels:
             features[i] = np.random.randn() * 0.1
 
         return features
+
 
 @pytest.mark.heavy
 def test_model_files_exist():

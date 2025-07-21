@@ -11,12 +11,17 @@ from unittest.mock import MagicMock, patch
 import numpy as np
 import pytest
 
+from big_mood_detector.domain.services.mood_predictor import MoodPrediction
+
+
 class TestXGBoostModels:
     """Test the XGBoost model infrastructure."""
 
     def test_model_loader_initialization(self):
         """Test basic model loader initialization."""
-        from big_mood_detector.infrastructure.ml_models.xgboost_models import XGBoostModelLoader
+        from big_mood_detector.infrastructure.ml_models.xgboost_models import (
+            XGBoostModelLoader,
+        )
 
         loader = XGBoostModelLoader()
 
@@ -27,7 +32,9 @@ class TestXGBoostModels:
 
     def test_expected_feature_names(self):
         """Test that feature names match the paper specification."""
-        from big_mood_detector.infrastructure.ml_models.xgboost_models import XGBoostModelLoader
+        from big_mood_detector.infrastructure.ml_models.xgboost_models import (
+            XGBoostModelLoader,
+        )
 
         loader = XGBoostModelLoader()
 
@@ -49,7 +56,9 @@ class TestXGBoostModels:
     @patch("joblib.load")
     def test_load_single_model(self, mock_joblib_load, mock_exists):
         """Test loading a single XGBoost model."""
-        from big_mood_detector.infrastructure.ml_models.xgboost_models import XGBoostModelLoader
+        from big_mood_detector.infrastructure.ml_models.xgboost_models import (
+            XGBoostModelLoader,
+        )
 
         # Mock file exists
         mock_exists.return_value = True
@@ -70,7 +79,9 @@ class TestXGBoostModels:
 
     def test_load_model_file_not_found(self):
         """Test handling of missing model file."""
-        from big_mood_detector.infrastructure.ml_models.xgboost_models import XGBoostModelLoader
+        from big_mood_detector.infrastructure.ml_models.xgboost_models import (
+            XGBoostModelLoader,
+        )
 
         loader = XGBoostModelLoader()
         fake_path = Path("nonexistent/model.pkl")
@@ -82,7 +93,9 @@ class TestXGBoostModels:
 
     def test_load_all_models(self):
         """Test loading all three mood models."""
-        from big_mood_detector.infrastructure.ml_models.xgboost_models import XGBoostModelLoader
+        from big_mood_detector.infrastructure.ml_models.xgboost_models import (
+            XGBoostModelLoader,
+        )
 
         # Create a test loader
         loader = XGBoostModelLoader()
@@ -104,7 +117,9 @@ class TestXGBoostModels:
 
     def test_predict_without_loaded_models(self):
         """Test that prediction fails gracefully without loaded models."""
-        from big_mood_detector.infrastructure.ml_models.xgboost_models import XGBoostModelLoader
+        from big_mood_detector.infrastructure.ml_models.xgboost_models import (
+            XGBoostModelLoader,
+        )
 
         loader = XGBoostModelLoader()
         features = np.random.randn(36)
@@ -114,8 +129,9 @@ class TestXGBoostModels:
 
     def test_predict_with_loaded_models(self, dummy_xgboost_models):
         """Test making predictions with loaded models."""
-        from big_mood_detector.domain.services.mood_predictor import MoodPrediction
-        from big_mood_detector.infrastructure.ml_models.xgboost_models import XGBoostModelLoader
+        from big_mood_detector.infrastructure.ml_models.xgboost_models import (
+            XGBoostModelLoader,
+        )
 
         loader = XGBoostModelLoader()
         # Use fixture models - clean and reusable
@@ -135,7 +151,9 @@ class TestXGBoostModels:
 
     def test_feature_validation(self):
         """Test that feature vector validation works correctly."""
-        from big_mood_detector.infrastructure.ml_models.xgboost_models import XGBoostModelLoader
+        from big_mood_detector.infrastructure.ml_models.xgboost_models import (
+            XGBoostModelLoader,
+        )
 
         loader = XGBoostModelLoader()
 
@@ -149,7 +167,9 @@ class TestXGBoostModels:
 
     def test_feature_dict_to_array(self):
         """Test converting feature dictionary to array in correct order."""
-        from big_mood_detector.infrastructure.ml_models.xgboost_models import XGBoostModelLoader
+        from big_mood_detector.infrastructure.ml_models.xgboost_models import (
+            XGBoostModelLoader,
+        )
 
         loader = XGBoostModelLoader()
 
@@ -164,8 +184,9 @@ class TestXGBoostModels:
 
     def test_batch_prediction(self):
         """Test making predictions on multiple samples."""
-        from big_mood_detector.domain.services.mood_predictor import MoodPrediction
-        from big_mood_detector.infrastructure.ml_models.xgboost_models import XGBoostModelLoader
+        from big_mood_detector.infrastructure.ml_models.xgboost_models import (
+            XGBoostModelLoader,
+        )
 
         loader = XGBoostModelLoader()
         batch_size = 5
@@ -198,7 +219,9 @@ class TestXGBoostModels:
 
     def test_model_info(self):
         """Test retrieving model information."""
-        from big_mood_detector.infrastructure.ml_models.xgboost_models import XGBoostModelLoader
+        from big_mood_detector.infrastructure.ml_models.xgboost_models import (
+            XGBoostModelLoader,
+        )
 
         loader = XGBoostModelLoader()
         info = loader.get_model_info()
@@ -209,13 +232,15 @@ class TestXGBoostModels:
         assert info["num_features"] == 36
         assert len(info["models_loaded"]) == 0  # No models loaded yet
 
+
 class TestXGBoostMoodPredictor:
     """Test the domain service implementation."""
 
     def test_mood_predictor_implementation(self, dummy_xgboost_models):
         """Test that XGBoostMoodPredictor implements the domain interface."""
-        from big_mood_detector.infrastructure.ml_models.xgboost_models import XGBoostMoodPredictor
-        from big_mood_detector.domain.services.mood_predictor import MoodPrediction
+        from big_mood_detector.infrastructure.ml_models.xgboost_models import (
+            XGBoostMoodPredictor,
+        )
 
         # Create predictor
         predictor = XGBoostMoodPredictor()

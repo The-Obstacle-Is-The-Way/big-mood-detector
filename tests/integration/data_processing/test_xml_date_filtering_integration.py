@@ -10,6 +10,11 @@ from pathlib import Path
 
 import pytest
 
+from big_mood_detector.application.use_cases.process_health_data_use_case import (
+    MoodPredictionPipeline,
+)
+
+
 class TestXMLDateFilteringIntegration:
     """Test date filtering integration with the pipeline."""
 
@@ -57,8 +62,6 @@ class TestXMLDateFilteringIntegration:
 
     def test_process_with_days_back_filter(self, sample_xml_file):
         """Test processing with --days-back filter."""
-        from big_mood_detector.application.use_cases.process_health_data_use_case import MoodPredictionPipeline
-
         pipeline = MoodPredictionPipeline()
 
         # Process only last 30 days
@@ -82,8 +85,6 @@ class TestXMLDateFilteringIntegration:
 
     def test_process_with_date_range_filter(self, sample_xml_file):
         """Test processing with specific date range."""
-        from big_mood_detector.application.use_cases.process_health_data_use_case import MoodPredictionPipeline
-
         pipeline = MoodPredictionPipeline()
 
         # Process February 2024
@@ -114,8 +115,6 @@ class TestXMLDateFilteringIntegration:
 
     def test_predict_with_date_filter(self, sample_xml_file):
         """Test prediction with date filtering."""
-        from big_mood_detector.application.use_cases.process_health_data_use_case import MoodPredictionPipeline
-
         pipeline = MoodPredictionPipeline()
 
         # Predict for last 14 days
@@ -139,8 +138,6 @@ class TestXMLDateFilteringIntegration:
 
     def test_no_filter_processes_all_data(self, sample_xml_file):
         """Test that no filter processes all available data."""
-        from big_mood_detector.application.use_cases.process_health_data_use_case import MoodPredictionPipeline
-
         pipeline = MoodPredictionPipeline()
 
         # Process without date filter
@@ -157,8 +154,6 @@ class TestXMLDateFilteringIntegration:
 
     def test_future_date_filter_returns_empty(self, sample_xml_file):
         """Test that filtering for future dates returns empty results."""
-        from big_mood_detector.application.use_cases.process_health_data_use_case import MoodPredictionPipeline
-
         pipeline = MoodPredictionPipeline()
 
         # Try to process future dates
