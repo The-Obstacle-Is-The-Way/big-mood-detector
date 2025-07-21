@@ -248,7 +248,7 @@ ignore_missing_imports = true
 # Pytest Configuration
 [tool.pytest.ini_options]
 minversion = "7.0"
-addopts = "-v --strict-markers --strict-config -m 'not slow_finetune and not large and not heavy' --tb=short --timeout=300 --timeout-method=thread -p no:pytest_benchmark --disable-warnings"
+addopts = "-v --strict-markers --strict-config -m 'not slow_finetune and not large and not heavy and not performance' --tb=short --timeout=300 --timeout-method=thread -p no:pytest_benchmark --disable-warnings"
 testpaths = ["tests"]
 markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
@@ -260,6 +260,7 @@ markers = [
     "ml: marks tests that require ML models",
     "clinical: marks tests for clinical validation",
     "flaky: marks tests that are known to be flaky (pre-existing issues)",
+    "performance: marks tests for performance testing (deselect with '-m \"not performance\"')",
 ]
 python_files = ["test_*.py", "*_test.py"]
 python_classes = ["Test*"]
