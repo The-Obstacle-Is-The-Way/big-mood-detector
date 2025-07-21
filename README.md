@@ -10,15 +10,15 @@
 
 > **Clinical-grade bipolar mood prediction from Apple Health data using validated ML models**
 
-[![Tests](https://img.shields.io/badge/tests-1068%20passing-brightgreen)](tests/)
-[![Coverage](https://img.shields.io/badge/coverage-80%25-brightgreen)](htmlcov/)
+[![Tests](https://img.shields.io/badge/tests-907%20passing-brightgreen)](tests/)
+[![Coverage](https://img.shields.io/badge/coverage-90%25-brightgreen)](htmlcov/)
 [![Python](https://img.shields.io/badge/python-3.12%2B-blue)](pyproject.toml)
 [![Models](https://img.shields.io/badge/models-XGBoost%20%2B%20PAT-purple)](model_weights/)
 [![License](https://img.shields.io/badge/license-Apache%202.0-green)](LICENSE)
 
 A production-ready system for detecting mood episodes in bipolar disorder using wearable sensor data. Based on peer-reviewed research from Nature Digital Medicine, Harvard Medical School, and Dartmouth.
 
-## ⚠️ Important v0.2.0 Limitations
+## ⚠️ Important v0.2.3 Limitations
 
 **What Works Today:**
 - ✅ **XGBoost predictions** - Fully validated mood risk scores (0.80-0.98 AUC)
@@ -34,14 +34,14 @@ A production-ready system for detecting mood episodes in bipolar disorder using 
 
 **Note:** This implementation has not been clinically validated. For research and personal use only.
 
-## 🆕 What's New (v0.2.1)
+## 🆕 What's New (v0.2.3)
 
+- 🚀 **7x Performance Boost**: Fixed XML processing timeouts - now handles 365 days in 17.4s (was 120s+)
+- ✅ **Optimized Aggregation**: New O(n+m) pipeline with pre-indexing eliminates bottlenecks
+- ✅ **Configurable Analysis**: Skip expensive DLMO/circadian calculations when not needed
 - ✅ **Date Range Filtering**: Process large XML files with `--days-back` or `--date-range` options
 - ✅ **Personal Baselines**: Adaptive predictions based on YOUR normal patterns
-- ✅ **Enhanced Features**: XGBoost predictions with PAT embeddings
 - ✅ **Clinical Reports**: DSM-5 aligned risk assessments with explanations
-- ✅ **Python 3.12**: Full support with performance improvements
-- ✅ **Enhanced Documentation**: Complete feature reference and math details
 
 ## 📋 Requirements
 
@@ -81,7 +81,7 @@ XGBoost model validated on 168 patients over 44,787 observation days:
 
 **Important Notes:**
 - All predictions are **24-hour forecasts** (tomorrow's risk, not today's)
-- v0.2.0 uses XGBoost only (PAT provides embeddings, not predictions)
+- v0.2.3 uses XGBoost only (PAT provides embeddings, not predictions)
 - True ensemble with dual predictions coming in v0.3.0
 
 ### Sample Output
@@ -121,16 +121,17 @@ big-mood-detector/
 │   ├── clinical/           # Clinical validation and research
 │   ├── developer/          # Technical documentation
 │   └── models/             # ML model details and math
-└── tests/                   # 695 tests (91% coverage)
+└── tests/                   # 907 tests (90%+ coverage)
 ```
 
 ## 🧬 Key Features
 
-### 1. **ML Models (v0.2.0 Status)**
+### 1. **ML Models (v0.2.3 Status)**
 
 - **XGBoost** ✅: Fully functional with 36 engineered features, validated predictions (0.80-0.98 AUC)
 - **PAT Transformer** ⚠️: Provides 96-dim embeddings to enhance XGBoost features (no independent predictions)
 - **Current "Ensemble"** 🔄: XGBoost with PAT-enhanced features (true ensemble coming v0.3.0)
+- **Performance** ⚡: 7x faster processing with optimized aggregation pipeline
 
 ### 2. **Personal Baseline System**
 - Learns YOUR normal patterns (not population average)
@@ -145,7 +146,7 @@ big-mood-detector/
 - **Feature Engineering**: 36 validated biomarkers
 
 ### 4. **Production Architecture**
-- **Performance**: <100ms predictions, handles 500MB+ files
+- **Performance**: <100ms predictions, handles 500MB+ files in minutes (7x faster in v0.2.3)
 - **Scalable**: Async FastAPI, Redis queuing, Docker ready
 - **Privacy-First**: Local processing, no cloud dependencies
 - **Extensible**: Clean architecture for new models/features
@@ -161,9 +162,15 @@ big-mood-detector/
 | `serve` | Start API server | `serve --port 8000 --reload` |
 | `watch` | Monitor directory for new files | `watch data/health_auto_export/` |
 
-### Date Range Filtering (New in v0.2.1)
+### Performance & Date Range Filtering
 
-For large XML files (500MB+), you can now filter data by date to reduce processing time:
+**🚀 v0.2.3 Performance Improvements:**
+- Handles 500MB+ XML files without timeouts
+- Processes 365 days of data in 17.4 seconds (was 120+ seconds)
+- Optimized aggregation with O(n+m) complexity
+- Configurable expensive calculations (DLMO, circadian)
+
+For large XML files, you can also filter data by date to reduce processing time:
 
 ```bash
 # Process only the last 90 days
