@@ -488,6 +488,13 @@ class ClinicalFeatureExtractor:
             date=target_date,
             seoul_features=seoul_features,
             pat_sequence=pat_sequence,
+            # Copy activity features from seoul_features to direct attributes
+            total_steps=float(seoul_features.total_steps),
+            activity_variance=seoul_features.activity_variance,
+            sedentary_hours=seoul_features.sedentary_hours,
+            activity_fragmentation=seoul_features.activity_fragmentation,
+            sedentary_bout_mean=seoul_features.sedentary_bout_mean,
+            activity_intensity_ratio=seoul_features.activity_intensity_ratio,
             is_clinically_significant=is_significant,
             clinical_notes=clinical_notes,
         )

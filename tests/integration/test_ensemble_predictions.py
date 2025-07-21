@@ -54,7 +54,7 @@ class TestEnsemblePredictions:
                             )
                             + timedelta(hours=hour, minutes=minute + 1),
                             activity_type=ActivityType.STEP_COUNT,
-                            value=intensity + np.random.normal(0, 5),
+                            value=max(0, intensity + np.random.normal(0, 5)),
                             unit="count",
                         )
                     )
