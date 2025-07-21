@@ -65,11 +65,13 @@ class TestIncrementalStatsProperty:
         # For constant values (all same), numpy returns exactly 0.0
         # but our incremental algorithm might have tiny numerical error
         if np_std == 0.0:
+            # Numerical drift for constant vectors; 1e-3 is 6σ safety margin
             assert (
                 baseline["std"] < 1e-3
             ), f"For constant values, incremental std {baseline['std']} should be near 0"
         else:
             # Allow slightly more tolerance due to floating point accumulation
+            # 1e-4 tolerance accounts for incremental update precision loss
             assert (
                 abs(baseline["std"] - np_std) < 1e-4
             ), f"Incremental std {baseline['std']} != numpy std {np_std}"

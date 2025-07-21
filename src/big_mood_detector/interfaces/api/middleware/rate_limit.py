@@ -7,11 +7,13 @@ Protects expensive endpoints like ensemble predictions from abuse.
 import os
 from collections.abc import Callable
 from functools import wraps
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from fastapi import Request
 from fastapi.responses import Response
-from slowapi.errors import RateLimitExceeded
+
+if TYPE_CHECKING:
+    from slowapi.errors import RateLimitExceeded
 
 # Check if rate limiting is disabled
 DISABLE_RATE_LIMIT = os.getenv("DISABLE_RATE_LIMIT", "0") == "1"
@@ -19,10 +21,21 @@ DISABLE_RATE_LIMIT = os.getenv("DISABLE_RATE_LIMIT", "0") == "1"
 # Type declaration for limiter
 limiter: Any | None = None
 
-if not DISABLE_RATE_LIMIT:
-    # Production mode - use real rate limiting
+# Try to import slowapi
+try:
     from slowapi import Limiter, _rate_limit_exceeded_handler
+    from slowapi.errors import RateLimitExceeded
     from slowapi.util import get_remote_address
+    SLOWAPI_AVAILABLE = True
+except ImportError:
+    SLOWAPI_AVAILABLE = False
+    # Create a dummy exception class for type consistency
+    class RateLimitExceeded(Exception):  # type: ignore[no-redef]
+        """Dummy exception when slowapi is not available."""
+        pass
+
+if not DISABLE_RATE_LIMIT and SLOWAPI_AVAILABLE:
+    # Production mode - use real rate limiting
 
     # Create limiter with custom key function
     def get_real_client_ip(request: Request) -> str:
@@ -103,7 +116,7 @@ if not DISABLE_RATE_LIMIT:
         app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 else:
-    # Test/development mode - no rate limiting
+    # Test/development mode or slowapi not available - no rate limiting
 
     def get_real_client_ip(request: Request) -> str:
         """Mock implementation that returns a fixed IP."""

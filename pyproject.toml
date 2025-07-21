@@ -248,7 +248,7 @@ ignore_missing_imports = true
 # Pytest Configuration
 [tool.pytest.ini_options]
 minversion = "7.0"
-addopts = "-v --strict-markers --strict-config -m 'not slow_finetune and not large and not heavy' --tb=short --timeout=300 --timeout-method=thread"
+addopts = "-v --strict-markers --strict-config -m 'not slow_finetune and not large and not heavy' --tb=short --timeout=300 --timeout-method=thread -p no:pytest_benchmark --disable-warnings"
 testpaths = ["tests"]
 markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
@@ -276,6 +276,7 @@ omit = [
     "*/migrations/*",
     "*/__init__.py",
 ]
+disable_warnings = ["module-not-imported"]
 
 [tool.coverage.report]
 fail_under = 73  # Current coverage level, prevents regression

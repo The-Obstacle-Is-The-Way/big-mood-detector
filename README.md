@@ -10,8 +10,8 @@
 
 > **Clinical-grade bipolar mood prediction from Apple Health data using validated ML models**
 
-[![Tests](https://img.shields.io/badge/tests-695%20passing-brightgreen)](tests/)
-[![Coverage](https://img.shields.io/badge/coverage-91%25-brightgreen)](htmlcov/)
+[![Tests](https://img.shields.io/badge/tests-1068%20passing-brightgreen)](tests/)
+[![Coverage](https://img.shields.io/badge/coverage-80%25-brightgreen)](htmlcov/)
 [![Python](https://img.shields.io/badge/python-3.12%2B-blue)](pyproject.toml)
 [![Models](https://img.shields.io/badge/models-XGBoost%20%2B%20PAT-purple)](model_weights/)
 [![License](https://img.shields.io/badge/license-Apache%202.0-green)](LICENSE)
