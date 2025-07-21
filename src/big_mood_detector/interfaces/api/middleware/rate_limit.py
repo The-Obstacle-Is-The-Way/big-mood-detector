@@ -79,13 +79,13 @@ if not DISABLE_RATE_LIMIT:
         def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
             # Apply the limiter decorator
             limited = limiter.limit(limit)(func)
-            
+
             @wraps(func)
             async def wrapper(*args: Any, **kwargs: Any) -> Any:
                 return await limited(*args, **kwargs)
-                
+
             return wrapper
-            
+
         return decorator
 
     def setup_rate_limiting(app: Any) -> None:
@@ -100,41 +100,41 @@ if not DISABLE_RATE_LIMIT:
 
 else:
     # Test/development mode - no rate limiting
-    
+
     # Mock implementations
     class RateLimitExceeded(Exception):
         """Mock exception for tests."""
         pass
-    
+
     limiter = None
-    
+
     def get_real_client_ip(request: Request) -> str:
         """Mock implementation that returns a fixed IP."""
         return "127.0.0.1"
-    
+
     def rate_limit(limit_key: str = "default") -> Callable[..., Any]:
         """
         No-op decorator when rate limiting is disabled.
-        
+
         Args:
             limit_key: Ignored in test mode
-            
+
         Returns:
             Pass-through decorator
         """
         def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
             return func
         return decorator
-    
+
     def setup_rate_limiting(app: Any) -> None:
         """
         No-op setup when rate limiting is disabled.
-        
+
         Args:
             app: FastAPI application instance (unused)
         """
         pass
-    
+
     # Mock for exception handler
     def _rate_limit_exceeded_handler(request: Request, exc: RateLimitExceeded) -> Response:
         """Mock handler that should never be called in test mode."""

@@ -39,8 +39,10 @@ class TestRealDataSleepMath:
         print(f"\n🔍 TRACING REAL DATA: {export_file}")
 
         # Step 1: Parse the raw data using DataParsingService
-        from big_mood_detector.application.services.data_parsing_service import DataParsingService
-        
+        from big_mood_detector.application.services.data_parsing_service import (
+            DataParsingService,
+        )
+
         data_service = DataParsingService()
         parsed_data = data_service.parse_health_data(export_file)
 
@@ -132,8 +134,10 @@ class TestRealDataSleepMath:
             pytest.skip("No real export file found")
 
         # Parse data using DataParsingService
-        from big_mood_detector.application.services.data_parsing_service import DataParsingService
-        
+        from big_mood_detector.application.services.data_parsing_service import (
+            DataParsingService,
+        )
+
         data_service = DataParsingService()
         parsed_data = data_service.parse_health_data(export_file)
 

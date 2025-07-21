@@ -24,15 +24,15 @@ class TestAPIStartup:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             s.bind(('', 0))
             port = s.getsockname()[1]
-        
+
         # Start server in background
         env = os.environ.copy()
         env["DISABLE_RATE_LIMIT"] = "1"
-        
+
         cmd = [
             sys.executable,
             "-m",
-            "uvicorn", 
+            "uvicorn",
             "big_mood_detector.interfaces.api.main:app",
             "--host", "127.0.0.1",
             "--port", str(port),
@@ -52,31 +52,31 @@ class TestAPIStartup:
             max_wait = 30
             interval = 1
             waited = 0
-            
+
             while waited < max_wait:
                 # Check if process died
                 if process.poll() is not None:
                     stdout, stderr = process.communicate()
                     pytest.fail(f"Server died. stdout:\n{stdout}\nstderr:\n{stderr}")
-                
+
                 # Try to connect
                 try:
                     response = requests.get(f"http://127.0.0.1:{port}/health", timeout=2)
                     if response.status_code == 200:
                         # Success!
                         break
-                except:
+                except Exception:
                     pass
-                
+
                 time.sleep(interval)
                 waited += interval
             else:
                 pytest.fail(f"Server didn't start in {max_wait}s")
-            
+
             # Test the health endpoint
             response = requests.get(f"http://127.0.0.1:{port}/health", timeout=5)
             assert response.status_code == 200
-            
+
             data = response.json()
             assert data["status"] == "healthy"
             assert "version" in data

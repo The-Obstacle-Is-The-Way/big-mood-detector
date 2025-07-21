@@ -4,9 +4,7 @@ Test core path configuration.
 Ensures paths are correctly resolved regardless of where tests are run from.
 """
 
-from pathlib import Path
 
-import pytest
 
 from big_mood_detector.core.paths import (
     DATA_DIR,
@@ -23,7 +21,7 @@ class TestPaths:
         """Test that PROJECT_ROOT points to actual project root."""
         assert PROJECT_ROOT.exists()
         assert PROJECT_ROOT.is_dir()
-        
+
         # Should contain key project markers
         assert (PROJECT_ROOT / "pyproject.toml").exists()
         assert (PROJECT_ROOT / "src").exists()
@@ -33,7 +31,7 @@ class TestPaths:
         """Test that model weights directory exists."""
         assert MODEL_WEIGHTS_DIR.exists()
         assert MODEL_WEIGHTS_DIR.is_dir()
-        
+
         # Should contain model subdirectories
         assert (MODEL_WEIGHTS_DIR / "xgboost").exists()
         assert (MODEL_WEIGHTS_DIR / "xgboost" / "converted").exists()

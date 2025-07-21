@@ -113,10 +113,10 @@ class TestOpenAPIContract:
             assert (
                 schema_name in schemas
             ), f"Schema {schema_name} missing from OpenAPI spec"
-            
+
         # Check for ClinicalInterpretationResponse with flexible naming
         clinical_schema_found = any(
-            "ClinicalInterpretationResponse" in key 
+            "ClinicalInterpretationResponse" in key
             for key in schemas.keys()
         )
         assert clinical_schema_found, "ClinicalInterpretationResponse schema missing from OpenAPI spec"
