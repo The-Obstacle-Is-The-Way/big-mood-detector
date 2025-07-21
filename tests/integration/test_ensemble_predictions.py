@@ -12,7 +12,10 @@ import numpy as np
 import pytest
 from click.testing import CliRunner
 
-from big_mood_detector.domain.entities.activity_record import ActivityRecord
+from big_mood_detector.domain.entities.activity_record import (
+    ActivityRecord,
+    ActivityType,
+)
 
 
 class TestEnsemblePredictions:
@@ -41,13 +44,18 @@ class TestEnsemblePredictions:
                 for minute in range(60):
                     records.append(
                         ActivityRecord(
+                            source_name="Test",
                             start_date=datetime.combine(
                                 current_date, datetime.min.time()
                             )
                             + timedelta(hours=hour, minutes=minute),
-                            activity_type="movement",
-                            intensity=intensity + np.random.normal(0, 5),
-                            duration_minutes=1.0,
+                            end_date=datetime.combine(
+                                current_date, datetime.min.time()
+                            )
+                            + timedelta(hours=hour, minutes=minute + 1),
+                            activity_type=ActivityType.STEP_COUNT,
+                            value=intensity + np.random.normal(0, 5),
+                            unit="count",
                         )
                     )
 

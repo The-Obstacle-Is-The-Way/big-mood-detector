@@ -33,6 +33,16 @@ from big_mood_detector.domain.services.clinical_thresholds import (  # noqa: E40
 )
 
 
+def pytest_addoption(parser):
+    """Add custom command line options."""
+    parser.addoption(
+        "--run-integration",
+        action="store_true",
+        default=False,
+        help="Run integration tests that require database"
+    )
+
+
 def pytest_configure(config):
     """Configure pytest markers."""
     config.addinivalue_line("markers", "unit: Unit tests (fast, isolated)")

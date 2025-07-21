@@ -22,7 +22,7 @@ from big_mood_detector.domain.entities.activity_record import (
     ActivityRecord,
     ActivityType,
 )
-from big_mood_detector.domain.entities.sleep_record import SleepRecord
+from big_mood_detector.domain.entities.sleep_record import SleepRecord, SleepState
 from big_mood_detector.domain.services.clinical_feature_extractor import (
     ClinicalFeatureExtractor,
 )
@@ -57,8 +57,7 @@ class TestEnsemblePipelineActivityFlow:
                         current_date + timedelta(days=1), datetime.min.time()
                     )
                     + timedelta(hours=7),
-                    is_main_sleep=True,
-                    duration_hours=8.0,
+                    state=SleepState.ASLEEP,
                 )
             )
 
@@ -139,11 +138,14 @@ class TestEnsemblePipelineActivityFlow:
         # Extract clinical features
         extractor = ClinicalFeatureExtractor()
 
+        # Use the last day of generated data
+        last_date = date.today() - timedelta(days=1)
+
         feature_set = extractor.extract_clinical_features(
             sleep_records=sample_records["sleep"],
             activity_records=sample_records["activity"],
             heart_records=sample_records["heart_rate"],
-            target_date=date.today(),
+            target_date=last_date,
         )
 
         # Verify activity features are extracted
@@ -221,11 +223,14 @@ class TestEnsemblePipelineActivityFlow:
 
         # First, get prediction via direct call
         extractor = ClinicalFeatureExtractor()
+        # Use the last day of generated data
+        last_date = date.today() - timedelta(days=1)
+
         feature_set = extractor.extract_clinical_features(
             sleep_records=sample_records["sleep"],
             activity_records=sample_records["activity"],
             heart_records=sample_records["heart_rate"],
-            target_date=date.today(),
+            target_date=last_date,
         )
 
         orchestrator = EnsembleOrchestrator(

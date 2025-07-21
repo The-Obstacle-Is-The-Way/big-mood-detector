@@ -11,14 +11,17 @@ from typing import Any
 
 from fastapi import Request
 from fastapi.responses import Response
+from slowapi.errors import RateLimitExceeded
 
 # Check if rate limiting is disabled
 DISABLE_RATE_LIMIT = os.getenv("DISABLE_RATE_LIMIT", "0") == "1"
 
+# Type declaration for limiter
+limiter: Any | None = None
+
 if not DISABLE_RATE_LIMIT:
     # Production mode - use real rate limiting
     from slowapi import Limiter, _rate_limit_exceeded_handler
-    from slowapi.errors import RateLimitExceeded
     from slowapi.util import get_remote_address
 
     # Create limiter with custom key function
@@ -78,6 +81,7 @@ if not DISABLE_RATE_LIMIT:
 
         def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
             # Apply the limiter decorator
+            assert limiter is not None  # Type guard for mypy
             limited = limiter.limit(limit)(func)
 
             @wraps(func)
@@ -100,13 +104,6 @@ if not DISABLE_RATE_LIMIT:
 
 else:
     # Test/development mode - no rate limiting
-
-    # Mock implementations
-    class RateLimitExceeded(Exception):
-        """Mock exception for tests."""
-        pass
-
-    limiter = None
 
     def get_real_client_ip(request: Request) -> str:
         """Mock implementation that returns a fixed IP."""
