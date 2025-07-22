@@ -55,8 +55,8 @@ test-fast:
 test-unit:
 	pytest tests/unit -x --tb=short -q
 
-test-slow:
-	pytest -m "slow"
+test-slow: ## Run slow performance tests (requires --runslow flag)
+	pytest --runslow -m "slow" -v
 
 test-slow-finetune:
 	pytest -m "slow_finetune" -n 0 --durations=5

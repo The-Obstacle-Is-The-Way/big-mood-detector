@@ -37,6 +37,12 @@ def pytest_addoption(parser):
         default=False,
         help="Run integration tests that require database"
     )
+    parser.addoption(
+        "--runslow",
+        action="store_true",
+        default=False,
+        help="Run tests marked as slow (performance, heavy computation)"
+    )
 
 
 def pytest_configure(config):
@@ -52,9 +58,16 @@ def pytest_configure(config):
 
 
 def pytest_collection_modifyitems(config, items):
-    """Automatically mark tests based on their location."""
+    """Automatically mark tests based on their location and handle slow test skipping."""
+    # Handle slow test skipping
+    if not config.getoption("--runslow"):
+        skip_slow = pytest.mark.skip(reason="need --runslow to execute")
+        for item in items:
+            if "slow" in item.keywords:
+                item.add_marker(skip_slow)
+
+    # Mark tests based on directory structure
     for item in items:
-        # Mark tests based on directory structure
         if "unit/" in str(item.fspath):
             item.add_marker(pytest.mark.unit)
         elif "integration/" in str(item.fspath):
