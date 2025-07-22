@@ -1,42 +1,46 @@
-FROM python:3.12-alpine
+FROM python:3.12-alpine AS build
 
-# Install build dependencies and runtime libraries
+# Install complete build toolchain
 RUN apk add --no-cache \
-    # Build essentials
-    gcc g++ musl-dev linux-headers \
-    # Python dependencies
-    libffi-dev openssl-dev \
-    # XML processing
-    libxml2-dev libxslt-dev \
-    # PostgreSQL
-    postgresql-dev \
-    # Timezone data
-    tzdata \
-    # Make and cmake for building packages
-    make cmake \
-    # Scientific computing dependencies for numpy/scipy/scikit-learn
-    gfortran openblas-dev lapack-dev \
-    # Additional tools
-    git
+    build-base gfortran cmake ninja \
+    openblas-dev lapack-dev openmp-dev \
+    libffi-dev openssl-dev libxml2-dev libxslt-dev \
+    postgresql-dev tzdata git
 
-WORKDIR /app
+WORKDIR /build
 
 # Copy only requirements first for better caching
 COPY pyproject.toml ./
 COPY README.md ./
+
+# Upgrade pip and avoid sdist PEP 517 bugs
+RUN pip install --upgrade pip wheel 'setuptools<70'
+
+# Build heavy deps first so layer can be cached
+RUN pip install --no-binary=:all: numpy==1.26.4
+RUN pip install --no-binary=:all: scipy
+RUN pip install --no-binary=:all: xgboost==2.0.3 scikit-learn==1.5.0
+
+# Now install the package
 COPY src/ ./src/
+RUN pip install -e .
 
-# Install Python packages in stages to catch issues early
-RUN pip install --no-cache-dir --upgrade pip setuptools wheel
+# Runtime stage
+FROM python:3.12-alpine
 
-# Install numpy first (often problematic on Alpine)
-RUN pip install --no-cache-dir numpy==1.24.0
+# Only install runtime dependencies
+RUN apk add --no-cache \
+    libgfortran libgomp \
+    libxml2 libxslt \
+    postgresql-libs \
+    tzdata
 
-# Install the package without ML extras (lighter dependencies)
-RUN pip install --no-cache-dir -e .
+# Copy built packages from build stage
+COPY --from=build /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
+COPY --from=build /usr/local/bin /usr/local/bin
 
-# Install test dependencies
-RUN pip install --no-cache-dir pytest pytest-asyncio
+WORKDIR /app
+COPY src/ ./src/
 
 # Verify imports work
 RUN python -c "import big_mood_detector; print('✅ Package imported successfully')"
