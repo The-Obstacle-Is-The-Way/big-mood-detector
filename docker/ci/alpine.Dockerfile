@@ -5,7 +5,6 @@ RUN apk add --no-cache \
     build-base gfortran cmake ninja \
     openblas-dev lapack-dev openmp-dev \
     autoconf automake libtool patchelf \
-    libexecinfo-dev \
     libffi-dev openssl-dev libxml2-dev libxslt-dev \
     postgresql-dev git tzdata
 
@@ -24,9 +23,10 @@ RUN pip install --no-cache-dir \
 RUN pip install --no-cache-dir scipy==1.13.0
 
 # For XGBoost and scikit-learn, we need to build from source
-# But we can speed it up by setting build flags
+# But we can speed it up by setting build flags and disabling stack traces
 ENV CFLAGS="-O2"
 ENV CXXFLAGS="-O2"
+ENV USE_STACKTRACE=0
 RUN pip install --no-cache-dir --no-binary=xgboost xgboost==2.0.3
 RUN pip install --no-cache-dir --no-binary=scikit-learn scikit-learn==1.5.0
 
@@ -39,7 +39,7 @@ RUN pip install -e .
 FROM python:3.12-alpine
 
 RUN apk add --no-cache \
-    libgomp libexecinfo openblas \
+    libgomp openblas \
     libxml2 libxslt postgresql-libs \
     tzdata
 

@@ -1,9 +1,9 @@
 FROM python:3.12-alpine AS build
 
-# Install complete build toolchain
+# Install complete build toolchain (without libexecinfo which doesn't exist in Alpine 3.17+)
 RUN apk add --no-cache \
     build-base gfortran cmake ninja autoconf automake libtool \
-    openblas-dev lapack-dev openmp-dev libexecinfo-dev \
+    openblas-dev lapack-dev openmp-dev \
     libffi-dev openssl-dev libxml2-dev libxslt-dev \
     postgresql-dev tzdata git
 
@@ -19,6 +19,9 @@ RUN pip install --upgrade pip wheel 'setuptools<70'
 # Build heavy deps first so layer can be cached
 RUN pip install --no-binary=:all: numpy==1.26.4
 RUN pip install --no-binary=:all: scipy
+
+# Build XGBoost without stack trace support (no libexecinfo in Alpine 3.17+)
+ENV USE_STACKTRACE=0
 RUN pip install --no-binary=:all: xgboost==2.0.3 scikit-learn==1.5.0
 
 # Now install the package
@@ -28,7 +31,7 @@ RUN pip install -e .
 # Runtime stage
 FROM python:3.12-alpine
 
-# Only install runtime dependencies
+# Only install runtime dependencies (no libexecinfo)
 RUN apk add --no-cache \
     libgfortran libgomp \
     libxml2 libxslt \
