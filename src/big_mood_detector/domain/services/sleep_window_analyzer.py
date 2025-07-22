@@ -11,7 +11,7 @@ Design Patterns:
 """
 
 from dataclasses import dataclass, field
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 
 from big_mood_detector.domain.entities.sleep_record import SleepRecord
 
@@ -116,7 +116,26 @@ class SleepWindowAnalyzer:
         if target_date:
             if not isinstance(target_date, date):
                 raise ValueError(f"Expected date, got {type(target_date).__name__}")
-            episodes = [e for e in episodes if e.start_date.date() == target_date]
+            # Use Seoul paper rule: assign based on nearest midnight of midpoint
+            filtered_episodes = []
+            for e in episodes:
+                midpoint = e.start_date + (e.end_date - e.start_date) / 2
+                # Find nearest midnight
+                midnight_today = midpoint.replace(hour=0, minute=0, second=0, microsecond=0)
+                midnight_tomorrow = midnight_today + timedelta(days=1)
+
+                # Check which midnight is closer
+                time_to_today_midnight = abs((midpoint - midnight_today).total_seconds())
+                time_to_tomorrow_midnight = abs((midpoint - midnight_tomorrow).total_seconds())
+
+                if time_to_today_midnight <= time_to_tomorrow_midnight:
+                    assigned_date = midnight_today.date()
+                else:
+                    assigned_date = midnight_tomorrow.date()
+
+                if assigned_date == target_date:
+                    filtered_episodes.append(e)
+            episodes = filtered_episodes
 
         if not episodes:
             return []

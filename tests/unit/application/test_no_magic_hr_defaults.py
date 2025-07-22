@@ -95,6 +95,7 @@ class TestNoMagicHRDefaults:
         pipeline = AggregationPipeline()
 
         # Create minimal test data WITHOUT heart rate records
+        # Note: Sleep from 22:00 Jan 1 to 06:00 Jan 2 counts for Jan 2 (midpoint rule)
         sleep_records = [
             SleepRecord(
                 source_name="test",
@@ -102,19 +103,19 @@ class TestNoMagicHRDefaults:
                 end_date=datetime(2024, 1, i + 1, 6, 0),
                 state=SleepState.ASLEEP,
             )
-            for i in range(1, 4)  # 3 days to meet min_window_size
+            for i in range(1, 5)  # Need 4 nights to get 3 full days of data
         ]
 
         activity_records = [
             ActivityRecord(
                 source_name="test",
-                start_date=datetime(2024, 1, i + 1, 12, 0),
-                end_date=datetime(2024, 1, i + 1, 13, 0),
+                start_date=datetime(2024, 1, i, 12, 0),
+                end_date=datetime(2024, 1, i, 13, 0),
                 activity_type=ActivityType.STEP_COUNT,
                 value=5000,
                 unit="steps",
             )
-            for i in range(3)
+            for i in range(2, 5)  # Jan 2, 3, 4 to match sleep data
         ]
 
         # Process WITHOUT heart rate data
@@ -122,8 +123,8 @@ class TestNoMagicHRDefaults:
             sleep_records=sleep_records,
             activity_records=activity_records,
             heart_records=[],  # Empty - no heart data
-            start_date=date(2024, 1, 1),
-            end_date=date(2024, 1, 3),
+            start_date=date(2024, 1, 2),
+            end_date=date(2024, 1, 4),
             min_window_size=3,
         )
 

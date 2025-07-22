@@ -39,7 +39,7 @@ class OptimizedAggregationPipeline(AggregationPipeline):
         self,
         config: AggregationConfig | None = None,
         optimization_config: OptimizationConfig | None = None,
-        **kwargs,
+        **kwargs: Any,
     ):
         """Initialize with optimization configuration."""
         super().__init__(config=config, **kwargs)
@@ -83,8 +83,8 @@ class OptimizedAggregationPipeline(AggregationPipeline):
 
         # Pre-index all records by date
         sleep_by_date = self._index_sleep_by_date(sleep_records)
-        activity_by_date = self._index_records_by_date(activity_records)
-        heart_by_date = self._index_records_by_date(heart_records)
+        activity_by_date = self._index_activity_by_date(activity_records)
+        heart_by_date = self._index_heart_by_date(heart_records)
 
         # Process each day using indexed lookups
         daily_features = []
@@ -205,19 +205,30 @@ class OptimizedAggregationPipeline(AggregationPipeline):
 
         return dict(records_by_date)
 
-    def _index_records_by_date(
-        self, records: list[ActivityRecord | HeartRateRecord]
-    ) -> dict[date, list[Any]]:
+    def _index_activity_by_date(
+        self, records: list[ActivityRecord]
+    ) -> dict[date, list[ActivityRecord]]:
         """
-        Pre-index records by their start date.
-
-        Most records are instantaneous or short duration,
-        so we index by start date only.
+        Pre-index activity records by their start date.
         """
         records_by_date = defaultdict(list)
 
         for record in records:
             record_date = record.start_date.date()
+            records_by_date[record_date].append(record)
+
+        return dict(records_by_date)
+
+    def _index_heart_by_date(
+        self, records: list[HeartRateRecord]
+    ) -> dict[date, list[HeartRateRecord]]:
+        """
+        Pre-index heart rate records by their timestamp date.
+        """
+        records_by_date = defaultdict(list)
+
+        for record in records:
+            record_date = record.timestamp.date()
             records_by_date[record_date].append(record)
 
         return dict(records_by_date)
