@@ -458,7 +458,7 @@ if TORCH_AVAILABLE:
 
 else:
     # Simple stub when torch is not available
-    PATPopulationTrainer = None  # type: ignore[misc]
+    PATPopulationTrainer = None  # type: ignore[assignment,misc]
 
 
 class XGBoostPopulationTrainer(PopulationTrainer):
