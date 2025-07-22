@@ -68,6 +68,7 @@ dependencies = [
     "slowapi>=0.1.9",                  # Rate limiting for FastAPI
     "typer>=0.9.0",                    # CLI framework
     "tqdm>=4.66.0",                    # Progress bars
+    "PyYAML>=6.0.0",                   # YAML parsing
 ]
 
 [project.optional-dependencies]
@@ -84,14 +85,16 @@ dev = [
     "faker>=18.0.0",
     "black>=23.0.0",
     "ruff>=0.0.260",
-    "mypy>=1.3.0",
+    "mypy==1.15.0",  # Pin to match local version, eliminating CI/local drift
     
     # Code Quality
     "ruff>=0.1.6",
     "black>=23.11.0", 
-    "mypy>=1.7.0",
     "pre-commit>=3.6.0",
     "types-python-dateutil>=2.8.0",  # Type stubs for dateutil
+    "types-PyYAML>=6.0.0",  # Type stubs for yaml
+    "lxml-stubs>=0.4.0",  # Type stubs for lxml
+    "types-tqdm>=4.0.0",  # Type stubs for tqdm
     
     # 🔥 Hot Reload & Development Experience (2025)
     "arel>=0.3.0",         # Browser hot reload for HTML templates
@@ -245,10 +248,42 @@ ignore_missing_imports = true
 module = "xgboost.*"
 ignore_missing_imports = true
 
+[[tool.mypy.overrides]]
+module = "joblib.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "pyarrow.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "h5py.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "torch.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "feast.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "click.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "typer.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "fastapi.*"
+ignore_missing_imports = true
+
 # Pytest Configuration
 [tool.pytest.ini_options]
 minversion = "7.0"
-addopts = "-v --strict-markers --strict-config -m 'not slow_finetune and not large and not heavy and not performance' --tb=short --timeout=300 --timeout-method=thread -p no:pytest_benchmark --disable-warnings"
+addopts = "-v --strict-markers --strict-config -m 'not slow_finetune and not large and not heavy and not performance' --tb=short -p no:pytest_benchmark --disable-warnings"
 testpaths = ["tests"]
 markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",

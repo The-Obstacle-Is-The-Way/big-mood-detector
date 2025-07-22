@@ -9,7 +9,7 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 
-import joblib  # type: ignore[import-untyped]
+import joblib
 import numpy as np
 import pandas as pd
 import xgboost as xgb
@@ -143,8 +143,8 @@ try:
     TORCH_AVAILABLE = True
 except ImportError:
     TORCH_AVAILABLE = False
-    torch = None  # type: ignore
-    nn = None  # type: ignore
+    # Don't assign None to module names - it causes type errors
+    # Just let them be undefined
 
 
 if TORCH_AVAILABLE:
@@ -455,6 +455,16 @@ if TORCH_AVAILABLE:
 
             logger.info(f"Saved model to {model_path}")
             return model_path
+
+else:
+    # When torch is not available, create a stub class
+    class PATPopulationTrainer:  # type: ignore[no-redef]
+        """Stub for when PyTorch is not available."""
+        def __init__(self, *args: Any, **kwargs: Any) -> None:
+            raise ImportError(
+                "PyTorch is required for PAT population training. "
+                "Install with: pip install torch"
+            )
 
 
 class XGBoostPopulationTrainer(PopulationTrainer):

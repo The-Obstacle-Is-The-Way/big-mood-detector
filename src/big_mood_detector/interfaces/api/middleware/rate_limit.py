@@ -61,7 +61,7 @@ if not DISABLE_RATE_LIMIT and SLOWAPI_AVAILABLE:
                 return ip
 
         # Fall back to direct connection
-        return get_remote_address(request)
+        return str(get_remote_address(request))
 
     # Create the limiter
     limiter = Limiter(key_func=get_real_client_ip)

@@ -64,4 +64,45 @@ if [ -n "$WARNINGS" ]; then
 fi
 
 echo ""
-echo "✅ Sleep calculation checks complete!"
+
+# Check that we have exactly 36 features in the Seoul XGBoost format
+echo "🔍 Checking that DailyFeatures maintains exactly 36 features..."
+
+# Expected feature names (10 sleep × 3 + 2 circadian × 3 = 36)
+EXPECTED_FEATURES=(
+    "sleep_percentage_MN" "sleep_percentage_SD" "sleep_percentage_Z"
+    "sleep_amplitude_MN" "sleep_amplitude_SD" "sleep_amplitude_Z"
+    "long_num_MN" "long_num_SD" "long_num_Z"
+    "long_len_MN" "long_len_SD" "long_len_Z"
+    "long_ST_MN" "long_ST_SD" "long_ST_Z"
+    "long_WT_MN" "long_WT_SD" "long_WT_Z"
+    "short_num_MN" "short_num_SD" "short_num_Z"
+    "short_len_MN" "short_len_SD" "short_len_Z"
+    "short_ST_MN" "short_ST_SD" "short_ST_Z"
+    "short_WT_MN" "short_WT_SD" "short_WT_Z"
+    "circadian_amplitude_MN" "circadian_amplitude_SD" "circadian_amplitude_Z"
+    "circadian_phase_MN" "circadian_phase_SD" "circadian_phase_Z"
+)
+
+# Count features in DailyFeatures.to_dict() method
+FEATURE_COUNT=$(grep -E '"(sleep_|long_|short_|circadian_).*(_MN|_SD|_Z)"' \
+    src/big_mood_detector/application/services/aggregation_pipeline.py | \
+    grep -v "activity_" | \
+    grep -v "daily_" | \
+    grep -v "#" | \
+    wc -l | tr -d ' ')
+
+if [ "$FEATURE_COUNT" -ne "36" ]; then
+    echo "❌ ERROR: DailyFeatures should have exactly 36 features, found $FEATURE_COUNT"
+    echo ""
+    echo "The Seoul XGBoost models expect exactly 36 features:"
+    echo "- 10 sleep indexes × 3 (mean, SD, Z-score) = 30"
+    echo "- 2 circadian indexes × 3 (mean, SD, Z-score) = 6"
+    echo ""
+    echo "Do not add or remove features without retraining the models!"
+    exit 1
+fi
+
+echo "✅ DailyFeatures has exactly 36 features as expected!"
+echo ""
+echo "✅ All sleep calculation checks complete!"

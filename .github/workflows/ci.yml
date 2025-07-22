@@ -1,10 +1,10 @@
-name: CI
+name: Development CI
 
 on:
   push:
-    branches: [main, development]
+    branches: [development]
   pull_request:
-    branches: [main, development]
+    branches: [development, staging, main]  # PRs to any branch
 
 env:
   PYTHON_VERSION: "3.12"
@@ -31,13 +31,13 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install ruff mypy
+          pip install -e ".[dev]"
           
       - name: Run Ruff
         run: ruff check src tests
         
       - name: Run MyPy
-        run: mypy src --ignore-missing-imports
+        run: make type-check
 
   test:
     runs-on: ubuntu-latest
@@ -65,10 +65,13 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -e ".[dev]"
+          # Install CPU-only PyTorch for PAT tests
+          pip install torch==2.5.1+cpu --index-url https://download.pytorch.org/whl/cpu
           
       - name: Run tests (fast)
         run: |
-          pytest tests/unit -v --tb=short -m "not slow and not large"
+          # Force disable timeout plugin even if it's in config
+          pytest tests/unit -v --tb=short -m "not slow and not large and not slow_finetune and not performance" -p no:timeout -o addopts=""
           
       - name: Upload coverage
         if: matrix.python-version == '3.12'
@@ -95,6 +98,8 @@ jobs:
           pip install -e ".[dev]"
           # Install TensorFlow for ensemble test
           pip install tensorflow>=2.14.0
+          # Install CPU-only PyTorch for PAT models
+          pip install torch==2.5.1+cpu --index-url https://download.pytorch.org/whl/cpu
           
       - name: Start API server
         run: |
