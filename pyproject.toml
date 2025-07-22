@@ -68,6 +68,7 @@ dependencies = [
     "slowapi>=0.1.9",                  # Rate limiting for FastAPI
     "typer>=0.9.0",                    # CLI framework
     "tqdm>=4.66.0",                    # Progress bars
+    "PyYAML>=6.0.0",                   # YAML parsing
 ]
 
 [project.optional-dependencies]
@@ -246,6 +247,26 @@ ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
 module = "xgboost.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "joblib.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "pyarrow.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "h5py.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "torch.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "feast.*"
 ignore_missing_imports = true
 
 # Pytest Configuration
