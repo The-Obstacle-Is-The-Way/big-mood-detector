@@ -361,32 +361,32 @@ class OptimizedAggregationPipeline(AggregationPipeline):
         }
 
     def _calculate_circadian_metrics_optimized(
-        self, 
-        activity_by_date: dict[date, list[ActivityRecord]], 
+        self,
+        activity_by_date: dict[date, list[ActivityRecord]],
         target_date: date
     ) -> Any:
         """
         Calculate circadian metrics using pre-indexed data.
-        
+
         This is O(k) where k is lookback days, not O(n*k).
         """
         sequences = []
-        
+
         for days_back in range(self.config.lookback_days_circadian):
             seq_date = target_date - timedelta(days=days_back)
             # O(1) lookup instead of O(n) scan
             day_activity = activity_by_date.get(seq_date, [])
-            
+
             if day_activity:
                 seq = self.activity_extractor.extract_daily_sequence(
                     day_activity, seq_date
                 )
                 sequences.append(seq)
-        
+
         # Calculate metrics if we have enough data
         if len(sequences) >= 3:
             return self.circadian_analyzer.calculate_metrics(sequences)
-        
+
         return None
 
     def _calculate_dlmo_optimized(
@@ -396,18 +396,18 @@ class OptimizedAggregationPipeline(AggregationPipeline):
     ) -> Any:
         """
         Calculate DLMO using pre-indexed data.
-        
+
         This is O(k) where k is lookback days, not O(n*k).
         """
         dlmo_sleep = []
-        
+
         # Collect sleep records from the past 2 weeks
         for days_back in range(self.config.lookback_days_dlmo):
             lookup_date = target_date - timedelta(days=days_back)
             # O(1) lookup instead of O(n) scan
             day_sleep = sleep_by_date.get(lookup_date, [])
             dlmo_sleep.extend(day_sleep)
-        
+
         # Calculate DLMO if we have enough data
         if len(dlmo_sleep) >= 3:
             return self.dlmo_calculator.calculate_dlmo(
@@ -415,5 +415,5 @@ class OptimizedAggregationPipeline(AggregationPipeline):
                 target_date=target_date,
                 days_to_model=min(7, len(dlmo_sleep)),
             )
-        
+
         return None
