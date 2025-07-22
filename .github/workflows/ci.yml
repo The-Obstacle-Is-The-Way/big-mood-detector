@@ -1,10 +1,13 @@
-name: Development CI
+name: Development CI (Legacy - Use unified-ci.yml)
+
+# This workflow is being replaced by unified-ci.yml
+# Keeping for backward compatibility during transition
 
 on:
   push:
-    branches: [development]
+    branches: [development-legacy]  # Effectively disabled
   pull_request:
-    branches: [development, staging, main]  # PRs to any branch
+    branches: [development-legacy]
 
 env:
   PYTHON_VERSION: "3.12"
