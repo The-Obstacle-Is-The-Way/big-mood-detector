@@ -44,7 +44,7 @@ def validate_xml_parsing():
     """Test XML parsing and find data date range."""
     print_section("1. XML PARSING VALIDATION")
 
-    xml_file = Path("apple_export/export.xml")
+    xml_file = Path("data/input/apple_export/export.xml")
     if not xml_file.exists():
         print(f"❌ XML file not found: {xml_file}")
         return None

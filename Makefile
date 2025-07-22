@@ -140,9 +140,9 @@ docker-build:
 	docker build -t big-mood-detector:latest .
 
 docker-run:
-	docker run -p 8000:8000 -v $(PWD)/apple_export:/app/apple_export:ro \
-		-v $(PWD)/health_auto_export:/app/health_auto_export:ro \
-		-v $(PWD)/output:/app/output \
+	docker run -p 8000:8000 \
+		-v $(PWD)/data/input:/app/data/input:ro \
+		-v $(PWD)/data/output:/app/data/output \
 		-v $(PWD)/model_weights:/app/model_weights:ro \
 		big-mood-detector:latest
 

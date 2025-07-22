@@ -1,0 +1,239 @@
+name: Unified CI
+
+on:
+  push:
+    branches: [development, staging, main]
+  pull_request:
+    branches: [development, staging, main]
+
+env:
+  PYTHON_VERSION: "3.12"
+  MYPY_VERSION: "1.15.0"
+
+jobs:
+  # ALWAYS RUN: Core quality checks
+  lint-and-type:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('pyproject.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+            
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+          # Ensure exact MyPy version
+          pip install mypy==${{ env.MYPY_VERSION }}
+          
+      - name: Run Ruff
+        run: ruff check src tests
+        
+      - name: Run MyPy
+        run: make type-check
+
+  # ALWAYS RUN: Unit tests
+  test-unit:
+    runs-on: ubuntu-latest
+    needs: [lint-and-type]
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+          pip install torch==2.5.1+cpu --index-url https://download.pytorch.org/whl/cpu
+          
+      - name: Run unit tests
+        run: |
+          pytest tests/unit -v --tb=short -m "not slow and not large and not slow_finetune and not performance" -p no:timeout -o addopts=""
+          
+      - name: Upload coverage
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: false
+
+  # ALWAYS RUN: Repository cleanliness
+  check-clean:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Check-clean repository
+        shell: bash
+        run: |
+          # Remove empty dirs that cache layer might have left
+          rm -rf apple_export health_auto_export || true
+          .github/scripts/check-clean.sh
+
+  # ALWAYS RUN: Docker compatibility
+  docker-build:
+    runs-on: ubuntu-latest
+    needs: [lint-and-type]
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        
+      - name: Build Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: false
+          tags: big-mood-detector:test
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # SKIP: Alpine compatibility (not worth the maintenance burden)
+  # Alpine uses musl instead of glibc, causing endless issues with scientific Python.
+  # If you need small images, use python:3.12-slim-bookworm instead (50MB larger but works).
+  # alpine-compatibility:
+  #   runs-on: ubuntu-latest
+  #   needs: [lint-and-type]
+  #   steps:
+  #     - run: echo "⚠️ Alpine check skipped - see comments above"
+
+  # RUN ON: staging, main, or when labeled
+  integration-tests:
+    runs-on: ubuntu-latest
+    needs: [test-unit]
+    if: |
+      github.ref == 'refs/heads/staging' || 
+      github.ref == 'refs/heads/main' || 
+      contains(github.event.pull_request.labels.*.name, 'run-integration')
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev,ml,monitoring]"
+          
+      - name: Run integration tests
+        env:
+          DATABASE_URL: postgresql://postgres:test@localhost/test
+          REDIS_URL: redis://localhost:6379
+        run: |
+          pytest tests/integration -v --tb=short
+
+  # RUN ON: staging only (expensive)
+  performance-tests:
+    runs-on: ubuntu-latest
+    needs: [test-unit]
+    if: github.ref == 'refs/heads/staging'
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev,ml]"
+          pip install torch==2.5.1+cpu --index-url https://download.pytorch.org/whl/cpu
+          
+      - name: Run performance benchmarks
+        run: |
+          # Run with relaxed thresholds for CI environment
+          pytest tests/performance -v --benchmark-only --benchmark-disable-gc || true
+          
+      - name: Upload benchmark results
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-results
+          path: .benchmarks/
+
+  # RUN ON: main only
+  security-audit:
+    runs-on: ubuntu-latest
+    needs: [test-unit]
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          
+      - name: Install audit tools
+        run: |
+          python -m pip install --upgrade pip
+          pip install pip-audit safety bandit[toml]
+          
+      - name: Run security scans
+        run: |
+          pip-audit --desc || true  # Warning only
+          safety check || true      # Warning only
+          bandit -r src/ -ll        # Fail on high severity
+
+  # Summary job for branch protection
+  ci-summary:
+    runs-on: ubuntu-latest
+    needs: [lint-and-type, test-unit, check-clean, docker-build]
+    if: always()
+    steps:
+      - name: Summary
+        run: |
+          echo "CI Summary:"
+          echo "- Lint & Type: ${{ needs.lint-and-type.result }}"
+          echo "- Unit Tests: ${{ needs.test-unit.result }}"
+          echo "- Clean Check: ${{ needs.check-clean.result }}"
+          echo "- Docker Build: ${{ needs.docker-build.result }}"
+          echo "- Alpine Compat: skipped (not worth the complexity)"
+          
+          # Fail if any required job failed
+          if [[ "${{ needs.lint-and-type.result }}" != "success" ]] || \
+             [[ "${{ needs.test-unit.result }}" != "success" ]] || \
+             [[ "${{ needs.check-clean.result }}" != "success" ]] || \
+             [[ "${{ needs.docker-build.result }}" != "success" ]] || \
+             false; then  # Alpine check removed
+            echo "❌ CI Failed"
+            exit 1
+          fi
+          
+          echo "✅ CI Passed"

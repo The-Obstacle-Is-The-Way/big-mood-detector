@@ -250,3 +250,9 @@ processed/
 .ruff_cache/
 *.DS_Store
 CACHEDIR.TAG
+
+# Health data directories (keep directories but ignore contents)
+apple_export/*
+!apple_export/.gitkeep
+health_auto_export/*
+!health_auto_export/.gitkeep
