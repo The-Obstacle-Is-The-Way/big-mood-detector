@@ -12,7 +12,7 @@ import click
 try:
     import uvicorn
 except ImportError:
-    uvicorn = None  # type: ignore[assignment]
+    uvicorn = None
 
 
 def bail_with_error(message: str) -> NoReturn:
