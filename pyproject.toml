@@ -85,7 +85,7 @@ dev = [
     "faker>=18.0.0",
     "black>=23.0.0",
     "ruff>=0.0.260",
-    "mypy==1.13.0",  # Pin to specific version for CI/local consistency
+    "mypy==1.15.0",  # Pin to match local version, eliminating CI/local drift
     
     # Code Quality
     "ruff>=0.1.6",
