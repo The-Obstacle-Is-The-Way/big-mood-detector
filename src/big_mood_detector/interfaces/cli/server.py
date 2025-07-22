@@ -5,14 +5,17 @@ API server management for the Big Mood Detector.
 """
 
 import sys
-from typing import NoReturn
+from typing import TYPE_CHECKING, NoReturn
 
 import click
 
-try:
+if TYPE_CHECKING:
     import uvicorn
-except ImportError:
-    uvicorn = None
+else:
+    try:
+        import uvicorn
+    except ImportError:
+        uvicorn = None
 
 
 def bail_with_error(message: str) -> NoReturn:
