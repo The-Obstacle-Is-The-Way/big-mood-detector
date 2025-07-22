@@ -461,16 +461,62 @@ else:
     class PATPopulationTrainer(PopulationTrainer):  # type: ignore[no-redef]
         """Stub for PATPopulationTrainer when torch is not available."""
 
-        def __init__(self, *args: Any, **kwargs: Any) -> None:
+        def __init__(
+            self,
+            base_model_path: str = "weights/PAT-S_29k_weights.h5",
+            task_name: str = "depression",
+            output_dir: Path = Path("models/population/pat"),
+            *args: Any,
+            **kwargs: Any
+        ) -> None:
+            # Call parent init with expected args
+            super().__init__(task_name=task_name, output_dir=output_dir)
+            self.base_model_path = base_model_path
+            self.base_model = None
+            self.task_heads: dict[str, Any] = {}
+
+        def load_base_model(self) -> Any:
+            """Stub implementation of abstract method."""
+            # Return a mock model that will fail if actually used
+            class MockModel:
+                def encode(self, *args: Any, **kwargs: Any) -> Any:
+                    raise ImportError(
+                        "PyTorch is required for PAT population training. Install with: pip install torch"
+                    )
+            return MockModel()
+
+        def create_task_head(
+            self,
+            input_dim: int = 768,
+            num_classes: int = 2,
+            dropout: float = 0.2,
+        ) -> Any:
+            """Create mock task head."""
+            class MockTaskHead:
+                def __init__(self) -> None:
+                    self.output_dim = num_classes
+                    self.layers = [None, None]  # Mock layers
+
+                def parameters(self) -> list[Any]:
+                    return []
+
+                def train(self, mode: bool = True) -> None:
+                    pass
+
+                def eval(self) -> None:
+                    pass
+
+                def __call__(self, x: Any) -> Any:
+                    raise ImportError(
+                        "PyTorch is required for PAT population training. Install with: pip install torch"
+                    )
+
+            return MockTaskHead()
+
+        def fine_tune(self, **kwargs: Any) -> dict[str, float]:
             raise ImportError(
                 "PyTorch is required for PAT population training. Install with: pip install torch"
             )
-
-        def create_task_head(self, *args: Any, **kwargs: Any) -> None:
-            raise NotImplementedError("PATPopulationTrainer requires PyTorch")
-
-        def fine_tune(self, **kwargs: Any) -> dict[str, float]:
-            raise NotImplementedError("PATPopulationTrainer requires PyTorch")
 
 
 class XGBoostPopulationTrainer(PopulationTrainer):
