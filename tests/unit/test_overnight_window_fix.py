@@ -6,7 +6,7 @@ A sleep period from 22:00 Jan 1 to 06:00 Jan 2 should count for Jan 2.
 """
 
 import pytest
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 from big_mood_detector.domain.entities.sleep_record import SleepRecord, SleepState
 from big_mood_detector.domain.services.sleep_window_analyzer import SleepWindowAnalyzer
 
@@ -39,63 +39,63 @@ class TestOvernightWindowFix:
         # Should NOT find the window for Jan 1 (current bug: it does)
         assert len(windows_jan1) == 0
 
-    def test_multi_day_sleep_counts_for_all_overlapping_days(self):
-        """Test that very long sleep sessions count for all days they overlap."""
+    def test_very_long_sleep_uses_midpoint_rule(self):
+        """Test that even very long sleep sessions use the midpoint rule."""
         analyzer = SleepWindowAnalyzer()
         
-        # Create a 36-hour sleep session (unusual but possible in depression)
+        # Create a 16-hour depression sleep (8 PM to noon next day)
         sleep_record = SleepRecord(
             source_name="test",
             start_date=datetime(2025, 1, 1, 20, 0),  # 8 PM Jan 1
-            end_date=datetime(2025, 1, 3, 8, 0),     # 8 AM Jan 3
+            end_date=datetime(2025, 1, 2, 12, 0),     # Noon Jan 2
             state=SleepState.ASLEEP,
         )
         
-        # Should count for Jan 1, 2, and 3
-        for day in [1, 2, 3]:
-            windows = analyzer.analyze_sleep_episodes(
-                [sleep_record], 
-                date(2025, 1, day)
-            )
-            assert len(windows) > 0, f"Sleep should count for Jan {day}"
+        # Midpoint is 4 AM Jan 2, so it should count for Jan 2
+        windows_jan1 = analyzer.analyze_sleep_episodes([sleep_record], date(2025, 1, 1))
+        assert len(windows_jan1) == 0
+        
+        windows_jan2 = analyzer.analyze_sleep_episodes([sleep_record], date(2025, 1, 2))
+        assert len(windows_jan2) == 1
+        assert windows_jan2[0].total_duration_hours == 16.0
 
-    def test_nap_counts_for_its_day(self):
-        """Test that daytime naps count for the day they occur."""
+    def test_nap_follows_midpoint_rule(self):
+        """Test that naps follow the midpoint rule correctly."""
         analyzer = SleepWindowAnalyzer()
         
-        # Afternoon nap
-        nap = SleepRecord(
+        # Morning nap (midpoint 10:45 AM - closer to today's midnight)
+        morning_nap = SleepRecord(
+            source_name="test",
+            start_date=datetime(2025, 1, 2, 10, 0),  # 10 AM
+            end_date=datetime(2025, 1, 2, 11, 30),   # 11:30 AM
+            state=SleepState.ASLEEP,
+        )
+        
+        # Afternoon nap (midpoint 2:45 PM - closer to tomorrow's midnight)
+        afternoon_nap = SleepRecord(
             source_name="test",
             start_date=datetime(2025, 1, 2, 14, 0),  # 2 PM
             end_date=datetime(2025, 1, 2, 15, 30),   # 3:30 PM
             state=SleepState.ASLEEP,
         )
         
-        # Debug: check what date it's assigned to
-        midpoint = nap.start_date + (nap.end_date - nap.start_date) / 2
-        midnight_today = midpoint.replace(hour=0, minute=0, second=0, microsecond=0)
-        midnight_tomorrow = midnight_today + datetime.timedelta(days=1)
-        
-        print(f"Nap midpoint: {midpoint}")
-        print(f"Midnight today: {midnight_today}")
-        print(f"Midnight tomorrow: {midnight_tomorrow}")
-        print(f"Time to today midnight: {abs((midpoint - midnight_today).total_seconds())} seconds")
-        print(f"Time to tomorrow midnight: {abs((midpoint - midnight_tomorrow).total_seconds())} seconds")
-        
-        # Should count for Jan 2
-        windows = analyzer.analyze_sleep_episodes([nap], date(2025, 1, 2))
+        # Morning nap should count for Jan 2
+        windows = analyzer.analyze_sleep_episodes([morning_nap], date(2025, 1, 2))
         assert len(windows) == 1
-        assert windows[0].total_duration_hours == 1.5
+        
+        # Afternoon nap should count for Jan 3 (closer to next midnight)
+        windows = analyzer.analyze_sleep_episodes([afternoon_nap], date(2025, 1, 3))
+        assert len(windows) == 1
 
     def test_seoul_paper_midpoint_rule(self):
         """Test the Seoul paper's rule: assign to nearest midnight of midpoint."""
         analyzer = SleepWindowAnalyzer()
         
-        # Sleep with midpoint before midnight (should go to Jan 1)
+        # Sleep with midpoint before noon (should go to current day)
         early_sleep = SleepRecord(
             source_name="test",
-            start_date=datetime(2025, 1, 1, 20, 0),  # 8 PM
-            end_date=datetime(2025, 1, 1, 23, 0),    # 11 PM (midpoint 9:30 PM)
+            start_date=datetime(2025, 1, 1, 6, 0),   # 6 AM
+            end_date=datetime(2025, 1, 1, 10, 0),    # 10 AM (midpoint 8 AM)
             state=SleepState.ASLEEP,
         )
         

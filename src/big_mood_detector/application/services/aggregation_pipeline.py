@@ -71,7 +71,23 @@ class DailyFeatures:
     """
     Complete feature set for one day (36 features).
 
-    Matches the Seoul study's XGBoost input format.
+    Matches the Seoul study's XGBoost input format exactly.
+    
+    The 12 base indexes from the Seoul paper (Figure 3b):
+    1. sleep_percentage - daily fraction of sleep period (total sleep minutes ÷ 1440)
+    2. sleep_amplitude - coefficient of variation of wake amounts
+    3. long_num - number of long sleep windows (≥3.75h)
+    4. long_len - total length of long sleep windows
+    5. long_st - sleep time within long windows
+    6. long_wt - wake time within long windows
+    7. short_num - number of short sleep windows (<3.75h)
+    8. short_len - total length of short sleep windows
+    9. short_st - sleep time within short windows
+    10. short_wt - wake time within short windows
+    11. circadian_amplitude - amplitude of circadian rhythm
+    12. circadian_phase - DLMO (Dim Light Melatonin Onset) hour
+    
+    Each index has 3 statistics (mean, SD, Z-score) = 36 total features.
     """
 
     date: date
