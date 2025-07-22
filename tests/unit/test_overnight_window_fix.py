@@ -73,7 +73,14 @@ class TestOvernightWindowFix:
         
         # Debug: check what date it's assigned to
         midpoint = nap.start_date + (nap.end_date - nap.start_date) / 2
+        midnight_today = midpoint.replace(hour=0, minute=0, second=0, microsecond=0)
+        midnight_tomorrow = midnight_today + datetime.timedelta(days=1)
+        
         print(f"Nap midpoint: {midpoint}")
+        print(f"Midnight today: {midnight_today}")
+        print(f"Midnight tomorrow: {midnight_tomorrow}")
+        print(f"Time to today midnight: {abs((midpoint - midnight_today).total_seconds())} seconds")
+        print(f"Time to tomorrow midnight: {abs((midpoint - midnight_tomorrow).total_seconds())} seconds")
         
         # Should count for Jan 2
         windows = analyzer.analyze_sleep_episodes([nap], date(2025, 1, 2))
