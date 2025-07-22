@@ -5,11 +5,11 @@
 *.sh text eol=lf
 docker/entrypoint.sh text eol=lf
 
-# Python files
-*.py text
-*.pyw text
-*.pyx text
-*.pyi text
+# Python files - force LF line endings
+*.py text eol=lf
+*.pyw text eol=lf
+*.pyx text eol=lf
+*.pyi text eol=lf
 
 # Jupyter notebooks
 *.ipynb text eol=lf
