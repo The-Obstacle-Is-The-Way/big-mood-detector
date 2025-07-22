@@ -68,6 +68,7 @@ dependencies = [
     "slowapi>=0.1.9",                  # Rate limiting for FastAPI
     "typer>=0.9.0",                    # CLI framework
     "tqdm>=4.66.0",                    # Progress bars
+    "PyYAML>=6.0.0",                   # YAML parsing
 ]
 
 [project.optional-dependencies]

@@ -134,7 +134,7 @@ class TimescaleBaselineRepository(BaselineRepositoryInterface):
         )
         if enable_feast_sync:
             try:
-                import feast  # type: ignore[import-not-found]
+                import feast
 
                 self.feast_client = feast.FeatureStore(repo_path=str(feast_repo_path))
                 logger.info("feast_client_initialized", repo_path=feast_repo_path)
@@ -356,8 +356,8 @@ class TimescaleBaselineRepository(BaselineRepositoryInterface):
             heart_rate_std=metric_values.get("heart_rate_std"),
             hrv_mean=metric_values.get("hrv_mean"),
             hrv_std=metric_values.get("hrv_std"),
-            last_updated=metrics[0].created_at,  # type: ignore[arg-type]
-            data_points=metrics[0].n,  # type: ignore[arg-type]
+            last_updated=metrics[0].created_at,
+            data_points=metrics[0].n,
         )
 
     def _get_from_timescale(self, user_id: str) -> UserBaseline | None:

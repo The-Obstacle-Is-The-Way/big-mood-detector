@@ -204,7 +204,7 @@ class InteractiveSession:
 
     def _prompt_episode_span(self) -> bool:
         """Ask if part of longer episode."""
-        return click.confirm("Part of a longer episode?", default=False)
+        return bool(click.confirm("Part of a longer episode?", default=False))
 
     def _get_episode_dates(self, current_date: date) -> tuple[date, date]:
         """Get episode start and end dates."""

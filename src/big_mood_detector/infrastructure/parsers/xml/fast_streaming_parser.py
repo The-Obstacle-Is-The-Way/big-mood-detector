@@ -19,7 +19,7 @@ try:
 
     HAS_LXML = True
 except ImportError:
-    import xml.etree.ElementTree as etree  # type: ignore[no-redef]
+    import xml.etree.ElementTree as etree
 
     HAS_LXML = False
     logging.warning("lxml not available, falling back to slower stdlib XML parser")
