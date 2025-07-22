@@ -3,7 +3,7 @@ FROM python:3.12-alpine
 # Install build dependencies and runtime libraries
 RUN apk add --no-cache \
     # Build essentials
-    gcc musl-dev linux-headers \
+    gcc g++ musl-dev linux-headers \
     # Python dependencies
     libffi-dev openssl-dev \
     # XML processing
@@ -14,7 +14,7 @@ RUN apk add --no-cache \
     tzdata \
     # Make for running commands
     make \
-    # Scientific computing dependencies for numpy/scipy
+    # Scientific computing dependencies for numpy/scipy/scikit-learn
     gfortran openblas-dev lapack-dev \
     # Additional tools
     git

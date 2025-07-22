@@ -79,11 +79,20 @@ jobs:
       
       - name: Check for stray directories
         run: |
+          # Debug: Show current directory structure
+          echo "=== Current working directory: $(pwd) ==="
+          echo "=== Root directory contents: ==="
+          ls -la
+          
           # Check that no health data directories exist in root
           if [ -e apple_export ] || [ -e health_auto_export ]; then
             echo "❌ ERROR: Stray health data directories found in root!"
             echo "These should only exist in data/input/"
-            ls -la apple_export health_auto_export 2>/dev/null || true
+            echo "=== Contents of stray directories: ==="
+            ls -la apple_export 2>/dev/null || echo "apple_export not found"
+            ls -la health_auto_export 2>/dev/null || echo "health_auto_export not found"
+            echo "=== Git status: ==="
+            git status --porcelain | head -20
             exit 1
           fi
           
@@ -135,12 +144,13 @@ jobs:
           cat > Dockerfile.alpine <<EOF
           FROM python:3.12-alpine
           RUN apk add --no-cache \
-            gcc musl-dev linux-headers \
+            gcc g++ musl-dev linux-headers \
             libffi-dev openssl-dev \
             libxml2-dev libxslt-dev \
             postgresql-dev \
             tzdata \
-            make
+            make \
+            gfortran openblas-dev lapack-dev
           WORKDIR /app
           COPY pyproject.toml ./
           COPY README.md ./
