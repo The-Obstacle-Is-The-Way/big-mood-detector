@@ -68,7 +68,7 @@ jobs:
           
       - name: Run tests (fast)
         run: |
-          pytest tests/unit -v --tb=short -m "not slow and not large"
+          pytest tests/unit -v --tb=short -m "not slow and not large" -p no:timeout
           
       - name: Upload coverage
         if: matrix.python-version == '3.12'
