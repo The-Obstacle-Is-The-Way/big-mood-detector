@@ -456,6 +456,22 @@ if TORCH_AVAILABLE:
             logger.info(f"Saved model to {model_path}")
             return model_path
 
+else:
+    # Stub class when torch is not available
+    class PATPopulationTrainer(PopulationTrainer):  # type: ignore[no-redef]
+        """Stub for PATPopulationTrainer when torch is not available."""
+
+        def __init__(self, *args: Any, **kwargs: Any) -> None:
+            raise ImportError(
+                "PyTorch is required for PAT population training. Install with: pip install torch"
+            )
+
+        def create_task_head(self, *args: Any, **kwargs: Any) -> None:
+            raise NotImplementedError("PATPopulationTrainer requires PyTorch")
+
+        def fine_tune(self, **kwargs: Any) -> dict[str, float]:
+            raise NotImplementedError("PATPopulationTrainer requires PyTorch")
+
 
 class XGBoostPopulationTrainer(PopulationTrainer):
     """XGBoost-specific population trainer."""
