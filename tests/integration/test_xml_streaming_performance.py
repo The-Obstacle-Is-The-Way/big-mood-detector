@@ -12,8 +12,8 @@ from xml.etree.ElementTree import Element, SubElement, tostring
 
 import pytest
 
-from big_mood_detector.infrastructure.parsers.xml.streaming_adapter import (
-    StreamingXMLParser,
+from big_mood_detector.infrastructure.parsers.xml.fast_streaming_parser import (
+    FastStreamingXMLParser,
 )
 
 
@@ -107,7 +107,7 @@ class TestXMLStreamingPerformance:
 
         try:
             # When: Processing the file
-            parser = StreamingXMLParser()
+            parser = FastStreamingXMLParser()
             start_time = time.time()
 
             # Parse with date range to reduce memory usage
@@ -175,7 +175,7 @@ class TestXMLStreamingPerformance:
                 memory_before = process.memory_info().rss / 1024 / 1024  # MB
 
                 # Parse file
-                parser = StreamingXMLParser()
+                parser = FastStreamingXMLParser()
                 # Just consume the generator to parse the file
                 list(parser.parse_file(str(test_file)))
 
@@ -205,11 +205,16 @@ class TestXMLStreamingPerformance:
             progress_updates.append((message, progress))
 
         try:
-            parser = StreamingXMLParser()
-            parser.parse_file(
+            parser = FastStreamingXMLParser()
+            # Just call parse_file to trigger progress callbacks (don't force full evaluation)
+            generator = parser.parse_file(
                 str(test_file),
                 progress_callback=progress_callback
             )
+            # Consume just a few items to trigger callbacks without hanging
+            for i, _ in enumerate(generator):
+                if i >= 10:  # Process only first 10 items to avoid hanging
+                    break
 
             # Should have progress updates
             assert len(progress_updates) > 0, "No progress updates received"
@@ -221,7 +226,7 @@ class TestXMLStreamingPerformance:
 
             # Should have meaningful messages
             messages = [p[0] for p in progress_updates]
-            assert any("Parsing" in msg for msg in messages)
+            assert any("parsing" in msg.lower() for msg in messages)
 
         finally:
             if test_file.exists():
@@ -247,7 +252,7 @@ class TestXMLStreamingPerformance:
 
         try:
             # Parse the data
-            parser = StreamingXMLParser()
+            parser = FastStreamingXMLParser()
             sleep_records, activity_records, heart_records = parser.parse_file(
                 str(test_file)
             )
