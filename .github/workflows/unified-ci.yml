@@ -81,17 +81,24 @@ jobs:
         run: |
           set -e  # Exit on any error
           
+          # Debug current directory
+          echo "Current directory: $(pwd)"
+          echo "Files in root:"
+          ls -la | head -20
+          
           # Check that no health data directories with content exist in root
           found_stray=0
           for dir in apple_export health_auto_export; do
-            if [ -d "$dir" ] && [ -n "$(ls -A "$dir" 2>/dev/null)" ]; then
-              if [ $found_stray -eq 0 ]; then
-                echo "❌ ERROR: Stray health data directories with content found in root!"
-                echo "These should only exist in data/input/"
-                found_stray=1
+            if [ -d "$dir" ]; then
+              if [ -n "$(ls -A "$dir" 2>/dev/null)" ]; then
+                if [ $found_stray -eq 0 ]; then
+                  echo "❌ ERROR: Stray health data directories with content found in root!"
+                  echo "These should only exist in data/input/"
+                  found_stray=1
+                fi
+                echo "Contents of $dir:"
+                ls -la "$dir"
               fi
-              echo "Contents of $dir:"
-              ls -la "$dir"
             fi
           done
           
@@ -162,7 +169,7 @@ jobs:
           RUN pip install --no-cache-dir wheel setuptools
           RUN pip install --no-cache-dir numpy  # Often fails on Alpine
           # Install XGBoost without CUDA dependencies for Alpine
-          RUN pip install --no-cache-dir xgboost-cpu==2.1.3
+          RUN pip install --no-cache-dir xgboost-cpu==3.0.2
           RUN pip install --no-cache-dir -e .
           RUN pip install --no-cache-dir pytest pytest-asyncio
           EOF
