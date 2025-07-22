@@ -123,16 +123,16 @@ class SleepWindowAnalyzer:
                 # Find nearest midnight
                 midnight_today = midpoint.replace(hour=0, minute=0, second=0, microsecond=0)
                 midnight_tomorrow = midnight_today + timedelta(days=1)
-                
+
                 # Check which midnight is closer
                 time_to_today_midnight = abs((midpoint - midnight_today).total_seconds())
                 time_to_tomorrow_midnight = abs((midpoint - midnight_tomorrow).total_seconds())
-                
+
                 if time_to_today_midnight <= time_to_tomorrow_midnight:
                     assigned_date = midnight_today.date()
                 else:
                     assigned_date = midnight_tomorrow.date()
-                
+
                 if assigned_date == target_date:
                     filtered_episodes.append(e)
             episodes = filtered_episodes
