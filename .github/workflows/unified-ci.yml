@@ -107,46 +107,22 @@ jobs:
   alpine-compatibility:
     runs-on: ubuntu-latest
     needs: [lint-and-type]
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      
       - name: Build Alpine test image
-        run: |
-          cat > Dockerfile.alpine <<EOF
-          FROM python:3.12-alpine AS build
-          
-          RUN apk add --no-cache \
-                build-base gfortran cmake ninja autoconf automake libtool \
-                openblas-dev lapack-dev openmp-dev \
-                libffi-dev openssl-dev libxml2-dev libxslt-dev \
-                postgresql-dev tzdata git
-          
-          WORKDIR /build
-          COPY pyproject.toml ./
-          COPY README.md ./
-          
-          # Upgrade pip and avoid sdist PEP 517 bugs
-          RUN pip install --upgrade pip wheel 'setuptools<70'
-          
-          # Build heavy deps first so layer can be cached
-          RUN pip install --no-binary=:all: numpy==1.26.4
-          RUN pip install --no-binary=:all: scipy
-          RUN pip install --no-binary=:all: xgboost==2.0.3 scikit-learn==1.5.0
-          
-          # Now install the package
-          COPY src/ ./src/
-          RUN pip install -e .
-          
-          # Add test deps
-          RUN pip install pytest pytest-asyncio
-          
-          # Verify imports work
-          RUN python -c "import big_mood_detector; print('✅ Package imported successfully')"
-          
-          # Final runtime stage would go here, but for CI we test the build stage
-          EOF
-          
-          docker build -f Dockerfile.alpine -t big-mood-alpine:test .
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: docker/ci/alpine.Dockerfile
+          tags: big-mood-alpine:test
+          load: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
       
       - name: Test basic imports
         run: |
