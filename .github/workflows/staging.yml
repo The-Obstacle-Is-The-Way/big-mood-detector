@@ -102,9 +102,12 @@ jobs:
           
       - name: Run performance benchmarks
         run: |
-          pytest tests/performance -v --benchmark-only --benchmark-json=benchmark.json
+          # Skip benchmark tests until pytest-benchmark is added and tests/performance directory exists
+          # pytest tests/performance -v --benchmark-only --benchmark-json=benchmark.json
+          echo "Performance benchmarks not yet implemented - skipping"
           
       - name: Upload benchmark results
+        if: false  # Disabled until benchmarks are implemented
         uses: actions/upload-artifact@v4
         with:
           name: benchmark-results
