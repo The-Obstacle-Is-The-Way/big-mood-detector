@@ -17,7 +17,7 @@ if ls *_predictions.csv *_clinical_report.txt *.summary.json 2>/dev/null | grep 
 fi
 
 # Check for large files outside allowed directories
-large_files=$(find . -type f -size +1M | grep -v -E '(\.git/|model_weights/|literature/|data/)' || true)
+large_files=$(find . -type f -size +1M | grep -v -E '(\.git/|model_weights/|literature/|data/|reference_repos/|\.venv/|\.mypy_cache/|site/)' || true)
 if [ -n "$large_files" ]; then
   echo "❌ ERROR: Large files found outside allowed directories:"
   echo "$large_files"
