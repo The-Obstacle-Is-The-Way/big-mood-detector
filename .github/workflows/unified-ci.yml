@@ -143,6 +143,7 @@ jobs:
             make
           WORKDIR /app
           COPY pyproject.toml ./
+          COPY README.md ./
           COPY src/ ./src/
           # Install in stages to catch issues
           RUN pip install --no-cache-dir wheel setuptools

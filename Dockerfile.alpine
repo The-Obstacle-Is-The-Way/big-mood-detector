@@ -23,6 +23,7 @@ WORKDIR /app
 
 # Copy only requirements first for better caching
 COPY pyproject.toml ./
+COPY README.md ./
 COPY src/ ./src/
 
 # Install Python packages in stages to catch issues early
