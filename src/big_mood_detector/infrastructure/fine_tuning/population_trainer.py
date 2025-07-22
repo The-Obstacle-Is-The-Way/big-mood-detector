@@ -143,8 +143,8 @@ try:
     TORCH_AVAILABLE = True
 except ImportError:
     TORCH_AVAILABLE = False
-    torch = None
-    nn = None
+    # Don't assign None to module names - it causes type errors
+    # Just let them be undefined
 
 
 if TORCH_AVAILABLE:

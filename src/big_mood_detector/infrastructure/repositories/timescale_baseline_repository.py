@@ -356,8 +356,8 @@ class TimescaleBaselineRepository(BaselineRepositoryInterface):
             heart_rate_std=metric_values.get("heart_rate_std"),
             hrv_mean=metric_values.get("hrv_mean"),
             hrv_std=metric_values.get("hrv_std"),
-            last_updated=metrics[0].created_at,
-            data_points=metrics[0].n,
+            last_updated=metrics[0].created_at,  # type: ignore[arg-type]
+            data_points=int(metrics[0].n) if metrics[0].n else 0,
         )
 
     def _get_from_timescale(self, user_id: str) -> UserBaseline | None:

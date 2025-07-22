@@ -93,6 +93,9 @@ dev = [
     "mypy>=1.7.0",
     "pre-commit>=3.6.0",
     "types-python-dateutil>=2.8.0",  # Type stubs for dateutil
+    "types-PyYAML>=6.0.0",  # Type stubs for yaml
+    "lxml-stubs>=0.4.0",  # Type stubs for lxml
+    "types-tqdm>=4.0.0",  # Type stubs for tqdm
     
     # 🔥 Hot Reload & Development Experience (2025)
     "arel>=0.3.0",         # Browser hot reload for HTML templates
@@ -244,6 +247,26 @@ ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
 module = "xgboost.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "joblib.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "pyarrow.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "h5py.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "torch.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "feast.*"
 ignore_missing_imports = true
 
 # Pytest Configuration

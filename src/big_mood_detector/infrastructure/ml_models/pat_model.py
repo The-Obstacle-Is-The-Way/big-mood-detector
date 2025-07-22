@@ -234,7 +234,7 @@ class PATModel:
                 raise RuntimeError("No model available for inference")
 
         # Return 1D feature vector
-        return features.squeeze()
+        return np.asarray(features.squeeze())
 
     def extract_features_batch(self, sequences: list[PATSequence]) -> np.ndarray:
         """
@@ -265,7 +265,7 @@ class PATModel:
             else:
                 raise RuntimeError("No model available for inference")
 
-        return features
+        return np.asarray(features)
 
     def get_attention_weights(self, sequence: PATSequence) -> np.ndarray | None:
         """
