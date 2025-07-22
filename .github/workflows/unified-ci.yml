@@ -152,7 +152,7 @@ jobs:
             libxml2-dev libxslt-dev \
             postgresql-dev \
             tzdata \
-            make \
+            make cmake \
             gfortran openblas-dev lapack-dev
           WORKDIR /app
           COPY pyproject.toml ./

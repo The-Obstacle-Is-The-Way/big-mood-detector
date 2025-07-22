@@ -12,8 +12,8 @@ RUN apk add --no-cache \
     postgresql-dev \
     # Timezone data
     tzdata \
-    # Make for running commands
-    make \
+    # Make and cmake for building packages
+    make cmake \
     # Scientific computing dependencies for numpy/scipy/scikit-learn
     gfortran openblas-dev lapack-dev \
     # Additional tools
