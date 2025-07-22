@@ -79,20 +79,23 @@ jobs:
       
       - name: Check for stray directories
         run: |
-          # Debug: Show current directory structure
-          echo "=== Current working directory: $(pwd) ==="
-          echo "=== Root directory contents: ==="
-          ls -la
+          set -e  # Exit on any error
           
-          # Check that no health data directories exist in root
-          if [ -e apple_export ] || [ -e health_auto_export ]; then
-            echo "❌ ERROR: Stray health data directories found in root!"
+          # Check that no health data directories with content exist in root
+          stray_dirs=()
+          for dir in apple_export health_auto_export; do
+            if [ -d "$dir" ] && [ -n "$(ls -A "$dir" 2>/dev/null)" ]; then
+              stray_dirs+=("$dir")
+            fi
+          done
+          
+          if [ ${#stray_dirs[@]} -gt 0 ]; then
+            echo "❌ ERROR: Stray health data directories with content found in root!"
             echo "These should only exist in data/input/"
-            echo "=== Contents of stray directories: ==="
-            ls -la apple_export 2>/dev/null || echo "apple_export not found"
-            ls -la health_auto_export 2>/dev/null || echo "health_auto_export not found"
-            echo "=== Git status: ==="
-            git status --porcelain | head -20
+            for dir in "${stray_dirs[@]}"; do
+              echo "Contents of $dir:"
+              ls -la "$dir"
+            done
             exit 1
           fi
           
