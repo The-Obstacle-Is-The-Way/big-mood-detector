@@ -457,8 +457,14 @@ if TORCH_AVAILABLE:
             return model_path
 
 else:
-    # Simple stub when torch is not available
-    PATPopulationTrainer = None  # type: ignore[assignment,misc]
+    # When torch is not available, create a stub class
+    class PATPopulationTrainer:  # type: ignore[no-redef]
+        """Stub for when PyTorch is not available."""
+        def __init__(self, *args: Any, **kwargs: Any) -> None:
+            raise ImportError(
+                "PyTorch is required for PAT population training. "
+                "Install with: pip install torch"
+            )
 
 
 class XGBoostPopulationTrainer(PopulationTrainer):
@@ -618,7 +624,7 @@ def create_population_trainer(
         ValueError: If model type unknown
     """
     if model_type.lower() == "pat":
-        if not TORCH_AVAILABLE or PATPopulationTrainer is None:
+        if not TORCH_AVAILABLE:
             raise ImportError(
                 "PyTorch is required for PAT population training. Install with: pip install torch"
             )
