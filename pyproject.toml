@@ -269,6 +269,18 @@ ignore_missing_imports = true
 module = "feast.*"
 ignore_missing_imports = true
 
+[[tool.mypy.overrides]]
+module = "click.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "typer.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "fastapi.*"
+ignore_missing_imports = true
+
 # Pytest Configuration
 [tool.pytest.ini_options]
 minversion = "7.0"
