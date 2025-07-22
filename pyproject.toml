@@ -92,6 +92,7 @@ dev = [
     "mypy>=1.7.0",
     "pre-commit>=3.6.0",
     "types-python-dateutil>=2.8.0",  # Type stubs for dateutil
+    "types-PyYAML>=6.0.0",  # Type stubs for yaml
     
     # 🔥 Hot Reload & Development Experience (2025)
     "arel>=0.3.0",         # Browser hot reload for HTML templates
@@ -248,7 +249,7 @@ ignore_missing_imports = true
 # Pytest Configuration
 [tool.pytest.ini_options]
 minversion = "7.0"
-addopts = "-v --strict-markers --strict-config -m 'not slow_finetune and not large and not heavy and not performance' --tb=short --timeout=300 --timeout-method=thread -p no:pytest_benchmark --disable-warnings"
+addopts = "-v --strict-markers --strict-config -m 'not slow_finetune and not large and not heavy and not performance' --tb=short -p no:pytest_benchmark --disable-warnings"
 testpaths = ["tests"]
 markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
