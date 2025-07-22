@@ -93,6 +93,8 @@ dev = [
     "pre-commit>=3.6.0",
     "types-python-dateutil>=2.8.0",  # Type stubs for dateutil
     "types-PyYAML>=6.0.0",  # Type stubs for yaml
+    "lxml-stubs>=0.4.0",  # Type stubs for lxml
+    "types-tqdm>=4.0.0",  # Type stubs for tqdm
     
     # 🔥 Hot Reload & Development Experience (2025)
     "arel>=0.3.0",         # Browser hot reload for HTML templates
