@@ -1,10 +1,10 @@
-name: CI
+name: Development CI
 
 on:
   push:
-    branches: [main, development]
+    branches: [development]
   pull_request:
-    branches: [main, development]
+    branches: [development, staging, main]  # PRs to any branch
 
 env:
   PYTHON_VERSION: "3.12"
@@ -71,7 +71,7 @@ jobs:
       - name: Run tests (fast)
         run: |
           # Force disable timeout plugin even if it's in config
-          pytest tests/unit -v --tb=short -m "not slow and not large and not slow_finetune" -p no:timeout -o addopts=""
+          pytest tests/unit tests/domain -v --tb=short -m "not slow and not large and not slow_finetune and not performance" -p no:timeout -o addopts=""
           
       - name: Upload coverage
         if: matrix.python-version == '3.12'
