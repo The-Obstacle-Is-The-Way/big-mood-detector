@@ -116,7 +116,7 @@ jobs:
           FROM python:3.12-alpine AS build
           
           RUN apk add --no-cache \
-                build-base gfortran cmake ninja \
+                build-base gfortran cmake ninja autoconf automake libtool \
                 openblas-dev lapack-dev openmp-dev \
                 libffi-dev openssl-dev libxml2-dev libxslt-dev \
                 postgresql-dev tzdata git
