@@ -70,6 +70,7 @@ class PipelineConfig:
     enable_personal_calibration: bool = False
     personal_calibrator: Any | None = None  # PersonalCalibrator instance
     user_id: str | None = None
+    use_seoul_features: bool = True  # Use aggregation pipeline for XGBoost
 
 
 @dataclass
@@ -202,6 +203,8 @@ class MoodPredictionPipeline:
 
         self.mood_predictor = MoodPredictor(model_dir=self.config.model_dir)
         self.xgboost_predictor = None  # Will be loaded separately for ensemble
+
+        # Note: aggregation_pipeline will be set below after checking if one was provided
 
         # Initialize ensemble orchestrator if PAT sequences are enabled
         self.ensemble_orchestrator = None
@@ -394,73 +397,106 @@ class MoodPredictionPipeline:
         )
 
         # Generate predictions
-        daily_predictions = {}
-        for feature_date, feature_set in features.items():
-            if feature_set and feature_set.seoul_features:
-                feature_vector = np.array(
-                    feature_set.seoul_features.to_xgboost_features()
+        daily_predictions: dict[date, dict[str, Any]] = {}
+
+        # If using Seoul features and not ensemble, use AggregationPipeline
+        if self.config.use_seoul_features and self.aggregation_pipeline and not self.ensemble_orchestrator:
+            # Generate Seoul features specifically for XGBoost
+            seoul_features_list = self.aggregation_pipeline.aggregate_seoul_features(
+                sleep_records=sleep_records,
+                activity_records=activity_records,
+                heart_records=heart_records,
+                start_date=start_date,
+                end_date=target_date,
+            )
+
+            # Create predictions for each day that has Seoul features
+            for daily_feature in seoul_features_list:
+                feature_date = daily_feature.date
+                feature_dict = daily_feature.to_xgboost_dict()
+
+                # Create array in XGBoost expected order
+                from big_mood_detector.infrastructure.ml_models.xgboost_models import (
+                    XGBoostModelLoader,
                 )
+                feature_vector = np.array([feature_dict.get(name, 0.0) for name in XGBoostModelLoader.FEATURE_NAMES])
 
-                if self.ensemble_orchestrator:
-                    # Use ensemble predictions
-                    # Get activity records for the current date
-                    date_activity_records = [
-                        r
-                        for r in activity_records
-                        if r.start_date.date() <= feature_date <= r.end_date.date()
-                    ]
+                prediction = self.mood_predictor.predict(feature_vector)
 
-                    ensemble_result = self.ensemble_orchestrator.predict(
-                        statistical_features=feature_vector,
-                        activity_records=date_activity_records,
-                        prediction_date=np.datetime64(feature_date),
+                daily_predictions[feature_date] = {
+                    "depression_risk": prediction.depression_risk,
+                    "hypomanic_risk": prediction.hypomanic_risk,
+                    "manic_risk": prediction.manic_risk,
+                    "confidence": prediction.confidence,
+                }
+        else:
+            # Original flow using clinical features (will fail for XGBoost)
+            for feature_date, feature_set in features.items():
+                if feature_set and feature_set.seoul_features:
+                    feature_vector = np.array(
+                        feature_set.seoul_features.to_xgboost_features()
                     )
 
-                    prediction = ensemble_result.ensemble_prediction
+                    if self.ensemble_orchestrator:
+                        # Use ensemble predictions
+                        # Get activity records for the current date
+                        date_activity_records = [
+                            r
+                            for r in activity_records
+                            if r.start_date.date() <= feature_date <= r.end_date.date()
+                        ]
 
-                    daily_predictions[feature_date] = {
-                        "depression_risk": prediction.depression_risk,
-                        "hypomanic_risk": prediction.hypomanic_risk,
-                        "manic_risk": prediction.manic_risk,
-                        "confidence": prediction.confidence,
-                        "models_used": ensemble_result.models_used,
-                        "confidence_scores": ensemble_result.confidence_scores,
-                    }
+                        ensemble_result = self.ensemble_orchestrator.predict(
+                            statistical_features=feature_vector,
+                            activity_records=date_activity_records,
+                            prediction_date=np.datetime64(feature_date),
+                        )
 
-                    # Add warning if PAT failed
-                    if (
-                        "pat" not in ensemble_result.models_used
-                        or ensemble_result.pat_enhanced_prediction is None
-                    ):
-                        warnings.append("PAT model unavailable")
-                else:
-                    # Use XGBoost-only predictions
-                    prediction = self.mood_predictor.predict(feature_vector)
+                        prediction = ensemble_result.ensemble_prediction
 
-                    daily_predictions[feature_date] = {
-                        "depression_risk": prediction.depression_risk,
-                        "hypomanic_risk": prediction.hypomanic_risk,
-                        "manic_risk": prediction.manic_risk,
-                        "confidence": prediction.confidence,
-                    }
+                        daily_predictions[feature_date] = {
+                            "depression_risk": prediction.depression_risk,
+                            "hypomanic_risk": prediction.hypomanic_risk,
+                            "manic_risk": prediction.manic_risk,
+                            "confidence": prediction.confidence,
+                            "models_used": ensemble_result.models_used,
+                            "confidence_scores": ensemble_result.confidence_scores,
+                        }
+
+                        # Add warning if PAT failed
+                        if (
+                            "pat" not in ensemble_result.models_used
+                            or ensemble_result.pat_enhanced_prediction is None
+                        ):
+                            warnings.append("PAT model unavailable")
+                    else:
+                        # Use XGBoost-only predictions
+                        prediction = self.mood_predictor.predict(feature_vector)
+
+                        daily_predictions[feature_date] = {
+                            "depression_risk": prediction.depression_risk,
+                            "hypomanic_risk": prediction.hypomanic_risk,
+                            "manic_risk": prediction.manic_risk,
+                            "confidence": prediction.confidence,
+                        }
 
         # Calculate overall summary
         if daily_predictions:
             all_predictions = list(daily_predictions.values())
             overall_summary = {
                 "avg_depression_risk": float(
-                    np.mean([float(p["depression_risk"]) for p in all_predictions])  # type: ignore[arg-type]
+                    np.mean([float(p["depression_risk"]) for p in all_predictions])
                 ),
                 "avg_hypomanic_risk": float(
-                    np.mean([float(p["hypomanic_risk"]) for p in all_predictions])  # type: ignore[arg-type]
+                    np.mean([float(p["hypomanic_risk"]) for p in all_predictions])
                 ),
                 "avg_manic_risk": float(
-                    np.mean([float(p["manic_risk"]) for p in all_predictions])  # type: ignore[arg-type]
+                    np.mean([float(p["manic_risk"]) for p in all_predictions])
                 ),
                 "days_analyzed": len(daily_predictions),
             }
             confidence_score = float(
-                np.mean([float(p["confidence"]) for p in all_predictions])  # type: ignore[arg-type]
+                np.mean([float(p["confidence"]) for p in all_predictions])
             )
             if np.isnan(confidence_score):
                 confidence_score = 0.0

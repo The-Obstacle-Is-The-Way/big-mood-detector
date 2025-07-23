@@ -199,6 +199,52 @@ class DailyFeatures:
             "activity_intensity_ratio": self.activity_intensity_ratio,
         }
 
+    def to_xgboost_dict(self) -> dict[str, float]:
+        """Convert to dictionary with only the 36 Seoul features for XGBoost."""
+        return {
+            # Sleep percentage features (3)
+            "sleep_percentage_MN": self.sleep_percentage_mean,
+            "sleep_percentage_SD": self.sleep_percentage_std,
+            "sleep_percentage_Z": self.sleep_percentage_zscore,
+            # Sleep amplitude features (3)
+            "sleep_amplitude_MN": self.sleep_amplitude_mean,
+            "sleep_amplitude_SD": self.sleep_amplitude_std,
+            "sleep_amplitude_Z": self.sleep_amplitude_zscore,
+            # Long sleep window features (12)
+            "long_num_MN": self.long_sleep_num_mean,
+            "long_num_SD": self.long_sleep_num_std,
+            "long_num_Z": self.long_sleep_num_zscore,
+            "long_len_MN": self.long_sleep_len_mean,
+            "long_len_SD": self.long_sleep_len_std,
+            "long_len_Z": self.long_sleep_len_zscore,
+            "long_ST_MN": self.long_sleep_st_mean,
+            "long_ST_SD": self.long_sleep_st_std,
+            "long_ST_Z": self.long_sleep_st_zscore,
+            "long_WT_MN": self.long_sleep_wt_mean,
+            "long_WT_SD": self.long_sleep_wt_std,
+            "long_WT_Z": self.long_sleep_wt_zscore,
+            # Short sleep window features (12)
+            "short_num_MN": self.short_sleep_num_mean,
+            "short_num_SD": self.short_sleep_num_std,
+            "short_num_Z": self.short_sleep_num_zscore,
+            "short_len_MN": self.short_sleep_len_mean,
+            "short_len_SD": self.short_sleep_len_std,
+            "short_len_Z": self.short_sleep_len_zscore,
+            "short_ST_MN": self.short_sleep_st_mean,
+            "short_ST_SD": self.short_sleep_st_std,
+            "short_ST_Z": self.short_sleep_st_zscore,
+            "short_WT_MN": self.short_sleep_wt_mean,
+            "short_WT_SD": self.short_sleep_wt_std,
+            "short_WT_Z": self.short_sleep_wt_zscore,
+            # Circadian features (6)
+            "circadian_amplitude_MN": self.circadian_amplitude_mean,
+            "circadian_amplitude_SD": self.circadian_amplitude_std,
+            "circadian_amplitude_Z": self.circadian_amplitude_zscore,
+            "circadian_phase_MN": self.circadian_phase_mean,
+            "circadian_phase_SD": self.circadian_phase_std,
+            "circadian_phase_Z": self.circadian_phase_zscore,
+        }
+
 
 class AggregationPipeline:
     """
@@ -981,3 +1027,191 @@ class AggregationPipeline:
 
         # Default to 0 if no sleep data
         return 0.0
+
+    def aggregate_seoul_features(
+        self,
+        sleep_records: list[SleepRecord],
+        activity_records: list[ActivityRecord],
+        heart_records: list[HeartRateRecord],
+        start_date: date,
+        end_date: date,
+    ) -> list[DailyFeatures]:
+        """
+        Generate Seoul statistical features for XGBoost models.
+
+        This method specifically generates DailyFeatures with the exact
+        feature names expected by the XGBoost models (with MN/SD/Z suffixes).
+
+        Args:
+            sleep_records: Sleep records
+            activity_records: Activity records
+            heart_records: Heart rate records
+            start_date: Start date (inclusive)
+            end_date: End date (inclusive)
+
+        Returns:
+            List of DailyFeatures with Seoul statistical features
+        """
+        results = []
+
+        # Process each day using existing logic
+        sleep_window = self.create_rolling_window(self.config.window_size)
+        circadian_window = self.create_rolling_window(self.config.window_size)
+
+        current_date = start_date
+        while current_date <= end_date:
+            # 1. Sleep Window Analysis
+            day_sleep = [
+                s
+                for s in sleep_records
+                if s.start_date.date() <= current_date <= s.end_date.date()
+            ]
+
+            sleep_windows = self.sleep_analyzer.analyze_sleep_episodes(
+                day_sleep, current_date
+            )
+
+            # 2. Activity Sequence Extraction
+            day_activity = [
+                a for a in activity_records if a.start_date.date() == current_date
+            ]
+
+            activity_sequence = None
+            if day_activity:
+                activity_sequence = self.activity_extractor.extract_daily_sequence(
+                    day_activity, current_date
+                )
+
+            # 3. Circadian metrics (simplified for Seoul features)
+            circadian_metrics = None
+            dlmo_result = None
+
+            # 4. Extract daily metrics
+            daily_metrics = self.calculate_daily_metrics(
+                sleep_windows, activity_sequence, circadian_metrics, dlmo_result
+            )
+
+            if daily_metrics and "sleep" in daily_metrics:
+                # Update rolling windows
+                self.update_rolling_window(sleep_window, daily_metrics["sleep"])
+                if "circadian" in daily_metrics and daily_metrics["circadian"]:
+                    self.update_rolling_window(circadian_window, daily_metrics["circadian"])
+
+                # Generate DailyFeatures if we have enough data
+                if len(sleep_window) >= 3:  # Need at least 3 days for statistics
+                    daily_features = self._create_daily_features(
+                        current_date=current_date,
+                        daily_metrics=daily_metrics,
+                        sleep_window=sleep_window,
+                        circadian_window=circadian_window,
+                    )
+                    if daily_features:
+                        results.append(daily_features)
+
+            current_date += timedelta(days=1)
+
+        return results
+
+    def _create_daily_features(
+        self,
+        current_date: date,
+        daily_metrics: dict[str, Any],
+        sleep_window: list[dict[str, float]],
+        circadian_window: list[dict[str, float]],
+    ) -> DailyFeatures | None:
+        """Create DailyFeatures with Seoul statistical features."""
+        if not daily_metrics or "sleep" not in daily_metrics:
+            return None
+
+        # Calculate sleep statistics
+        sleep_stats = {}
+        for metric in [
+            "sleep_percentage",
+            "sleep_amplitude",
+            "long_num",
+            "long_len",
+            "long_st",
+            "long_wt",
+            "short_num",
+            "short_len",
+            "short_st",
+            "short_wt",
+        ]:
+            values = [s[metric] for s in sleep_window if metric in s]
+            if not values:
+                # Use defaults if no data
+                sleep_stats[f"{metric}_mean"] = 0.0
+                sleep_stats[f"{metric}_std"] = 0.0
+                sleep_stats[f"{metric}_zscore"] = 0.0
+            else:
+                current_val = daily_metrics["sleep"].get(metric, 0.0)
+                stats = self.calculate_statistics(metric, values, current_val)
+                sleep_stats[f"{metric}_mean"] = stats["mean"]
+                sleep_stats[f"{metric}_std"] = stats["std"]
+                sleep_stats[f"{metric}_zscore"] = stats["zscore"]
+
+        # Calculate circadian statistics
+        circadian_stats = {
+            "circadian_amplitude_mean": 0.0,
+            "circadian_amplitude_std": 0.0,
+            "circadian_amplitude_zscore": 0.0,
+            "circadian_phase_mean": 0.0,
+            "circadian_phase_std": 0.0,
+            "circadian_phase_zscore": 0.0,
+        }
+
+        if circadian_window and "circadian" in daily_metrics and daily_metrics["circadian"]:
+            for metric in ["amplitude", "phase"]:
+                values = [c.get(metric, 0.0) for c in circadian_window if c and metric in c]
+                if values:
+                    current_val = daily_metrics["circadian"].get(metric, 0.0)
+                    stats = self.calculate_statistics(metric, values, current_val)
+                    circadian_stats[f"circadian_{metric}_mean"] = stats["mean"]
+                    circadian_stats[f"circadian_{metric}_std"] = stats["std"]
+                    circadian_stats[f"circadian_{metric}_zscore"] = stats["zscore"]
+
+        # Create DailyFeatures object with all 36 features
+        return DailyFeatures(
+            date=current_date,
+            # Sleep percentage features
+            sleep_percentage_mean=sleep_stats["sleep_percentage_mean"],
+            sleep_percentage_std=sleep_stats["sleep_percentage_std"],
+            sleep_percentage_zscore=sleep_stats["sleep_percentage_zscore"],
+            # Sleep amplitude features
+            sleep_amplitude_mean=sleep_stats["sleep_amplitude_mean"],
+            sleep_amplitude_std=sleep_stats["sleep_amplitude_std"],
+            sleep_amplitude_zscore=sleep_stats["sleep_amplitude_zscore"],
+            # Long sleep window features
+            long_sleep_num_mean=sleep_stats["long_num_mean"],
+            long_sleep_num_std=sleep_stats["long_num_std"],
+            long_sleep_num_zscore=sleep_stats["long_num_zscore"],
+            long_sleep_len_mean=sleep_stats["long_len_mean"],
+            long_sleep_len_std=sleep_stats["long_len_std"],
+            long_sleep_len_zscore=sleep_stats["long_len_zscore"],
+            long_sleep_st_mean=sleep_stats["long_st_mean"],
+            long_sleep_st_std=sleep_stats["long_st_std"],
+            long_sleep_st_zscore=sleep_stats["long_st_zscore"],
+            long_sleep_wt_mean=sleep_stats["long_wt_mean"],
+            long_sleep_wt_std=sleep_stats["long_wt_std"],
+            long_sleep_wt_zscore=sleep_stats["long_wt_zscore"],
+            # Short sleep window features
+            short_sleep_num_mean=sleep_stats["short_num_mean"],
+            short_sleep_num_std=sleep_stats["short_num_std"],
+            short_sleep_num_zscore=sleep_stats["short_num_zscore"],
+            short_sleep_len_mean=sleep_stats["short_len_mean"],
+            short_sleep_len_std=sleep_stats["short_len_std"],
+            short_sleep_len_zscore=sleep_stats["short_len_zscore"],
+            short_sleep_st_mean=sleep_stats["short_st_mean"],
+            short_sleep_st_std=sleep_stats["short_st_std"],
+            short_sleep_st_zscore=sleep_stats["short_st_zscore"],
+            short_sleep_wt_mean=sleep_stats["short_wt_mean"],
+            short_sleep_wt_std=sleep_stats["short_wt_std"],
+            short_sleep_wt_zscore=sleep_stats["short_wt_zscore"],
+            # Circadian features
+            circadian_amplitude_mean=circadian_stats["circadian_amplitude_mean"],
+            circadian_amplitude_std=circadian_stats["circadian_amplitude_std"],
+            circadian_amplitude_zscore=circadian_stats["circadian_amplitude_zscore"],
+            circadian_phase_mean=circadian_stats["circadian_phase_mean"],
+            circadian_phase_std=circadian_stats["circadian_phase_std"],
+            circadian_phase_zscore=circadian_stats["circadian_phase_zscore"],
+        )
