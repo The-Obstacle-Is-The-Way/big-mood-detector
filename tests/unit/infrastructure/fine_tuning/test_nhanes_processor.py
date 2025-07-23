@@ -261,31 +261,32 @@ class TestNHANESProcessor:
         assert "vigorous_minutes" in daily.columns
 
     def test_extract_pat_sequences(self):
-        """Test extracting 60-minute sequences for PAT model."""
+        """Test extracting 7-day sequences for PAT model."""
         from big_mood_detector.infrastructure.fine_tuning.nhanes_processor import (
             NHANESProcessor,
         )
 
-        # Create sample minute-level data
-        minutes = 120
-        actigraphy = pd.DataFrame(
-            {
-                "SEQN": [1] * minutes,
-                "PAXDAY": [1] * minutes,
-                "PAXN": list(range(1, minutes + 1)),
-                "PAXINTEN": np.random.randint(0, 1000, minutes),
-            }
-        )
+        # Create sample actigraphy data for 7 days
+        actigraphy = pd.DataFrame({
+            'SEQN': [1] * (7 * 1440),
+            'PAXDAY': np.repeat(range(1, 8), 1440),
+            'PAXMINUTE': np.tile(range(1440), 7),
+            'PAXINTEN': np.random.randint(0, 1000, 7 * 1440)
+        })
 
         processor = NHANESProcessor()
-        sequences, labels = processor.extract_pat_sequences(
-            actigraphy, window_size=60, stride=30, label_col=None
+        sequences = processor.extract_pat_sequences(
+            actigraphy, 
+            subject_id=1,
+            normalize=True
         )
 
-        # Should create sliding windows
-        expected_sequences = (minutes - 60) // 30 + 1
-        assert sequences.shape == (expected_sequences, 60)
-        assert labels is None
+        # Should return 7x1440 array
+        assert sequences.shape == (7, 1440)
+        assert sequences.dtype == np.float32
+        # Should be normalized
+        assert np.all(sequences >= 0)
+        assert np.all(sequences <= 10)
 
     def test_save_processed_cohort(self, tmp_path):
         """Test saving processed cohort to parquet."""

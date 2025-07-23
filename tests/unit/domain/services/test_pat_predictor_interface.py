@@ -8,7 +8,7 @@ This ensures we can swap implementations without changing domain logic.
 import numpy as np
 import pytest
 
-from big_mood_detector.domain.services.mood_predictor import MoodPrediction
+from big_mood_detector.domain.services.pat_predictor import PATBinaryPredictions
 
 
 class TestPATPredictorInterface:
@@ -22,7 +22,7 @@ class TestPATPredictorInterface:
 
         assert hasattr(PATPredictorInterface, 'predict_from_embeddings')
 
-    def test_pat_predictor_returns_mood_prediction(self):
+    def test_pat_predictor_returns_binary_predictions(self):
         """PAT predictor should return standard MoodPrediction object."""
         from big_mood_detector.domain.services.pat_predictor import (
             PATPredictorInterface,
@@ -30,23 +30,27 @@ class TestPATPredictorInterface:
 
         # Create a concrete implementation for testing
         class ConcretePATPredictor(PATPredictorInterface):
-            def predict_from_embeddings(self, embeddings: np.ndarray) -> MoodPrediction:
+            def predict_from_embeddings(self, embeddings: np.ndarray) -> PATBinaryPredictions:
                 # Simple implementation for testing
-                return MoodPrediction(
-                    depression_risk=0.3,
-                    hypomanic_risk=0.2,
-                    manic_risk=0.1,
+                return PATBinaryPredictions(
+                    depression_probability=0.3,
+                    benzodiazepine_probability=0.2,
                     confidence=0.8
                 )
+            
+            def predict_depression(self, embeddings: np.ndarray) -> float:
+                return 0.3
+            
+            def predict_medication_proxy(self, embeddings: np.ndarray) -> float:
+                return 0.2
 
         predictor = ConcretePATPredictor()
         embeddings = np.random.rand(96)
         prediction = predictor.predict_from_embeddings(embeddings)
 
-        assert isinstance(prediction, MoodPrediction)
-        assert 0 <= prediction.depression_risk <= 1
-        assert 0 <= prediction.hypomanic_risk <= 1
-        assert 0 <= prediction.manic_risk <= 1
+        assert isinstance(prediction, PATBinaryPredictions)
+        assert 0 <= prediction.depression_probability <= 1
+        assert 0 <= prediction.benzodiazepine_probability <= 1
         assert 0 <= prediction.confidence <= 1
 
     def test_pat_predictor_validates_embedding_dimension(self):
@@ -55,18 +59,28 @@ class TestPATPredictorInterface:
             PATPredictorInterface,
         )
 
+        from big_mood_detector.domain.services.pat_predictor import PATBinaryPredictions
+        
         class StrictPATPredictor(PATPredictorInterface):
-            def predict_from_embeddings(self, embeddings: np.ndarray) -> MoodPrediction:
+            def predict_from_embeddings(self, embeddings: np.ndarray) -> PATBinaryPredictions:
                 if embeddings.shape[0] != 96:
                     raise ValueError(f"Expected 96-dim embeddings, got {embeddings.shape[0]}")
-                return MoodPrediction(0.5, 0.5, 0.5, 0.5)
+                return PATBinaryPredictions(0.5, 0.5, 0.5)
+            
+            def predict_depression(self, embeddings: np.ndarray) -> float:
+                if embeddings.shape[0] != 96:
+                    raise ValueError(f"Expected 96-dim embeddings, got {embeddings.shape[0]}")
+                return 0.5
+            
+            def predict_medication_proxy(self, embeddings: np.ndarray) -> float:
+                return 0.5
 
         predictor = StrictPATPredictor()
 
         # Should work with correct dimensions
         valid_embeddings = np.random.rand(96)
         prediction = predictor.predict_from_embeddings(valid_embeddings)
-        assert isinstance(prediction, MoodPrediction)
+        assert isinstance(prediction, PATBinaryPredictions)
 
         # Should fail with wrong dimensions
         invalid_embeddings = np.random.rand(50)
@@ -77,48 +91,55 @@ class TestPATPredictorInterface:
         """PAT predictor should handle batch predictions efficiently."""
         from big_mood_detector.domain.services.pat_predictor import (
             PATPredictorInterface,
+            PATBinaryPredictions,
         )
 
         class BatchPATPredictor(PATPredictorInterface):
-            def predict_from_embeddings(self, embeddings: np.ndarray) -> MoodPrediction:
+            def predict_from_embeddings(self, embeddings: np.ndarray) -> PATBinaryPredictions:
                 # Handle single embedding
                 if embeddings.ndim == 1:
-                    return MoodPrediction(0.4, 0.3, 0.2, 0.7)
+                    return PATBinaryPredictions(0.4, 0.3, 0.7)
                 # Batch predictions not required by interface but useful
                 raise NotImplementedError("Batch predictions not implemented")
+            
+            def predict_depression(self, embeddings: np.ndarray) -> float:
+                return 0.4
+            
+            def predict_medication_proxy(self, embeddings: np.ndarray) -> float:
+                return 0.3
 
         predictor = BatchPATPredictor()
         single_embedding = np.random.rand(96)
         prediction = predictor.predict_from_embeddings(single_embedding)
-        assert isinstance(prediction, MoodPrediction)
+        assert isinstance(prediction, PATBinaryPredictions)
 
-    def test_mood_prediction_risks_sum_approximately_to_one(self):
-        """Mood risks should be probabilities that approximately sum to 1."""
+    def test_binary_predictions_are_independent(self):
+        """Binary predictions don't need to sum to 1 (they're independent)."""
         from big_mood_detector.domain.services.pat_predictor import (
             PATPredictorInterface,
+            PATBinaryPredictions,
         )
 
-        class ProbabilisticPATPredictor(PATPredictorInterface):
-            def predict_from_embeddings(self, embeddings: np.ndarray) -> MoodPrediction:
-                # Softmax-like output
-                raw_scores = np.array([0.8, 0.3, 0.1])
-                exp_scores = np.exp(raw_scores)
-                probs = exp_scores / exp_scores.sum()
-
-                return MoodPrediction(
-                    depression_risk=float(probs[0]),
-                    hypomanic_risk=float(probs[1]),
-                    manic_risk=float(probs[2]),
+        class IndependentPATPredictor(PATPredictorInterface):
+            def predict_from_embeddings(self, embeddings: np.ndarray) -> PATBinaryPredictions:
+                # Independent binary predictions
+                return PATBinaryPredictions(
+                    depression_probability=0.8,  # High depression
+                    benzodiazepine_probability=0.1,  # Low benzo use
                     confidence=0.85
                 )
+            
+            def predict_depression(self, embeddings: np.ndarray) -> float:
+                return 0.8
+            
+            def predict_medication_proxy(self, embeddings: np.ndarray) -> float:
+                return 0.1
 
-        predictor = ProbabilisticPATPredictor()
+        predictor = IndependentPATPredictor()
         embeddings = np.random.rand(96)
         prediction = predictor.predict_from_embeddings(embeddings)
 
-        total_risk = (prediction.depression_risk +
-                      prediction.hypomanic_risk +
-                      prediction.manic_risk)
-
-        # Allow small floating point errors
-        assert abs(total_risk - 1.0) < 0.01
+        # Binary predictions are independent - they don't sum to 1
+        assert prediction.depression_probability == 0.8
+        assert prediction.benzodiazepine_probability == 0.1
+        assert prediction.confidence == 0.85
