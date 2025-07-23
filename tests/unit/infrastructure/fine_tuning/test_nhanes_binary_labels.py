@@ -4,7 +4,6 @@ Test NHANES Binary Label Creation
 Tests for creating binary labels from NHANES data matching PAT paper.
 """
 
-import numpy as np
 import pandas as pd
 import pytest
 

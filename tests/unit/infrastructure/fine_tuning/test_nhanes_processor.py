@@ -276,7 +276,7 @@ class TestNHANESProcessor:
 
         processor = NHANESProcessor()
         sequences = processor.extract_pat_sequences(
-            actigraphy, 
+            actigraphy,
             subject_id=1,
             normalize=True
         )

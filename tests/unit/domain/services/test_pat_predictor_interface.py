@@ -37,10 +37,10 @@ class TestPATPredictorInterface:
                     benzodiazepine_probability=0.2,
                     confidence=0.8
                 )
-            
+
             def predict_depression(self, embeddings: np.ndarray) -> float:
                 return 0.3
-            
+
             def predict_medication_proxy(self, embeddings: np.ndarray) -> float:
                 return 0.2
 
@@ -56,22 +56,21 @@ class TestPATPredictorInterface:
     def test_pat_predictor_validates_embedding_dimension(self):
         """PAT predictor should validate embedding dimensions."""
         from big_mood_detector.domain.services.pat_predictor import (
+            PATBinaryPredictions,
             PATPredictorInterface,
         )
 
-        from big_mood_detector.domain.services.pat_predictor import PATBinaryPredictions
-        
         class StrictPATPredictor(PATPredictorInterface):
             def predict_from_embeddings(self, embeddings: np.ndarray) -> PATBinaryPredictions:
                 if embeddings.shape[0] != 96:
                     raise ValueError(f"Expected 96-dim embeddings, got {embeddings.shape[0]}")
                 return PATBinaryPredictions(0.5, 0.5, 0.5)
-            
+
             def predict_depression(self, embeddings: np.ndarray) -> float:
                 if embeddings.shape[0] != 96:
                     raise ValueError(f"Expected 96-dim embeddings, got {embeddings.shape[0]}")
                 return 0.5
-            
+
             def predict_medication_proxy(self, embeddings: np.ndarray) -> float:
                 return 0.5
 
@@ -90,8 +89,8 @@ class TestPATPredictorInterface:
     def test_pat_predictor_handles_batch_predictions(self):
         """PAT predictor should handle batch predictions efficiently."""
         from big_mood_detector.domain.services.pat_predictor import (
-            PATPredictorInterface,
             PATBinaryPredictions,
+            PATPredictorInterface,
         )
 
         class BatchPATPredictor(PATPredictorInterface):
@@ -101,10 +100,10 @@ class TestPATPredictorInterface:
                     return PATBinaryPredictions(0.4, 0.3, 0.7)
                 # Batch predictions not required by interface but useful
                 raise NotImplementedError("Batch predictions not implemented")
-            
+
             def predict_depression(self, embeddings: np.ndarray) -> float:
                 return 0.4
-            
+
             def predict_medication_proxy(self, embeddings: np.ndarray) -> float:
                 return 0.3
 
@@ -116,8 +115,8 @@ class TestPATPredictorInterface:
     def test_binary_predictions_are_independent(self):
         """Binary predictions don't need to sum to 1 (they're independent)."""
         from big_mood_detector.domain.services.pat_predictor import (
-            PATPredictorInterface,
             PATBinaryPredictions,
+            PATPredictorInterface,
         )
 
         class IndependentPATPredictor(PATPredictorInterface):
@@ -128,10 +127,10 @@ class TestPATPredictorInterface:
                     benzodiazepine_probability=0.1,  # Low benzo use
                     confidence=0.85
                 )
-            
+
             def predict_depression(self, embeddings: np.ndarray) -> float:
                 return 0.8
-            
+
             def predict_medication_proxy(self, embeddings: np.ndarray) -> float:
                 return 0.1
 
