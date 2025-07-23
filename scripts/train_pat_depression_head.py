@@ -23,7 +23,7 @@ import argparse
 import logging
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Any, Tuple
+from typing import Any
 
 import numpy as np
 import torch
@@ -32,6 +32,7 @@ from sklearn.metrics import accuracy_score, roc_auc_score
 from sklearn.model_selection import train_test_split
 from torch.utils.data import DataLoader, TensorDataset
 
+from big_mood_detector.domain.services.pat_sequence_builder import PATSequence
 from big_mood_detector.infrastructure.fine_tuning.nhanes_processor import (
     NHANESProcessor,
 )
@@ -39,7 +40,6 @@ from big_mood_detector.infrastructure.fine_tuning.population_trainer import (
     PATPopulationTrainer,
 )
 from big_mood_detector.infrastructure.ml_models.pat_model import PATModel
-from big_mood_detector.domain.services.pat_sequence_builder import PATSequence
 
 # Configure logging
 logging.basicConfig(
@@ -53,7 +53,7 @@ def prepare_training_data(
     nhanes_dir: Path,
     pat_model: Any,
     max_subjects: int | None = None
-) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
     Prepare training data from NHANES.
     
@@ -67,30 +67,30 @@ def prepare_training_data(
     """
     logger.info("Loading NHANES data...")
     processor = NHANESProcessor()
-    
+
     # Load actigraphy and depression data
     actigraphy_df = processor.load_actigraphy_data(nhanes_dir)
     depression_df = processor.load_depression_data(nhanes_dir)
-    
+
     # Get unique subjects with both actigraphy and depression data
     actigraphy_subjects = set(actigraphy_df['SEQN'].unique())
     depression_subjects = set(depression_df['SEQN'].unique())
     common_subjects = list(actigraphy_subjects & depression_subjects)
-    
+
     if max_subjects:
         common_subjects = common_subjects[:max_subjects]
-    
+
     logger.info(f"Found {len(common_subjects)} subjects with complete data")
-    
+
     # Extract features for each subject
     embeddings_list = []
     labels_list = []
     subject_ids = []
-    
+
     for i, subject_id in enumerate(common_subjects):
         if i % 10 == 0:
             logger.info(f"Processing subject {i+1}/{len(common_subjects)}")
-        
+
         try:
             # Extract 7-day PAT sequences
             pat_sequences = processor.extract_pat_sequences(
@@ -98,46 +98,46 @@ def prepare_training_data(
                 subject_id=subject_id,
                 normalize=True
             )
-            
+
             if pat_sequences.shape[0] < 7:
                 logger.warning(f"Subject {subject_id} has insufficient data")
                 continue
-            
+
             # Use last 7 days
             sequence_7d = pat_sequences[-7:]  # Shape: (7, 1440)
-            
+
             # Create PATSequence object
             pat_sequence = PATSequence(
                 activity_counts=sequence_7d,
                 start_date=datetime.now().date() - timedelta(days=7),
                 end_date=datetime.now().date()
             )
-            
+
             # Extract PAT embeddings
             embeddings = pat_model.extract_features(pat_sequence)
-            
+
             # Get depression label (PHQ-9 >= 10)
             subject_depression = depression_df[depression_df['SEQN'] == subject_id]
             phq9_score = subject_depression['PHQ9_TOTAL'].iloc[0]
             depression_label = int(phq9_score >= 10) if not np.isnan(phq9_score) else None
-            
+
             if depression_label is not None:
                 embeddings_list.append(embeddings)
                 labels_list.append(depression_label)
                 subject_ids.append(subject_id)
-                
+
         except Exception as e:
             logger.warning(f"Error processing subject {subject_id}: {e}")
             continue
-    
+
     # Convert to arrays
     embeddings = np.array(embeddings_list)
     labels = np.array(labels_list)
     subject_ids = np.array(subject_ids)
-    
+
     logger.info(f"Prepared {len(embeddings)} samples")
     logger.info(f"Class distribution: {np.bincount(labels)}")
-    
+
     return embeddings, labels, subject_ids
 
 
@@ -167,22 +167,22 @@ def train_depression_head(
     X_train, X_val, y_train, y_val = train_test_split(
         embeddings, labels, test_size=val_split, random_state=42, stratify=labels
     )
-    
+
     logger.info(f"Training set: {len(X_train)}, Validation set: {len(X_val)}")
-    
+
     # Convert to PyTorch tensors
     X_train_tensor = torch.FloatTensor(X_train)
     y_train_tensor = torch.FloatTensor(y_train)
     X_val_tensor = torch.FloatTensor(X_val)
     y_val_tensor = torch.FloatTensor(y_val)
-    
+
     # Create data loaders
     train_dataset = TensorDataset(X_train_tensor, y_train_tensor)
     val_dataset = TensorDataset(X_val_tensor, y_val_tensor)
-    
+
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
     val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
-    
+
     # Initialize trainer
     trainer = PATPopulationTrainer(
         task_name="depression",
@@ -190,41 +190,41 @@ def train_depression_head(
         hidden_dim=64,
         learning_rate=learning_rate
     )
-    
+
     # Training loop
     best_val_auc = 0
     best_model_state = None
-    
+
     for epoch in range(epochs):
         # Training
         trainer.model.train()
         train_loss = 0
-        
+
         for batch_X, batch_y in train_loader:
             loss = trainer.train_step(batch_X, batch_y)
             train_loss += loss
-        
+
         avg_train_loss = train_loss / len(train_loader)
-        
+
         # Validation
         trainer.model.eval()
         val_preds = []
         val_true = []
-        
+
         with torch.no_grad():
             for batch_X, batch_y in val_loader:
                 outputs = trainer.model(batch_X)
                 probs = torch.sigmoid(outputs).squeeze()
                 val_preds.extend(probs.cpu().numpy())
                 val_true.extend(batch_y.cpu().numpy())
-        
+
         val_preds = np.array(val_preds)
         val_true = np.array(val_true)
-        
+
         # Metrics
         val_auc = roc_auc_score(val_true, val_preds)
         val_acc = accuracy_score(val_true, val_preds > 0.5)
-        
+
         if epoch % 10 == 0 or epoch == epochs - 1:
             logger.info(
                 f"Epoch {epoch+1}/{epochs} - "
@@ -232,16 +232,16 @@ def train_depression_head(
                 f"Val AUC: {val_auc:.4f}, "
                 f"Val Acc: {val_acc:.4f}"
             )
-        
+
         # Save best model
         if val_auc > best_val_auc:
             best_val_auc = val_auc
             best_model_state = trainer.model.state_dict().copy()
-    
+
     # Restore best model
     trainer.model.load_state_dict(best_model_state)
     logger.info(f"Best validation AUC: {best_val_auc:.4f}")
-    
+
     return trainer.model
 
 
@@ -286,12 +286,12 @@ def main():
         default=None,
         help="Maximum number of subjects to use (for testing)"
     )
-    
+
     args = parser.parse_args()
-    
+
     # Create output directory
     args.output_dir.mkdir(parents=True, exist_ok=True)
-    
+
     # Load PAT model
     logger.info("Loading PAT model...")
     pat_model = PATModel(model_size="small")  # Use small model for efficiency
@@ -299,18 +299,18 @@ def main():
     if not pat_model.load_pretrained_weights(weights_path):
         logger.error("Failed to load PAT weights")
         return
-    
+
     # Prepare training data
     embeddings, labels, subject_ids = prepare_training_data(
         args.nhanes_dir,
         pat_model,
         max_subjects=args.max_subjects
     )
-    
+
     if len(embeddings) < 100:
         logger.error(f"Insufficient training data: {len(embeddings)} samples")
         return
-    
+
     # Train model
     logger.info("Training depression classification head...")
     model = train_depression_head(
@@ -320,7 +320,7 @@ def main():
         batch_size=args.batch_size,
         learning_rate=args.learning_rate
     )
-    
+
     # Save model
     output_path = args.output_dir / "pat_depression_head.pt"
     torch.save({
@@ -338,7 +338,7 @@ def main():
             'epochs': args.epochs
         }
     }, output_path)
-    
+
     logger.info(f"Model saved to {output_path}")
     logger.info("Training complete!")
 
