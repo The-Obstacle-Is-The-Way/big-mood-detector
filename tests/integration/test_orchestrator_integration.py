@@ -96,30 +96,25 @@ class TestOrchestratorIntegration:
             circadian_features=CircadianFeatureSet(
                 l5_value=100.0,
                 m10_value=500.0,
+                l5_onset=None,
+                m10_onset=None,
                 circadian_phase_advance=0.0,
                 circadian_phase_delay=0.0,
-                circadian_amplitude=0.5,
-                phase_angle=0.0,
             ),
             activity_features=ActivityFeatureSet(
-                total_steps=5000.0,
+                total_steps=8000,
                 activity_fragmentation=0.3,
-                sedentary_bout_mean=2.0,
-                sedentary_bout_max=4.0,
+                sedentary_bout_mean=45.0,
+                sedentary_bout_max=120.0,
                 activity_intensity_ratio=0.2,
-                activity_rhythm_strength=0.7,
             ),
             temporal_features=TemporalFeatureSet(
-                sleep_7day_mean=0.0,
-                sleep_7day_std=0.0,
-                activity_7day_mean=5000.0,
-                activity_7day_std=1000.0,
+                sleep_7day_mean=7.0,
+                sleep_7day_std=1.0,
+                activity_7day_mean=8000.0,
+                activity_7day_std=2000.0,
                 hr_7day_mean=65.0,
                 hr_7day_std=5.0,
-                sleep_trend_slope=0.0,
-                activity_trend_slope=0.0,
-                sleep_momentum=0.0,
-                activity_momentum=0.0,
             ),
             clinical_features=ClinicalFeatureSet(
                 is_hypersomnia_pattern=False,
@@ -152,40 +147,35 @@ class TestOrchestratorIntegration:
                 sleep_efficiency=0.95,
                 sleep_regularity_index=80.0,
                 interdaily_stability=0.8,
-                intradaily_variability=0.2,
+                intradaily_variability=0.4,
                 relative_amplitude=0.7,
                 short_sleep_window_pct=0.0,
-                long_sleep_window_pct=0.8,  # Many long sleep nights
+                long_sleep_window_pct=60.0,  # Many long sleep windows
                 sleep_onset_variance=0.5,
                 wake_time_variance=0.5,
             ),
             circadian_features=CircadianFeatureSet(
                 l5_value=50.0,
-                m10_value=400.0,
-                circadian_phase_advance=3.0,  # Phase advanced
+                m10_value=300.0,
+                l5_onset=None,
+                m10_onset=None,
+                circadian_phase_advance=6.0,  # Large phase advance
                 circadian_phase_delay=0.0,
-                circadian_amplitude=0.6,
-                phase_angle=2.5,
             ),
             activity_features=ActivityFeatureSet(
-                total_steps=500.0,  # Very low activity
-                activity_fragmentation=0.9,  # High fragmentation
-                sedentary_bout_mean=8.0,
-                sedentary_bout_max=12.0,
-                activity_intensity_ratio=0.05,
-                activity_rhythm_strength=0.3,
+                total_steps=500,  # Very low activity
+                activity_fragmentation=0.8,  # High fragmentation
+                sedentary_bout_mean=180.0,  # Long sedentary periods
+                sedentary_bout_max=360.0,
+                activity_intensity_ratio=0.05,  # Very low intensity
             ),
             temporal_features=TemporalFeatureSet(
-                sleep_7day_mean=13.0,
+                sleep_7day_mean=12.0,
                 sleep_7day_std=2.0,
-                activity_7day_mean=600.0,
-                activity_7day_std=200.0,
-                hr_7day_mean=55.0,
+                activity_7day_mean=1000.0,
+                activity_7day_std=500.0,
+                hr_7day_mean=60.0,
                 hr_7day_std=3.0,
-                sleep_trend_slope=0.5,
-                activity_trend_slope=-0.3,
-                sleep_momentum=0.2,
-                activity_momentum=-0.1,
             ),
             clinical_features=ClinicalFeatureSet(
                 is_hypersomnia_pattern=True,
