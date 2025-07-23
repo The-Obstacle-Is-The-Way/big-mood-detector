@@ -69,7 +69,7 @@ class EnsemblePrediction:
 
     # Individual model predictions
     xgboost_prediction: MoodPrediction | None
-    pat_enhanced_prediction: MoodPrediction | None
+    pat_enhanced_prediction: MoodPrediction | None  # Deprecated - kept for compatibility
 
     # Ensemble results
     ensemble_prediction: MoodPrediction
@@ -78,6 +78,13 @@ class EnsemblePrediction:
     models_used: list[str]
     confidence_scores: dict[str, float]
     processing_time_ms: dict[str, float]
+
+    # NEW: Separate PAT outputs (with defaults)
+    pat_embeddings: np.ndarray | None = None  # 96-dim embeddings from PAT encoder
+    pat_prediction: MoodPrediction | None = None  # Future: PAT classification result
+
+    # NEW: Temporal context for each model
+    temporal_context: dict[str, str] | None = None
 
 
 class EnsembleOrchestrator:
@@ -147,20 +154,20 @@ class EnsembleOrchestrator:
         timing: dict[str, float] = {}
         models_used: list[str] = []
         predictions: dict[str, MoodPrediction | None] = {}
+        pat_embeddings: np.ndarray | None = None
 
         # Submit parallel tasks
         futures = {}
 
-        # 1. Standard XGBoost prediction
+        # 1. Standard XGBoost prediction (only on statistical features)
         futures["xgboost"] = self.executor.submit(
             self._predict_xgboost, statistical_features
         )
 
-        # 2. PAT-enhanced prediction (if available)
+        # 2. Extract PAT embeddings (if available)
         if self.config.use_pat_features and self.pat_model and activity_records:
-            futures["pat_enhanced"] = self.executor.submit(
-                self._predict_with_pat,
-                statistical_features,
+            futures["pat_embeddings"] = self.executor.submit(
+                self._extract_pat_embeddings,
                 activity_records,
                 prediction_date,
             )
@@ -175,21 +182,28 @@ class EnsembleOrchestrator:
                 )
 
                 result_start = time.time()
-                predictions[name] = future.result(timeout=timeout)
+                if name == "pat_embeddings":
+                    pat_embeddings = future.result(timeout=timeout)
+                    models_used.append("pat_embeddings")
+                else:
+                    predictions[name] = future.result(timeout=timeout)
+                    models_used.append(name)
                 timing[name] = (time.time() - result_start) * 1000  # ms
-                models_used.append(name)
 
             except TimeoutError:
-                logger.warning(f"{name} prediction timed out after {timeout}s")
-                predictions[name] = None
+                logger.warning(f"{name} timed out after {timeout}s")
+                if name == "xgboost":
+                    predictions[name] = None
 
             except Exception as e:
-                logger.error(f"{name} prediction failed: {e}")
-                predictions[name] = None
+                logger.error(f"{name} failed: {e}")
+                if name == "xgboost":
+                    predictions[name] = None
 
-        # Calculate ensemble prediction
-        ensemble_pred = self._calculate_ensemble(
-            predictions.get("xgboost"), predictions.get("pat_enhanced")
+        # For now, ensemble is just XGBoost (PAT can't predict yet)
+        xgboost_pred = predictions.get("xgboost")
+        ensemble_pred = xgboost_pred if xgboost_pred else MoodPrediction(
+            depression_risk=0.5, hypomanic_risk=0.5, manic_risk=0.5, confidence=0.0
         )
 
         # Calculate confidence scores
@@ -198,18 +212,60 @@ class EnsembleOrchestrator:
         # Total processing time
         timing["total"] = (time.time() - start_time) * 1000
 
+        # Determine temporal context
+        temporal_context = {
+            "xgboost": "next_24_hours",
+            "pat": "embeddings_only" if pat_embeddings is not None else "not_available"
+        }
+
         return EnsemblePrediction(
-            xgboost_prediction=predictions.get("xgboost"),
-            pat_enhanced_prediction=predictions.get("pat_enhanced"),
+            xgboost_prediction=xgboost_pred,
+            pat_enhanced_prediction=None,  # Deprecated
+            pat_embeddings=pat_embeddings,
+            pat_prediction=None,  # Not available until we train classification heads
             ensemble_prediction=ensemble_pred,
             models_used=models_used,
             confidence_scores=confidence_scores,
             processing_time_ms=timing,
+            temporal_context=temporal_context,
         )
 
     def _predict_xgboost(self, features: np.ndarray) -> MoodPrediction:
         """Run standard XGBoost prediction."""
         return self.xgboost_predictor.predict(features)
+
+    def _extract_pat_embeddings(
+        self,
+        activity_records: list[ActivityRecord],
+        prediction_date: np.datetime64 | None,
+    ) -> np.ndarray:
+        """Extract PAT embeddings without making predictions."""
+        if self.pat_builder is None or self.pat_model is None:
+            raise RuntimeError("PAT model or builder not available")
+
+        # Build PAT sequence
+        if prediction_date:
+            # Convert numpy datetime64 to date
+            from datetime import UTC, datetime
+
+            date_obj = datetime.fromtimestamp(
+                prediction_date.astype("datetime64[s]").astype(int), UTC
+            ).date()
+            sequence = self.pat_builder.build_sequence(
+                activity_records, end_date=date_obj
+            )
+        else:
+            # Use last available date
+            dates = [r.start_date.date() for r in activity_records]
+            if dates:
+                sequence = self.pat_builder.build_sequence(
+                    activity_records, end_date=max(dates)
+                )
+            else:
+                raise ValueError("No activity records provided")
+
+        # Extract and return PAT embeddings (96-dim)
+        return self.pat_model.extract_features(sequence)
 
     def _predict_with_pat(
         self,

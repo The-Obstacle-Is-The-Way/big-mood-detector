@@ -114,33 +114,10 @@ class TestEnsembleOrchestrator:
     def test_ensemble_prediction_both_models(
         self, mock_xgboost_predictor, mock_pat_model, sample_activity_records
     ):
-        """Test ensemble prediction with both models."""
+        """Test ensemble prediction with both models (refactored version)."""
         from big_mood_detector.application.use_cases.predict_mood_ensemble_use_case import (
             EnsembleOrchestrator,
         )
-
-        # Setup PAT-enhanced prediction
-        pat_enhanced_pred = MoodPrediction(
-            depression_risk=0.25,
-            hypomanic_risk=0.45,
-            manic_risk=0.15,
-            confidence=0.9,
-        )
-
-        # Mock to return different predictions for different inputs
-        call_count = 0
-
-        def predict_side_effect(features):
-            nonlocal call_count
-            call_count += 1
-            if call_count == 1:
-                # First call: regular XGBoost
-                return mock_xgboost_predictor.predict.return_value
-            else:
-                # Second call: PAT-enhanced
-                return pat_enhanced_pred
-
-        mock_xgboost_predictor.predict.side_effect = predict_side_effect
 
         orchestrator = EnsembleOrchestrator(
             xgboost_predictor=mock_xgboost_predictor, pat_model=mock_pat_model
@@ -151,16 +128,18 @@ class TestEnsembleOrchestrator:
             features, activity_records=sample_activity_records
         )
 
+        # In refactored version:
         assert result.xgboost_prediction is not None
-        assert result.pat_enhanced_prediction is not None
-        assert len(result.models_used) == 2
+        assert result.pat_enhanced_prediction is None  # Deprecated
+        assert result.pat_embeddings is not None  # NEW: embeddings extracted
+        assert result.pat_embeddings.shape == (96,)  # 96-dimensional
+        assert result.pat_prediction is None  # No classification head yet
+        assert len(result.models_used) == 2  # xgboost and pat_embeddings
 
-        # Check ensemble calculation (weighted average)
-        # XGBoost: 0.3, PAT: 0.25, weights: 0.6 and 0.4
-        expected_depression = 0.6 * 0.3 + 0.4 * 0.25  # 0.18 + 0.10 = 0.28
-        assert (
-            abs(result.ensemble_prediction.depression_risk - expected_depression) < 0.02
-        )
+        # Since PAT can't predict yet, ensemble is just XGBoost
+        assert result.ensemble_prediction.depression_risk == result.xgboost_prediction.depression_risk
+        assert result.ensemble_prediction.hypomanic_risk == result.xgboost_prediction.hypomanic_risk
+        assert result.ensemble_prediction.manic_risk == result.xgboost_prediction.manic_risk
 
     def test_timeout_handling(self, mock_xgboost_predictor, mock_pat_model):
         """Test handling of model timeouts."""

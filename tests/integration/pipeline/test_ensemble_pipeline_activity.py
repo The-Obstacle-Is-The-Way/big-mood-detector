@@ -181,7 +181,7 @@ class TestEnsemblePipelineActivityFlow:
 
         # If PAT is available, both models should be used
         if pat_model:
-            assert "pat_enhanced" in result.models_used
+            assert "pat_embeddings" in result.models_used
             assert len(result.models_used) == 2
 
     def test_pipeline_process_with_activity(self, sample_records, tmp_path):
