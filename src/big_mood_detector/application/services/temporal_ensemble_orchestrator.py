@@ -32,7 +32,7 @@ class TemporalEnsembleOrchestrator:
     """
     Orchestrates temporal mood assessment by separating current state (PAT)
     from future risk prediction (XGBoost).
-    
+
     Key principle: NO averaging or mixing of temporal contexts.
     - PAT assesses NOW (past 7 days)
     - XGBoost predicts TOMORROW (next 24 hours)
@@ -46,7 +46,7 @@ class TemporalEnsembleOrchestrator:
     ):
         """
         Initialize with required models.
-        
+
         Args:
             pat_encoder: Encodes activity sequences to embeddings
             pat_predictor: Makes current state predictions from PAT embeddings
@@ -64,12 +64,12 @@ class TemporalEnsembleOrchestrator:
     ) -> TemporalMoodAssessment:
         """
         Generate temporal mood assessment with clear time separation.
-        
+
         Args:
             pat_sequence: 7-day activity sequence for PAT (7x1440 array)
             statistical_features: Statistical features for XGBoost (36 Seoul features)
             user_id: Optional user identifier
-            
+
         Returns:
             TemporalMoodAssessment with current state and future risk
         """
@@ -148,13 +148,13 @@ class TemporalEnsembleOrchestrator:
     ) -> tuple[TemporalMoodAssessment, list[str]]:
         """
         Generate assessment with clinical alerts.
-        
+
         Args:
             pat_sequence: 7-day activity sequence for PAT
             statistical_features: Statistical features for XGBoost
             user_id: Optional user identifier
             alert_threshold: Threshold for generating alerts (default 0.7)
-            
+
         Returns:
             Tuple of (assessment, list of alert messages)
         """

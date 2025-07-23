@@ -56,12 +56,12 @@ def prepare_training_data(
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
     Prepare training data from NHANES.
-    
+
     Args:
         nhanes_dir: Directory containing NHANES data files
         pat_model: Pre-trained PAT model for embedding extraction
         max_subjects: Maximum number of subjects to process (for testing)
-        
+
     Returns:
         Tuple of (embeddings, labels, subject_ids)
     """
@@ -151,7 +151,7 @@ def train_depression_head(
 ) -> nn.Module:
     """
     Train depression classification head.
-    
+
     Args:
         embeddings: PAT embeddings (N, 96)
         labels: Binary depression labels (N,)
@@ -159,7 +159,7 @@ def train_depression_head(
         batch_size: Batch size for training
         learning_rate: Learning rate
         val_split: Validation split ratio
-        
+
     Returns:
         Trained model
     """
