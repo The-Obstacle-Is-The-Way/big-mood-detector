@@ -15,9 +15,9 @@ import sys
 from datetime import date, datetime, timedelta
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from big_mood_detector.application.mood_prediction_pipeline import (
+from big_mood_detector.application.use_cases.process_health_data_use_case import (
     MoodPredictionPipeline,
 )
 from big_mood_detector.domain.entities.activity_record import ActivityType
