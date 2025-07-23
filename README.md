@@ -135,7 +135,7 @@ big-mood-detector/
 │   ├── clinical/           # Clinical validation and research
 │   ├── developer/          # Technical documentation
 │   └── models/             # ML model details and math
-└── tests/                   # 907 tests (90%+ coverage)
+└── tests/                   # 916+ tests (90%+ coverage)
 ```
 
 ## 🧬 Key Features
