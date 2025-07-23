@@ -37,7 +37,7 @@ app = setup_metrics(app)
 
 
 # Ensure directories exist on startup
-@app.on_event("startup")
+@app.on_event("startup")  # type: ignore[misc]
 async def startup_event() -> None:
     """Ensure required directories exist and preload models when the API starts."""
     import sys
@@ -109,7 +109,7 @@ if os.environ.get("ENABLE_ASYNC_UPLOAD", "false").lower() == "true":
     app.include_router(upload_router)
 
 
-@app.get("/health")
+@app.get("/health")  # type: ignore[misc]
 async def health_check() -> JSONResponse:
     """Health check endpoint for container orchestration."""
     return JSONResponse(
@@ -122,13 +122,13 @@ async def health_check() -> JSONResponse:
     )
 
 
-@app.get("/healthz")
+@app.get("/healthz")  # type: ignore[misc]
 async def healthz() -> dict[str, str]:
     """Kubernetes-style health check endpoint."""
     return {"status": "ok"}
 
 
-@app.get("/")
+@app.get("/")  # type: ignore[misc]
 async def root() -> dict[str, Any]:
     """Root endpoint with basic info."""
     return {
