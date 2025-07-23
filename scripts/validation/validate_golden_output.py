@@ -1,16 +1,17 @@
 #!/usr/bin/env python3
 """Validate golden run outputs for feature completeness and correctness."""
 
-import sys
 import json
-import pandas as pd
+import sys
 from pathlib import Path
+
+import pandas as pd
 
 # Expected 36 Seoul features
 EXPECTED_FEATURES = [
     # Basic Sleep Features (1-5)
     'sleep_duration_hours',
-    'sleep_efficiency', 
+    'sleep_efficiency',
     'sleep_onset_hour',
     'wake_time_hour',
     'sleep_fragmentation',
@@ -56,87 +57,87 @@ EXPECTED_FEATURES = [
 def validate_features(features_path: Path):
     """Validate feature CSV has all expected columns and reasonable values."""
     print("\n📊 Validating Features...")
-    
+
     df = pd.read_csv(features_path)
     print(f"   Loaded {len(df)} days of features")
-    
+
     # Check for missing features
     missing = set(EXPECTED_FEATURES) - set(df.columns)
     if missing:
         print(f"   ❌ Missing {len(missing)} features: {sorted(missing)[:5]}...")
     else:
-        print(f"   ✅ All 36 Seoul features present!")
-    
+        print("   ✅ All 36 Seoul features present!")
+
     # Check for NaN values
     nan_counts = df[list(set(EXPECTED_FEATURES) & set(df.columns))].isna().sum()
     if nan_counts.sum() > 0:
         print(f"   ⚠️  Found NaN values in {nan_counts[nan_counts > 0].count()} features")
     else:
-        print(f"   ✅ No NaN values in features")
-    
+        print("   ✅ No NaN values in features")
+
     # Check value ranges for key features
     if 'sleep_duration_hours' in df.columns:
         sleep_range = df['sleep_duration_hours'].describe()
         print(f"   Sleep duration: {sleep_range['min']:.1f} - {sleep_range['max']:.1f} hours")
-        
+
     if 'total_steps' in df.columns:
         steps_range = df['total_steps'].describe()
         print(f"   Daily steps: {steps_range['min']:.0f} - {steps_range['max']:.0f}")
-    
+
     return len(missing) == 0
 
 def validate_predictions(report_path: Path):
     """Validate prediction report exists and contains expected sections."""
     print("\n🎯 Validating Predictions...")
-    
+
     if not report_path.exists():
         print(f"   ❌ Report not found: {report_path}")
         return False
-        
+
     content = report_path.read_text()
-    
+
     # Check for expected sections
     expected_sections = [
         "RISK SUMMARY",
         "Depression Risk",
-        "Mania Risk", 
+        "Mania Risk",
         "Hypomania Risk",
         "KEY FINDINGS"
     ]
-    
+
     found = sum(1 for section in expected_sections if section in content)
     print(f"   ✅ Found {found}/{len(expected_sections)} expected report sections")
-    
+
     # Extract risk scores
     import re
     depression_match = re.search(r'Depression Risk: \w+ \(([\d.]+)\)', content)
     if depression_match:
         risk = float(depression_match.group(1))
         print(f"   Depression risk: {risk:.2f}")
-        
+
     return found == len(expected_sections)
 
 def main():
     if len(sys.argv) != 2:
         print("Usage: validate_golden_output.py <output_directory>")
         sys.exit(1)
-    
+
     out_dir = Path(sys.argv[1])
     features_path = out_dir / "features.csv"
     report_path = out_dir / "report.txt"
-    
+
     # Validate both outputs
     features_ok = validate_features(features_path)
     predictions_ok = validate_predictions(report_path)
-    
+
     # Summary
     print("\n📋 Validation Summary:")
     print(f"   Features: {'✅ PASS' if features_ok else '❌ FAIL'}")
     print(f"   Predictions: {'✅ PASS' if predictions_ok else '❌ FAIL'}")
-    
+
     if not (features_ok and predictions_ok):
         sys.exit(1)
-    
+
     # Save validation results
     results = {
         "features_ok": features_ok,
@@ -144,10 +145,10 @@ def main():
         "feature_count": len(pd.read_csv(features_path).columns),
         "days_processed": len(pd.read_csv(features_path))
     }
-    
+
     with open(out_dir / "validation_results.json", "w") as f:
         json.dump(results, f, indent=2)
-    
+
     print(f"\n✅ Validation results saved to {out_dir}/validation_results.json")
 
 if __name__ == "__main__":
