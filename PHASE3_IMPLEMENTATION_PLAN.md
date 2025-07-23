@@ -4,6 +4,14 @@
 
 The current "ensemble" is a lie. It just returns XGBoost predictions and ignores PAT completely. We need to fix this by implementing proper temporal separation.
 
+### Key Finding: 60/40 Weights Exist But Are Never Used
+
+After investigation, we found:
+- **Weights are defined**: `xgboost_weight: 0.6, pat_weight: 0.4` in `EnsembleConfig` (line 39-40)
+- **Never used**: The actual ensemble code (line 203-207) just returns XGBoost predictions directly
+- **No averaging happens**: Code comment says "For now, ensemble is just XGBoost (PAT can't predict yet)"
+- **No concatenation**: PAT embeddings are extracted but never combined with XGBoost features or predictions
+
 ## Current Code Analysis
 
 ### 1. The Fake Ensemble (`predict_mood_ensemble_use_case.py`)
