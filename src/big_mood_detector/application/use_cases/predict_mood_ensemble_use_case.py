@@ -3,11 +3,16 @@ Ensemble Model Orchestrator
 
 Coordinates multiple ML models (PAT + XGBoost) for enhanced mood predictions.
 Implements parallel processing, confidence weighting, and fallback strategies.
+
+DEPRECATED: This module implements a flawed ensemble that doesn't actually
+combine predictions. Use TemporalEnsembleOrchestrator for proper temporal
+separation of current state (PAT) and future risk (XGBoost).
 """
 
 from __future__ import annotations
 
 import logging
+import warnings
 from concurrent.futures import ThreadPoolExecutor, TimeoutError
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
@@ -114,6 +119,13 @@ class EnsembleOrchestrator:
             config: Ensemble configuration
             personal_calibrator: Optional personal calibrator for user-specific adjustments
         """
+        warnings.warn(
+            "EnsembleOrchestrator is deprecated and doesn't actually ensemble predictions. "
+            "Use TemporalEnsembleOrchestrator for proper temporal separation of "
+            "current state (PAT) and future risk (XGBoost).",
+            DeprecationWarning,
+            stacklevel=2
+        )
         self.xgboost_predictor = xgboost_predictor
         self.pat_model = pat_model
         self.pat_builder = PATSequenceBuilder() if pat_model else None

@@ -5,9 +5,8 @@ Tests for orchestrating PAT (current state) and XGBoost (future prediction)
 in a temporally-aware manner.
 """
 
-from datetime import datetime, timedelta
-from pathlib import Path
-from unittest.mock import MagicMock, patch
+from datetime import datetime
+from unittest.mock import MagicMock
 
 import numpy as np
 import pytest
@@ -131,7 +130,7 @@ class TestTemporalEnsembleOrchestrator:
         # Verify PAT was used for current state
         mock_pat_encoder.encode.assert_called_once()
         mock_pat_predictor.predict_from_embeddings.assert_called_once()
-        
+
         # Check current state values match PAT output
         assert result.current_state.depression_probability == 0.7
         assert result.current_state.on_benzodiazepine_probability == 0.2
@@ -158,7 +157,7 @@ class TestTemporalEnsembleOrchestrator:
 
         # Verify XGBoost was used for future risk
         mock_xgboost_predictor.predict.assert_called_once()
-        
+
         # Check future risk values match XGBoost output
         assert result.future_risk.depression_risk == 0.3
         assert result.future_risk.hypomanic_risk == 0.6
@@ -218,7 +217,7 @@ class TestTemporalEnsembleOrchestrator:
 
         # Should not raise exception
         assert isinstance(result, TemporalMoodAssessment)
-        
+
         # Current state should have default values on failure
         assert result.current_state.depression_probability == 0.5
         assert result.current_state.confidence == 0.0
@@ -250,7 +249,7 @@ class TestTemporalEnsembleOrchestrator:
 
         # Should not raise exception
         assert isinstance(result, TemporalMoodAssessment)
-        
+
         # Current state should still work
         assert result.current_state.depression_probability == 0.7
 
@@ -325,7 +324,7 @@ class TestTemporalEnsembleOrchestrator:
             benzodiazepine_probability=0.1,
             confidence=0.9
         )
-        
+
         mock_xgboost_predictor.predict.return_value = MoodPrediction(
             depression_probability=0.1,
             hypomania_probability=0.2,

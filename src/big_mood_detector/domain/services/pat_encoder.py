@@ -19,7 +19,7 @@ class PATEncoderInterface(ABC):
     7-day activity sequences into 96-dimensional embeddings that
     capture behavioral patterns.
     """
-    
+
     @abstractmethod
     def encode(self, activity_sequence: np.ndarray) -> np.ndarray:
         """
@@ -36,7 +36,7 @@ class PATEncoderInterface(ABC):
             ValueError: If input shape is incorrect
         """
         pass
-    
+
     @abstractmethod
     def validate_sequence(self, activity_sequence: np.ndarray) -> bool:
         """
