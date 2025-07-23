@@ -66,11 +66,15 @@ def prepare_training_data(
         Tuple of (embeddings, labels, subject_ids)
     """
     logger.info("Loading NHANES data...")
-    processor = NHANESProcessor()
+    processor = NHANESProcessor(data_dir=nhanes_dir)
 
     # Load actigraphy and depression data
-    actigraphy_df = processor.load_actigraphy_data(nhanes_dir)
-    depression_df = processor.load_depression_data(nhanes_dir)
+    actigraphy_df = processor.load_actigraphy("PAXMIN_H.xpt")
+    depression_df = processor.load_depression_scores("DPQ_H.xpt")
+    
+    # Debug: Check columns
+    logger.info(f"Actigraphy columns: {list(actigraphy_df.columns)[:10]}...")
+    logger.info(f"Actigraphy shape: {actigraphy_df.shape}")
 
     # Get unique subjects with both actigraphy and depression data
     actigraphy_subjects = set(actigraphy_df['SEQN'].unique())
