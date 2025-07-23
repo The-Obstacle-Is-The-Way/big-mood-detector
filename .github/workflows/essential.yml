@@ -43,7 +43,7 @@ jobs:
       - name: Run fast tests only
         run: |
           # Skip slow integration tests for fast feedback
-          pytest -x --timeout=300 -m "not slow" --ignore=tests/integration/data_processing/test_real_data_integration.py
+          pytest -q -n auto -m "not slow" --ignore=tests/integration/data_processing/test_real_data_integration.py
 
   # Branch-specific extras (only when justified)
   staging-validation:
@@ -67,7 +67,7 @@ jobs:
           pip install -e ".[dev,ml]"
       
       - name: Extended integration tests
-        run: pytest tests/integration/ -v --timeout=600
+        run: pytest tests/integration/ -v
 
   production-validation:
     runs-on: ubuntu-latest
