@@ -10,7 +10,7 @@
 
 > **Clinical-grade bipolar mood prediction from Apple Health data using validated ML models**
 
-[![Tests](https://img.shields.io/badge/tests-907%20passing-brightgreen)](tests/)
+[![Tests](https://img.shields.io/badge/tests-916%20passing-brightgreen)](tests/)
 [![Coverage](https://img.shields.io/badge/coverage-90%25-brightgreen)](htmlcov/)
 [![Python](https://img.shields.io/badge/python-3.12%2B-blue)](pyproject.toml)
 [![Models](https://img.shields.io/badge/models-XGBoost%20%2B%20PAT-purple)](model_weights/)
@@ -310,14 +310,28 @@ make coverage
 - Configurable data retention policies
 - Audit logging for compliance
 
+## 🐛 Known Issues
+
+**High Priority:**
+- **#40**: XGBoost JSON models lack `predict_proba` method (using pickle format as workaround)
+- **#27**: PAT cannot make mood predictions (only provides embeddings)
+- **#25**: Temporal window mismatch between models needs clarification
+
+**Being Addressed:**
+- **#29**: XML processing optimization (mostly complete - 7x improvement achieved)
+- Performance tests marked as `xfail` pending final optimizations
+
+See [GitHub Issues](https://github.com/Clarity-Digital-Twin/big-mood-detector/issues) for full list.
+
 ## 🤝 Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for development guidelines.
 
 Key areas for contribution:
+- PAT fine-tuning for mood classification
 - Additional wearable device support
 - Clinical validation studies
-- Performance optimizations
+- XGBoost JSON model compatibility
 - Documentation improvements
 
 ## ⚠️ Medical & Safety Disclaimers
