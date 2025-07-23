@@ -312,7 +312,7 @@ class OrchestratorAdapter:
         # Add validation metadata as dynamic attributes
         # Note: In production, we'd create a new dataclass that extends ClinicalFeatureSet
         # For now, we just log the metadata since ClinicalFeatureSet is frozen
-        # TODO: Create an EnrichedClinicalFeatureSet that includes these fields
+        # TODO(orchestrator): Create an EnrichedClinicalFeatureSet that includes these fields
         logger.debug(
             "feature_validation_metadata",
             validation_score=validation_result.quality_score,

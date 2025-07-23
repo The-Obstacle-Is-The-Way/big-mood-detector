@@ -18,7 +18,7 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import date, timedelta
 from pathlib import Path
-from typing import Any, Union
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -121,7 +121,7 @@ class MoodPredictionPipeline:
         self.circadian_analyzer = circadian_analyzer or CircadianRhythmAnalyzer()
         self.dlmo_calculator = dlmo_calculator or DLMOCalculator()
         self.sparse_handler = sparse_handler or SparseDataHandler()
-        
+
         # Initialize clinical_extractor - will be set below
         self.clinical_extractor: Any  # Union of ClinicalFeatureExtractor and OrchestratorAdapter
 
