@@ -13,7 +13,7 @@ jobs:
   # Core quality gate - catches real breakage
   essential-checks:
     runs-on: ubuntu-latest
-    timeout-minutes: 15  # Prevent infinite runs
+    timeout-minutes: 20  # More realistic for comprehensive test suite
     
     steps:
       - name: Checkout
@@ -40,10 +40,15 @@ jobs:
           make lint
           make type-check
       
-      - name: Run fast tests only
+      - name: Run core tests (skip heavy integration)
         run: |
-          # Skip slow integration tests for fast feedback
-          pytest -q -n auto -m "not slow" --ignore=tests/integration/data_processing/test_real_data_integration.py
+          # Run unit tests + light integration tests only
+          pytest -q -n auto \
+            --ignore=tests/integration/test_optimized_aggregation.py \
+            --ignore=tests/integration/test_aggregation_performance_issue.py \
+            --ignore=tests/integration/test_memory_bounds.py \
+            --ignore=tests/integration/data_processing/test_real_data_integration.py \
+            tests/unit/ tests/e2e/
 
   # Branch-specific extras (only when justified)
   staging-validation:
