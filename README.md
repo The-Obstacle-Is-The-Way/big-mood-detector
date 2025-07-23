@@ -18,30 +18,43 @@
 
 A production-ready system for detecting mood episodes in bipolar disorder using wearable sensor data. Based on peer-reviewed research from Nature Digital Medicine, Harvard Medical School, and Dartmouth.
 
-## ⚠️ Important v0.2.3 Limitations
+## 🎯 Understanding the Models
 
-**What Works Today:**
-- ✅ **XGBoost predictions** - Fully validated mood risk scores (0.80-0.98 AUC)
-- ✅ **Feature extraction** - Robust processing of Apple Health data
-- ✅ **PAT embeddings** - Adds signal to XGBoost features
+**What Each Model Does:**
+- **XGBoost**: Predicts **tomorrow's** mood risk (24-hour forecast) based on 36 engineered features from the past 30 days
+- **PAT (Pretrained Actigraphy Transformer)**: Analyzes the **last 7 days** of minute-by-minute activity to generate embeddings (not predictions)
 
-**Current Limitations:**
-- ❌ **Not a true ensemble** - Only XGBoost makes predictions
-- ❌ **PAT can't predict mood** - Outputs embeddings only (no classification heads)
-- ❌ **Single model dependency** - No redundancy from dual predictions
+**Current v0.2.4 Implementation:**
+- ✅ **XGBoost predictions** - Fully validated next-day risk scores (0.80-0.98 AUC)
+- ✅ **Feature extraction** - 36 clinical biomarkers from sleep, activity, and circadian patterns
+- ✅ **PAT embeddings** - 96-dimensional activity features enhance XGBoost accuracy
+- ✅ **Feature validation** - Automatic data quality checks and anomaly detection
+- ⚠️ **"Ensemble" mode** - XGBoost enhanced with PAT embeddings (not true ensemble voting)
 
-**Coming in v0.3.0:** True dual-model ensemble with independent predictions. [See roadmap →](docs/ROADMAP_V0.3.0.md)
+**Important Limitations:**
+- ❌ **No current state assessment** - PAT needs fine-tuning to predict today's mood
+- ❌ **Single predictor** - Only XGBoost makes actual predictions
+- ❌ **Temporal mismatch** - XGBoost (next-day) vs PAT potential (current state)
+
+**Coming in v0.3.0:** 
+- True ensemble with PAT fine-tuned for current mood state predictions
+- Separate "current risk" vs "tomorrow's risk" outputs
+- Independent validation from two different model architectures
 
 **Note:** This implementation has not been clinically validated. For research and personal use only.
 
-## 🆕 What's New (v0.2.3)
+## 🆕 What's New (v0.2.4)
 
+- ✅ **Feature Engineering Orchestrator**: Automatic validation, anomaly detection, and data quality checks
+- ✅ **Type Safety**: Fixed all mypy errors - full type coverage across the codebase
+- ✅ **Test Stability**: Resolved baseline repository race conditions in parallel test execution
+- ✅ **Better Documentation**: Clarified model capabilities and temporal prediction windows
+
+### Previous Release (v0.2.3)
 - 🚀 **7x Performance Boost**: Fixed XML processing timeouts - now handles 365 days in 17.4s (was 120s+)
 - ✅ **Optimized Aggregation**: New O(n+m) pipeline with pre-indexing eliminates bottlenecks
-- ✅ **Configurable Analysis**: Skip expensive DLMO/circadian calculations when not needed
 - ✅ **Date Range Filtering**: Process large XML files with `--days-back` or `--date-range` options
 - ✅ **Personal Baselines**: Adaptive predictions based on YOUR normal patterns
-- ✅ **Clinical Reports**: DSM-5 aligned risk assessments with explanations
 
 ## 📋 Requirements
 
@@ -79,10 +92,11 @@ XGBoost model validated on 168 patients over 44,787 observation days:
 
 *Source: Nature Digital Medicine 2024 (Seoul National University)*
 
-**Important Notes:**
-- All predictions are **24-hour forecasts** (tomorrow's risk, not today's)
-- v0.2.3 uses XGBoost only (PAT provides embeddings, not predictions)
-- True ensemble with dual predictions coming in v0.3.0
+**Understanding the Predictions:**
+- 📅 **Temporal Window**: XGBoost predicts **tomorrow's risk** (24-hour forecast)
+- 📊 **Input Data**: Uses 30 days of historical patterns to make predictions
+- 🔄 **PAT Role**: Currently provides activity embeddings to enhance XGBoost (not independent predictions)
+- 🎯 **Clinical Use**: Best for early warning and preventive interventions
 
 ### Sample Output
 ```
@@ -126,12 +140,21 @@ big-mood-detector/
 
 ## 🧬 Key Features
 
-### 1. **ML Models (v0.2.3 Status)**
+### 1. **ML Models (v0.2.4 Status)**
 
-- **XGBoost** ✅: Fully functional with 36 engineered features, validated predictions (0.80-0.98 AUC)
-- **PAT Transformer** ⚠️: Provides 96-dim embeddings to enhance XGBoost features (no independent predictions)
-- **Current "Ensemble"** 🔄: XGBoost with PAT-enhanced features (true ensemble coming v0.3.0)
-- **Performance** ⚡: 7x faster processing with optimized aggregation pipeline
+- **XGBoost** ✅: Predicts next-day mood risk with 36 engineered features
+  - Depression: 0.80 AUC
+  - Hypomania: 0.95 AUC  
+  - Mania: 0.98 AUC
+- **PAT Transformer** 🔄: Foundation model analyzing 7 days of minute-level activity
+  - Provides 96-dimensional embeddings (not predictions)
+  - Pre-trained on 29,307 participants
+  - Needs fine-tuning for mood classification
+- **Feature Orchestrator** ✅: Validates and monitors all features
+  - Data completeness checks
+  - Anomaly detection
+  - Feature importance tracking
+- **Performance** ⚡: 7x faster with optimized pipeline (17.4s for 365 days)
 
 ### 2. **Personal Baseline System**
 - Learns YOUR normal patterns (not population average)
