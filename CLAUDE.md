@@ -3,6 +3,7 @@
 This guide helps AI agents understand and work with the Big Mood Detector codebase effectively.
 
 **Last Updated**: July 23, 2025 (v0.2.4)
+**Current Phase**: Phase 2 - PAT Classification Heads Implementation
 
 ## Mission
 
@@ -289,18 +290,32 @@ Avoid loading:
 
 ## Current Status
 
+### Phase 1 ✅ Complete (July 23, 2025)
+- Separated XGBoost and PAT pipelines completely
+- PAT now only extracts embeddings (96-dim features)
+- XGBoost only receives statistical features (36 Seoul features)
+- No more feature concatenation between models
+- All tests updated and CI green
+
+### Phase 2 🚧 Starting
+- Create NHANES data loader for training
+- Train PAT classification heads for mood prediction
+- Update ensemble to combine two independent predictions
+- Implement proper confidence scoring
+
 **✅ Production Ready:**
 - Core data processing pipeline
-- XGBoost + PAT ensemble models
+- XGBoost predictions (Seoul features)
+- PAT embedding extraction
 - CLI with 6 commands
 - FastAPI server
 - Docker deployment
-- 916 passing tests (90%+ coverage)
+- 923 passing tests (90%+ coverage)
 
-**🚧 In Progress:**
-- Web UI (Next.js)
-- Real-time monitoring
-- Federated learning
+**⚠️ Known Issues:**
+- XGBoost feature mismatch (needs aggregation pipeline integration)
+- PAT cannot make predictions yet (only embeddings)
+- Some integration tests failing (unrelated to refactor)
 
 ## Getting Help
 
