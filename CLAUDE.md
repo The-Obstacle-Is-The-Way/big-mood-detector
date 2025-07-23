@@ -2,7 +2,7 @@
 
 This guide helps AI agents understand and work with the Big Mood Detector codebase effectively.
 
-**Last Updated**: July 21, 2025 (v0.2.3)
+**Last Updated**: July 23, 2025 (v0.2.4)
 
 ## Mission
 
@@ -111,6 +111,55 @@ accurate_hours = self._get_actual_sleep_duration(sleep_records, current_date)
 **Impact:** Sleep baselines now correctly show ~7.5 hours instead of 2-5 hours for typical users.
 
 **CI Guard:** Run `scripts/check_no_sleep_percentage.sh` to prevent regression.
+
+### Baseline Repository Race Conditions (Fixed in v0.2.4)
+**Problem:** FileBaselineRepository tests failed under parallel execution due to shared temp directories causing race conditions.
+
+**Solution:** Use pytest's `tmp_path` fixture and `xdist_group` marker:
+```python
+@pytest.mark.xdist_group(name="baseline")  # Keep tests on same worker
+class TestFileBaselineRepository:
+    @pytest.fixture
+    def repo_path(self, tmp_path: Path) -> Path:
+        """Unique temp directory per test."""
+        return tmp_path / "baselines"
+```
+
+**Impact:** All tests now pass reliably under parallel execution.
+
+### Type Safety Issues (Fixed in v0.2.4)
+**Problem:** 15 mypy errors across orchestrator_adapter, process_health_data_use_case, and main.py.
+
+**Solution:** 
+- Added proper type annotations for empty lists
+- Fixed PATSequence constructor with correct parameters
+- Added type declaration for clinical_extractor
+- Removed unnecessary type: ignore comments
+
+**Impact:** Full type safety across 159 source files - no mypy errors.
+
+### Feature Engineering Orchestrator Integration (Added in v0.2.4)
+**Enhancement:** Integrated FeatureEngineeringOrchestrator for automatic validation and anomaly detection.
+
+**Implementation:** Used Adapter pattern to maintain backward compatibility:
+```python
+# application/adapters/orchestrator_adapter.py
+class OrchestratorAdapter:
+    """Makes FeatureEngineeringOrchestrator compatible with ClinicalFeatureExtractor interface."""
+    
+    def extract_clinical_features(self, ...):
+        # Validates features automatically
+        # Detects anomalies
+        # Tracks feature importance
+        # Provides completeness reports
+```
+
+**Benefits:**
+- Automatic validation of all extracted features
+- Anomaly detection for unusual patterns
+- Data quality scores and completeness reports
+- Feature importance tracking
+- Performance caching for repeated calculations
 
 ## Testing Requirements
 
@@ -246,7 +295,7 @@ Avoid loading:
 - CLI with 6 commands
 - FastAPI server
 - Docker deployment
-- 907 passing tests (90%+ coverage)
+- 916 passing tests (90%+ coverage)
 
 **🚧 In Progress:**
 - Web UI (Next.js)
