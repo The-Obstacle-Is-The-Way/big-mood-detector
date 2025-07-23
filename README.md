@@ -10,7 +10,7 @@
 
 > **Clinical-grade bipolar mood prediction from Apple Health data using validated ML models**
 
-[![Tests](https://img.shields.io/badge/tests-916%20passing-brightgreen)](tests/)
+[![Tests](https://img.shields.io/badge/tests-976%20passing-brightgreen)](tests/)
 [![Coverage](https://img.shields.io/badge/coverage-90%25-brightgreen)](htmlcov/)
 [![Python](https://img.shields.io/badge/python-3.12%2B-blue)](pyproject.toml)
 [![Models](https://img.shields.io/badge/models-XGBoost%20%2B%20PAT-purple)](model_weights/)
@@ -31,7 +31,7 @@ We've discovered the previous "ensemble" was fake - it just returned XGBoost pre
 
 **Current v0.3.0-alpha Implementation:**
 - ✅ **Temporal Ensemble Orchestrator** - Revolutionary separation of NOW vs TOMORROW
-- ✅ **PAT Depression Head** - Trained on NHANES data (proof of concept AUC 0.30)
+- ✅ **PAT Depression Head** - Trained on NHANES data (proof of concept AUC 0.64)
 - ✅ **XGBoost predictions** - Fully validated next-day risk scores (0.80-0.98 AUC)
 - ✅ **Clinical alerts** - Automatic detection of high-risk patterns
 - ✅ **Graceful degradation** - Returns defaults with 0 confidence when models fail
