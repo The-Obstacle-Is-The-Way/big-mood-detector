@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Seoul statistical features now correctly provided to XGBoost models
+  - Added `aggregate_seoul_features()` method to generate proper 36 features
+  - Fixed feature name mismatch (e.g., `sleep_percentage_MN` vs `sleep_duration_hours`)
+  - Added `use_seoul_features` config flag to control pipeline behavior
+  - XGBoost-only predictions now use correct statistical features
+
+### Added
+- `DailyFeatures` dataclass with all 36 Seoul statistical features
+- Comprehensive tests for Seoul feature generation and naming
+- `to_xgboost_dict()` method for proper feature name mapping
+
 ## [0.2.4] - 2025-07-23
 
 ### Added
