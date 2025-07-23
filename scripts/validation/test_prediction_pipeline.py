@@ -41,7 +41,7 @@ def validate_prediction_pipeline():
                 include_pat_sequences=False,
                 min_days_required=1,
                 enable_personal_calibration=False,
-            )
+            ),
         },
         {
             "name": "Ensemble (XGBoost + PAT)",
@@ -49,7 +49,7 @@ def validate_prediction_pipeline():
                 include_pat_sequences=True,
                 min_days_required=7,
                 enable_personal_calibration=False,
-            )
+            ),
         },
         {
             "name": "Ensemble + Personal Calibration",
@@ -57,9 +57,9 @@ def validate_prediction_pipeline():
                 include_pat_sequences=True,
                 min_days_required=7,
                 enable_personal_calibration=True,
-                user_id="test_user"
-            )
-        }
+                user_id="test_user",
+            ),
+        },
     ]
 
     # Test with June 2025 data
@@ -77,9 +77,7 @@ def validate_prediction_pipeline():
 
             # Process and predict
             result = pipeline.process_apple_health_file(
-                file_path=json_dir,
-                start_date=start_date,
-                end_date=end_date
+                file_path=json_dir, start_date=start_date, end_date=end_date
             )
 
             print("\n✅ Processing complete!")
@@ -90,7 +88,9 @@ def validate_prediction_pipeline():
 
             # Check predictions
             if result.daily_predictions:
-                print(f"\n📊 Predictions generated: {len(result.daily_predictions)} days")
+                print(
+                    f"\n📊 Predictions generated: {len(result.daily_predictions)} days"
+                )
 
                 # Sample first prediction
                 first_date = sorted(result.daily_predictions.keys())[0]
@@ -102,33 +102,35 @@ def validate_prediction_pipeline():
                 print(f"   - Manic risk: {pred['manic_risk']:.1%}")
                 print(f"   - Confidence: {pred['confidence']:.1%}")
 
-                if 'models_used' in pred:
+                if "models_used" in pred:
                     print(f"   - Models used: {', '.join(pred['models_used'])}")
 
                 # Check feature validation
-                if 'feature_validation' in result.metadata:
-                    validation = result.metadata['feature_validation']
+                if "feature_validation" in result.metadata:
+                    validation = result.metadata["feature_validation"]
                     print("\n🔍 Feature Validation:")
-                    print(f"   - Features computed: {validation.get('features_computed', 'N/A')}")
-                    print(f"   - Validation passed: {validation.get('all_valid', 'N/A')}")
-                    if 'warnings' in validation:
+                    print(
+                        f"   - Features computed: {validation.get('features_computed', 'N/A')}"
+                    )
+                    print(
+                        f"   - Validation passed: {validation.get('all_valid', 'N/A')}"
+                    )
+                    if "warnings" in validation:
                         print(f"   - Warnings: {len(validation['warnings'])}")
 
             results[test["name"]] = {
                 "success": True,
                 "days_processed": result.features_extracted,
                 "predictions": len(result.daily_predictions),
-                "confidence": result.confidence_score
+                "confidence": result.confidence_score,
             }
 
         except Exception as e:
             print(f"\n❌ Error: {str(e)}")
             import traceback
+
             traceback.print_exc()
-            results[test["name"]] = {
-                "success": False,
-                "error": str(e)
-            }
+            results[test["name"]] = {"success": False, "error": str(e)}
 
     # Summary
     print_section("VALIDATION SUMMARY")

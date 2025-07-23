@@ -25,7 +25,9 @@ def main():
     expected_features = set(schema["features"])
 
     # Parse actual features from aggregation pipeline
-    pipeline_path = Path("src/big_mood_detector/application/services/aggregation_pipeline.py")
+    pipeline_path = Path(
+        "src/big_mood_detector/application/services/aggregation_pipeline.py"
+    )
     if not pipeline_path.exists():
         print(f"❌ Pipeline file not found: {pipeline_path}")
         sys.exit(1)
@@ -40,8 +42,12 @@ def main():
 
     # Filter out non-Seoul features (activity, daily, etc.)
     seoul_features = {
-        f for f in found_features
-        if any(f.startswith(prefix) for prefix in ["sleep_", "long_", "short_", "circadian_"])
+        f
+        for f in found_features
+        if any(
+            f.startswith(prefix)
+            for prefix in ["sleep_", "long_", "short_", "circadian_"]
+        )
     }
 
     # Check for discrepancies
@@ -58,7 +64,9 @@ def main():
         print(f"Found: {len(seoul_features)} features")
         sys.exit(1)
 
-    print(f"✅ Found {len(seoul_features)}/{len(expected_features)} expected Seoul features")
+    print(
+        f"✅ Found {len(seoul_features)}/{len(expected_features)} expected Seoul features"
+    )
     print("✅ Schema validation passed!")
     return 0
 

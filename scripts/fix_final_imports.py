@@ -113,7 +113,7 @@ def move_imports_in_file(file_path: Path) -> bool:
         print(f"Error reading {file_path}: {e}")
         return False
 
-    lines = content.split('\n')
+    lines = content.split("\n")
 
     # Find all early imports
     imports_to_move = []
@@ -121,7 +121,7 @@ def move_imports_in_file(file_path: Path) -> bool:
 
     for i, line in enumerate(lines):
         # Check for big_mood_detector imports at module level
-        if re.match(r'^(from big_mood_detector|import big_mood_detector)', line):
+        if re.match(r"^(from big_mood_detector|import big_mood_detector)", line):
             imports_to_move.append(line)
             import_indices.append(i)
 
@@ -140,15 +140,16 @@ def move_imports_in_file(file_path: Path) -> bool:
         stripped = line.strip()
 
         # Look for functions, fixtures, or class methods
-        if (stripped.startswith('def test_') or
-            stripped.startswith('def setup') or
-            stripped.startswith('@pytest.fixture') or
-            stripped == 'def test_'):
-
-            if stripped.startswith('@'):
+        if (
+            stripped.startswith("def test_")
+            or stripped.startswith("def setup")
+            or stripped.startswith("@pytest.fixture")
+            or stripped == "def test_"
+        ):
+            if stripped.startswith("@"):
                 # Find actual function after decorator
-                for j in range(i+1, min(i+5, len(lines))):
-                    if lines[j].strip().startswith('def '):
+                for j in range(i + 1, min(i + 5, len(lines))):
+                    if lines[j].strip().startswith("def "):
                         insert_idx = j
                         base_indent = len(lines[j]) - len(lines[j].lstrip())
                         break
@@ -162,10 +163,10 @@ def move_imports_in_file(file_path: Path) -> bool:
     # If no test function found, look for first class
     if insert_idx is None:
         for i, line in enumerate(lines):
-            if line.strip().startswith('class Test'):
+            if line.strip().startswith("class Test"):
                 # Find first method in class
-                for j in range(i+1, len(lines)):
-                    if lines[j].strip().startswith('def '):
+                for j in range(i + 1, len(lines)):
+                    if lines[j].strip().startswith("def "):
                         insert_idx = j
                         base_indent = len(lines[j]) - len(lines[j].lstrip())
                         break
@@ -176,7 +177,7 @@ def move_imports_in_file(file_path: Path) -> bool:
         return False
 
     # Calculate proper indentation
-    indent = ' ' * (base_indent + 4)
+    indent = " " * (base_indent + 4)
 
     # Find where to insert (after function definition, skip docstring)
     insert_pos = insert_idx + 1
@@ -194,7 +195,7 @@ def move_imports_in_file(file_path: Path) -> bool:
         insert_pos += 1
 
     # Write back
-    file_path.write_text('\n'.join(lines))
+    file_path.write_text("\n".join(lines))
     return True
 
 
@@ -214,5 +215,5 @@ def main():
     print(f"\nFixed {fixed_count} files")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

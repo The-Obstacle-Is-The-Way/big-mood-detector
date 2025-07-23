@@ -58,9 +58,7 @@ Last generated: {}
 
 ---
 
-""".format(
-            subprocess.run(["date"], capture_output=True, text=True).stdout.strip()
-        )
+""".format(subprocess.run(["date"], capture_output=True, text=True).stdout.strip())
 
         output_file.write_text(header + content)
 

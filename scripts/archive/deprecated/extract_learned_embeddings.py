@@ -17,9 +17,9 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 def extract_learned_embeddings(weights_path: Path, output_dir: Path):
     """Extract learned positional embeddings if present in the weights."""
-    print(f"\n{'='*70}")
+    print(f"\n{'=' * 70}")
     print(f"Extracting embeddings from: {weights_path.name}")
-    print(f"{'='*70}")
+    print(f"{'=' * 70}")
 
     try:
         with h5py.File(weights_path, "r") as f:
@@ -132,9 +132,9 @@ def main():
                 found_count += 1
 
     # Summary
-    print(f"\n{'='*70}")
+    print(f"\n{'=' * 70}")
     print("EXTRACTION SUMMARY")
-    print(f"{'='*70}")
+    print(f"{'=' * 70}")
 
     if found_count > 0:
         print(f"✅ Extracted embeddings from {found_count} models")

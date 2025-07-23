@@ -57,7 +57,9 @@ def process_large_xml(
 
         elapsed = time.time() - start_time
         click.echo(f"\nCompleted in {elapsed:.1f} seconds")
-        click.echo(f"Processing rate: {int(counts['total']/elapsed):,} records/second")
+        click.echo(
+            f"Processing rate: {int(counts['total'] / elapsed):,} records/second"
+        )
 
         click.echo("\nRecord counts:")
         for record_type, count in counts.items():
@@ -69,7 +71,7 @@ def process_large_xml(
                 counts["total"] / (counts["total"] / elapsed) * 3
             )  # 3x for full processing
             click.echo(
-                f"\nEstimated full processing time: {int(est_process_time/60)} minutes"
+                f"\nEstimated full processing time: {int(est_process_time / 60)} minutes"
             )
 
             if est_process_time > 300:  # > 5 minutes

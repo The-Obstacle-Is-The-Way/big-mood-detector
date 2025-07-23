@@ -14,6 +14,7 @@ from typing import NamedTuple
 
 class TodoMatch(NamedTuple):
     """A TODO comment match."""
+
     file_path: Path
     line_number: int
     line_content: str
@@ -25,14 +26,14 @@ def check_todo_format(file_path: Path) -> list[TodoMatch]:
     invalid_todos = []
 
     # Pattern for valid TODO format: TODO(gh-123)
-    valid_pattern = re.compile(r'TODO\(gh-\d+\)')
+    valid_pattern = re.compile(r"TODO\(gh-\d+\)")
     # Pattern to find any TODO
-    todo_pattern = re.compile(r'TODO[:\s]')
+    todo_pattern = re.compile(r"TODO[:\s]")
 
     try:
-        with open(file_path, encoding='utf-8') as f:
+        with open(file_path, encoding="utf-8") as f:
             for line_num, line in enumerate(f, 1):
-                if 'TODO' in line:
+                if "TODO" in line:
                     # Skip if it's a valid format
                     if valid_pattern.search(line):
                         continue
@@ -42,12 +43,14 @@ def check_todo_format(file_path: Path) -> list[TodoMatch]:
                         # Extract the TODO text
                         todo_match = todo_pattern.search(line)
                         if todo_match:
-                            invalid_todos.append(TodoMatch(
-                                file_path=file_path,
-                                line_number=line_num,
-                                line_content=line.strip(),
-                                todo_text=line[todo_match.start():].strip()
-                            ))
+                            invalid_todos.append(
+                                TodoMatch(
+                                    file_path=file_path,
+                                    line_number=line_num,
+                                    line_content=line.strip(),
+                                    todo_text=line[todo_match.start() :].strip(),
+                                )
+                            )
     except Exception:
         # Skip files that can't be read
         pass
@@ -58,14 +61,14 @@ def check_todo_format(file_path: Path) -> list[TodoMatch]:
 def main():
     """Check all Python files for TODO format."""
     # Get all Python files in src and tests
-    src_path = Path('src')
-    tests_path = Path('tests')
-    scripts_path = Path('scripts')
+    src_path = Path("src")
+    tests_path = Path("tests")
+    scripts_path = Path("scripts")
 
     all_files = []
     for base_path in [src_path, tests_path, scripts_path]:
         if base_path.exists():
-            all_files.extend(base_path.rglob('*.py'))
+            all_files.extend(base_path.rglob("*.py"))
 
     # Check each file
     all_invalid_todos = []

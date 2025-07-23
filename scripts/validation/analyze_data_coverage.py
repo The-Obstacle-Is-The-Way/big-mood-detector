@@ -115,7 +115,7 @@ def analyze_coverage():
 
     if consecutive_days:
         for i, run in enumerate(consecutive_days):
-            print(f"Window {i+1}: {run[0]} to {run[-1]} ({len(run)} days)")
+            print(f"Window {i + 1}: {run[0]} to {run[-1]} ({len(run)} days)")
     else:
         print("No windows with 3+ consecutive days of both sensors found.")
 

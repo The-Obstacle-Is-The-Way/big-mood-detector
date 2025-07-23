@@ -83,7 +83,7 @@ def main():
     speedup = stdlib_time / lxml_time if lxml_time > 0 else 0
     print(f"\nSpeedup: {speedup:.1f}x faster with lxml")
     print(
-        f"Records/second: {int(stdlib_count/stdlib_time):,} (stdlib) vs {int(lxml_count/lxml_time):,} (lxml)"
+        f"Records/second: {int(stdlib_count / stdlib_time):,} (stdlib) vs {int(lxml_count / lxml_time):,} (lxml)"
     )
 
     # Test 2: Parse with date filtering (1 month)
@@ -128,7 +128,7 @@ def main():
     print(f"File size: {file_size_mb:.1f} MB")
     print(f"Total records: {lxml_count:,}")
     print(f"Performance gain: {speedup:.1f}x faster")
-    print(f"Processing rate: {int(lxml_count/lxml_time):,} records/second")
+    print(f"Processing rate: {int(lxml_count / lxml_time):,} records/second")
     print(f"Time to process full file: {lxml_time:.1f}s (vs {stdlib_time:.1f}s)")
 
 

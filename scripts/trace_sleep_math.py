@@ -2,6 +2,7 @@
 """
 Quick script to trace the sleep math bug with real data.
 """
+
 from datetime import date, timedelta
 from pathlib import Path
 

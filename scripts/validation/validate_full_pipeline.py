@@ -232,9 +232,7 @@ def validate_dlmo_calculation():
     for day in range(14):
         sleep_start = datetime.combine(
             base_date - timedelta(days=day), datetime.min.time()
-        ).replace(
-            hour=23
-        )  # 11 PM
+        ).replace(hour=23)  # 11 PM
 
         sleep_records.append(
             SleepRecord(

@@ -32,7 +32,7 @@ def test_xml_parser():
         print("\n1. Testing parse_file() method:")
         for i, entity in enumerate(parser.parse_file(xml_file, entity_type="all")):
             if i < 5:  # Show first 5 entities
-                print(f"\nEntity {i+1}: {type(entity).__name__}")
+                print(f"\nEntity {i + 1}: {type(entity).__name__}")
                 if hasattr(entity, "__dict__"):
                     for key, value in entity.__dict__.items():
                         print(f"  {key}: {value}")
@@ -101,7 +101,7 @@ def test_xml_parser():
         print("\n" + "=" * 60)
         print("SLEEP RECORD SAMPLES:")
         for i, sleep in enumerate(sleep_samples):
-            print(f"\nSleep {i+1}:")
+            print(f"\nSleep {i + 1}:")
             print(f"  Start: {sleep.start_date}")
             print(f"  End: {sleep.end_date}")
             print(f"  State: {sleep.state}")

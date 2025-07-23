@@ -40,14 +40,11 @@ def test_full_feature_extraction():
         include_pat_sequences=True,  # This triggers full feature extraction
         min_days_required=7,
         enable_personal_calibration=True,
-        user_id="test_user"
+        user_id="test_user",
     )
 
     # Create pipeline with DI container for orchestrator
-    pipeline = MoodPredictionPipeline(
-        config=config,
-        di_container=container
-    )
+    pipeline = MoodPredictionPipeline(config=config, di_container=container)
 
     # Test with JSON data
     json_dir = Path("data/input/health_auto_export")
@@ -61,9 +58,7 @@ def test_full_feature_extraction():
 
     # Process and predict to get full features
     result = pipeline.process_apple_health_file(
-        file_path=json_dir,
-        start_date=start_date,
-        end_date=end_date
+        file_path=json_dir, start_date=start_date, end_date=end_date
     )
 
     print("\n✅ Processing complete!")
@@ -80,7 +75,7 @@ def test_full_feature_extraction():
         print(f"   Depression risk: {prediction['depression_risk']:.1%}")
         print(f"   Confidence: {prediction['confidence']:.1%}")
 
-        if 'models_used' in prediction:
+        if "models_used" in prediction:
             print(f"   Models used: {prediction['models_used']}")
 
     # Now extract features in CSV format to verify all 36
@@ -91,11 +86,11 @@ def test_full_feature_extraction():
     features_end = date(2025, 6, 20)
 
     features = pipeline.extract_features_batch(
-        sleep_records=result.metadata.get('sleep_records', []),
-        activity_records=result.metadata.get('activity_records', []),
-        heart_records=result.metadata.get('heart_records', []),
+        sleep_records=result.metadata.get("sleep_records", []),
+        activity_records=result.metadata.get("activity_records", []),
+        heart_records=result.metadata.get("heart_records", []),
         start_date=features_start,
-        end_date=features_end
+        end_date=features_end,
     )
 
     if features:
@@ -111,42 +106,76 @@ def test_full_feature_extraction():
             # Show feature names and values
             feature_names = [
                 # Basic Sleep Features (1-5)
-                'sleep_duration_hours', 'sleep_efficiency', 'sleep_onset_hour',
-                'wake_time_hour', 'sleep_fragmentation',
+                "sleep_duration_hours",
+                "sleep_efficiency",
+                "sleep_onset_hour",
+                "wake_time_hour",
+                "sleep_fragmentation",
                 # Advanced Sleep Features (6-10)
-                'sleep_regularity_index', 'short_sleep_window_pct',
-                'long_sleep_window_pct', 'sleep_onset_variance', 'wake_time_variance',
+                "sleep_regularity_index",
+                "short_sleep_window_pct",
+                "long_sleep_window_pct",
+                "sleep_onset_variance",
+                "wake_time_variance",
                 # Circadian Rhythm Features (11-18)
-                'interdaily_stability', 'intradaily_variability', 'relative_amplitude',
-                'l5_value', 'm10_value', 'l5_onset_hour', 'm10_onset_hour', 'dlmo_hour',
+                "interdaily_stability",
+                "intradaily_variability",
+                "relative_amplitude",
+                "l5_value",
+                "m10_value",
+                "l5_onset_hour",
+                "m10_onset_hour",
+                "dlmo_hour",
                 # Activity Features (19-24)
-                'total_steps', 'activity_variance', 'sedentary_hours',
-                'activity_fragmentation', 'sedentary_bout_mean', 'activity_intensity_ratio',
+                "total_steps",
+                "activity_variance",
+                "sedentary_hours",
+                "activity_fragmentation",
+                "sedentary_bout_mean",
+                "activity_intensity_ratio",
                 # Heart Rate Features (25-28)
-                'avg_resting_hr', 'hrv_sdnn', 'hr_circadian_range', 'hr_minimum_hour',
+                "avg_resting_hr",
+                "hrv_sdnn",
+                "hr_circadian_range",
+                "hr_minimum_hour",
                 # Phase Features (29-32)
-                'circadian_phase_advance', 'circadian_phase_delay',
-                'dlmo_confidence', 'pat_hour',
+                "circadian_phase_advance",
+                "circadian_phase_delay",
+                "dlmo_confidence",
+                "pat_hour",
                 # Z-Score Features (33-36)
-                'sleep_duration_zscore', 'activity_zscore', 'hr_zscore', 'hrv_zscore'
+                "sleep_duration_zscore",
+                "activity_zscore",
+                "hr_zscore",
+                "hrv_zscore",
             ]
 
             print("\n📊 Seoul XGBoost Features:")
-            for i, (name, value) in enumerate(zip(feature_names[:10], feature_vector[:10], strict=False)):
-                print(f"   {i+1:2d}. {name:30s}: {value:8.2f}")
+            for i, (name, value) in enumerate(
+                zip(feature_names[:10], feature_vector[:10], strict=False)
+            ):
+                print(f"   {i + 1:2d}. {name:30s}: {value:8.2f}")
             print("   ... (showing first 10 of 36)")
 
             # Check for orchestrator metadata
             print("\n🔍 Feature Orchestrator Status:")
-            print(f"   Validation enabled: {'orchestrator' in str(type(pipeline.clinical_extractor))}")
-            print(f"   Anomaly detection: {'orchestrator' in str(type(pipeline.clinical_extractor))}")
+            print(
+                f"   Validation enabled: {'orchestrator' in str(type(pipeline.clinical_extractor))}"
+            )
+            print(
+                f"   Anomaly detection: {'orchestrator' in str(type(pipeline.clinical_extractor))}"
+            )
 
             # Save to CSV for inspection
             output_path = Path("data/output/full_36_features_test.csv")
-            df = pd.DataFrame([{
-                'date': first_feature_set.date,
-                **{name: value for name, value in zip(feature_names, feature_vector, strict=False)}
-            }])
+            df = pd.DataFrame(
+                [
+                    {
+                        "date": first_feature_set.date,
+                        **dict(zip(feature_names, feature_vector, strict=False)),
+                    }
+                ]
+            )
             df.to_csv(output_path, index=False)
             print(f"\n💾 Saved full features to: {output_path}")
 

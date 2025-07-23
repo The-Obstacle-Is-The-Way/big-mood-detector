@@ -87,7 +87,7 @@ class PipelineTestReport:
         report.append(f"Total Tests: {self.summary_stats['total_tests']}")
         report.append(
             f"Passed: {self.summary_stats['passed_tests']} "
-            f"({self.summary_stats['passed_tests']/max(1, self.summary_stats['total_tests'])*100:.1f}%)"
+            f"({self.summary_stats['passed_tests'] / max(1, self.summary_stats['total_tests']) * 100:.1f}%)"
         )
         report.append(f"Failed: {self.summary_stats['failed_tests']}")
         report.append(f"Warnings: {self.summary_stats['warnings']}")

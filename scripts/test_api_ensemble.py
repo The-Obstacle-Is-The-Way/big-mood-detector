@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Test the API ensemble endpoint."""
 
-
 import requests
 
 # Test data

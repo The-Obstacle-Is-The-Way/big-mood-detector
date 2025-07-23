@@ -49,9 +49,9 @@ def create_tf_model(model: DirectPATModel):
 
 def export_pat_as_savedmodel(model_size: str, weights_path: Path, output_dir: Path):
     """Export PAT model as SavedModel format."""
-    print(f"\n{'='*70}")
+    print(f"\n{'=' * 70}")
     print(f"Exporting PAT-{model_size.upper()} as SavedModel")
-    print(f"{'='*70}")
+    print(f"{'=' * 70}")
 
     # Load the model
     print(f"Loading weights from: {weights_path}")
@@ -102,7 +102,7 @@ def export_pat_as_savedmodel(model_size: str, weights_path: Path, output_dir: Pa
     print("\n📊 Size comparison:")
     print(f"   H5 file: {h5_size:.1f} MB")
     print(f"   NPZ file: {npz_size:.1f} MB")
-    print(f"   Compression: {(1 - npz_size/h5_size) * 100:.0f}%")
+    print(f"   Compression: {(1 - npz_size / h5_size) * 100:.0f}%")
 
     # Test loading speed
     print("\n⏱️  Loading speed comparison:")
@@ -164,9 +164,9 @@ def main():
             success_count += 1
 
     # Summary
-    print(f"\n{'='*70}")
+    print(f"\n{'=' * 70}")
     print("EXPORT SUMMARY")
-    print(f"{'='*70}")
+    print(f"{'=' * 70}")
     print(f"✅ Successfully exported {success_count}/{len(available_models)} models")
 
     if success_count == len(available_models):

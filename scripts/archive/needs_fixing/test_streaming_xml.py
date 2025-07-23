@@ -62,11 +62,11 @@ def main():
             if (i + 1) % 10000 == 0:
                 elapsed = time.time() - start_time
                 rate = (i + 1) / elapsed
-                print(f"  Processed {i+1:,} records ({rate:.0f} records/sec)")
+                print(f"  Processed {i + 1:,} records ({rate:.0f} records/sec)")
 
             # Sample first few records of each type
             if i < 5:
-                print(f"\nSample record {i+1}:")
+                print(f"\nSample record {i + 1}:")
                 if hasattr(entity, "__dict__"):
                     for key, value in entity.__dict__.items():
                         print(f"  {key}: {value}")
@@ -89,7 +89,7 @@ def main():
     print("=" * 50)
     print(f"\nTotal time: {elapsed_time:.1f} seconds")
     print(f"Total records: {total_records:,}")
-    print(f"Processing rate: {total_records/elapsed_time:.0f} records/second")
+    print(f"Processing rate: {total_records / elapsed_time:.0f} records/second")
 
     print("\nRecord breakdown:")
     for record_type, count in record_counts.items():

@@ -6,11 +6,11 @@ from pathlib import Path
 
 # Map of common import patterns to proper module paths
 IMPORT_MAP = {
-    r'^ActivityRecord,$': 'from big_mood_detector.domain.entities.activity_record import ActivityRecord',
-    r'^ActivityType,$': 'from big_mood_detector.domain.entities.activity_record import ActivityType',
-    r'^SleepRecord, SleepState$': 'from big_mood_detector.domain.entities.sleep_record import SleepRecord, SleepState',
-    r'^HeartRateRecord,$': 'from big_mood_detector.domain.entities.heart_rate_record import HeartRateRecord',
-    r'^HeartMetricType,$': 'from big_mood_detector.domain.entities.heart_rate_record import HeartMetricType',
+    r"^ActivityRecord,$": "from big_mood_detector.domain.entities.activity_record import ActivityRecord",
+    r"^ActivityType,$": "from big_mood_detector.domain.entities.activity_record import ActivityType",
+    r"^SleepRecord, SleepState$": "from big_mood_detector.domain.entities.sleep_record import SleepRecord, SleepState",
+    r"^HeartRateRecord,$": "from big_mood_detector.domain.entities.heart_rate_record import HeartRateRecord",
+    r"^HeartMetricType,$": "from big_mood_detector.domain.entities.heart_rate_record import HeartMetricType",
 }
 
 
@@ -21,7 +21,7 @@ def fix_file(file_path: Path) -> bool:
     except Exception:
         return False
 
-    lines = content.split('\n')
+    lines = content.split("\n")
     fixed_lines = []
     skip_next = False
 
@@ -31,11 +31,14 @@ def fix_file(file_path: Path) -> bool:
             continue
 
         # Remove lines that are just closing parens
-        if line.strip() == ')' and i > 0 and not lines[i-1].strip().endswith(')'):
+        if line.strip() == ")" and i > 0 and not lines[i - 1].strip().endswith(")"):
             continue
 
         # Skip orphaned import fragments
-        if re.match(r'^(ActivityRecord|ActivityType|SleepRecord|HeartRateRecord|HeartMetricType|[A-Z]\w+),$', line.strip()):
+        if re.match(
+            r"^(ActivityRecord|ActivityType|SleepRecord|HeartRateRecord|HeartMetricType|[A-Z]\w+),$",
+            line.strip(),
+        ):
             continue
 
         # Fix imports on single lines
@@ -46,10 +49,10 @@ def fix_file(file_path: Path) -> bool:
 
         fixed_lines.append(line)
 
-    new_content = '\n'.join(fixed_lines)
+    new_content = "\n".join(fixed_lines)
 
     # Clean up multiple blank lines
-    new_content = re.sub(r'\n\n\n+', '\n\n', new_content)
+    new_content = re.sub(r"\n\n\n+", "\n\n", new_content)
 
     if new_content != content:
         file_path.write_text(new_content)
@@ -62,8 +65,8 @@ def main():
     test_files = []
 
     # Find all affected test files
-    for pattern in ['test_*.py', '*_test.py']:
-        test_files.extend(Path('tests').rglob(pattern))
+    for pattern in ["test_*.py", "*_test.py"]:
+        test_files.extend(Path("tests").rglob(pattern))
 
     fixed = 0
     for file_path in test_files:
@@ -74,5 +77,5 @@ def main():
     print(f"\nFixed {fixed} files")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

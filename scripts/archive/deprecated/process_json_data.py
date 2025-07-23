@@ -83,7 +83,7 @@ def main():
 
     print("\nSample clinical features (first 5 days):")
     for i, row in enumerate(clinical_data[:5]):
-        print(f"  Day {i+1}: {row['date']}")
+        print(f"  Day {i + 1}: {row['date']}")
         print(
             f"    Sleep: {row['sleep_duration_hours']:.1f}h, efficiency: {row['sleep_efficiency']:.1%}"
         )

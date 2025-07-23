@@ -8,8 +8,8 @@ from datetime import date, datetime
 from unittest.mock import Mock, patch
 
 import numpy as np
-import pytest
 import pandas as pd
+import pytest
 
 from big_mood_detector.application.use_cases.process_health_data_use_case import (
     MoodPredictionPipeline,
