@@ -157,7 +157,7 @@ class EnsembleOrchestrator:
         pat_embeddings: np.ndarray | None = None
 
         # Submit parallel tasks
-        futures = {}
+        futures: dict[str, Any] = {}
 
         # 1. Standard XGBoost prediction (only on statistical features)
         futures["xgboost"] = self.executor.submit(
