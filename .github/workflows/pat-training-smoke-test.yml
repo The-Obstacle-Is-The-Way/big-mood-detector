@@ -1,0 +1,62 @@
+name: PAT Training Smoke Test
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/train_pat_*.py'
+      - 'src/big_mood_detector/infrastructure/ml_models/pat_*.py'
+      - 'src/big_mood_detector/infrastructure/fine_tuning/**'
+      - '.github/workflows/pat-training-smoke-test.yml'
+
+jobs:
+  smoke-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+        
+    - name: Cache dependencies
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/pyproject.toml') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+          
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e ".[ml,dev]"
+        
+    - name: Download minimal test data
+      run: |
+        # Create minimal test NHANES data
+        mkdir -p data/nhanes/test
+        # In real CI, you'd download a small test subset
+        # For now, we'll skip if data doesn't exist
+        
+    - name: Run smoke training
+      run: |
+        # Only run if we have test data
+        if [ -f "data/nhanes/test/PAXMIN_H.xpt" ]; then
+          python scripts/train_pat_depression_head_simple.py \
+            --nhanes-dir data/nhanes/test \
+            --max-subjects 10 \
+            --epochs 2 \
+            --batch-size 4
+            
+          # Verify model was created
+          test -f model_weights/pat/heads/pat_depression_head.pt
+        else
+          echo "Skipping smoke test - no test data available"
+        fi
+        
+    - name: Verify training script imports
+      run: |
+        python -c "import scripts.train_pat_depression_head_simple"

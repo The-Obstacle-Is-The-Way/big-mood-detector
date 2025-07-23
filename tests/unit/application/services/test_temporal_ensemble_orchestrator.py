@@ -165,7 +165,8 @@ class TestTemporalEnsembleOrchestrator:
         assert result.future_risk.confidence == 0.8
         # Hypomanic has highest probability (0.6)
 
-    def skip_test_orchestrator_handles_missing_pat_data(self, mock_pat_predictor, mock_xgboost_predictor, mock_pat_encoder):
+    @pytest.mark.xfail(reason="Phase 4: Handle missing PAT sequences")
+    def test_orchestrator_handles_missing_pat_data(self, mock_pat_predictor, mock_xgboost_predictor, mock_pat_encoder):
         """Test orchestrator handles missing activity sequences gracefully."""
         from big_mood_detector.application.services.temporal_ensemble_orchestrator import (
             TemporalEnsembleOrchestrator,
@@ -283,7 +284,8 @@ class TestTemporalEnsembleOrchestrator:
         assert hasattr(result, 'requires_immediate_intervention')
         assert hasattr(result, 'requires_preventive_action')
 
-    def skip_test_orchestrator_with_insufficient_activity_days(self, mock_pat_predictor, mock_xgboost_predictor, mock_pat_encoder):
+    @pytest.mark.xfail(reason="Phase 4: Implement short sequence handling")
+    def test_orchestrator_with_insufficient_activity_days(self, mock_pat_predictor, mock_xgboost_predictor, mock_pat_encoder):
         """Test orchestrator handles insufficient activity data (< 7 days)."""
         from big_mood_detector.application.services.temporal_ensemble_orchestrator import (
             TemporalEnsembleOrchestrator,
@@ -312,7 +314,8 @@ class TestTemporalEnsembleOrchestrator:
         # Future risk should still work with XGBoost features
         assert result.future_risk.depression_risk == 0.3
 
-    def skip_test_critical_alert_generation(self, mock_pat_predictor, mock_xgboost_predictor, mock_pat_encoder):
+    @pytest.mark.xfail(reason="Phase 4: Implement clinical alert thresholds")
+    def test_critical_alert_generation(self, mock_pat_predictor, mock_xgboost_predictor, mock_pat_encoder):
         """Test orchestrator generates alerts for critical patterns."""
         from big_mood_detector.application.services.temporal_ensemble_orchestrator import (
             TemporalEnsembleOrchestrator,
@@ -350,7 +353,8 @@ class TestTemporalEnsembleOrchestrator:
         assert len(result.clinical_alerts) > 0
         assert any('rapid cycling' in alert.lower() for alert in result.clinical_alerts)
 
-    def skip_test_integration_with_pipelines(self, mock_pat_predictor, mock_xgboost_predictor, mock_pat_encoder):
+    @pytest.mark.xfail(reason="Phase 4: Full pipeline integration")
+    def test_integration_with_pipelines(self, mock_pat_predictor, mock_xgboost_predictor, mock_pat_encoder):
         """Test orchestrator integrates with existing pipeline structure."""
         from big_mood_detector.application.services.temporal_ensemble_orchestrator import (
             TemporalEnsembleOrchestrator,
