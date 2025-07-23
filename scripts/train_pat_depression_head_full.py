@@ -26,9 +26,9 @@ from sklearn.metrics import (
     accuracy_score, 
     roc_auc_score, 
     precision_recall_fscore_support,
-    calibration_curve,
     brier_score_loss
 )
+from sklearn.calibration import calibration_curve
 from sklearn.model_selection import train_test_split
 from torch.utils.data import DataLoader, TensorDataset
 from torch.optim.lr_scheduler import CosineAnnealingLR
@@ -89,7 +89,7 @@ def prepare_full_training_data(
     processor = NHANESProcessor(data_dir=nhanes_dir)
     
     # Load actigraphy and depression data
-    actigraphy_df = processor.load_actigraphy("PAXMIN_H.xpt")
+    actigraphy_df = processor.load_actigraphy("PAXHD_H.xpt")
     depression_df = processor.load_depression_scores("DPQ_H.xpt")
     
     # Get participants with both actigraphy and depression data
@@ -138,7 +138,7 @@ def prepare_full_training_data(
             
             # Get depression label (PHQ-9 >= 10)
             subject_depression = depression_df[depression_df['SEQN'] == subject_id]
-            phq9_score = subject_depression['PHQ9_TOTAL'].iloc[0]
+            phq9_score = subject_depression['PHQ9_total'].iloc[0]
             depression_label = int(phq9_score >= 10) if not np.isnan(phq9_score) else None
             
             if depression_label is not None:
