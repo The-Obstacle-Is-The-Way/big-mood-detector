@@ -7,6 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.4] - 2025-07-23
+
+### Added
+- Feature Engineering Orchestrator integration for automatic validation and anomaly detection
+- Type annotations throughout the codebase - full mypy compliance
+- Adapter pattern for clean orchestrator integration without breaking changes
+- Completeness reports showing exactly what data is missing
+- Feature importance tracking to understand which biomarkers matter most
+
+### Fixed
+- Baseline repository test race conditions with `tmp_path` fixture and `xdist_group` marker
+- 15 type errors across orchestrator_adapter, process_health_data_use_case, and main.py
+- PATSequence constructor now uses correct parameters
+- FastAPI decorator type warnings with proper type: ignore annotations
+
+### Changed
+- Moved PERFORMANCE_INVESTIGATION.md to docs/ directory
+- Updated documentation to clarify model capabilities and temporal windows
+- Feature extraction now includes automatic validation and data quality checks
+- DI container properly initializes orchestrator with caching enabled
+
+### Developer Notes
+- All 916 tests passing with 90%+ coverage
+- No mypy errors (59 source files clean)
+- No ruff linting issues
+- Parallel test execution now stable
+
 ## [0.2.3] - 2025-07-21
 
 ### Added
