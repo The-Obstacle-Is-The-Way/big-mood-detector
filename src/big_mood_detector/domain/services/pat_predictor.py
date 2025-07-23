@@ -2,36 +2,79 @@
 PAT Predictor Interface
 
 Domain interface for PAT-based mood prediction.
-This is a pure domain concept with no infrastructure dependencies.
+Based on PAT paper capabilities: binary depression and medication proxy predictions.
 """
 
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
 
 import numpy as np
 
-from big_mood_detector.domain.services.mood_predictor import MoodPrediction
+
+@dataclass
+class PATBinaryPredictions:
+    """
+    Binary predictions from PAT model.
+
+    Based on PAT paper's actual training tasks:
+    - Depression: PHQ-9 >= 10 (AUC 0.589)
+    - Benzodiazepine usage: Proxy for mood stabilization (AUC 0.767)
+
+    Note: PAT cannot distinguish hypomania from mania.
+    """
+    depression_probability: float  # P(PHQ-9 >= 10)
+    benzodiazepine_probability: float  # P(taking benzodiazepines)
+    confidence: float  # Overall prediction confidence
 
 
 class PATPredictorInterface(ABC):
     """
-    Interface for PAT-based mood predictors.
-    
-    This interface defines the contract that any PAT predictor implementation
-    must follow. It takes PAT embeddings and returns mood predictions.
+    Interface for PAT-based binary predictors.
+
+    PAT was trained on binary classification tasks, NOT 3-class mood prediction.
+    This interface reflects PAT's actual capabilities from the literature.
     """
-    
+
     @abstractmethod
-    def predict_from_embeddings(self, embeddings: np.ndarray) -> MoodPrediction:
+    def predict_from_embeddings(self, embeddings: np.ndarray) -> PATBinaryPredictions:
         """
-        Predict mood state from PAT embeddings.
-        
+        Get binary predictions from PAT embeddings.
+
         Args:
             embeddings: 96-dimensional PAT embedding vector
-            
+
         Returns:
-            MoodPrediction with depression, hypomanic, and manic risks
-            
+            PATBinaryPredictions with depression and medication probabilities
+
         Raises:
             ValueError: If embeddings have wrong dimensions
+        """
+        pass
+
+    @abstractmethod
+    def predict_depression(self, embeddings: np.ndarray) -> float:
+        """
+        Predict probability of depression (PHQ-9 >= 10).
+
+        Args:
+            embeddings: 96-dimensional PAT embedding vector
+
+        Returns:
+            Probability between 0 and 1
+        """
+        pass
+
+    @abstractmethod
+    def predict_medication_proxy(self, embeddings: np.ndarray) -> float:
+        """
+        Predict probability of benzodiazepine usage.
+
+        This is a proxy for mood stabilization, NOT direct mania detection.
+
+        Args:
+            embeddings: 96-dimensional PAT embedding vector
+
+        Returns:
+            Probability between 0 and 1
         """
         pass

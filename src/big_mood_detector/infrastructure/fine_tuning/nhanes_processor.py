@@ -5,7 +5,6 @@ Processes NHANES XPT files into labeled datasets for fine-tuning.
 """
 
 from pathlib import Path
-from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -228,66 +227,72 @@ class NHANESProcessor:
 
         logger.info(f"Processed cohort with {len(cohort)} subjects")
         return cohort
-    
-    def create_mood_labels(self, cohort: pd.DataFrame) -> pd.DataFrame:
-        """Create 3-class mood labels from NHANES data.
-        
-        Maps PHQ-9 scores and medications to mood states:
-        - Normal: PHQ-9 < 5, no medications
-        - Depression: PHQ-9 >= 10 or on antidepressants
-        - Mania: On benzodiazepines (proxy for mood stabilization)
-        
+
+    def create_binary_labels(self, cohort: pd.DataFrame) -> pd.DataFrame:
+        """Create binary labels matching PAT paper's training tasks.
+
+        Based on PAT paper, we create binary labels for:
+        - Depression: PHQ-9 >= 10 (matches paper exactly)
+        - Benzodiazepine usage: Direct medication flag
+
+        Note: We do NOT create hypomania/mania labels as PAT wasn't trained on these.
+
         Args:
             cohort: DataFrame with PHQ-9 scores and medication flags
-            
+
         Returns:
-            DataFrame with added mood_label and mood_class columns
+            DataFrame with added binary label columns
         """
         result = cohort.copy()
-        
-        # Initialize with normal
-        result['mood_label'] = 'normal'
-        result['mood_class'] = 0
-        
-        # Depression: PHQ-9 >= 10 or on antidepressants
-        depression_mask = (
-            (result['PHQ9_total'] >= 10) | 
-            (result['antidepressant'] == 1)
-        )
-        result.loc[depression_mask, 'mood_label'] = 'depression'
-        result.loc[depression_mask, 'mood_class'] = 1
-        
-        # Mania: On benzodiazepines (proxy - not perfect but available)
-        # Note: This overwrites depression if both conditions met
-        mania_mask = result['benzodiazepine'] == 1
-        result.loc[mania_mask, 'mood_label'] = 'mania'
-        result.loc[mania_mask, 'mood_class'] = 2
-        
-        logger.info(f"Mood label distribution: {result['mood_label'].value_counts().to_dict()}")
+
+        # Binary depression label (PHQ-9 >= 10)
+        result['depression_label'] = (result['PHQ9_total'] >= 10).astype(int)
+
+        # Binary benzodiazepine label (already in data)
+        # This is a proxy for mood stabilization, NOT direct mania detection
+        result['benzodiazepine_label'] = result['benzodiazepine'].astype(int)
+
+        # Also create SSRI label if we want to train that head
+        result['ssri_label'] = result['ssri'].astype(int)
+
+        # Log distribution
+        logger.info(f"Depression prevalence: {result['depression_label'].mean():.2%}")
+        logger.info(f"Benzodiazepine usage: {result['benzodiazepine_label'].mean():.2%}")
+        logger.info(f"SSRI usage: {result['ssri_label'].mean():.2%}")
+
         return result
-    
+
+    def create_mood_labels(self, cohort: pd.DataFrame) -> pd.DataFrame:
+        """DEPRECATED: Use create_binary_labels() instead.
+
+        This method created 3-class labels but PAT only supports binary classification.
+        Kept for backward compatibility but should not be used.
+        """
+        logger.warning("create_mood_labels is deprecated. Use create_binary_labels instead.")
+        return self.create_binary_labels(cohort)
+
     def extract_pat_sequences(
-        self, 
-        actigraphy: pd.DataFrame, 
+        self,
+        actigraphy: pd.DataFrame,
         subject_id: int,
         normalize: bool = True
     ) -> np.ndarray:
         """Extract 7-day activity sequences for PAT model.
-        
+
         Args:
             actigraphy: Raw actigraphy data
             subject_id: SEQN to extract
             normalize: Whether to normalize activity values
-            
+
         Returns:
             Array of shape (7, 1440) with activity data
         """
         # Filter to subject
         subj_data = actigraphy[actigraphy['SEQN'] == subject_id].copy()
-        
+
         # Initialize 7x1440 array
         sequences = np.zeros((7, 1440), dtype=np.float32)
-        
+
         # Fill available days
         for day_idx in range(1, 8):  # PAXDAY is 1-indexed
             day_data = subj_data[subj_data['PAXDAY'] == day_idx]
@@ -296,15 +301,16 @@ class NHANESProcessor:
                 day_data = day_data.sort_values('PAXMINUTE')
                 minutes = day_data['PAXMINUTE'].values
                 intensities = day_data['PAXINTEN'].values
-                
+
                 # Fill the sequence (handle missing minutes)
                 sequences[day_idx - 1, minutes] = intensities
-        
+
         if normalize:
             # Log transform and clip (following PAT paper approach)
-            sequences = np.log1p(sequences)
-            sequences = np.clip(sequences, 0, 10)
-        
+            sequences_log = np.log1p(sequences)
+            sequences_clipped = np.clip(sequences_log, 0, 10)
+            return sequences_clipped.astype(np.float32)
+
         return sequences
 
     def aggregate_to_daily(self, actigraphy: pd.DataFrame) -> pd.DataFrame:
@@ -341,53 +347,6 @@ class NHANESProcessor:
         ]
 
         return daily.reset_index()
-
-    def extract_pat_sequences(
-        self,
-        actigraphy: pd.DataFrame,
-        window_size: int = 60,
-        stride: int = 30,
-        label_col: str | None = None,
-    ) -> tuple[np.ndarray, np.ndarray | None]:
-        """Extract sliding window sequences for PAT model.
-
-        Args:
-            actigraphy: Minute-level actigraphy data
-            window_size: Window size in minutes (default 60)
-            stride: Stride between windows (default 30)
-            label_col: Optional label column for supervised training
-
-        Returns:
-            Tuple of (sequences, labels) arrays
-        """
-        sequences: list[np.ndarray] = []
-        labels: list[Any] | None = [] if label_col else None
-
-        # Process each subject
-        for seqn in actigraphy["SEQN"].unique():
-            subject_data = actigraphy[actigraphy["SEQN"] == seqn].sort_values(
-                ["PAXDAY", "PAXN"]
-            )
-
-            # Get activity intensity values
-            activity = subject_data["PAXINTEN"].values
-
-            # Extract sliding windows
-            for i in range(0, len(activity) - window_size + 1, stride):
-                window = activity[i : i + window_size]
-                sequences.append(window)
-
-                if label_col and labels is not None:
-                    # Use label from middle of window
-                    label_idx = i + window_size // 2
-                    label = subject_data.iloc[label_idx][label_col]
-                    labels.append(label)
-
-        sequences_array = np.array(sequences)
-        labels_array = np.array(labels) if labels is not None else None
-
-        logger.info(f"Extracted {len(sequences_array)} sequences")
-        return sequences_array, labels_array
 
     def save_cohort(self, cohort: pd.DataFrame, name: str) -> Path:
         """Save processed cohort to parquet file.
