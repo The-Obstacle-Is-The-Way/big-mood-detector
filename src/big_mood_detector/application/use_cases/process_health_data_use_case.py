@@ -122,6 +122,9 @@ class MoodPredictionPipeline:
         self.dlmo_calculator = dlmo_calculator or DLMOCalculator()
         self.sparse_handler = sparse_handler or SparseDataHandler()
 
+        # Initialize clinical_extractor - will be set below
+        self.clinical_extractor: Any  # Union of ClinicalFeatureExtractor and OrchestratorAdapter
+
         # Create ClinicalFeatureExtractor with personal calibration support
         # Use injected baseline repository or get from DI container or create default
         if self.config.enable_personal_calibration and self.config.user_id:

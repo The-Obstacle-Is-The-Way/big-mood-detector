@@ -160,32 +160,110 @@ class BaselineRepositoryContract:
         assert history[0].baseline_date <= history[1].baseline_date
 
 
+@pytest.mark.xdist_group(name="baseline")  # Keep all baseline tests on same worker
 class TestFileBaselineRepository(BaselineRepositoryContract):
     """Test FileBaselineRepository against the contract"""
 
-    @pytest.fixture(autouse=True)
-    def cleanup_test_files(self):
-        """Clean up test files before and after each test to ensure isolation"""
-        test_path = Path("./temp_test_baselines")
+    @pytest.fixture
+    def repo_path(self, tmp_path: Path) -> Path:
+        """Provide a unique temporary directory for each test to avoid race conditions."""
+        return tmp_path / "baselines"
 
-        # Clean before test
-        if test_path.exists():
-            shutil.rmtree(test_path)
+    def get_repository(self, repo_path: Path) -> BaselineRepositoryInterface:
+        """Create repository with isolated temporary directory."""
+        return FileBaselineRepository(base_path=repo_path)
 
-        yield  # Run the test
+    def get_sample_baseline_with_hr_hrv(self) -> UserBaseline:
+        """Sample baseline with HR/HRV data for testing."""
+        return UserBaseline(
+            user_id="test_user_hr",
+            baseline_date=date(2024, 1, 15),
+            sleep_mean=7.5,
+            sleep_std=1.2,
+            activity_mean=8000.0,
+            activity_std=2000.0,
+            circadian_phase=22.0,
+            heart_rate_mean=65.0,
+            heart_rate_std=5.0,
+            hrv_mean=55.0,
+            hrv_std=8.0,
+            last_updated=datetime(2024, 1, 15, 10, 30),
+            data_points=30,
+        )
 
-        # Clean after test with retry for OS locks
-        if test_path.exists():
-            import time
-            for _ in range(3):
-                try:
-                    shutil.rmtree(test_path)
-                    break
-                except OSError:
-                    time.sleep(0.1)  # Wait for OS to release locks
+    # Override the contract test methods to pass repo_path fixture
+    def test_save_and_retrieve_baseline(self, repo_path: Path):
+        repository = self.get_repository(repo_path)
+        baseline = self.get_sample_baseline()
 
-    def get_repository(self) -> BaselineRepositoryInterface:
-        return FileBaselineRepository(base_path=Path("./temp_test_baselines"))
+        repository.save_baseline(baseline)
+        retrieved = repository.get_baseline(baseline.user_id)
+
+        assert retrieved is not None
+        assert retrieved.user_id == baseline.user_id
+        assert retrieved.sleep_mean == baseline.sleep_mean
+
+    def test_get_nonexistent_baseline_returns_none(self, repo_path: Path):
+        repository = self.get_repository(repo_path)
+        result = repository.get_baseline("nonexistent_user")
+        assert result is None
+
+    def test_get_baseline_history_empty_for_new_user(self, repo_path: Path):
+        repository = self.get_repository(repo_path)
+        history = repository.get_baseline_history("new_user")
+        assert history == []
+
+    def test_get_baseline_history_returns_chronological_order(self, repo_path: Path):
+        repository = self.get_repository(repo_path)
+
+        # Create two baselines with different dates
+        baseline1 = UserBaseline(
+            user_id="history_test_user",
+            baseline_date=date(2024, 1, 1),
+            sleep_mean=7.0,
+            sleep_std=1.0,
+            activity_mean=7500.0,
+            activity_std=1500.0,
+            circadian_phase=21.5,
+            last_updated=datetime(2024, 1, 1, 10, 0),
+            data_points=28,
+        )
+
+        baseline2 = UserBaseline(
+            user_id="history_test_user",
+            baseline_date=date(2024, 1, 15),
+            sleep_mean=7.5,
+            sleep_std=1.2,
+            activity_mean=8000.0,
+            activity_std=2000.0,
+            circadian_phase=22.0,
+            last_updated=datetime(2024, 1, 15, 10, 0),
+            data_points=30,
+        )
+
+        # Save in reverse chronological order to test sorting
+        repository.save_baseline(baseline2)
+        repository.save_baseline(baseline1)
+
+        # Get history
+        history = repository.get_baseline_history("history_test_user")
+
+        # Should be in chronological order (oldest first)
+        assert len(history) == 2
+        assert history[0].baseline_date <= history[1].baseline_date
+
+    def test_save_and_retrieve_baseline_with_hr_hrv(self, repo_path: Path):
+        repository = self.get_repository(repo_path)
+        baseline = self.get_sample_baseline_with_hr_hrv()
+
+        repository.save_baseline(baseline)
+        retrieved = repository.get_baseline(baseline.user_id)
+
+        assert retrieved is not None
+        assert retrieved.heart_rate_mean == baseline.heart_rate_mean
+        assert retrieved.heart_rate_std == baseline.heart_rate_std
+        assert retrieved.hrv_mean == baseline.hrv_mean
+        assert retrieved.hrv_std == baseline.hrv_std
 
 
 @pytest.mark.integration

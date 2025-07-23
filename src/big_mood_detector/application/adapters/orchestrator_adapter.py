@@ -13,6 +13,8 @@ from datetime import date
 # Import types from the actual modules
 from typing import TYPE_CHECKING, Any
 
+import numpy as np
+
 from big_mood_detector.domain.services.clinical_feature_extractor import (
     ClinicalFeatureSet,
     PATSequence,
@@ -180,9 +182,9 @@ class OrchestratorAdapter:
         This is a new capability added by the orchestrator.
         """
         # Convert to summary format
-        sleep_data = []
-        activity_data = []
-        heart_data = []
+        sleep_data: list[Any] = []
+        activity_data: list[Any] = []
+        heart_data: list[Any] = []
 
         report = self.orchestrator.generate_completeness_report(
             sleep_data=sleep_data,
@@ -276,9 +278,10 @@ class OrchestratorAdapter:
         if include_pat_sequence:
             # In full implementation, would generate from activity data
             pat_sequence = PATSequence(
-                date=unified.date,
-                activity_counts=[0] * 1440,  # Placeholder
-                sleep_periods=[],
+                end_date=unified.date,
+                activity_values=np.array([0] * 10080),  # 7 days * 1440 minutes
+                missing_days=[],
+                data_quality_score=0.0,  # Placeholder
             )
 
         # Create clinical feature set
@@ -308,10 +311,13 @@ class OrchestratorAdapter:
         """
         # Add validation metadata as dynamic attributes
         # Note: In production, we'd create a new dataclass that extends ClinicalFeatureSet
-        features.validation_score = validation_result.quality_score
-        features.has_anomalies = anomaly_result.has_anomalies
-        features.anomaly_severity = (
-            anomaly_result.severity if anomaly_result.has_anomalies else 0.0
+        # For now, we just log the metadata since ClinicalFeatureSet is frozen
+        # TODO(orchestrator): Create an EnrichedClinicalFeatureSet that includes these fields
+        logger.debug(
+            "feature_validation_metadata",
+            validation_score=validation_result.quality_score,
+            has_anomalies=anomaly_result.has_anomalies,
+            anomaly_severity=anomaly_result.severity if anomaly_result.has_anomalies else 0.0,
         )
 
         return features
