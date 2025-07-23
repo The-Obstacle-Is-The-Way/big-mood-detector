@@ -149,12 +149,53 @@ class MoodPredictionPipeline:
         else:
             self.baseline_repository = None
 
-        self.clinical_extractor = ClinicalFeatureExtractor(
-            baseline_repository=self.baseline_repository,
-            user_id=(
-                self.config.user_id if self.config.enable_personal_calibration else None
-            ),
-        )
+        # Initialize clinical feature extractor with orchestrator adapter if available
+        if di_container:
+            try:
+                # Try to get orchestrator from DI container
+                from big_mood_detector.application.adapters.orchestrator_adapter import (
+                    OrchestratorAdapter,
+                )
+                from big_mood_detector.domain.services.feature_engineering_orchestrator import (
+                    FeatureEngineeringOrchestrator,
+                )
+
+                orchestrator = di_container.resolve(FeatureEngineeringOrchestrator)
+                self.clinical_extractor = OrchestratorAdapter(
+                    orchestrator=orchestrator,
+                    baseline_repository=self.baseline_repository,
+                    user_id=(
+                        self.config.user_id
+                        if self.config.enable_personal_calibration
+                        else None
+                    ),
+                )
+                logger.info(
+                    "Using FeatureEngineeringOrchestrator with validation and anomaly detection"
+                )
+            except Exception as e:
+                logger.debug(
+                    f"Orchestrator not available, using standard extractor: {e}"
+                )
+                # Fall back to standard clinical extractor
+                self.clinical_extractor = ClinicalFeatureExtractor(
+                    baseline_repository=self.baseline_repository,
+                    user_id=(
+                        self.config.user_id
+                        if self.config.enable_personal_calibration
+                        else None
+                    ),
+                )
+        else:
+            # No DI container, use standard extractor
+            self.clinical_extractor = ClinicalFeatureExtractor(
+                baseline_repository=self.baseline_repository,
+                user_id=(
+                    self.config.user_id
+                    if self.config.enable_personal_calibration
+                    else None
+                ),
+            )
 
         self.mood_predictor = MoodPredictor(model_dir=self.config.model_dir)
         self.xgboost_predictor = None  # Will be loaded separately for ensemble
@@ -169,9 +210,7 @@ class MoodPredictionPipeline:
 
             # Initialize XGBoost predictor for ensemble
             self.xgboost_predictor = XGBoostMoodPredictor()
-            model_dir = self.config.model_dir or Path(
-                "model_weights/xgboost/converted"
-            )
+            model_dir = self.config.model_dir or Path("model_weights/xgboost/converted")
             if self.xgboost_predictor.load_models(model_dir):
                 logger.info("XGBoost models loaded for ensemble")
 

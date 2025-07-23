@@ -4,6 +4,7 @@ Dependency Injection Container
 Implements IoC container for dependency management.
 Following SOLID principles, especially Dependency Inversion.
 """
+
 from __future__ import annotations
 
 import inspect
@@ -21,6 +22,7 @@ from typing import (
 from big_mood_detector.infrastructure.logging import get_module_logger
 
 logger = get_module_logger(__name__)
+
 
 class CircularDependencyError(Exception):
     """Raised when circular dependency is detected."""
@@ -395,6 +397,55 @@ _container: Container | None = None
 _lock = threading.Lock()
 
 
+def _initialize_container(container: Container) -> None:
+    """Initialize the container with all service registrations."""
+    # Import at function level to avoid circular imports
+    from big_mood_detector.application.services.aggregation_pipeline import (
+        AggregationPipeline,
+    )
+    from big_mood_detector.application.services.data_parsing_service import (
+        DataParsingService,
+    )
+    from big_mood_detector.domain.services.activity_aggregator import ActivityAggregator
+    from big_mood_detector.domain.services.activity_sequence_extractor import (
+        ActivitySequenceExtractor,
+    )
+    from big_mood_detector.domain.services.circadian_rhythm_analyzer import (
+        CircadianRhythmAnalyzer,
+    )
+    from big_mood_detector.domain.services.clinical_feature_extractor import (
+        ClinicalFeatureExtractor,
+    )
+    from big_mood_detector.domain.services.dlmo_calculator import DLMOCalculator
+    from big_mood_detector.domain.services.feature_engineering_orchestrator import (
+        FeatureEngineeringOrchestrator,
+    )
+    from big_mood_detector.domain.services.heart_rate_aggregator import (
+        HeartRateAggregator,
+    )
+    from big_mood_detector.domain.services.sleep_aggregator import SleepAggregator
+    from big_mood_detector.domain.services.sleep_window_analyzer import (
+        SleepWindowAnalyzer,
+    )
+    from big_mood_detector.domain.services.sparse_data_handler import SparseDataHandler
+
+    # Register domain services
+    container.register_singleton(SleepAggregator)
+    container.register_singleton(ActivityAggregator)
+    container.register_singleton(HeartRateAggregator)
+    container.register_singleton(SleepWindowAnalyzer)
+    container.register_singleton(ActivitySequenceExtractor)
+    container.register_singleton(CircadianRhythmAnalyzer)
+    container.register_singleton(DLMOCalculator)
+    container.register_singleton(SparseDataHandler)
+    container.register_singleton(ClinicalFeatureExtractor)
+    container.register_singleton(FeatureEngineeringOrchestrator)
+
+    # Register application services
+    container.register_singleton(DataParsingService)
+    container.register_singleton(AggregationPipeline)
+
+
 @lru_cache
 def get_container() -> Container:
     """Get the global container instance (singleton)."""
@@ -403,6 +454,7 @@ def get_container() -> Container:
         with _lock:
             if _container is None:
                 _container = Container()
+                _initialize_container(_container)
     return _container
 
 
