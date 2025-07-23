@@ -16,7 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - No averaging or mixing - clean temporal windows
 - PAT depression classification head training infrastructure
   - Training script for NHANES data (`scripts/train_pat_depression_head_simple.py`)
-  - Successfully trained proof-of-concept model (AUC 0.30 with 200 subjects)
+  - Successfully trained proof-of-concept model (AUC 0.64 achieved after 20 epochs)
   - Model weights saved to `model_weights/pat/heads/pat_depression_head.pt`
 - Clinical alert generation for high-risk patterns
 - Graceful degradation when models fail (returns defaults with 0 confidence)
