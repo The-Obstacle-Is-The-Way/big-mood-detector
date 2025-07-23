@@ -36,15 +36,18 @@ class TestRealDataIntegration:
 
     def test_complete_pipeline_with_real_data(self, data_path, parsers):
         """Test the complete data processing pipeline with real Apple Health data."""
-        # ARRANGE
-        feature_service = FeatureExtractionService()
-
-        # ACT - Parse all available data
+        # Check if real data exists (local dev only)
         sleep_file = data_path / "Sleep Analysis.json"
         step_file = data_path / "Step Count.json"
         hr_file = data_path / "Heart Rate.json"
 
-        # Check which files exist
+        if not any([sleep_file.exists(), step_file.exists(), hr_file.exists()]):
+            pytest.skip("Real health data not available - this test runs only in local development environments")
+
+        # ARRANGE
+        feature_service = FeatureExtractionService()
+
+        # ACT - Parse all available data
         available_data = {}
         if sleep_file.exists():
             available_data["sleep"] = parsers["sleep"].parse_file(sleep_file)
@@ -103,6 +106,10 @@ class TestRealDataIntegration:
 
     def test_parse_additional_data_sources(self, data_path, parsers):
         """Test parsing of additional data sources we need to integrate."""
+        # Check if data directory exists
+        if not data_path.exists():
+            pytest.skip("Real health data directory not available")
+
         # Check what other data files are available
         data_files = list(data_path.glob("*.json"))
         print(f"\nAvailable data files: {len(data_files)}")
@@ -141,6 +148,10 @@ class TestRealDataIntegration:
 
     def test_data_quality_analysis(self, data_path, parsers):
         """Analyze the quality and completeness of the real data."""
+        # Check if data directory exists
+        if not data_path.exists():
+            pytest.skip("Real health data directory not available")
+
         # Parse all core data
         sleep_records = []
         activity_records = []
