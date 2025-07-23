@@ -16,8 +16,8 @@ from big_mood_detector.domain.entities.activity_record import (
     ActivityType,
 )
 from big_mood_detector.domain.entities.heart_rate_record import (
+    HeartMetricType,
     HeartRateRecord,
-    HeartRateType,
 )
 from big_mood_detector.domain.entities.sleep_record import SleepRecord, SleepState
 from big_mood_detector.domain.services.clinical_feature_extractor import (
@@ -68,7 +68,7 @@ def create_sample_health_data(start_date, days=30):
                 timestamp=hr_time,
                 value=float(hr_value),
                 unit="bpm",
-                heart_rate_type=HeartRateType.RESTING
+                metric_type=HeartMetricType.RESTING_HEART_RATE
             ))
 
     return sleep_records, activity_records, heart_records
