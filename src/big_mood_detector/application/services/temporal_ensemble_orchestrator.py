@@ -127,7 +127,7 @@ class TemporalEnsembleOrchestrator:
             current_state=current_state,
             future_risk=future_risk,
             assessment_timestamp=datetime.now(),
-            user_id=user_id,
+            user_id=user_id or "unknown",
         )
 
         # Log if there's a temporal mismatch (current depression but low future risk)

@@ -71,7 +71,7 @@ def prepare_training_data(
     # Load actigraphy and depression data
     actigraphy_df = processor.load_actigraphy("PAXMIN_H.xpt")
     depression_df = processor.load_depression_scores("DPQ_H.xpt")
-    
+
     # Debug: Check columns
     logger.info(f"Actigraphy columns: {list(actigraphy_df.columns)[:10]}...")
     logger.info(f"Actigraphy shape: {actigraphy_df.shape}")
