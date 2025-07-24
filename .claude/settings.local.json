@@ -25,7 +25,16 @@
       "Bash(export:*)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(tmux list-sessions:*)",
+      "Bash(tmux kill-session:*)",
+      "Bash(true)",
+      "Bash(./scripts/launch_pat_training_gpu.sh:*)",
+      "Bash(dos2unix:*)",
+      "Bash(sed:*)",
+      "Bash(nvidia-smi:*)",
+      "Bash(tmux new-session:*)",
+      "Bash(tmux capture-pane:*)"
     ],
     "deny": []
   }

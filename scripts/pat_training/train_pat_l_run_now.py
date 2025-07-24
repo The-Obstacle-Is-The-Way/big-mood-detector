@@ -118,9 +118,17 @@ def train():
     # Load and fix data
     X_train, X_val, y_train, y_val = load_and_fix_data()
 
-    # Device
-    device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
+    # Device setup with detailed logging
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     logger.info(f"Using device: {device}")
+    
+    if device.type == "cuda":
+        logger.info(f"GPU: {torch.cuda.get_device_name(0)}")
+        logger.info(f"GPU Memory: {torch.cuda.get_device_properties(0).total_memory / 1024**3:.1f} GB")
+        logger.info(f"CUDA Version: {torch.version.cuda}")
+    else:
+        logger.warning("⚠️  Running on CPU - training will be very slow!")
+        logger.info("To use GPU, ensure CUDA is available in WSL2")
 
     # Create model
     model = SimplePATDepressionNet(model_size="large", dropout=0.1)
