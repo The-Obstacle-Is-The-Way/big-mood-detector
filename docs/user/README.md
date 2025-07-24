@@ -1,98 +1,73 @@
-# 📱 Big Mood Detector - User Documentation
+# User Documentation
 
-Welcome to Big Mood Detector! This clinical-grade tool analyzes your Apple Health data to detect patterns associated with mood episodes using validated ML models.
+> [← Back to main README](../../README.md)
 
-## 🎯 What Can This Tool Do?
+Quick guides for using Big Mood Detector to analyze your health data.
 
-- **Predict Mood Episodes**: Detect risk of depression, mania, and hypomania
-- **Analyze Sleep Patterns**: Identify circadian rhythm disruptions
-- **Track Activity Levels**: Monitor physical activity and its relationship to mood
-- **Personal Calibration**: Fine-tune predictions based on your individual patterns
-- **Clinical Reports**: Generate detailed reports for healthcare providers
+## 🚀 Quick Links
 
-## 📚 Documentation Overview
+- **[Quick Start Guide](QUICK_START_GUIDE.md)** - Get running in 5 minutes
+- **[Apple Health Export](APPLE_HEALTH_EXPORT.md)** - Export your data correctly  
+- **[Advanced Usage](ADVANCED_USAGE.md)** - Power user features
+
+## What You'll Learn
 
 ### Getting Started
-- **[Quick Start Guide](./QUICK_START_GUIDE.md)** - Get up and running in 5 minutes
-- **[Apple Health Export Guide](./APPLE_HEALTH_EXPORT.md)** - How to export your health data
-- **[Advanced Usage](./ADVANCED_USAGE.md)** - Power user features and workflows
+- Installing with `pip install big-mood-detector`
+- Using the `big-mood` CLI commands
+- Processing your first health export
+- Understanding prediction reports
 
-### Understanding Your Results
-- **[Interpreting Predictions](./INTERPRETING_PREDICTIONS.md)** - What the risk scores mean
-- **[Clinical Thresholds](./CLINICAL_THRESHOLDS.md)** - Evidence-based cutoffs used
+### Data Export
+- Exporting from iPhone (XML format)
+- Using Health Auto Export app (JSON format)
+- Handling large exports efficiently
+- Privacy considerations
 
-### Data and Privacy
-- **[Data Requirements](./DATA_REQUIREMENTS.md)** - What data is needed and why
-- **[Privacy Guide](./PRIVACY_GUIDE.md)** - How your data is protected
+### Advanced Features
+- Personal baseline calibration
+- Batch processing multiple files
+- Using the REST API
+- Labeling episodes for improvement
 
-## 🚀 Quick Example
+## CLI Command Reference
 
 ```bash
-# 1. Process your health data
-python src/big_mood_detector/main.py process data/health_auto_export/
+# Process health data
+big-mood process export.xml
 
-# 2. Get predictions with a report
-python src/big_mood_detector/main.py predict data/health_auto_export/ --report
+# Get predictions with report
+big-mood predict export.xml --report
 
-# 3. Start monitoring for new data
-python src/big_mood_detector/main.py watch data/health_auto_export/
+# Start API server
+big-mood serve
+
+# Watch for new exports
+big-mood watch ~/HealthExports/
+
+# Label mood episodes
+big-mood label episode --type depressive --start 2024-01-15
+
+# Train personal model
+big-mood train --model xgboost --data features.csv
 ```
 
-## 🏥 Clinical Foundation
+## Understanding Your Results
 
-This tool is based on peer-reviewed research from:
-- Seoul National University (Nature Digital Medicine, 2024)
-- Harvard Medical School (Bipolar Disorders, 2024)
-- Dartmouth College (PAT Transformer)
+Reports show two complementary views:
+- **Current State** (PAT) - Your mood right now based on past 7 days
+- **Tomorrow's Risk** (XGBoost) - Prediction for next 24 hours
 
-It uses:
-- **36 sleep and circadian features** validated in clinical studies
-- **XGBoost models** with AUC 0.80-0.98 for mood prediction
-- **Transformer models** for activity pattern analysis
-- **DSM-5 aligned** clinical thresholds
+Both are important for different reasons. Current state helps you understand where you are, future risk helps you prepare.
 
-## ⚠️ Important Disclaimers
+## Need Help?
 
-1. **Not a Diagnostic Tool**: This provides risk assessments, not diagnoses
-2. **Consult Healthcare Providers**: Always discuss results with qualified professionals
-3. **Individual Variability**: Predictions improve with personal calibration over time
-4. **Data Quality Matters**: Accuracy depends on consistent device usage
-
-## 🆘 Getting Help
-
-- **Installation Issues**: See [Troubleshooting](./TROUBLESHOOTING.md)
-- **Understanding Features**: Check [Technical Glossary](./GLOSSARY.md)
-- **Clinical Questions**: Review [Clinical FAQ](./CLINICAL_FAQ.md)
-- **Bug Reports**: File issues on GitHub
-
-## 📊 Typical Use Cases
-
-### Personal Health Monitoring
-Track your mood patterns over time to identify triggers and early warning signs.
-
-### Clinical Support
-Share reports with your healthcare provider for data-driven treatment decisions.
-
-### Research Participation
-Contribute anonymized data to advance mental health research (with consent).
-
-### Family Care
-Monitor loved ones' patterns (with their permission) to provide timely support.
-
-## 🔒 Your Data, Your Control
-
-- All processing happens locally on your device
-- No data is sent to external servers by default
-- You control what data is analyzed and shared
-- Encryption available for stored results
-
-## 📈 What's Next?
-
-1. Start with the [Quick Start Guide](./QUICK_START_GUIDE.md)
-2. Export your Apple Health data
-3. Run your first prediction
-4. Review the results with your healthcare provider
+- Check the [Quick Start Guide](QUICK_START_GUIDE.md) first
+- See [Advanced Usage](ADVANCED_USAGE.md) for complex scenarios
+- Review the [main README](../../README.md) for overview
+- File issues on [GitHub](https://github.com/Clarity-Digital-Twin/big-mood-detector/issues)
 
 ---
 
-*Big Mood Detector - Advancing mental health through responsible AI*
+*For clinical context, see [Clinical Documentation](../clinical/README.md)*  
+*For technical details, see [Developer Documentation](../developer/README.md)*
