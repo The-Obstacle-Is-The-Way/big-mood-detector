@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git fetch:*)",
+      "Bash(ls:*)",
+      "Bash(python:*)",
+      "Bash(git config:*)",
+      "Bash(git checkout:*)",
+      "Bash(rm:*)",
+      "Bash(pip3:*)",
+      "Bash(source:*)",
+      "Bash(pip install:*)",
+      "Bash(sudo apt:*)",
+      "Bash(git pull:*)",
+      "Bash(git reset:*)",
+      "Bash(pip show:*)"
+    ],
+    "deny": []
+  }
+}
