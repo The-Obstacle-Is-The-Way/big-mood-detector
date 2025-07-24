@@ -26,8 +26,10 @@ class TestTrainPATDepressionHead:
         """Test that all required imports are available."""
         # This ensures our dependencies are correctly installed
         try:
-            from big_mood_detector.infrastructure.fine_tuning import nhanes_processor
-            from big_mood_detector.infrastructure.fine_tuning import population_trainer
+            from big_mood_detector.infrastructure.fine_tuning import (
+                nhanes_processor,
+                population_trainer,
+            )
             from big_mood_detector.infrastructure.ml_models import pat_model
             # Use the imports to satisfy linter
             assert nhanes_processor
