@@ -51,18 +51,19 @@ echo "=========================================="
 echo ""
 
 python3 scripts/train_pat_depression_pytorch.py \
-    --epochs 60 \
+    --epochs 10 \
     --batch-size $BATCH_SIZE \
     --device $DEVICE \
     --model-size small \
     --unfreeze-layers 0 \
-    --head-lr 2e-4 \
+    --head-lr 3e-4 \
     --encoder-lr 0 \
     --weight-decay 1e-2 \
     --grad-clip 1.0 \
     --scheduler cosine \
-    --warmup-epochs 3 \
-    --early-stopping-patience 6 \
+    --warmup-epochs 2 \
+    --early-stopping-patience 5 \
+    --no-sampler \
     --output-dir "$OUTPUT_DIR/stage1_$TIMESTAMP"
 
 # Get the best model from stage 1
@@ -75,24 +76,25 @@ fi
 
 echo ""
 echo "=========================================="
-echo "Stage 2: Fine-tune Last Block"
+echo "Stage 2: Fine-tune Last 2 Blocks"
 echo "=========================================="
 echo ""
 
 python3 scripts/train_pat_depression_pytorch.py \
-    --epochs 40 \
+    --epochs 20 \
     --batch-size $BATCH_SIZE \
     --device $DEVICE \
     --model-size small \
-    --unfreeze-layers 1 \
+    --unfreeze-layers 2 \
     --head-lr 1e-4 \
-    --encoder-lr 1e-5 \
+    --encoder-lr 3e-5 \
     --weight-decay 1e-2 \
     --grad-clip 1.0 \
     --scheduler cosine \
     --warmup-epochs 2 \
-    --early-stopping-patience 6 \
+    --early-stopping-patience 5 \
     --checkpoint "$STAGE1_BEST" \
+    --no-sampler \
     --output-dir "$OUTPUT_DIR/stage2_$TIMESTAMP"
 
 echo ""
