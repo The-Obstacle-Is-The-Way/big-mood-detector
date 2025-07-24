@@ -65,7 +65,7 @@ python src/big_mood_detector/main.py predict data/health_auto_export/ \
 
 # Use PAT transformer with custom weights
 python src/big_mood_detector/main.py predict data/health_auto_export/ \
-    --ensemble \
+    --temporal \
     --model-dir /path/to/custom/models/ \
     -o custom_predictions.json
 ```

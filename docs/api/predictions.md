@@ -45,9 +45,9 @@ Get mood episode risk predictions from processed health data.
 }
 ```
 
-## POST /api/v1/predict/ensemble
+## POST /api/v1/predict/temporal
 
-Get ensemble predictions combining XGBoost and PAT models.
+Get temporal predictions combining XGBoost and PAT models.
 
 ### Request Body
 
@@ -78,7 +78,7 @@ Get ensemble predictions combining XGBoost and PAT models.
       "hypomanic": 0.21,
       "manic": 0.11
     },
-    "ensemble": {
+    "temporal": {
       "depression": {
         "risk_score": 0.70,
         "risk_level": "high",
@@ -102,7 +102,7 @@ Get ensemble predictions combining XGBoost and PAT models.
   },
   "metadata": {
     "models_used": ["xgboost-v1.0", "pat-v1.0"],
-    "ensemble_method": "weighted_average",
+    "temporal_method": "weighted_average",
     "processing_time_ms": 87
   }
 }
@@ -113,7 +113,7 @@ Get ensemble predictions combining XGBoost and PAT models.
 - `200 OK` - Prediction successful
 - `400 Bad Request` - Invalid feature vector
 - `422 Unprocessable Entity` - Validation failed
-- `501 Not Implemented` - PAT model not available (TensorFlow not installed)
+- `501 Not Implemented` - PAT model not available (PyTorch not installed)
 
 ## Risk Levels
 

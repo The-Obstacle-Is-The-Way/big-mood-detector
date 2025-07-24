@@ -134,7 +134,7 @@ Start processing uploaded health data.
 | batch_id | string | Yes* | ID from batch upload |
 | options.start_date | date | No | Start date for analysis |
 | options.end_date | date | No | End date for analysis |
-| options.ensemble | boolean | No | Use ensemble model (default: true) |
+| options.ensemble | boolean | No | Use temporal separation (default: true) |
 | options.generate_report | boolean | No | Generate clinical report |
 | options.user_id | string | No | User ID for personalized predictions |
 
@@ -221,9 +221,9 @@ Generate mood predictions from pre-computed features.
 ```
 
 #### `POST /api/v1/predictions/predict/ensemble`
-Generate ensemble predictions using both XGBoost and PAT models.
+Generate temporal predictions using both XGBoost and PAT models.
 
-**Note**: This endpoint requires TensorFlow to be installed for PAT model support. Without TensorFlow, it will return a 501 status code.
+**Note**: This endpoint requires PyTorch to be installed for PAT model support. Without PyTorch, it will return a 501 status code.
 
 **Request Body**
 Same as `/predict` endpoint.
