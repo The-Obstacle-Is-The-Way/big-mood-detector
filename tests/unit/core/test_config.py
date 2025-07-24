@@ -31,7 +31,7 @@ class TestSettings:
         # API settings
         assert settings.API_V1_STR == "/api/v1"
         assert settings.PROJECT_NAME == "Big Mood Detector"
-        assert settings.VERSION == "0.1.0"
+        assert settings.VERSION == "0.4.0"
         assert settings.ENVIRONMENT == "local"
 
         # Paths

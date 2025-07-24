@@ -89,7 +89,7 @@ class TestPopulationTrainer:
         # Check architecture
         assert hasattr(task_head, "layers")
         assert len(task_head.layers) >= 2  # At least hidden + output
-        assert task_head.output_dim == 2
+        assert task_head.output_dim == 1  # Binary classification with BCEWithLogitsLoss
 
     @pytest.mark.slow_finetune
     @patch("torch.save")
@@ -110,6 +110,14 @@ class TestPopulationTrainer:
         with patch.object(trainer, "load_base_model") as mock_load:
             mock_model = Mock()
             mock_model.encode = Mock(return_value=np.random.rand(n_samples, 768))
+            # Add parameters() method for fine-tuning
+            import torch
+            mock_param = torch.nn.Parameter(torch.randn(1), requires_grad=False)
+            mock_model.parameters = Mock(return_value=[mock_param])
+            # Add blocks attribute for unfreezing
+            mock_block = Mock()
+            mock_block.parameters = Mock(return_value=[mock_param])
+            mock_model.blocks = [mock_block]
             mock_load.return_value = mock_model
 
             # Train

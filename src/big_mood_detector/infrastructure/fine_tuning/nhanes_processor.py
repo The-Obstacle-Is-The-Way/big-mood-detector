@@ -7,6 +7,7 @@ Processes NHANES XPT files into labeled datasets for fine-tuning.
 from pathlib import Path
 
 import numpy as np
+import numpy.typing as npt
 import pandas as pd
 
 from big_mood_detector.infrastructure.logging import get_module_logger
@@ -16,6 +17,15 @@ logger = get_module_logger(__name__)
 
 class NHANESProcessor:
     """Process NHANES data for mood prediction fine-tuning."""
+
+    # NHANES cycle statistics for standardization (from PAT paper)
+    # These are approximate values for log-transformed activity
+    NHANES_STATS = {
+        "2013-2014": {"mean": 2.5, "std": 2.0},
+        "2011-2012": {"mean": 2.4, "std": 1.9},
+        "2005-2006": {"mean": 2.3, "std": 1.8},
+        "2003-2004": {"mean": 2.3, "std": 1.8},
+    }
 
     # Benzodiazepine generic IDs and names
     BENZODIAZEPINES = {
@@ -72,18 +82,49 @@ class NHANESProcessor:
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
-    def load_actigraphy(self, file_path: str) -> pd.DataFrame:
-        """Load PAXHD_H.xpt actigraphy data.
+    def load_actigraphy(self, file_path: str = "PAXMIN_H.xpt") -> pd.DataFrame:
+        """Load and merge PAXMIN_H.xpt with PAXDAY_H.xpt for complete actigraphy data.
 
         Args:
-            file_path: Path to PAXHD_H.xpt file
+            file_path: Path to PAXMIN_H.xpt file (default: PAXMIN_H.xpt)
 
         Returns:
-            DataFrame with actigraphy data
+            DataFrame with merged actigraphy data including proper day assignments
         """
-        logger.info(f"Loading actigraphy data from {file_path}")
-        df = pd.read_sas(self.data_dir / file_path)
-        logger.info(f"Loaded {len(df)} actigraphy records")
+        logger.info(f"Loading minute-level actigraphy from {file_path}")
+        df_min = pd.read_sas(self.data_dir / file_path)
+
+        logger.info("Loading day-level data from PAXDAY_H.xpt")
+        df_day = pd.read_sas(self.data_dir / "PAXDAY_H.xpt")
+
+        # Convert byte strings to integers for merging
+        if 'PAXDAYM' in df_min.columns:
+            df_min['PAXDAYM_int'] = df_min['PAXDAYM'].astype(str).str.strip("b'").astype(int)
+
+        if 'PAXDAYD' in df_day.columns:
+            df_day['PAXDAY'] = df_day['PAXDAYD'].astype(str).str.strip("b'").astype(int)
+
+        # Merge on SEQN and day number
+        logger.info("Merging minute and day-level data...")
+        df = df_min.merge(
+            df_day[['SEQN', 'PAXDAY']],
+            left_on=['SEQN', 'PAXDAYM_int'],
+            right_on=['SEQN', 'PAXDAY'],
+            how='inner'  # Only keep records with valid day assignments
+        )
+
+        # Map minute of day from PAXSSNMP (sample sequence number)
+        if 'PAXSSNMP' in df.columns:
+            df['PAXMINUTE'] = (df['PAXSSNMP'] % 1440).astype(int)
+
+        # Use PAXAISMM as intensity measure (Activity Intensity)
+        if 'PAXAISMM' in df.columns:
+            df['PAXINTEN'] = df['PAXAISMM']
+
+        # Clean up temporary columns
+        df = df.drop(columns=['PAXDAYM_int'], errors='ignore')
+
+        logger.info(f"Loaded {len(df)} valid actigraphy records after merging")
         return df
 
     def load_depression_scores(self, file_path: str) -> pd.DataFrame:
@@ -275,23 +316,25 @@ class NHANESProcessor:
         self,
         actigraphy: pd.DataFrame,
         subject_id: int,
-        normalize: bool = True
+        normalize: bool = True,
+        standardize: bool = True
     ) -> np.ndarray:
         """Extract 7-day activity sequences for PAT model.
 
         Args:
             actigraphy: Raw actigraphy data
             subject_id: SEQN to extract
-            normalize: Whether to normalize activity values
+            normalize: Whether to log-transform activity values
+            standardize: Whether to z-score normalize (required for PAT)
 
         Returns:
-            Array of shape (7, 1440) with activity data
+            Array of shape (10080,) - full 7 days of minute-level data
         """
         # Filter to subject
         subj_data = actigraphy[actigraphy['SEQN'] == subject_id].copy()
 
-        # Initialize 7x1440 array
-        sequences = np.zeros((7, 1440), dtype=np.float32)
+        # Initialize 7x1440 array for minute-level data
+        minutes_array = np.zeros((7, 1440), dtype=np.float32)
 
         # Fill available days
         for day_idx in range(1, 8):  # PAXDAY is 1-indexed
@@ -299,19 +342,31 @@ class NHANESProcessor:
             if len(day_data) > 0:
                 # Sort by minute and extract intensities
                 day_data = day_data.sort_values('PAXMINUTE')
-                minutes = day_data['PAXMINUTE'].values
+                minutes = day_data['PAXMINUTE'].values.astype(int)
                 intensities = day_data['PAXINTEN'].values
 
                 # Fill the sequence (handle missing minutes)
-                sequences[day_idx - 1, minutes] = intensities
+                # Ensure minutes are within valid range
+                valid_mask = (minutes >= 0) & (minutes < 1440)
+                minutes_array[day_idx - 1, minutes[valid_mask]] = intensities[valid_mask]
+
+        # Flatten to 10,080 minutes (7 days * 1440 minutes)
+        flat_minutes: npt.NDArray[np.float32] = minutes_array.flatten()  # shape: (10080,)
 
         if normalize:
             # Log transform and clip (following PAT paper approach)
-            sequences_log = np.log1p(sequences)
-            sequences_clipped = np.clip(sequences_log, 0, 10)
-            return sequences_clipped.astype(np.float32)
+            flat_minutes = np.log1p(flat_minutes).astype(np.float32)
+            flat_minutes = np.clip(flat_minutes, 0, 10).astype(np.float32)
 
-        return sequences
+        if standardize:
+            # Z-score normalization (required for PAT)
+            # Using NHANES 2013-2014 statistics by default
+            # In production, compute from actual training data
+            cycle_stats = self.NHANES_STATS.get("2013-2014", {"mean": 2.5, "std": 2.0})
+            flat_minutes = ((flat_minutes - cycle_stats["mean"]) / cycle_stats["std"]).astype(np.float32)
+
+        # Always return full sequence - PAT model handles patching internally
+        return flat_minutes.astype(np.float32)
 
     def aggregate_to_daily(self, actigraphy: pd.DataFrame) -> pd.DataFrame:
         """Aggregate minute-level actigraphy to daily features.

@@ -43,25 +43,36 @@ class TestNHANESProcessor:
             NHANESProcessor,
         )
 
-        # Mock actigraphy data
-        mock_acti_df = pd.DataFrame(
+        # Mock minute-level actigraphy data
+        mock_min_df = pd.DataFrame(
             {
-                "SEQN": [1, 2, 3],  # Subject ID
-                "PAXDAY": [1, 1, 1],  # Day number
-                "PAXN": [1, 2, 3],  # Minute number
+                "SEQN": [1, 1, 2],  # Subject ID
+                "PAXDAYM": [b'1', b'1', b'1'],  # Day number (as bytes)
+                "PAXN": [1, 2, 1],  # Minute number
                 "PAXINTEN": [100, 200, 150],  # Activity intensity
                 "PAXSTEP": [10, 20, 15],  # Step count
             }
         )
-        mock_read_sas.return_value = mock_acti_df
+
+        # Mock day-level data
+        mock_day_df = pd.DataFrame(
+            {
+                "SEQN": [1, 2],
+                "PAXDAYD": [b'1', b'1'],  # Day number (as bytes)
+                "PAXDAY": [1, 1],  # Day as int
+            }
+        )
+
+        # Return different data for each call
+        mock_read_sas.side_effect = [mock_min_df, mock_day_df]
 
         processor = NHANESProcessor()
         actigraphy = processor.load_actigraphy("PAXHD_H.xpt")
 
-        assert len(actigraphy) == 3
+        assert len(actigraphy) == 3  # 3 minute records after merge
         assert "SEQN" in actigraphy.columns
         assert "PAXINTEN" in actigraphy.columns
-        mock_read_sas.assert_called_once()
+        assert mock_read_sas.call_count == 2
 
     @patch("pandas.read_sas")
     def test_load_depression_scores(self, mock_read_sas):
@@ -176,12 +187,21 @@ class TestNHANESProcessor:
         )
 
         # Setup mock data for all files
-        mock_acti = pd.DataFrame(
+        # Minute-level data
+        mock_acti_min = pd.DataFrame(
             {
                 "SEQN": [1, 1, 2, 2],
-                "PAXDAY": [1, 1, 1, 1],
+                "PAXDAYM": [b'1', b'1', b'1', b'1'],
                 "PAXN": [1, 2, 1, 2],
                 "PAXINTEN": [100, 200, 150, 250],
+            }
+        )
+
+        # Day-level data
+        mock_acti_day = pd.DataFrame(
+            {
+                "SEQN": [1, 2],
+                "PAXDAYD": [b'1', b'1'],
             }
         )
 
@@ -214,7 +234,7 @@ class TestNHANESProcessor:
             }
         )
 
-        mock_read_sas.side_effect = [mock_acti, mock_dpq, mock_rx, mock_drug]
+        mock_read_sas.side_effect = [mock_acti_min, mock_acti_day, mock_dpq, mock_rx, mock_drug]
 
         processor = NHANESProcessor()
         cohort = processor.process_cohort()
@@ -281,12 +301,11 @@ class TestNHANESProcessor:
             normalize=True
         )
 
-        # Should return 7x1440 array
-        assert sequences.shape == (7, 1440)
+        # Should return flattened 10080 array for PAT
+        assert sequences.shape == (10080,)
         assert sequences.dtype == np.float32
-        # Should be normalized
-        assert np.all(sequences >= 0)
-        assert np.all(sequences <= 10)
+        # Should be log normalized (can be negative after z-score)
+        assert np.isfinite(sequences).all()
 
     def test_save_processed_cohort(self, tmp_path):
         """Test saving processed cohort to parquet."""
