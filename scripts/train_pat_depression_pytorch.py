@@ -187,9 +187,10 @@ def create_balanced_dataloader(
     X: np.ndarray,
     y: np.ndarray,
     batch_size: int,
-    shuffle: bool = True
+    shuffle: bool = True,
+    use_sampler: bool = True
 ) -> DataLoader:
-    """Create dataloader with balanced sampling for training."""
+    """Create dataloader with optional balanced sampling for training."""
 
     # Convert to tensors
     X_tensor = torch.FloatTensor(X)
@@ -197,7 +198,7 @@ def create_balanced_dataloader(
 
     dataset = TensorDataset(X_tensor, y_tensor)
 
-    if shuffle:
+    if shuffle and use_sampler:
         # Create balanced sampler
         class_counts = np.bincount(y)
         class_weights = 1.0 / class_counts
@@ -211,7 +212,7 @@ def create_balanced_dataloader(
 
         return DataLoader(dataset, batch_size=batch_size, sampler=sampler)
     else:
-        return DataLoader(dataset, batch_size=batch_size, shuffle=False)
+        return DataLoader(dataset, batch_size=batch_size, shuffle=shuffle)
 
 
 def train_model(
@@ -474,6 +475,7 @@ def main():
     parser.add_argument('--warmup-epochs', type=int, default=3, help='Number of warmup epochs for cosine scheduler')
     parser.add_argument('--checkpoint', type=Path, help='Load from checkpoint to continue training')
     parser.add_argument('--cache-only', action='store_true', help='Only build cache, skip training')
+    parser.add_argument('--no-sampler', action='store_true', help='Disable WeightedRandomSampler for natural class distribution')
     args = parser.parse_args()
 
     # Load config if provided
@@ -525,9 +527,9 @@ def main():
         return
 
     # Create dataloaders
-    train_loader = create_balanced_dataloader(X_train, y_train, args.batch_size, shuffle=True)
-    val_loader = create_balanced_dataloader(X_val, y_val, args.batch_size, shuffle=False)
-    test_loader = create_balanced_dataloader(X_test, y_test, args.batch_size, shuffle=False)
+    train_loader = create_balanced_dataloader(X_train, y_train, args.batch_size, shuffle=True, use_sampler=not args.no_sampler)
+    val_loader = create_balanced_dataloader(X_val, y_val, args.batch_size, shuffle=False, use_sampler=False)
+    test_loader = create_balanced_dataloader(X_test, y_test, args.batch_size, shuffle=False, use_sampler=False)
 
     # Create model
     logger.info(f"Creating PAT-{args.model_size.upper()} depression model...")

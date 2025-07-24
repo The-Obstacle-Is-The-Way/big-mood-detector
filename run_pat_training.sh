@@ -63,6 +63,7 @@ python3 scripts/train_pat_depression_pytorch.py \
     --scheduler cosine \
     --warmup-epochs 3 \
     --early-stopping-patience 5 \
+    --no-sampler \
     --output-dir "$OUTPUT_DIR/stage1_$TIMESTAMP"
 
 # Get the best model from stage 1
@@ -93,6 +94,7 @@ python3 scripts/train_pat_depression_pytorch.py \
     --warmup-epochs 2 \
     --early-stopping-patience 5 \
     --checkpoint "$STAGE1_BEST" \
+    --no-sampler \
     --output-dir "$OUTPUT_DIR/stage2_$TIMESTAMP"
 
 echo ""
