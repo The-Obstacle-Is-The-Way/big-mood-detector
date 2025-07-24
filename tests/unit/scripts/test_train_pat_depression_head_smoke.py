@@ -21,6 +21,7 @@ class TestTrainPATDepressionHeadSmoke:
         not Path("model_weights/pat/pretrained/PAT-S_29k_weights.h5").exists(),
         reason="PAT weights not available"
     )
+    @pytest.mark.skip(reason="Script moved to archive")
     def test_training_script_help(self):
         """Test that the script can show help."""
         result = subprocess.run(
