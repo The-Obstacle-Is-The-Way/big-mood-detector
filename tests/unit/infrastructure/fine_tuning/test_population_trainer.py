@@ -111,8 +111,8 @@ class TestPopulationTrainer:
             mock_model = Mock()
             mock_model.encode = Mock(return_value=np.random.rand(n_samples, 768))
             # Add parameters() method for fine-tuning
-            mock_param = Mock()
-            mock_param.requires_grad = False
+            import torch
+            mock_param = torch.nn.Parameter(torch.randn(1), requires_grad=False)
             mock_model.parameters = Mock(return_value=[mock_param])
             # Add blocks attribute for unfreezing
             mock_block = Mock()
