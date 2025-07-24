@@ -34,7 +34,11 @@
       "Bash(sed:*)",
       "Bash(nvidia-smi:*)",
       "Bash(tmux new-session:*)",
-      "Bash(tmux capture-pane:*)"
+      "Bash(tmux capture-pane:*)",
+      "Bash(./scripts/launch_paper_exact_training.sh:*)",
+      "Bash(tmux ls:*)",
+      "Bash(./scripts/launch_pat_l_ft_now.sh:*)",
+      "Bash(./scripts/launch_pat_l_optimized.sh:*)"
     ],
     "deny": []
   }
