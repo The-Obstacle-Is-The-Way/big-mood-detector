@@ -100,4 +100,4 @@ jobs:
           pip-audit --desc --ignore-vuln GHSA-887c-mr87-cxwp  # torch DoS - acceptable risk
       
       - name: Validate Seoul feature schema
-        run: python scripts/assert_feature_schema.py 
+        run: python scripts/archive/analysis_tools/assert_feature_schema.py 
