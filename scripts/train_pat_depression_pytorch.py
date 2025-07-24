@@ -475,7 +475,7 @@ def main():
     parser.add_argument('--encoder-lr', type=float, default=1e-5)
     parser.add_argument('--weight-decay', type=float, default=1e-2)
     parser.add_argument('--grad-clip', type=float, default=1.0)
-    parser.add_argument('--early-stopping-patience', type=int, default=25)
+    parser.add_argument('--early-stopping-patience', type=int, default=6)
     parser.add_argument('--cache-dir', type=Path, default=Path('data/cache'))
     parser.add_argument('--output-dir', type=Path, default=Path('model_weights/pat/pytorch'))
     parser.add_argument('--scheduler', type=str, default='plateau', choices=['plateau', 'cosine', 'none'])

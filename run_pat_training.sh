@@ -51,18 +51,18 @@ echo "=========================================="
 echo ""
 
 python3 scripts/train_pat_depression_pytorch.py \
-    --epochs 8 \
+    --epochs 60 \
     --batch-size $BATCH_SIZE \
     --device $DEVICE \
     --model-size small \
     --unfreeze-layers 0 \
-    --head-lr 3e-4 \
+    --head-lr 2e-4 \
     --encoder-lr 0 \
     --weight-decay 1e-2 \
     --grad-clip 1.0 \
     --scheduler cosine \
     --warmup-epochs 3 \
-    --early-stopping-patience 5 \
+    --early-stopping-patience 6 \
     --output-dir "$OUTPUT_DIR/stage1_$TIMESTAMP"
 
 # Get the best model from stage 1
@@ -80,18 +80,18 @@ echo "=========================================="
 echo ""
 
 python3 scripts/train_pat_depression_pytorch.py \
-    --epochs 20 \
+    --epochs 40 \
     --batch-size $BATCH_SIZE \
     --device $DEVICE \
     --model-size small \
     --unfreeze-layers 1 \
-    --head-lr 3e-4 \
+    --head-lr 1e-4 \
     --encoder-lr 1e-5 \
     --weight-decay 1e-2 \
     --grad-clip 1.0 \
     --scheduler cosine \
     --warmup-epochs 2 \
-    --early-stopping-patience 5 \
+    --early-stopping-patience 6 \
     --checkpoint "$STAGE1_BEST" \
     --output-dir "$OUTPUT_DIR/stage2_$TIMESTAMP"
 
@@ -107,12 +107,12 @@ echo ""
 RESULT_FILE=$(ls "$OUTPUT_DIR/stage2_$TIMESTAMP"/results_small_*.json 2>/dev/null | head -1)
 if [ -f "$RESULT_FILE" ]; then
     echo "Final results:"
-    python3 -c "
+    python3 <<PY
 import json
-with open('$RESULT_FILE') as f:
+with open("$RESULT_FILE") as f:
     results = json.load(f)
-    print(f\"Best Val AUC: {results['best_val_auc']:.4f}\")
-    print(f\"Test AUC: {results['test_metrics']['test_auc']:.4f}\")
-    print(f\"Test PR-AUC: {results['test_metrics']['test_pr_auc']:.4f}\")
-" RESULT_FILE="$RESULT_FILE"
+    print(f"Best Val AUC: {results['best_val_auc']:.4f}")
+    print(f"Test AUC: {results['test_metrics']['test_auc']:.4f}")
+    print(f"Test PR-AUC: {results['test_metrics']['test_pr_auc']:.4f}")
+PY
 fi
