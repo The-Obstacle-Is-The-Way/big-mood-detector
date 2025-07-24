@@ -23,9 +23,9 @@ echo "Batch size: $BATCH_SIZE"
 echo ""
 
 # Ensure we're in the venv
-if [[ "$VIRTUAL_ENV" == "" ]]; then
+if [[ -z "${VIRTUAL_ENV:-}" ]]; then
     echo "Activating virtual environment..."
-    source .venv/bin/activate
+    source "$(dirname "$0")/.venv/bin/activate"
 fi
 
 # Check PyTorch MPS
