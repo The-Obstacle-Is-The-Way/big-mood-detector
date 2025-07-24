@@ -23,7 +23,9 @@
       "Bash(chmod:*)",
       "Bash(export CUDA_VISIBLE_DEVICES=0)",
       "Bash(export:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)"
     ],
     "deny": []
   }
