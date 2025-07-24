@@ -39,7 +39,7 @@ cp .env.example .env
 alembic upgrade head
 
 # Start the server
-python src/big_mood_detector/main.py serve --host 0.0.0.0 --port 8000
+big-mood serve --host 0.0.0.0 --port 8000
 ```
 
 ### Production Configuration

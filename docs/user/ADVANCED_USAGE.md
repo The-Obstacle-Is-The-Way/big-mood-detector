@@ -10,7 +10,7 @@ This guide covers advanced features and workflows for power users and clinicians
 # Process multiple user directories
 for user in data/users/*; do
     echo "Processing $user..."
-    python src/big_mood_detector/main.py process "$user" \
+    big-mood process "$user" \
         -o "output/$(basename $user)_features.json" \
         -v
 done
@@ -20,13 +20,13 @@ done
 
 ```bash
 # Process only last 30 days
-python src/big_mood_detector/main.py process data/health_auto_export/ \
+big-mood process data/health_auto_export/ \
     --start-date $(date -d "30 days ago" +%Y-%m-%d) \
     --end-date $(date +%Y-%m-%d) \
     -o recent_features.json
 
 # Process specific months
-python src/big_mood_detector/main.py process data/health_auto_export/ \
+big-mood process data/health_auto_export/ \
     --start-date 2024-01-01 \
     --end-date 2024-03-31 \
     -v
@@ -59,12 +59,12 @@ print(f"Total records: {len(all_records['sleep']) + len(all_records['activity'])
 
 ```bash
 # Use only XGBoost models
-python src/big_mood_detector/main.py predict data/health_auto_export/ \
+big-mood predict data/health_auto_export/ \
     --no-ensemble \
     -o xgboost_only.json
 
 # Use PAT transformer with custom weights
-python src/big_mood_detector/main.py predict data/health_auto_export/ \
+big-mood predict data/health_auto_export/ \
     --temporal \
     --model-dir /path/to/custom/models/ \
     -o custom_predictions.json
@@ -74,7 +74,7 @@ python src/big_mood_detector/main.py predict data/health_auto_export/ \
 
 ```bash
 # Use personalized model for user
-python src/big_mood_detector/main.py predict data/health_auto_export/ \
+big-mood predict data/health_auto_export/ \
     --user-id "patient_123" \
     --report \
     -o personalized_report.txt
@@ -96,7 +96,7 @@ def monitor_mood(data_dir, user_id):
     while True:
         # Run prediction
         result = subprocess.run([
-            "python", "src/big_mood_detector/main.py", "predict",
+            "big-mood", "predict",
             data_dir,
             "--user-id", user_id,
             "--start-date", (datetime.now() - timedelta(days=30)).strftime("%Y-%m-%d"),
@@ -119,7 +119,7 @@ monitor_mood("data/health_auto_export/", "patient_123")
 
 ```bash
 # Rater 1 labels
-python src/big_mood_detector/main.py label episode \
+big-mood label episode \
     --rater "clinician_1" \
     --date-range 2024-01-15:2024-01-29 \
     --mood depressive \
@@ -127,7 +127,7 @@ python src/big_mood_detector/main.py label episode \
     --confidence high
 
 # Rater 2 labels same period
-python src/big_mood_detector/main.py label episode \
+big-mood label episode \
     --rater "clinician_2" \
     --date-range 2024-01-15:2024-01-29 \
     --mood depressive \
@@ -135,7 +135,7 @@ python src/big_mood_detector/main.py label episode \
     --confidence medium
 
 # Export inter-rater comparison
-python src/big_mood_detector/main.py label export \
+big-mood label export \
     --format csv \
     --include-raters \
     -o inter_rater_comparison.csv
@@ -145,7 +145,7 @@ python src/big_mood_detector/main.py label export \
 
 ```bash
 # Import labels from clinical records
-python src/big_mood_detector/main.py label import \
+big-mood label import \
     clinical_episodes.csv \
     --format clinical \
     --validate
@@ -155,13 +155,13 @@ python src/big_mood_detector/main.py label import \
 
 ```bash
 # Detailed statistics
-python src/big_mood_detector/main.py label stats \
+big-mood label stats \
     --detailed \
     --by-mood \
     --by-severity
 
 # Export for analysis
-python src/big_mood_detector/main.py label export \
+big-mood label export \
     --format json \
     --include-features \
     -o labels_with_features.json
@@ -194,7 +194,7 @@ print(f"Population model AUC: {metrics['auc']}")
 
 ```bash
 # Fine-tune for specific user
-python src/big_mood_detector/main.py train \
+big-mood train \
     --model-type xgboost \
     --user-id "patient_123" \
     --data personal_features.csv \
@@ -293,12 +293,12 @@ requests.post(
 
 ```bash
 # Export features for statistical analysis
-python src/big_mood_detector/main.py process data/health_auto_export/ \
+big-mood process data/health_auto_export/ \
     --output-format research \
     -o research_features.csv
 
 # Include raw time series
-python src/big_mood_detector/main.py process data/health_auto_export/ \
+big-mood process data/health_auto_export/ \
     --include-raw \
     --output-format hdf5 \
     -o time_series_data.h5
@@ -378,7 +378,7 @@ class ProductionSettings(Settings):
 
 ```bash
 # Use multiple workers for batch processing
-python src/big_mood_detector/main.py process data/large_dataset/ \
+big-mood process data/large_dataset/ \
     --workers 8 \
     --chunk-size 1000 \
     -o batch_results.json
@@ -409,7 +409,7 @@ with cache:
 export BIG_MOOD_LOG_LEVEL=DEBUG
 
 # Run with verbose output
-python src/big_mood_detector/main.py predict data/health_auto_export/ \
+big-mood predict data/health_auto_export/ \
     -vvv \
     --debug \
     --profile
@@ -419,7 +419,7 @@ python src/big_mood_detector/main.py predict data/health_auto_export/ \
 
 ```bash
 # Profile memory usage
-mprof run python src/big_mood_detector/main.py process large_export.xml
+mprof run big-mood process large_export.xml
 mprof plot
 
 # Profile execution time

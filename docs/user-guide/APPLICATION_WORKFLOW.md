@@ -12,10 +12,10 @@ When you first use the application, it needs to establish your personal baseline
 
 ```bash
 # Process your initial health data export
-python src/big_mood_detector/main.py process ~/Desktop/apple_health_export/
+big-mood process ~/Desktop/apple_health_export/
 
 # Generate baseline predictions
-python src/big_mood_detector/main.py predict ~/Desktop/apple_health_export/ --report
+big-mood predict ~/Desktop/apple_health_export/ --report
 ```
 
 **What happens:**
@@ -34,10 +34,10 @@ After baseline establishment, you periodically upload new data:
 
 ```bash
 # Process updated health export (e.g., weekly or monthly)
-python src/big_mood_detector/main.py process ~/Desktop/apple_health_export_latest/
+big-mood process ~/Desktop/apple_health_export_latest/
 
 # Generate updated predictions with personal calibration
-python src/big_mood_detector/main.py predict ~/Desktop/apple_health_export_latest/ --report
+big-mood predict ~/Desktop/apple_health_export_latest/ --report
 ```
 
 **What happens:**

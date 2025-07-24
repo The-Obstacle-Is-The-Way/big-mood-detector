@@ -249,7 +249,7 @@ Unit Tests (70% - 695 tests)
 
 ### Local Development
 ```bash
-python src/big_mood_detector/main.py serve
+big-mood serve
 ```
 
 ### Docker Deployment
