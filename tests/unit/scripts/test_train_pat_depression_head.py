@@ -26,13 +26,15 @@ class TestTrainPATDepressionHead:
         """Test that all required imports are available."""
         # This ensures our dependencies are correctly installed
         try:
-            import big_mood_detector.infrastructure.fine_tuning.nhanes_processor
-            import big_mood_detector.infrastructure.fine_tuning.population_trainer
-            import big_mood_detector.infrastructure.ml_models.pat_model
+            from big_mood_detector.infrastructure.fine_tuning import (
+                nhanes_processor,
+                population_trainer,
+            )
+            from big_mood_detector.infrastructure.ml_models import pat_model
             # Use the imports to satisfy linter
-            assert big_mood_detector.infrastructure.fine_tuning.nhanes_processor
-            assert big_mood_detector.infrastructure.fine_tuning.population_trainer
-            assert big_mood_detector.infrastructure.ml_models.pat_model
+            assert nhanes_processor
+            assert population_trainer
+            assert pat_model
         except ImportError as e:
             pytest.fail(f"Required import failed: {e}")
 

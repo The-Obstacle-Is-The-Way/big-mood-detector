@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-PAT-L Training - Ready to Run Version
-Simplified from advanced script, focusing on core training
+PAT-S Training - Canonical Version
+Based on successful PAT-L training approach
 """
 
 import json
@@ -25,7 +25,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Add project root to path
-sys.path.insert(0, str(Path(__file__).parent.parent))
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from big_mood_detector.infrastructure.ml_models.pat_pytorch import (  # noqa: E402
     PATPyTorchEncoder,
@@ -35,7 +35,7 @@ from big_mood_detector.infrastructure.ml_models.pat_pytorch import (  # noqa: E4
 class SimplePATDepressionNet(nn.Module):
     """Simple PAT depression model with single layer head for initial training."""
 
-    def __init__(self, model_size: str = "large", dropout: float = 0.1):
+    def __init__(self, model_size: str = "small", dropout: float = 0.1):
         super().__init__()
 
         # PAT encoder
@@ -75,7 +75,7 @@ def load_and_fix_data():
     # Load cached data
     cache_path = Path("data/cache/nhanes_pat_data_subsetNone.npz")
     if not cache_path.exists():
-        raise FileNotFoundError(f"No cached data at {cache_path}. Run original training first.")
+        raise FileNotFoundError(f"No cached data at {cache_path}. Run data preparation first.")
 
     logger.info(f"Loading cached data from {cache_path}")
     data = np.load(cache_path)
@@ -123,10 +123,10 @@ def train():
     logger.info(f"Using device: {device}")
 
     # Create model
-    model = SimplePATDepressionNet(model_size="large", dropout=0.1)
+    model = SimplePATDepressionNet(model_size="small", dropout=0.1)
 
     # Load pretrained weights
-    weights_path = Path("model_weights/pat/pretrained/PAT-L_29k_weights.h5")
+    weights_path = Path("model_weights/pat/pretrained/PAT-S_29k_weights.h5")
     if weights_path.exists():
         logger.info(f"Loading pretrained weights from {weights_path}")
         success = model.encoder.load_tf_weights(weights_path)
@@ -142,8 +142,8 @@ def train():
     total = sum(p.numel() for p in model.parameters())
     logger.info(f"Parameters - Trainable: {trainable:,}, Total: {total:,}")
 
-    # Data loaders
-    batch_size = 32
+    # Data loaders - smaller batch size for PAT-S
+    batch_size = 64
     train_dataset = TensorDataset(torch.FloatTensor(X_train), torch.FloatTensor(y_train))
     val_dataset = TensorDataset(torch.FloatTensor(X_val), torch.FloatTensor(y_val))
 
@@ -156,7 +156,7 @@ def train():
     logger.info(f"Using pos_weight: {pos_weight.item():.2f}")
 
     # Stage 1: Train head only with high LR
-    epochs_stage1 = 30
+    epochs_stage1 = 20  # Fewer epochs for smaller model
     lr_stage1 = 5e-3
 
     logger.info(f"\n🔵 Stage 1: Training head only for {epochs_stage1} epochs (LR={lr_stage1})")
@@ -164,7 +164,7 @@ def train():
     optimizer = optim.AdamW(model.parameters(), lr=lr_stage1, weight_decay=0.01)
 
     best_auc = 0
-    output_dir = Path("model_weights/pat/pytorch/pat_l_training")
+    output_dir = Path("model_weights/pat/pytorch/pat_s_training")
     output_dir.mkdir(parents=True, exist_ok=True)
 
     for epoch in range(epochs_stage1):
@@ -216,14 +216,14 @@ def train():
             }, output_dir / f"best_stage1_auc_{val_auc:.4f}.pt")
             logger.info(f"✅ Saved best model with AUC: {val_auc:.4f}")
 
-    # Stage 2: Unfreeze last 2 blocks
+    # Stage 2: Unfreeze last block (PAT-S has fewer blocks)
     if best_auc > 0.50:  # Only continue if stage 1 worked
-        epochs_stage2 = 30
+        epochs_stage2 = 20
         lr_stage2 = 1e-4
 
-        logger.info(f"\n🟢 Stage 2: Unfreezing last 2 blocks for {epochs_stage2} epochs (LR={lr_stage2})")
+        logger.info(f"\n🟢 Stage 2: Unfreezing last block for {epochs_stage2} epochs (LR={lr_stage2})")
 
-        model.unfreeze_last_n_blocks(2)
+        model.unfreeze_last_n_blocks(1)  # Only 1 block for small model
 
         # New optimizer with lower LR
         optimizer = optim.AdamW(model.parameters(), lr=lr_stage2, weight_decay=0.01)
@@ -279,11 +279,16 @@ def train():
 
     # Save summary
     summary = {
+        'model_size': 'small',
         'best_auc': best_auc,
         'timestamp': datetime.now().isoformat(),
         'device': str(device),
         'train_samples': len(X_train),
-        'val_samples': len(X_val)
+        'val_samples': len(X_val),
+        'parameters': {
+            'total': total,
+            'trainable_initial': trainable
+        }
     }
 
     with open(output_dir / 'training_summary.json', 'w') as f:
