@@ -28,7 +28,7 @@ from big_mood_detector.interfaces.api.routes.upload import router as upload_rout
 app = FastAPI(
     title="Big Mood Detector",
     description="Clinical-grade mood episode detection from wearable data",
-    version="0.1.0",
+    version="0.4.0",
 )
 
 # Set up middleware
@@ -117,7 +117,7 @@ async def health_check() -> JSONResponse:
         content={
             "status": "healthy",
             "service": "big-mood-detector",
-            "version": "0.1.0",
+            "version": "0.4.0",
         },
     )
 

@@ -5,7 +5,7 @@ This package provides a comprehensive backend system for detecting bipolar mood 
 using Apple HealthKit data, following Clean Architecture principles.
 """
 
-__version__ = "0.1.0"
+__version__ = "0.4.0"
 __author__ = "The-Obstacle-Is-The-Way"
 __email__ = "The-Obstacle-Is-The-Way@users.noreply.github.com"
 

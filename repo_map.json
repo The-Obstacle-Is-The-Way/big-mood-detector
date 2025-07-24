@@ -1,7 +1,7 @@
 {
   "name": "big-mood-detector",
   "description": "Clinical-grade bipolar mood prediction from Apple Health data",
-  "version": "0.1.0",
+  "version": "0.4.0",
   "structure": {
     "src/big_mood_detector/": {
       "description": "Main application source code",
