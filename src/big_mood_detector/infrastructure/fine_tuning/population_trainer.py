@@ -183,7 +183,7 @@ if TORCH_AVAILABLE:
             # 🎯 CRITICAL: Proper initialization for minority class learning
             self._initialize_weights()
 
-        def _initialize_weights(self):
+        def _initialize_weights(self) -> None:
             """Initialize weights for better minority class learning."""
             for module in self.modules():
                 if isinstance(module, nn.Linear):
@@ -204,7 +204,7 @@ if TORCH_AVAILABLE:
 
         Focuses learning on hard examples by down-weighting easy negatives.
         """
-        def __init__(self, alpha: float = 0.25, gamma: float = 2.0, pos_weight: float = None):
+        def __init__(self, alpha: float = 0.25, gamma: float = 2.0, pos_weight: float | None = None):
             super().__init__()
             self.alpha = alpha  # Class balance factor
             self.gamma = gamma  # Focusing parameter
@@ -236,7 +236,9 @@ if TORCH_AVAILABLE:
             # Calculate focal loss
             focal_loss = focal_weight * ce_loss
 
-            return focal_loss.mean()
+            result = focal_loss.mean()
+            assert isinstance(result, torch.Tensor)
+            return result
 
 else:
     # Protocol stub when torch not available
