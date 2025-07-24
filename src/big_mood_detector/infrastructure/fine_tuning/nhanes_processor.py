@@ -83,17 +83,17 @@ class NHANESProcessor:
         """
         logger.info(f"Loading minute-level actigraphy from {file_path}")
         df_min = pd.read_sas(self.data_dir / file_path)
-        
+
         logger.info("Loading day-level data from PAXDAY_H.xpt")
         df_day = pd.read_sas(self.data_dir / "PAXDAY_H.xpt")
-        
+
         # Convert byte strings to integers for merging
         if 'PAXDAYM' in df_min.columns:
             df_min['PAXDAYM_int'] = df_min['PAXDAYM'].astype(str).str.strip("b'").astype(int)
-        
+
         if 'PAXDAYD' in df_day.columns:
             df_day['PAXDAYD_int'] = df_day['PAXDAYD'].astype(str).str.strip("b'").astype(int)
-            
+
         # Merge on SEQN and day number
         logger.info("Merging minute and day-level data...")
         df = df_min.merge(
@@ -102,18 +102,18 @@ class NHANESProcessor:
             right_on=['SEQN', 'PAXDAY'],
             how='inner'  # Only keep records with valid day assignments
         )
-        
+
         # Map minute of day from PAXSSNMP (sample sequence number)
         if 'PAXSSNMP' in df.columns:
             df['PAXMINUTE'] = (df['PAXSSNMP'] % 1440).astype(int)
-            
+
         # Use PAXAISMM as intensity measure (Activity Intensity)
         if 'PAXAISMM' in df.columns:
             df['PAXINTEN'] = df['PAXAISMM']
-            
+
         # Clean up temporary columns
         df = df.drop(columns=['PAXDAYM_int'], errors='ignore')
-            
+
         logger.info(f"Loaded {len(df)} valid actigraphy records after merging")
         return df
 
