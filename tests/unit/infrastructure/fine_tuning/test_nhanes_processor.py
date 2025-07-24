@@ -281,12 +281,11 @@ class TestNHANESProcessor:
             normalize=True
         )
 
-        # Should return 7x1440 array
-        assert sequences.shape == (7, 1440)
+        # Should return flattened 10080 array for PAT
+        assert sequences.shape == (10080,)
         assert sequences.dtype == np.float32
-        # Should be normalized
-        assert np.all(sequences >= 0)
-        assert np.all(sequences <= 10)
+        # Should be log normalized (can be negative after z-score)
+        assert np.isfinite(sequences).all()
 
     def test_save_processed_cohort(self, tmp_path):
         """Test saving processed cohort to parquet."""

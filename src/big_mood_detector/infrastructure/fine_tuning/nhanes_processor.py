@@ -101,12 +101,12 @@ class NHANESProcessor:
             df_min['PAXDAYM_int'] = df_min['PAXDAYM'].astype(str).str.strip("b'").astype(int)
 
         if 'PAXDAYD' in df_day.columns:
-            df_day['PAXDAYD_int'] = df_day['PAXDAYD'].astype(str).str.strip("b'").astype(int)
+            df_day['PAXDAY'] = df_day['PAXDAYD'].astype(str).str.strip("b'").astype(int)
 
         # Merge on SEQN and day number
         logger.info("Merging minute and day-level data...")
         df = df_min.merge(
-            df_day[['SEQN', 'PAXDAYD_int']].rename(columns={'PAXDAYD_int': 'PAXDAY'}),
+            df_day[['SEQN', 'PAXDAY']],
             left_on=['SEQN', 'PAXDAYM_int'],
             right_on=['SEQN', 'PAXDAY'],
             how='inner'  # Only keep records with valid day assignments
