@@ -1,0 +1,11 @@
+{
+  "best_auc": 0.5694400054789517,
+  "model": "PAT-L",
+  "method": "FT (Higher LR + Cosine)",
+  "encoder_lr": "5e-5",
+  "head_lr": "5e-4",
+  "batch_size": 32,
+  "scheduler": "CosineAnnealingLR",
+  "total_params": 1984289,
+  "completed_at": "2025-07-24T17:52:02.742323"
+}

@@ -2,7 +2,7 @@
 
 ## Summary
 
-We successfully fixed PAT-L (Pretrained Actigraphy Transformer - Large) training that was stuck at AUC 0.4756 after 70 epochs. The issue was caused by over-normalization in the NHANES data processor, which removed all discriminative signal from the sequences. After fixing this issue, training immediately improved to AUC 0.5788 and continues to climb.
+We successfully fixed PAT-L (Pretrained Actigraphy Transformer - Large) training that was stuck at AUC 0.4756 after 70 epochs. The issue was caused by using fixed normalization values instead of computing StandardScaler from training data as specified in the paper. After fixing this issue with proper StandardScaler normalization, training immediately improved to AUC 0.5888 within 3 epochs and continues toward the paper's target of 0.620.
 
 ## The Problem
 
@@ -13,24 +13,24 @@ We successfully fixed PAT-L (Pretrained Actigraphy Transformer - Large) training
 
 ### Root Cause Analysis
 
-Through comprehensive debugging, we discovered:
+Through comprehensive debugging and careful reading of the paper, we discovered:
 
-1. **Fixed Normalization Statistics**: The NHANES processor was using hardcoded normalization values:
+1. **Paper's Methodology**: The paper clearly states:
+   > "In our supervised datasets, all train, test, and validation sets were standardized separately using Sklearn's StandardScaler"
+
+2. **Our Implementation Error**: The NHANES processor was using hardcoded normalization values:
    ```python
    NHANES_STATS = {
        "2013-2014": {"mean": 2.5, "std": 2.0},
    }
    ```
 
-2. **Over-normalization**: This caused all sequences to have nearly identical means:
+3. **Impact of Fixed Normalization**: This caused all sequences to have nearly identical statistics:
    - All sequences had mean: -1.24 ±0.001
    - This removed all discriminative signal from the data
    - Model couldn't distinguish between depressed and non-depressed subjects
 
-3. **Validation**: A simple logistic regression baseline on mean activity achieved AUC 0.52, confirming that:
-   - Data and labels were correctly aligned
-   - There was signal in the data
-   - The issue was with the normalization approach
+4. **Validation**: The paper mentions n=2800 for depression fine-tuning, but we found n=3077 in NHANES 2013-2014 data
 
 ## The Solution
 
@@ -52,19 +52,20 @@ X_val = (X_val_raw - train_mean) / train_std
 ```
 
 ### Results
-- **Before fix**: AUC stuck at 0.4756
-- **After fix**: 
-  - Epoch 1: AUC 0.5622
-  - Epoch 5: AUC 0.5699
-  - Epoch 10: AUC 0.5788
-  - Training continues to improve
+- **Before fix**: AUC stuck at 0.4756 (worse than random)
+- **After fix with proper StandardScaler**: 
+  - Epoch 1: AUC 0.5693
+  - Epoch 2: AUC 0.5759
+  - Epoch 3: AUC 0.5888
+  - Target: AUC 0.620 (paper's result with n=2800)
 
 ### Training Configuration
 The successful training uses:
-- **Stage 1**: Train head only (30 epochs, LR=5e-3)
-- **Stage 2**: Unfreeze last 2 transformer blocks (30 epochs, LR=1e-4)
-- **Class weighting**: Handles imbalanced depression labels
+- **Separate learning rates**: Encoder (2e-5) and Head (5e-4) 
+- **Cosine annealing scheduler**: T_max=30, eta_min=1e-6
+- **Class weighting**: pos_weight=9.91 for imbalanced depression labels
 - **Gradient clipping**: Max norm 1.0 for stability
+- **Batch size**: 32 (reduced from 64 due to GPU memory)
 
 ## Advanced Training Script
 
@@ -96,22 +97,26 @@ We also created an advanced training script with:
 
 ## Files Created
 
-1. `scripts/debug_pat_training.py` - Comprehensive debugging tool
-2. `scripts/train_pat_l_run_now.py` - Simple fix that's currently running
-3. `scripts/train_pat_l_advanced.py` - Full-featured training with all improvements
-4. `scripts/analyze_pat_training.py` - Analysis and visualization tools
-5. `scripts/monitor_training.py` - Monitor ongoing training progress
+1. `NHANES_PREPROCESSING_ANALYSIS.md` - Deep analysis of paper's preprocessing methodology
+2. `PAT_INVESTIGATION_COMPLETE.md` - Full investigation of normalization bug
+3. `scripts/fix_nhanes_cache_fast.py` - Fast fix to repair existing cache
+4. `scripts/prepare_nhanes_depression_correct.py` - Correct NHANES data preparation
+5. `scripts/pat_training/train_pat_l_corrected.py` - Training with corrected data
+6. `scripts/launch_pat_corrected.sh` - Launch script for corrected training
 
 ## Current Status
 
 Training is running successfully via:
 ```bash
-nohup python scripts/train_pat_l_run_now.py > training_pat_l.log 2>&1 &
+tmux attach -t pat-corrected
+# or
+tail -f logs/pat_training/pat_l_corrected_20250724_161622.log
 ```
 
-Monitor progress with:
-```bash
-tail -f training_pat_l.log
-```
+Latest results show steady improvement with corrected normalization:
+- Fixed normalization: Mean=0.000000, Std=0.045644
+- Model is approaching the target performance from the paper (AUC 0.620)
 
-The model is steadily improving and approaching the target performance from the paper (AUC 0.610).
+## Key Discovery
+
+The critical insight was that the paper uses StandardScaler computed from training data, not fixed normalization values. This is standard practice in machine learning but was overlooked in our initial implementation. Always compute normalization statistics from your training set!

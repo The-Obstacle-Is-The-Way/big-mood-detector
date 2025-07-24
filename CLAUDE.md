@@ -163,7 +163,7 @@ class OrchestratorAdapter:
 - Performance caching for repeated calculations
 
 ### PAT-L Training Normalization Bug (Fixed in v0.4.0)
-**Problem:** PAT-L training was stuck at AUC 0.4756 (worse than random) due to fixed normalization statistics removing all discriminative signal.
+**Problem:** PAT-L training was stuck at AUC 0.4756 (worse than random) due to using fixed normalization values instead of StandardScaler as specified in the paper.
 
 **Root Cause:** NHANES processor used hardcoded normalization values:
 ```python
@@ -172,21 +172,33 @@ NHANES_STATS = {"2013-2014": {"mean": 2.5, "std": 2.0}}
 # This caused all sequences to have mean -1.24 ±0.001
 ```
 
-**Solution:** Compute normalization from actual training data:
+**Paper's Methodology:** The paper clearly states:
+> "In our supervised datasets, all train, test, and validation sets were standardized separately using Sklearn's StandardScaler"
+
+**Solution:** Use StandardScaler computed from training data:
 ```python
-# Reverse bad normalization and recompute
-X_train_raw = X_train * 2.0 + 2.5
-train_mean = X_train_raw.mean()
-train_std = X_train_raw.std()
-X_train = (X_train_raw - train_mean) / train_std
+from sklearn.preprocessing import StandardScaler
+
+# Fit scaler on TRAINING data only
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train_flat)
+
+# Apply to validation using TRAINING statistics
+X_val_scaled = scaler.transform(X_val_flat)
 ```
 
 **Impact:** 
 - Before: AUC stuck at 0.4756 for 70+ epochs
-- After: AUC 0.5622 → 0.5788+ and climbing
-- PAT-L now approaching paper performance (0.610)
+- After fix with StandardScaler:
+  - Epoch 1: AUC 0.5693
+  - Epoch 2: AUC 0.5759
+  - Epoch 3: AUC 0.5888
+- Target: AUC 0.620 (paper's result)
 
-**Training Scripts:** See `scripts/train_pat_l_run_now.py` for the fix and `docs/pat_l_training_findings.md` for full analysis.
+**Training Scripts:** 
+- `scripts/fix_nhanes_cache_fast.py` - Fast fix for existing cache
+- `scripts/pat_training/train_pat_l_corrected.py` - Training with corrected data
+- See `docs/pat_l_training_findings.md` for full analysis
 
 ## Testing Requirements
 

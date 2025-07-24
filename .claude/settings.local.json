@@ -38,7 +38,13 @@
       "Bash(./scripts/launch_paper_exact_training.sh:*)",
       "Bash(tmux ls:*)",
       "Bash(./scripts/launch_pat_l_ft_now.sh:*)",
-      "Bash(./scripts/launch_pat_l_optimized.sh:*)"
+      "Bash(./scripts/launch_pat_l_optimized.sh:*)",
+      "Bash(./scripts/launch_pat_l_final.sh:*)",
+      "Bash(grep:*)",
+      "Bash(./scripts/launch_pat_corrected.sh:*)",
+      "Bash(tmux send-keys:*)",
+      "Bash(mv:*)",
+      "Bash(./scripts/launch_pat_higher_lr.sh:*)"
     ],
     "deny": []
   }
