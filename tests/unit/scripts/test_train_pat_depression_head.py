@@ -4,7 +4,6 @@ Test PAT Depression Head Training Script
 Verifies the training script can be imported and has correct structure.
 """
 
-import sys
 from pathlib import Path
 
 import pytest
