@@ -1,103 +1,162 @@
-# Scripts Directory Organization
+# Scripts Directory
 
-This directory contains various utility scripts for development, testing, and maintenance of the Big Mood Detector project.
+Organized utility scripts for the Big Mood Detector project.
 
 ## Directory Structure
 
-### `/pat_training/`
-PAT (Pretrained Actigraphy Transformer) model training and analysis scripts:
-- **Active Training Scripts:**
-  - `train_pat_l_run_now.py` - Current PAT-L training with normalization fix
-  - `train_pat_l_advanced.py` - Advanced training with progressive unfreezing
-  - `train_pat_l_fixed.py` - Fixed training script with proper normalization
-- **Analysis & Debugging:**
-  - `analyze_pat_training.py` - Analyze training checkpoints and suggest improvements
-  - `debug_pat_training.py` - Debug data quality and model initialization
-  - `monitor_training.py` - Monitor ongoing training progress
-  - `debug_pat_architecture.py` - Debug PAT architecture issues
-  - `debug_nhanes_columns.py` - Debug NHANES data column issues
-- **Testing:**
-  - `test_pat_pytorch_smoke.py` - Smoke tests for PyTorch PAT implementation
-  - `test_pat_weight_parity.py` - Test weight conversion parity
-  - `test_depression_load.py` - Test depression data loading
-- **Utilities:**
-  - `train_all_pat_models.sh` - Train all PAT model sizes
+```
+scripts/
+├── pat_training/          # Canonical PAT model training scripts
+├── validation/            # Pipeline validation and testing
+├── maintenance/           # System maintenance utilities
+├── github/               # GitHub automation scripts
+└── archive/              # Deprecated/old scripts for reference
+```
 
-### `/experiments/`
-Experimental scripts for testing new features:
-- `test_dlmo.py`, `test_dlmo_comparison.py`, `test_dlmo_validation.py` - DLMO feature experiments
-- `test_data_processing.py` - Data processing experiments
-- `test_xml_complete_flow.py`, `test_xml_end_to_end.py` - XML processing tests
+## Main Scripts
 
-### `/validation/`
-Validation and verification scripts:
+### Performance & Benchmarking
+- `benchmark_ensemble.py` - Benchmarks ensemble model prediction performance
+- `benchmark_xml_parser.py` - Tests XML parsing speed for large Apple Health exports
+- `process_large_xml.py` - Processes large XML files with progress tracking
+
+### Data Quality & Validation
+- `check_no_sleep_percentage.sh` - CI guard against sleep calculation regression
+- `check_sleep_features.sh` - Validates sleep feature extraction accuracy
+- `migrate_user_ids_to_hashed.py` - Migrates plaintext user IDs to hashed versions
+
+### Build & Maintenance
+- `generate_licenses.py` - Generates third-party license file from dependencies
+- `generate_requirements.py` - Generates requirements.txt from pyproject.toml
+
+## PAT Training Scripts (`/pat_training/`)
+
+### 🎯 Canonical Training Scripts
+- **`train_pat_canonical.py`** - Unified launcher for all model sizes
+- **`train_pat_s_canonical.py`** - PAT-Small training (0.560 AUC target)
+- **`train_pat_m_canonical.py`** - PAT-Medium training (0.559 AUC target)
+- **`train_pat_l_run_now.py`** - PAT-Large training (0.610 AUC target)
+
+### Advanced Training
+- `train_pat_l_advanced.py` - PAT-L with advanced options (resume, schedulers)
+- `train_pat_l_fixed.py` - PAT-L with normalization fixes
+
+### Training Utilities
+- `debug_pat_training.py` - Debug training issues
+- `analyze_pat_training.py` - Analyze training results
+- `monitor_training.py` - Real-time training monitoring
+- `test_pat_pytorch_smoke.py` - Smoke tests for PyTorch implementation
+- `test_pat_weight_parity.py` - Verify TF→PyTorch weight conversion
+
+### Shell Scripts (Being Phased Out)
+- `run_pat_*.sh` - Legacy launchers (use Python scripts instead)
+- `start_pat_l_training.sh` - Legacy tmux launcher
+
+## Validation Scripts (`/validation/`)
+
 - `validate_full_pipeline.py` - Full pipeline validation
 - `test_full_36_features.py` - Validate all 36 Seoul features
 - `analyze_data_coverage.py` - Analyze data completeness
 - `golden_run_june_2025.sh` - Golden run for regression testing
+- `test_prediction_pipeline.py` - Test prediction accuracy
 
-### `/maintenance/`
-System maintenance and setup scripts:
+## Maintenance Scripts (`/maintenance/`)
+
 - `convert_xgboost_models.py` - Convert XGBoost model formats
 - `download_model_weights.py` - Download pretrained weights
 - `setup_reference_repos.sh` - Setup reference repositories
 - `test-in-docker.sh` - Test in Docker environment
+- `fix_type_errors.py` - Fix type annotation issues
 
-### `/utilities/`
-Import and code fixing utilities:
-- `fix_*.py` - Various import fixing scripts
-- `restore_test_imports.py` - Restore test imports
+## GitHub Integration (`/github/`)
 
-### `/github/`
-GitHub integration scripts:
 - `create_github_issues_for_todos.sh` - Create GitHub issues from TODOs
 - `extract_todos_for_github.py` - Extract TODOs for issue creation
 - `check_todo_format.py` - Validate TODO format
 - `create-tech-debt-issues.sh` - Create tech debt issues
 
-### `/archive/`
-Archived scripts no longer actively used:
-- `/deprecated/` - Deprecated scripts from earlier versions
-- `/needs_fixing/` - Scripts that need updates to work with current codebase
-- `/pat_training_old/` - Older PAT training scripts superseded by current versions
+## Usage Examples
 
-## Key Scripts
-
-### Data Processing
-- `process_large_xml.py` - Process large XML files efficiently
-- `benchmark_xml_parser.py` - Benchmark XML parsing performance
-
-### Testing & Validation
-- `check_sleep_features.sh` - Validate sleep feature calculations
-- `assert_feature_schema.py` - Assert feature schema compliance
-- `benchmark_ensemble.py` - Benchmark ensemble model performance
-- `test_api_ensemble.py` - Test API ensemble endpoints
-
-### Documentation
-- `generate_licenses.py` - Generate license documentation
-- `generate_requirements.py` - Generate requirements files
-- `inventory_docs.py` - Inventory documentation files
-
-### Utilities
-- `migrate_user_ids_to_hashed.py` - Migrate to hashed user IDs
-- `trace_sleep_math.py` - Trace sleep calculation logic
-- `archive_docs.sh`, `clean_remaining_docs.sh` - Documentation cleanup
-
-## Usage
-
-Most Python scripts can be run directly:
+### Train PAT Models
 ```bash
-python scripts/pat_training/monitor_training.py
+# Train all models
+python scripts/pat_training/train_pat_canonical.py --model-size all
+
+# Train specific model
+python scripts/pat_training/train_pat_canonical.py --model-size small
+
+# Resume PAT-L training with advanced settings (in tmux)
+python scripts/pat_training/train_pat_l_run_now.py \
+  --resume model_weights/pat/pytorch/pat_l_training/best_stage1_auc_0.5788.pt \
+  --unfreeze-last-n 4 \
+  --head-lr 3e-4 \
+  --encoder-lr 3e-5 \
+  --epochs 60 \
+  --scheduler cosine \
+  --patience 10 \
+  --output-dir model_weights/pat/pytorch/pat_l_retry
 ```
 
-Shell scripts should be executed with appropriate permissions:
+### Benchmark Performance
 ```bash
-./scripts/validation/golden_run_june_2025.sh
+# Test XML parsing speed
+python scripts/benchmark_xml_parser.py data/export.xml
+
+# Benchmark ensemble predictions
+python scripts/benchmark_ensemble.py
 ```
 
-## Recent Updates (July 2025)
+### Validation
+```bash
+# Run golden validation
+cd scripts/validation && ./golden_run_june_2025.sh
 
-- Reorganized PAT training scripts into dedicated folder
-- Fixed PAT-L training normalization issue (see `pat_training/train_pat_l_run_now.py`)
-- Archived old training scripts that have been superseded
-- Created clear directory structure for better organization
+# Validate full pipeline
+python scripts/validation/validate_full_pipeline.py
+```
+
+## Archive Structure
+
+```
+archive/
+├── pat_training_old/     # Previous PAT training implementations
+├── experiments/          # One-off experimental scripts
+├── analysis_tools/       # Old analysis utilities
+├── one_off_fixes/       # Import fixes and temporary patches
+├── deprecated/          # Deprecated implementations
+├── needs_fixing/        # Scripts requiring updates
+└── old_backups/         # Old backup files
+```
+
+## Important Notes
+
+### PAT Training
+- All canonical PAT training scripts include the normalization fix from v0.4.0
+- Training scripts automatically handle MPS (Apple Silicon) acceleration
+- Default hyperparameters are tuned for depression detection on NHANES data
+- Models are saved to `model_weights/pat/pytorch/pat_[s|m|l]_training/`
+
+### Data Requirements
+- PAT training requires cached NHANES data at `data/cache/nhanes_pat_data_subsetNone.npz`
+- Run data preparation scripts first if cache doesn't exist
+- Validation scripts expect test data in standard locations
+
+### Best Practices
+- Always use canonical scripts for production training
+- Check training logs for normalization warnings
+- Monitor AUC progression - expect 0.50+ in Stage 1
+- Use tmux for long-running training sessions
+
+## Recent Updates (v0.4.0 - July 24, 2025)
+
+✅ **Major Improvements:**
+- Created canonical training scripts for all PAT model sizes
+- Fixed critical normalization bug in PAT-L training
+- Achieved paper parity: PAT-S (0.56), PAT-M (0.54), PAT-L (0.58+)
+- Cleaned and organized scripts directory structure
+- Archived 50+ old/one-off scripts
+
+🔧 **Training Status:**
+- PAT-S: Ready with canonical script
+- PAT-M: Ready with canonical script  
+- PAT-L: Actively training with improved hyperparameters
