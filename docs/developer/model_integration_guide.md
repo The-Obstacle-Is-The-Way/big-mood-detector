@@ -224,9 +224,9 @@ final_risk = 0.7 * xgboost_risk + 0.3 * pat_risk
    - Models still work correctly
    - Can re-save with newer XGBoost if needed
 
-3. **TensorFlow not found**
-   - PAT requires TensorFlow
-   - Install with: `pip install tensorflow>=2.10.0`
+3. **PyTorch not found**
+   - PAT requires PyTorch
+   - Install with: `pip install torch>=2.1.0`
 
 4. **Feature mismatch**
    - Ensure exactly 36 features for XGBoost

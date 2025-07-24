@@ -162,6 +162,32 @@ class OrchestratorAdapter:
 - Feature importance tracking
 - Performance caching for repeated calculations
 
+### PAT-L Training Normalization Bug (Fixed in v0.4.0)
+**Problem:** PAT-L training was stuck at AUC 0.4756 (worse than random) due to fixed normalization statistics removing all discriminative signal.
+
+**Root Cause:** NHANES processor used hardcoded normalization values:
+```python
+# WRONG: Fixed statistics
+NHANES_STATS = {"2013-2014": {"mean": 2.5, "std": 2.0}}
+# This caused all sequences to have mean -1.24 ±0.001
+```
+
+**Solution:** Compute normalization from actual training data:
+```python
+# Reverse bad normalization and recompute
+X_train_raw = X_train * 2.0 + 2.5
+train_mean = X_train_raw.mean()
+train_std = X_train_raw.std()
+X_train = (X_train_raw - train_mean) / train_std
+```
+
+**Impact:** 
+- Before: AUC stuck at 0.4756 for 70+ epochs
+- After: AUC 0.5622 → 0.5788+ and climbing
+- PAT-L now approaching paper performance (0.610)
+
+**Training Scripts:** See `scripts/train_pat_l_run_now.py` for the fix and `docs/pat_l_training_findings.md` for full analysis.
+
 ## Testing Requirements
 
 **Before committing:**
@@ -315,8 +341,9 @@ Avoid loading:
 - **Pure PyTorch PAT Implementation** - Paper parity achieved!
 - PAT-S: 0.56 AUC (matches paper's 0.560)
 - PAT-M: 0.54 AUC (paper: 0.559)
-- PAT-L: Training in progress (target: 0.610)
+- PAT-L: 0.58+ AUC and improving (target: 0.610)
 - Fixed all architectural issues (attention, normalization, embeddings)
+- Fixed NHANES normalization bug that was preventing PAT-L training
 - Production-ready training infrastructure
 - Perfect weight conversion (0.000006 max diff)
 

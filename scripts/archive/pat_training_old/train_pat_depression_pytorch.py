@@ -39,8 +39,8 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from big_mood_detector.infrastructure.fine_tuning.nhanes_processor import (  # noqa: E402
     NHANESProcessor,
 )
-from big_mood_detector.infrastructure.ml_models.pat_pytorch import (
-    PATDepressionNet,  # noqa: E402
+from big_mood_detector.infrastructure.ml_models.pat_pytorch import (  # noqa: E402
+    PATDepressionNet,
 )
 
 

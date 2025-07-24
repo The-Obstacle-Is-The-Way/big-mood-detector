@@ -60,8 +60,8 @@ print(f"   TF final output: {tf_output.shape}, sample: {tf_output[0, :5]}")
 
 # Now test our PyTorch implementation step by step
 print("\n\nPyTorch implementation:")
-from big_mood_detector.infrastructure.ml_models.pat_pytorch import (
-    PATPyTorchEncoder,  # noqa: E402
+from big_mood_detector.infrastructure.ml_models.pat_pytorch import (  # noqa: E402
+    PATPyTorchEncoder,
 )
 
 pt_model = PATPyTorchEncoder(model_size="small")

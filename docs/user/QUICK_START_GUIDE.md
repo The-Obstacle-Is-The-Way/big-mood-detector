@@ -4,7 +4,7 @@ This guide will help you get started with Big Mood Detector in 5 minutes.
 
 ## 📋 Prerequisites
 
-- Python 3.11+
+- Python 3.12+
 - Apple Health data (either XML export or JSON from Health Auto Export app)
 - 8GB RAM minimum
 
@@ -29,13 +29,13 @@ pip install -e ".[dev,ml,monitoring]"
 
 ```bash
 # Process JSON data (from Health Auto Export app)
-python src/big_mood_detector/main.py process data/health_auto_export/
+big-mood process data/health_auto_export/
 
 # Process Apple Health XML export
-python src/big_mood_detector/main.py process data/apple_export/export.xml
+big-mood process data/apple_export/export.xml
 
 # Process with date range
-python src/big_mood_detector/main.py process data/health_auto_export/ \
+big-mood process data/health_auto_export/ \
     --start-date 2024-01-01 \
     --end-date 2024-03-31 \
     -o features.json
@@ -45,15 +45,15 @@ python src/big_mood_detector/main.py process data/health_auto_export/ \
 
 ```bash
 # Basic prediction
-python src/big_mood_detector/main.py predict data/health_auto_export/
+big-mood predict data/health_auto_export/
 
 # Generate detailed report
-python src/big_mood_detector/main.py predict data/health_auto_export/ \
+big-mood predict data/health_auto_export/ \
     --report \
     -o mood_report.txt
 
 # Use ensemble model (XGBoost + PAT)
-python src/big_mood_detector/main.py predict data/health_auto_export/ \
+big-mood predict data/health_auto_export/ \
     --ensemble \
     -o predictions.json
 ```
@@ -95,17 +95,17 @@ Create ground truth labels for personalized model training:
 
 ```bash
 # Label a depressive episode
-python src/big_mood_detector/main.py label episode \
+big-mood label episode \
     --date-range 2024-01-15:2024-01-29 \
     --mood depressive \
     --severity moderate
 
 # Label baseline (stable) period
-python src/big_mood_detector/main.py label baseline \
+big-mood label baseline \
     --date-range 2024-02-01:2024-02-28
 
 # View your labels
-python src/big_mood_detector/main.py label stats
+big-mood label stats
 ```
 
 ## 🎯 Train a Personalized Model
@@ -114,11 +114,11 @@ Once you have labeled data:
 
 ```bash
 # Prepare training data
-python src/big_mood_detector/main.py process data/health_auto_export/ \
+big-mood process data/health_auto_export/ \
     -o training_features.csv
 
 # Train personalized XGBoost model
-python src/big_mood_detector/main.py train \
+big-mood train \
     --model-type xgboost \
     --user-id "user123" \
     --data training_features.csv \
@@ -131,7 +131,7 @@ Watch a directory for new health data files:
 
 ```bash
 # Start file watcher
-python src/big_mood_detector/main.py watch data/health_auto_export/
+big-mood watch data/health_auto_export/
 
 # The watcher will:
 # - Detect new JSON/XML files
@@ -146,7 +146,7 @@ Start the REST API for integrations:
 
 ```bash
 # Start API server
-python src/big_mood_detector/main.py serve --port 8000
+big-mood serve --port 8000
 
 # API will be available at http://localhost:8000
 # Documentation at http://localhost:8000/docs
