@@ -245,7 +245,7 @@ def train_model(
         num_neg = len(all_labels) - num_pos
         pos_weight = num_neg / num_pos if num_pos > 0 else 1.0
         logger.info(f"Natural distribution with pos_weight: {pos_weight:.2f}")
-    
+
     pos_weight_tensor = torch.tensor(pos_weight).to(device)
 
     # Loss function
