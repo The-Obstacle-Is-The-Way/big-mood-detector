@@ -181,6 +181,9 @@ task-tags = ["TODO", "FIXME", "XXX", "HACK"]
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]
 "tests/**/*" = ["B011", "B018"]
+"scripts/train_pat_*.py" = ["E402"]
+"scripts/debug_pat_*.py" = ["E402"]
+"scripts/test_pat_*.py" = ["E402"]
 
 # Black Configuration
 [tool.black]

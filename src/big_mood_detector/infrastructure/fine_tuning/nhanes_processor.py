@@ -17,6 +17,15 @@ logger = get_module_logger(__name__)
 class NHANESProcessor:
     """Process NHANES data for mood prediction fine-tuning."""
 
+    # NHANES cycle statistics for standardization (from PAT paper)
+    # These are approximate values for log-transformed activity
+    NHANES_STATS = {
+        "2013-2014": {"mean": 2.5, "std": 2.0},
+        "2011-2012": {"mean": 2.4, "std": 1.9},
+        "2005-2006": {"mean": 2.3, "std": 1.8},
+        "2003-2004": {"mean": 2.3, "std": 1.8},
+    }
+
     # Benzodiazepine generic IDs and names
     BENZODIAZEPINES = {
         "d00321",  # Alprazolam
@@ -306,23 +315,25 @@ class NHANESProcessor:
         self,
         actigraphy: pd.DataFrame,
         subject_id: int,
-        normalize: bool = True
+        normalize: bool = True,
+        standardize: bool = True
     ) -> np.ndarray:
         """Extract 7-day activity sequences for PAT model.
 
         Args:
             actigraphy: Raw actigraphy data
             subject_id: SEQN to extract
-            normalize: Whether to normalize activity values
+            normalize: Whether to log-transform activity values
+            standardize: Whether to z-score normalize (required for PAT)
 
         Returns:
-            Array of shape (7, 1440) with activity data
+            Array of shape (10080,) - full 7 days of minute-level data
         """
         # Filter to subject
         subj_data = actigraphy[actigraphy['SEQN'] == subject_id].copy()
 
-        # Initialize 7x1440 array
-        sequences = np.zeros((7, 1440), dtype=np.float32)
+        # Initialize 7x1440 array for minute-level data
+        minutes_array = np.zeros((7, 1440), dtype=np.float32)
 
         # Fill available days
         for day_idx in range(1, 8):  # PAXDAY is 1-indexed
@@ -336,15 +347,25 @@ class NHANESProcessor:
                 # Fill the sequence (handle missing minutes)
                 # Ensure minutes are within valid range
                 valid_mask = (minutes >= 0) & (minutes < 1440)
-                sequences[day_idx - 1, minutes[valid_mask]] = intensities[valid_mask]
+                minutes_array[day_idx - 1, minutes[valid_mask]] = intensities[valid_mask]
+
+        # Flatten to 10,080 minutes (7 days * 1440 minutes)
+        flat_minutes = minutes_array.flatten()  # shape: (10080,)
 
         if normalize:
             # Log transform and clip (following PAT paper approach)
-            sequences_log = np.log1p(sequences)
-            sequences_clipped = np.clip(sequences_log, 0, 10)
-            return sequences_clipped.astype(np.float32)
+            flat_minutes = np.log1p(flat_minutes)
+            flat_minutes = np.clip(flat_minutes, 0, 10)
 
-        return sequences
+        if standardize:
+            # Z-score normalization (required for PAT)
+            # Using NHANES 2013-2014 statistics by default
+            # In production, compute from actual training data
+            cycle_stats = self.NHANES_STATS.get("2013-2014", {"mean": 2.5, "std": 2.0})
+            flat_minutes = (flat_minutes - cycle_stats["mean"]) / cycle_stats["std"]
+
+        # Always return full sequence - PAT model handles patching internally
+        return flat_minutes.astype(np.float32)
 
     def aggregate_to_daily(self, actigraphy: pd.DataFrame) -> pd.DataFrame:
         """Aggregate minute-level actigraphy to daily features.

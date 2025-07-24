@@ -78,7 +78,8 @@ def prepare_balanced_data(
     test_size: float = 0.2,
     val_size: float = 0.2,
     balance_strategy: str = 'undersample',
-    random_seed: int = 42
+    random_seed: int = 42,
+    subset: int = None
 ) -> tuple[dict, dict, dict]:
     """
     Prepare training data with proper balancing.
@@ -107,6 +108,13 @@ def prepare_balanced_data(
     common_subjects = list(actigraphy_subjects & depression_subjects)
 
     logger.info(f"Found {len(common_subjects)} subjects with complete data")
+
+    # Apply subset if specified
+    if subset is not None:
+        np.random.seed(random_seed)
+        np.random.shuffle(common_subjects)
+        common_subjects = common_subjects[:subset]
+        logger.info(f"Using subset of {subset} subjects for smoke test")
 
     # Extract features for each subject
     embeddings_list = []
@@ -253,7 +261,7 @@ def train_balanced_model(
 
     # Learning rate scheduler
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
-        optimizer, mode='min', factor=0.5, patience=5, verbose=True
+        optimizer, mode='min', factor=0.5, patience=5
     )
 
     # Training loop
@@ -468,6 +476,12 @@ def main():
         default='undersample',
         help="Data balancing strategy"
     )
+    parser.add_argument(
+        "--subset",
+        type=int,
+        default=None,
+        help="Use only a subset of subjects for smoke testing"
+    )
 
     args = parser.parse_args()
 
@@ -493,7 +507,8 @@ def main():
     train_data, val_data, test_data = prepare_balanced_data(
         args.nhanes_dir,
         pat_model,
-        balance_strategy=args.balance_strategy
+        balance_strategy=args.balance_strategy,
+        subset=args.subset
     )
 
     # Train model

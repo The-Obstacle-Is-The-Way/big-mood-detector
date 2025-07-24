@@ -263,3 +263,4 @@ apple_export/*
 !apple_export/.gitkeep
 health_auto_export/*
 !health_auto_export/.gitkeep
+data/cache/

@@ -420,8 +420,9 @@ if TORCH_AVAILABLE:
             # Then selectively unfreeze top layers
             unfrozen_params = []
             if encoder_lr > 0 and unfreeze_layers > 0:
-                # Try to find transformer blocks to unfreeze
+                # PAT model structure detection - try multiple approaches
                 if hasattr(encoder, 'blocks'):
+                    # Standard transformer blocks
                     blocks = encoder.blocks[-unfreeze_layers:]  # Last N blocks
                     for block in blocks:
                         for param in block.parameters():
@@ -429,14 +430,28 @@ if TORCH_AVAILABLE:
                             unfrozen_params.append(param)
                     logger.info(f"🔓 Unfroze last {unfreeze_layers} transformer blocks ({len(unfrozen_params)} params)")
                 elif hasattr(encoder, 'layers'):
+                    # Layer list structure
                     layers = encoder.layers[-unfreeze_layers:]  # Last N layers
                     for layer in layers:
                         for param in layer.parameters():
                             param.requires_grad = True
                             unfrozen_params.append(param)
                     logger.info(f"🔓 Unfroze last {unfreeze_layers} transformer layers ({len(unfrozen_params)} params)")
+                elif hasattr(encoder, 'transformer_blocks'):
+                    # Alternative naming
+                    blocks = encoder.transformer_blocks[-unfreeze_layers:]
+                    for block in blocks:
+                        for param in block.parameters():
+                            param.requires_grad = True
+                            unfrozen_params.append(param)
+                    logger.info(f"🔓 Unfroze last {unfreeze_layers} transformer blocks ({len(unfrozen_params)} params)")
                 else:
-                    logger.info("🔒 No transformer blocks/layers found - keeping encoder fully frozen")
+                    # Last resort: unfreeze all parameters (allows fine-tuning)
+                    logger.warning("⚠️ Could not find transformer block structure - unfreezing entire encoder")
+                    for param in encoder.parameters():
+                        param.requires_grad = True
+                        unfrozen_params.append(param)
+                    logger.info(f"🔓 Unfroze entire encoder ({len(unfrozen_params)} params)")
 
             # Setup optimizer with different learning rates
             if len(unfrozen_params) > 0:
@@ -451,14 +466,14 @@ if TORCH_AVAILABLE:
                 optimizer = torch.optim.AdamW(task_head.parameters(), lr=head_lr, weight_decay=0.0)
                 logger.info(f"Encoder FROZEN, head LR={head_lr:.1e}")
 
-            # 🎯 BCEWithLogitsLoss (critical fix!)
+            # 🎯 BCEWithLogitsLoss with pos_weight for class imbalance
             if pos_weight is not None:
-                weight_tensor = torch.tensor(float(pos_weight), device=device)  # Scalar instead of array
-                criterion = FocalLoss(pos_weight=weight_tensor)
-                logger.info(f"Using FocalLoss with pos_weight={pos_weight:.2f}")
+                weight_tensor = torch.tensor(float(pos_weight), device=device)
+                criterion = nn.BCEWithLogitsLoss(pos_weight=weight_tensor)
+                logger.info(f"Using BCEWithLogitsLoss with pos_weight={pos_weight:.2f}")
             else:
-                criterion = FocalLoss()
-                logger.info("Using standard FocalLoss (no pos_weight)")
+                criterion = nn.BCEWithLogitsLoss()
+                logger.info("Using standard BCEWithLogitsLoss (no pos_weight)")
 
             # 🎯 SANITY CHECK: Initial logit distribution (before training)
             task_head.eval()
