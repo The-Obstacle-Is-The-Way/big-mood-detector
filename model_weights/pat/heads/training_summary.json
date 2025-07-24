@@ -1,26 +1,26 @@
 {
-  "date": "2025-07-23T20:13:40.483952",
+  "date": "2025-07-23T20:21:10.833267",
   "results": {
     "small": {
-      "accuracy": 0.7833333333333333,
-      "precision": 0.15384615384615385,
-      "recall": 0.5,
-      "f1": 0.23529411764705882,
-      "sensitivity": 0.5,
-      "specificity": 0.8035714285714286,
-      "auc": 0.7723214285714286,
+      "accuracy": 0.7040650406504065,
+      "precision": 0.07453416149068323,
+      "recall": 0.26666666666666666,
+      "f1": 0.11650485436893204,
+      "sensitivity": 0.26666666666666666,
+      "specificity": 0.7385964912280701,
+      "auc": 0.49216374269005847,
       "optimal_threshold": 0.5499999999999999,
       "opt_threshold": 0.5499999999999999,
-      "opt_f1": 0.23529411764705882,
-      "opt_recall": 0.5,
-      "opt_precision": 0.15384615384615385,
-      "final_loss": 0.1517271101474762,
-      "final_accuracy": 0.5166666507720947,
-      "epochs_completed": 20
+      "opt_f1": 0.11650485436893204,
+      "opt_recall": 0.26666666666666666,
+      "opt_precision": 0.07453416149068323,
+      "final_loss": 0.22688207030296326,
+      "final_accuracy": 0.0731707289814949,
+      "epochs_completed": 30
     }
   },
   "config": {
-    "epochs": 20,
+    "epochs": 30,
     "batch_size": 32,
     "learning_rate": 0.001
   }
