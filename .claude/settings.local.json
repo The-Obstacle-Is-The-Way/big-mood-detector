@@ -13,7 +13,10 @@
       "Bash(sudo apt:*)",
       "Bash(git pull:*)",
       "Bash(git reset:*)",
-      "Bash(pip show:*)"
+      "Bash(pip show:*)",
+      "Bash(mkdir:*)",
+      "Bash(tar:*)",
+      "Bash(cp:*)"
     ],
     "deny": []
   }
