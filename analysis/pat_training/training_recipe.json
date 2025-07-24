@@ -1,0 +1,57 @@
+{
+  "current_auc": 0.4756,
+  "target_auc": 0.61,
+  "stages": [
+    {
+      "name": "Debug and Baseline",
+      "epochs": 20,
+      "config": {
+        "unfreeze_last_n": 0,
+        "head_lr": 0.01,
+        "batch_size": 64,
+        "architecture": "single_linear",
+        "dropout": 0.1
+      },
+      "expected_auc": 0.52
+    },
+    {
+      "name": "Progressive Unfreezing",
+      "epochs": 50,
+      "config": {
+        "unfreeze_last_n": 2,
+        "head_lr": 0.0005,
+        "encoder_lr": 1e-05,
+        "batch_size": 32,
+        "architecture": "2_layer_gelu",
+        "dropout": 0.3,
+        "augmentation": true
+      },
+      "expected_auc": 0.56
+    },
+    {
+      "name": "Full Fine-tuning",
+      "epochs": 30,
+      "config": {
+        "unfreeze_last_n": 4,
+        "head_lr": 0.0001,
+        "encoder_lr": 5e-06,
+        "batch_size": 16,
+        "gradient_accumulation": 2,
+        "label_smoothing": 0.1,
+        "mixup_alpha": 0.2
+      },
+      "expected_auc": 0.6
+    },
+    {
+      "name": "Advanced Optimization",
+      "epochs": 20,
+      "config": {
+        "optimizer": "ranger",
+        "swa": true,
+        "focal_loss": true,
+        "curriculum_learning": true
+      },
+      "expected_auc": 0.61
+    }
+  ]
+}
