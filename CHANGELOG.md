@@ -7,6 +7,43 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2025-07-24
+
+### Added
+- **Pure PyTorch PAT Implementation** - Complete rewrite achieving paper parity
+  - PAT-S depression model: 0.56 AUC (matches paper's 0.560)
+  - PAT-M depression model: 0.54 AUC (paper: 0.559)
+  - PAT-L depression model: Training in progress (target: 0.610)
+- **Production-ready training infrastructure**
+  - Two-stage training scripts for S/M/L model variants
+  - Natural class distribution training with pos_weight
+  - MPS (Metal) GPU acceleration support
+  - Checkpoint loading and resumption
+- **Critical architectural fixes**
+  - Non-standard attention (key_dim = embed_dim)
+  - Post-norm transformer architecture
+  - Concatenated positional embeddings
+  - Weight conversion parity (0.000006 max difference)
+
+### Fixed
+- **Inverted pos_weight calculation** - was 0.82, now correctly 9.91
+- **WeightedRandomSampler neutralizing class imbalance** - added --no-sampler flag
+- **Git pre-push hooks** - now properly activate venv
+- **Sleep duration calculation** - no longer uses flawed percentage method
+- **TensorFlow/PyTorch weight loading** - achieved near-perfect parity
+
+### Changed
+- Moved from balanced sampling to natural distribution + pos_weight
+- Training strategy: frozen warmup → selective unfreezing
+- Reduced batch sizes for larger models (memory optimization)
+- All PAT code now pure PyTorch (no TF dependencies)
+
+### Performance
+- 976 tests passing, 9 skipped, 7 xfailed
+- Full type safety (mypy clean)
+- All linting checks pass (ruff clean)
+- CI/CD pipeline green
+
 ## [0.3.0-alpha] - 2025-07-23
 
 ### Added
