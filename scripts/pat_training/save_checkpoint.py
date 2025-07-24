@@ -3,14 +3,13 @@
 Emergency checkpoint save script for PAT-L training.
 Run this in the same environment as your training to save state.
 """
-import torch
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
 
 
 def save_training_checkpoint():
     """Save current training state before migration."""
-    
+
     # You'll need to update these values based on your current training
     checkpoint = {
         'timestamp': datetime.now().isoformat(),
@@ -36,15 +35,15 @@ def save_training_checkpoint():
             'migration_reason': 'Mac resource constraints, slow training'
         }
     }
-    
+
     # Save checkpoint info
     save_path = Path("model_weights/pat/pytorch/pat_l_training/migration_checkpoint_info.json")
     save_path.parent.mkdir(parents=True, exist_ok=True)
-    
+
     import json
     with open(save_path, 'w') as f:
         json.dump(checkpoint, f, indent=2)
-    
+
     print(f"✅ Saved checkpoint info to: {save_path}")
     print("\n⚠️  IMPORTANT: In your tmux session, add this to save model weights:")
     print("""
