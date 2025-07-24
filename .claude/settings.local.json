@@ -16,7 +16,14 @@
       "Bash(pip show:*)",
       "Bash(mkdir:*)",
       "Bash(tar:*)",
-      "Bash(cp:*)"
+      "Bash(cp:*)",
+      "Bash(find:*)",
+      "Bash(pip --version)",
+      "Bash(touch:*)",
+      "Bash(chmod:*)",
+      "Bash(export CUDA_VISIBLE_DEVICES=0)",
+      "Bash(export:*)",
+      "Bash(git add:*)"
     ],
     "deny": []
   }

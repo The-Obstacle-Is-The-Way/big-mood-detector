@@ -20,6 +20,7 @@ classifiers = [
     "Intended Audience :: Healthcare Industry",
     "License :: OSI Approved :: Apache Software License",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Topic :: Scientific/Engineering :: Medical Science Apps.",
 ]
 
@@ -69,6 +70,9 @@ dependencies = [
     "typer>=0.9.0",                    # CLI framework
     "tqdm>=4.66.0",                    # Progress bars
     "PyYAML>=6.0.0",                   # YAML parsing
+    
+    # ML Model Support (required for model loading)
+    "h5py>=3.8.0",                     # HDF5 file format for model weights
 ]
 
 [project.optional-dependencies]
@@ -113,9 +117,14 @@ dev = [
 
 ml = [
     # Advanced ML (optional for PAT integration)
+    # Note: Use pip install torch --index-url https://download.pytorch.org/whl/cu124 for CUDA support
     "torch>=2.1.0",
-    "tensorflow>=2.14.0",
     "transformers>=4.35.0",
+    
+    # TensorFlow compatibility matrix:
+    # Python 3.12: tensorflow>=2.14.0
+    # Python 3.13: Not yet supported (as of 2025-01-24)
+    "tensorflow>=2.14.0; python_version<'3.13'",
 ]
 
 monitoring = [

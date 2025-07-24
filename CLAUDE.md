@@ -363,6 +363,67 @@ Avoid loading:
 - ~~PAT cannot make predictions~~ → Full depression models trained
 - ~~Weight conversion errors~~ → Near-perfect parity achieved
 
+## Critical Setup Requirements
+
+### Pretrained Model Weights (REQUIRED)
+The PAT models **require** pretrained weights to function. Without these, training will fail.
+
+**Location:** `model_weights/pat/pretrained/`
+- PAT-L_29k_weights.h5 (7.7MB)
+- PAT-M_29k_weights.h5 (3.9MB)
+- PAT-S_29k_weights.h5 (1.1MB)
+
+**Common Issue:** If weights are in `data-dump/model_weights/`, copy them:
+```bash
+mkdir -p model_weights/pat/pretrained/
+cp data-dump/model_weights/pat/pretrained/PAT-*.h5 model_weights/pat/pretrained/
+```
+
+### Training Data Location
+**NHANES data:** `data/cache/nhanes_pat_data_subsetNone.npz` (503KB)
+- This file is auto-generated on first run if missing
+- Contains preprocessed NHANES depression screening data
+
+### Python Environment Setup (WSL2/Linux)
+**Required:** Python 3.12+ (project constraint in pyproject.toml)
+```bash
+# Install Python 3.12 if needed
+sudo add-apt-repository -y ppa:deadsnakes/ppa
+sudo apt update
+sudo apt install -y python3.12 python3.12-venv python3.12-dev
+
+# Create virtual environment
+python3.12 -m venv .venv-wsl
+source .venv-wsl/bin/activate
+
+# Critical: Install numpy<2.0 FIRST
+pip install 'numpy<2.0'
+
+# Then PyTorch with CUDA
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+
+# Then other dependencies
+pip install transformers h5py scikit-learn pandas matplotlib tqdm
+
+# Install project
+pip install -e ".[dev,ml,monitoring]"
+```
+
+### Common Friction Points
+1. **ModuleNotFoundError: big_mood_detector**
+   - Solution: `export PYTHONPATH="/path/to/project/src:$PYTHONPATH"`
+   - And ensure `pip install -e .` was run
+
+2. **NumPy 2.x conflicts**
+   - Solution: Always install `numpy<2.0` FIRST before any other packages
+
+3. **Missing pretrained weights**
+   - Error: "No pretrained weights at model_weights/pat/pretrained/PAT-L_29k_weights.h5"
+   - Solution: Copy weights to correct location (see above)
+
+4. **WSL2 network timeouts**
+   - Solution: Update /etc/resolv.conf with Google DNS (8.8.8.8)
+
 ## Getting Help
 
 - Check tests for usage examples
@@ -370,6 +431,7 @@ Avoid loading:
 - Look at similar features
 - Check research papers in `docs/literature/`
 - Review closed PRs for patterns
+- See SETUP_GUIDE.md for detailed environment setup
 
 ---
 
