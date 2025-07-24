@@ -17,6 +17,9 @@ from big_mood_detector.domain.entities.activity_record import (
 from big_mood_detector.domain.entities.sleep_record import SleepRecord, SleepState
 from big_mood_detector.infrastructure.ml_models.xgboost_models import XGBoostModelLoader
 
+# Check if XGBoost weights are available
+XGBOOST_WEIGHTS_AVAILABLE = (Path(__file__).parent.parent.parent / "model_weights" / "xgboost" / "XGBoost_DE.json").exists()
+
 
 class TestXGBoostSeoulFeatures:
     """Test that XGBoost models work correctly with Seoul features."""
@@ -111,8 +114,8 @@ class TestXGBoostSeoulFeatures:
 
     @pytest.mark.integration
     @pytest.mark.skipif(
-        not Path("model_weights/xgboost").exists(),
-        reason="XGBoost models not available"
+        not XGBOOST_WEIGHTS_AVAILABLE,
+        reason="XGBoost weights not available"
     )
     def test_xgboost_prediction_with_seoul_features(self, sample_records):
         """Test that XGBoost models can make predictions with Seoul features."""

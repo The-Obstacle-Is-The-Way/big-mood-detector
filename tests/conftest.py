@@ -28,6 +28,14 @@ from tempfile import NamedTemporaryFile  # noqa: E402
 import pytest  # noqa: E402
 import yaml  # noqa: E402
 
+# Check if model weights are available
+XGBOOST_WEIGHTS_AVAILABLE = (
+    Path(__file__).parent.parent / "model_weights" / "xgboost" / "XGBoost_DE.json"
+).exists()
+PAT_WEIGHTS_AVAILABLE = (
+    Path(__file__).parent.parent / "model_weights" / "pat" / "pretrained" / "PAT-M_29k_weights.h5"
+).exists()
+
 
 def pytest_addoption(parser):
     """Add custom command line options."""
@@ -55,6 +63,9 @@ def pytest_configure(config):
     config.addinivalue_line(
         "markers", "heavy: Tests that load real model weights or large data"
     )
+    config.addinivalue_line(
+        "markers", "requires_weights: Tests that require model weights to be present"
+    )
 
 
 def pytest_collection_modifyitems(config, items):
@@ -65,6 +76,13 @@ def pytest_collection_modifyitems(config, items):
         for item in items:
             if "slow" in item.keywords:
                 item.add_marker(skip_slow)
+
+    # Handle tests requiring model weights
+    skip_no_weights = pytest.mark.skip(reason="Model weights not available - run 'make download-weights' locally")
+    for item in items:
+        if "requires_weights" in item.keywords:
+            if not XGBOOST_WEIGHTS_AVAILABLE and not PAT_WEIGHTS_AVAILABLE:
+                item.add_marker(skip_no_weights)
 
     # Mark tests based on directory structure
     for item in items:

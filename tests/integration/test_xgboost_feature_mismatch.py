@@ -25,6 +25,9 @@ from big_mood_detector.domain.services.clinical_feature_extractor import (
 )
 from big_mood_detector.infrastructure.ml_models.xgboost_models import XGBoostModelLoader
 
+# Check if XGBoost weights are available
+XGBOOST_WEIGHTS_AVAILABLE = (Path(__file__).parent.parent.parent / "model_weights" / "xgboost" / "XGBoost_DE.json").exists()
+
 
 def create_sample_health_data(start_date, days=30):
     """Create sample health data for testing."""
@@ -78,6 +81,7 @@ class TestXGBoostFeatureMismatch:
     """Tests to expose and fix the feature mismatch bug."""
 
     @pytest.mark.integration
+    @pytest.mark.skipif(not XGBOOST_WEIGHTS_AVAILABLE, reason="XGBoost weights not available")
     def test_clinical_features_fail_with_xgboost(self):
         """
         This test demonstrates the current bug - XGBoost fails with clinical features.
@@ -117,6 +121,7 @@ class TestXGBoostFeatureMismatch:
             assert "missing fields" in str(exc_info.value).lower()
 
     @pytest.mark.integration
+    @pytest.mark.skipif(not XGBOOST_WEIGHTS_AVAILABLE, reason="XGBoost weights not available")
     def test_aggregation_features_work_with_xgboost(self):
         """
         This test shows the correct approach - using AggregationPipeline.
