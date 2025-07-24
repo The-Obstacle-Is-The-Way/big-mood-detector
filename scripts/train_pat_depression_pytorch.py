@@ -221,7 +221,8 @@ def train_model(
     val_loader: DataLoader,
     config: dict[str, Any],
     device: torch.device,
-    save_dir: Path
+    save_dir: Path,
+    use_sampler: bool = True
 ) -> dict[str, Any]:
     """
     Train model with two-tier optimization and best practices.
@@ -234,12 +235,18 @@ def train_model(
     for _, labels in train_loader:
         all_labels.extend(labels.cpu().numpy())
 
-    # Fix: pos_weight should be neg/pos ratio for class imbalance
-    num_pos = sum(all_labels)
-    num_neg = len(all_labels) - num_pos
-    pos_weight = num_neg / num_pos if num_pos > 0 else 1.0
+    # When using balanced sampler, use pos_weight=1.0
+    if use_sampler:
+        pos_weight = 1.0
+        logger.info("Using balanced sampler with pos_weight=1.0")
+    else:
+        # Only calculate class imbalance when not using sampler
+        num_pos = sum(all_labels)
+        num_neg = len(all_labels) - num_pos
+        pos_weight = num_neg / num_pos if num_pos > 0 else 1.0
+        logger.info(f"Natural distribution with pos_weight: {pos_weight:.2f}")
+    
     pos_weight_tensor = torch.tensor(pos_weight).to(device)
-    logger.info(f"Using pos_weight: {pos_weight:.2f}")
 
     # Loss function
     criterion = nn.BCEWithLogitsLoss(pos_weight=pos_weight_tensor)
@@ -560,7 +567,8 @@ def main():
     logger.info("Starting training...")
     results = train_model(
         model, train_loader, val_loader,
-        config, device, args.output_dir
+        config, device, args.output_dir,
+        use_sampler=not args.no_sampler
     )
 
     # Evaluate on test set

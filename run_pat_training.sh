@@ -51,7 +51,7 @@ echo "=========================================="
 echo ""
 
 python3 scripts/train_pat_depression_pytorch.py \
-    --epochs 20 \
+    --epochs 8 \
     --batch-size $BATCH_SIZE \
     --device $DEVICE \
     --model-size small \
@@ -63,7 +63,6 @@ python3 scripts/train_pat_depression_pytorch.py \
     --scheduler cosine \
     --warmup-epochs 3 \
     --early-stopping-patience 5 \
-    --no-sampler \
     --output-dir "$OUTPUT_DIR/stage1_$TIMESTAMP"
 
 # Get the best model from stage 1
@@ -94,7 +93,6 @@ python3 scripts/train_pat_depression_pytorch.py \
     --warmup-epochs 2 \
     --early-stopping-patience 5 \
     --checkpoint "$STAGE1_BEST" \
-    --no-sampler \
     --output-dir "$OUTPUT_DIR/stage2_$TIMESTAMP"
 
 echo ""
@@ -106,14 +104,15 @@ echo "Stage 2 results: $OUTPUT_DIR/stage2_$TIMESTAMP/"
 echo ""
 
 # Print final results
-if [ -f "$OUTPUT_DIR/stage2_$TIMESTAMP/results_small_"*.json ]; then
+RESULT_FILE=$(ls "$OUTPUT_DIR/stage2_$TIMESTAMP"/results_small_*.json 2>/dev/null | head -1)
+if [ -f "$RESULT_FILE" ]; then
     echo "Final results:"
     python3 -c "
 import json
-with open('$OUTPUT_DIR/stage2_$TIMESTAMP/'results_small_*.json) as f:
+with open('$RESULT_FILE') as f:
     results = json.load(f)
     print(f\"Best Val AUC: {results['best_val_auc']:.4f}\")
     print(f\"Test AUC: {results['test_metrics']['test_auc']:.4f}\")
     print(f\"Test PR-AUC: {results['test_metrics']['test_pr_auc']:.4f}\")
-"
+" RESULT_FILE="$RESULT_FILE"
 fi
