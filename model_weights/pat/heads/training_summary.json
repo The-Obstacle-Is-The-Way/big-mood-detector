@@ -1,0 +1,27 @@
+{
+  "date": "2025-07-23T20:13:40.483952",
+  "results": {
+    "small": {
+      "accuracy": 0.7833333333333333,
+      "precision": 0.15384615384615385,
+      "recall": 0.5,
+      "f1": 0.23529411764705882,
+      "sensitivity": 0.5,
+      "specificity": 0.8035714285714286,
+      "auc": 0.7723214285714286,
+      "optimal_threshold": 0.5499999999999999,
+      "opt_threshold": 0.5499999999999999,
+      "opt_f1": 0.23529411764705882,
+      "opt_recall": 0.5,
+      "opt_precision": 0.15384615384615385,
+      "final_loss": 0.1517271101474762,
+      "final_accuracy": 0.5166666507720947,
+      "epochs_completed": 20
+    }
+  },
+  "config": {
+    "epochs": 20,
+    "batch_size": 32,
+    "learning_rate": 0.001
+  }
+}

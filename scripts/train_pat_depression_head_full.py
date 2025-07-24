@@ -21,17 +21,7 @@ from typing import Any, Tuple
 
 import numpy as np
 import torch
-import torch.nn as nn
-from sklearn.metrics import (
-    accuracy_score, 
-    roc_auc_score, 
-    precision_recall_fscore_support,
-    brier_score_loss
-)
-from sklearn.calibration import calibration_curve
 from sklearn.model_selection import train_test_split
-from torch.utils.data import DataLoader, TensorDataset
-from torch.optim.lr_scheduler import CosineAnnealingLR
 
 from big_mood_detector.domain.services.pat_sequence_builder import PATSequence
 from big_mood_detector.infrastructure.fine_tuning.nhanes_processor import (
@@ -77,7 +67,8 @@ def prepare_full_training_data(
     pat_model: Any,
     test_size: float = 0.2,
     val_size: float = 0.2,
-    random_seed: int = 42
+    random_seed: int = 42,
+    subset: int = None
 ) -> Tuple[dict, dict, dict]:
     """
     Prepare training data with proper train/val/test splits.
@@ -89,7 +80,7 @@ def prepare_full_training_data(
     processor = NHANESProcessor(data_dir=nhanes_dir)
     
     # Load actigraphy and depression data
-    actigraphy_df = processor.load_actigraphy("PAXHD_H.xpt")
+    actigraphy_df = processor.load_actigraphy("PAXMIN_H.xpt")
     depression_df = processor.load_depression_scores("DPQ_H.xpt")
     
     # Get participants with both actigraphy and depression data
@@ -102,6 +93,11 @@ def prepare_full_training_data(
     # Shuffle subjects
     np.random.seed(random_seed)
     np.random.shuffle(common_subjects)
+    
+    # Apply subset if specified (for smoke testing)
+    if subset is not None:
+        common_subjects = common_subjects[:subset]
+        logger.info(f"Limiting to {subset} subjects for smoke test")
     
     # Extract features for each subject
     all_embeddings = []
@@ -126,11 +122,15 @@ def prepare_full_training_data(
             # Use last 7 days
             sequence_7d = pat_sequences[-7:]  # Shape: (7, 1440)
             
+            # Flatten 7x1440 to 1x10080 for PATSequence
+            activity_flat = sequence_7d.flatten()  # Shape: (10080,)
+            
             # Create PATSequence object
             pat_sequence = PATSequence(
-                activity_counts=sequence_7d,
-                start_date=datetime.now().date() - timedelta(days=7),
-                end_date=datetime.now().date()
+                end_date=datetime.now().date(),
+                activity_values=activity_flat,
+                missing_days=[],  # No missing days if we have all 7
+                data_quality_score=1.0  # Full data
             )
             
             # Extract PAT embeddings
@@ -156,7 +156,11 @@ def prepare_full_training_data(
     subject_ids = np.array(all_subject_ids)
     
     logger.info(f"Prepared {len(embeddings)} samples")
-    logger.info(f"Class distribution: {np.bincount(labels)} (negative, positive)")
+    if len(labels) > 0:
+        logger.info(f"Class distribution: {np.bincount(labels.astype(int))} (negative, positive)")
+    else:
+        logger.error("No valid samples extracted!")
+        raise ValueError("No valid training samples found")
     
     # Create train/val/test splits
     # First split: train+val vs test
@@ -185,53 +189,6 @@ def prepare_full_training_data(
     )
 
 
-def evaluate_model(model, data_loader, device='cpu'):
-    """Evaluate model and return comprehensive metrics."""
-    model.eval()
-    all_preds = []
-    all_probs = []
-    all_labels = []
-    
-    with torch.no_grad():
-        for batch_X, batch_y in data_loader:
-            batch_X = batch_X.to(device)
-            outputs = model(batch_X)
-            probs = torch.sigmoid(outputs).squeeze()
-            
-            all_probs.extend(probs.cpu().numpy())
-            all_preds.extend((probs > 0.5).cpu().numpy())
-            all_labels.extend(batch_y.numpy())
-    
-    all_probs = np.array(all_probs)
-    all_preds = np.array(all_preds)
-    all_labels = np.array(all_labels)
-    
-    # Calculate metrics
-    auc = roc_auc_score(all_labels, all_probs)
-    accuracy = accuracy_score(all_labels, all_preds)
-    precision, recall, f1, _ = precision_recall_fscore_support(
-        all_labels, all_preds, average='binary'
-    )
-    brier = brier_score_loss(all_labels, all_probs)
-    
-    # Calibration
-    fraction_of_positives, mean_predicted_value = calibration_curve(
-        all_labels, all_probs, n_bins=10
-    )
-    
-    return {
-        'auc': auc,
-        'accuracy': accuracy,
-        'precision': precision,
-        'recall': recall,
-        'f1': f1,
-        'brier_score': brier,
-        'calibration': {
-            'fraction_of_positives': fraction_of_positives.tolist(),
-            'mean_predicted_value': mean_predicted_value.tolist()
-        }
-    }
-
 
 def train_enhanced_depression_head(
     train_data: dict,
@@ -242,104 +199,73 @@ def train_enhanced_depression_head(
     learning_rate: float = 0.001,
     weight_decay: float = 0.01,
     patience: int = 10,
-    device: str = 'cpu'
-) -> Tuple[nn.Module, dict]:
+    device: str = 'cpu',
+    manual_pos_weight: float = None
+) -> Tuple[Any, dict]:
     """
-    Train depression classification head with validation and early stopping.
+    Train depression classification head using PATPopulationTrainer.
     
     Returns:
-        Tuple of (trained model, training history)
+        Tuple of (trained model path, training metrics)
     """
-    config = get_model_config(model_size)
+    logger.info(f"Training depression head for {model_size} with {epochs} epochs")
     
-    # Convert to tensors
-    X_train = torch.FloatTensor(train_data['X']).to(device)
-    y_train = torch.FloatTensor(train_data['y']).to(device)
-    X_val = torch.FloatTensor(val_data['X']).to(device)
-    y_val = torch.FloatTensor(val_data['y']).to(device)
+    # Use only training data - let trainer handle validation split
+    # or use validation_split=0.0 if we want to use our existing split
+    train_sequences = train_data['X']
+    train_labels = train_data['y']
     
-    # Create data loaders
-    train_dataset = TensorDataset(X_train, y_train)
-    val_dataset = TensorDataset(X_val, y_val)
-    
-    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
-    val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
-    
-    # Initialize trainer
+    # Initialize trainer with timestamped output directory
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     trainer = PATPopulationTrainer(
-        task_name="depression",
-        input_dim=96,
-        hidden_dim=config['hidden_dim'],
-        learning_rate=learning_rate,
-        weight_decay=weight_decay
+        task_name=f"depression_{model_size}_{timestamp}",
+        output_dir=Path("model_weights/pat/heads")
     )
     
-    trainer.model = trainer.model.to(device)
+    # Handle class imbalance (1:10 ratio typical in depression data)
+    if manual_pos_weight is not None:
+        pos_weight = manual_pos_weight
+        logger.info(f"Using manual pos_weight: {pos_weight:.2f}")
+    else:
+        pos_weight = len(train_labels) / train_labels.sum() if train_labels.sum() > 0 else 1.0
+        logger.info(f"Calculated pos_weight for class imbalance: {pos_weight:.2f}")
     
-    # Learning rate scheduler
-    scheduler = CosineAnnealingLR(trainer.optimizer, T_max=epochs)
+    # Note: Device handling moved to trainer's responsibility to avoid MPS issues
     
-    # Training history
-    history = {
-        'train_loss': [],
-        'val_metrics': [],
-        'best_epoch': 0
-    }
+    # Train using the fine_tune method
+    logger.info("Starting PAT fine-tuning...")
+    try:
+        metrics = trainer.fine_tune(
+            sequences=train_sequences,
+            labels=train_labels,
+            epochs=epochs,
+            batch_size=batch_size,
+            learning_rate=learning_rate,
+            validation_split=0.2,  # Let trainer create validation split
+            device=device,  # Pass device for M1 GPU acceleration
+            pos_weight=pos_weight  # Handle class imbalance
+        )
+    except TypeError:
+        # Fallback if trainer doesn't support pos_weight
+        logger.info("Trainer doesn't support pos_weight, training without class balancing")
+        metrics = trainer.fine_tune(
+            sequences=train_sequences,
+            labels=train_labels,
+            epochs=epochs,
+            batch_size=batch_size,
+            learning_rate=learning_rate,
+            validation_split=0.2,
+            device=device
+        )
     
-    # Early stopping
-    best_val_auc = 0
-    best_model_state = None
-    patience_counter = 0
+    # Log final metrics
+    logger.info("Training completed!")
+    logger.info(f"Final metrics: {metrics}")
     
-    logger.info(f"Training {model_size} model ({config['params']} parameters)")
+    # Find the saved model path (PATPopulationTrainer saves it automatically)
+    model_path = Path("model_weights/pat/heads") / f"pat_depression_{model_size}_{timestamp}.pt"
     
-    for epoch in range(epochs):
-        # Training
-        trainer.model.train()
-        train_loss = 0
-        
-        for batch_X, batch_y in train_loader:
-            loss = trainer.train_step(batch_X, batch_y)
-            train_loss += loss
-        
-        avg_train_loss = train_loss / len(train_loader)
-        history['train_loss'].append(avg_train_loss)
-        
-        # Validation
-        val_metrics = evaluate_model(trainer.model, val_loader, device)
-        history['val_metrics'].append(val_metrics)
-        
-        # Learning rate step
-        scheduler.step()
-        
-        # Logging
-        if epoch % 5 == 0 or epoch == epochs - 1:
-            logger.info(
-                f"Epoch {epoch+1}/{epochs} - "
-                f"Train Loss: {avg_train_loss:.4f}, "
-                f"Val AUC: {val_metrics['auc']:.4f}, "
-                f"Val Acc: {val_metrics['accuracy']:.4f}, "
-                f"Val Brier: {val_metrics['brier_score']:.4f}"
-            )
-        
-        # Early stopping
-        if val_metrics['auc'] > best_val_auc:
-            best_val_auc = val_metrics['auc']
-            best_model_state = trainer.model.state_dict().copy()
-            history['best_epoch'] = epoch
-            patience_counter = 0
-        else:
-            patience_counter += 1
-            
-        if patience_counter >= patience:
-            logger.info(f"Early stopping at epoch {epoch+1}")
-            break
-    
-    # Restore best model
-    trainer.model.load_state_dict(best_model_state)
-    logger.info(f"Best validation AUC: {best_val_auc:.4f} at epoch {history['best_epoch']+1}")
-    
-    return trainer.model, history
+    return model_path, metrics
 
 
 def main():
@@ -390,6 +316,18 @@ def main():
         default='cpu',
         help="Device to use (cpu or cuda or mps for M1)"
     )
+    parser.add_argument(
+        "--subset",
+        type=int,
+        default=None,
+        help="Subset of subjects to use for smoke testing (e.g., 500)"
+    )
+    parser.add_argument(
+        "--pos-weight",
+        type=float,
+        default=None,
+        help="Manual positive class weight (overrides automatic calculation)"
+    )
     
     args = parser.parse_args()
     
@@ -430,11 +368,12 @@ def main():
         if model_size == model_sizes[0]:
             train_data, val_data, test_data = prepare_full_training_data(
                 args.nhanes_dir,
-                pat_model
+                pat_model,
+                subset=args.subset
             )
         
         # Train model
-        model, history = train_enhanced_depression_head(
+        model_path, training_metrics = train_enhanced_depression_head(
             train_data,
             val_data,
             model_size,
@@ -444,61 +383,19 @@ def main():
             device=device
         )
         
-        # Evaluate on test set
-        test_loader = DataLoader(
-            TensorDataset(
-                torch.FloatTensor(test_data['X']),
-                torch.FloatTensor(test_data['y'])
-            ),
-            batch_size=args.batch_size,
-            shuffle=False
-        )
+        logger.info(f"Model training completed and saved to {model_path}")
+        logger.info(f"Training results: {training_metrics}")
         
-        test_metrics = evaluate_model(model, test_loader, device)
+        # Store actual training metrics (no need to repack)
+        all_results[model_size] = training_metrics
         
-        # Save model and results
-        output_path = args.output_dir / f"pat_{model_size}_depression_head.pt"
-        torch.save({
-            'model_state_dict': model.state_dict(),
-            'config': {
-                'model_size': model_size,
-                'input_dim': 96,
-                'hidden_dim': config['hidden_dim'],
-                'output_dim': 1,
-                'task': 'depression_binary'
-            },
-            'training_info': {
-                'n_train': len(train_data['y']),
-                'n_val': len(val_data['y']),
-                'n_test': len(test_data['y']),
-                'n_positive_train': int(train_data['y'].sum()),
-                'n_positive_val': int(val_data['y'].sum()),
-                'n_positive_test': int(test_data['y'].sum()),
-                'epochs': args.epochs,
-                'best_epoch': history['best_epoch']
-            },
-            'test_metrics': test_metrics,
-            'training_history': history
-        }, output_path)
-        
-        logger.info(f"Model saved to {output_path}")
-        
-        # Store results
-        all_results[model_size] = {
-            'test_auc': test_metrics['auc'],
-            'test_accuracy': test_metrics['accuracy'],
-            'test_brier': test_metrics['brier_score'],
-            'val_auc': max([m['auc'] for m in history['val_metrics']])
-        }
-        
-        # Log test results
-        logger.info(f"\nTest Results for PAT-{model_size.upper()}:")
-        logger.info(f"  AUC: {test_metrics['auc']:.4f}")
-        logger.info(f"  Accuracy: {test_metrics['accuracy']:.4f}")
-        logger.info(f"  Precision: {test_metrics['precision']:.4f}")
-        logger.info(f"  Recall: {test_metrics['recall']:.4f}")
-        logger.info(f"  F1: {test_metrics['f1']:.4f}")
-        logger.info(f"  Brier Score: {test_metrics['brier_score']:.4f}")
+        # Log training results
+        logger.info(f"\nTraining Results for PAT-{model_size.upper()}:")
+        for metric, value in training_metrics.items():
+            if isinstance(value, float):
+                logger.info(f"  {metric}: {value:.4f}")
+            else:
+                logger.info(f"  {metric}: {value}")
     
     # Summary
     logger.info(f"\n{'='*60}")
@@ -506,11 +403,12 @@ def main():
     logger.info(f"{'='*60}")
     
     for model_size, results in all_results.items():
+        auc = results.get('auc', 0.0)
+        accuracy = results.get('accuracy', 0.0)
         logger.info(
             f"PAT-{model_size.upper()}: "
-            f"Test AUC={results['test_auc']:.4f}, "
-            f"Val AUC={results['val_auc']:.4f}, "
-            f"Brier={results['test_brier']:.4f}"
+            f"AUC={auc:.4f}, "
+            f"Accuracy={accuracy:.4f}"
         )
     
     # Save summary

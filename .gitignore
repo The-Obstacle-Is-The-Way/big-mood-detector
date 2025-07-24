@@ -29,6 +29,13 @@ data/nhanes/**/*.XPT
 !data/nhanes/README.md
 !data/nhanes/processed/.gitkeep
 
+# NCHS Linked Mortality File data (sensitive health data)
+data/NCHS/
+data/NCHS/**/*
+*.dat
+*.DAT
+!data/NCHS/README.md
+
 # =====================================
 # Python
 # =====================================
