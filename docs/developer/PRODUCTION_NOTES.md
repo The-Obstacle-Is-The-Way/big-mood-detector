@@ -9,7 +9,7 @@
 
 ### Memory Requirements
 - XGBoost models: ~50MB per worker
-- PAT-M model: ~600MB per worker (TensorFlow)
+- PAT-M model: ~600MB per worker (PyTorch)
 - Total per worker: ~650MB with ensemble
 
 ### Recommended Deployment
@@ -37,7 +37,7 @@ resources:
 
 ### Thread Safety Issues
 
-1. **TensorFlow Global State**
+1. **PyTorch Global State**
    - TF uses global singleton for GPU/CPU device management
    - Can cause deadlocks with ThreadPoolExecutor
    - Solution: Use `TF_FORCE_GPU_ALLOW_GROWTH=true`
