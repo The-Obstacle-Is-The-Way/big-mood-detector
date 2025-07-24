@@ -1,0 +1,7 @@
+{
+  "best_auc": 0.5788455392201626,
+  "timestamp": "2025-07-24T10:11:44.004715",
+  "device": "mps",
+  "train_samples": 3077,
+  "val_samples": 1026
+}

@@ -23,33 +23,33 @@ def main():
         type=str,
         help="Path to checkpoint to resume from"
     )
-    
+
     args = parser.parse_args()
-    
+
     scripts_dir = Path(__file__).parent
-    
+
     # Map size to script
     size_to_script = {
         "small": scripts_dir / "train_pat_s_canonical.py",
         "medium": scripts_dir / "train_pat_m_canonical.py",
         "large": scripts_dir / "train_pat_l_run_now.py"
     }
-    
+
     if args.model_size == "all":
         # Train all models sequentially
         for size in ["small", "medium", "large"]:
             print(f"\n{'='*60}")
             print(f"Training PAT-{size.upper()}")
             print(f"{'='*60}\n")
-            
+
             script = size_to_script[size]
             cmd = [sys.executable, str(script)]
-            
+
             # Add resume if provided
             if args.resume and size == "large":
                 # For advanced script, we need to modify the command
                 cmd = [
-                    sys.executable, 
+                    sys.executable,
                     str(scripts_dir / "train_pat_l_advanced.py"),
                     "--resume", args.resume,
                     "--unfreeze-last-n", "4",
@@ -60,7 +60,7 @@ def main():
                     "--patience", "10",
                     "--output-dir", "model_weights/pat/pytorch/pat_l_retry"
                 ]
-            
+
             result = subprocess.run(cmd)
             if result.returncode != 0:
                 print(f"❌ PAT-{size.upper()} training failed!")
@@ -69,7 +69,7 @@ def main():
         # Train single model
         script = size_to_script[args.model_size]
         cmd = [sys.executable, str(script)]
-        
+
         if args.resume and args.model_size == "large":
             # Use advanced script for resume
             cmd = [
@@ -84,7 +84,7 @@ def main():
                 "--patience", "10",
                 "--output-dir", "model_weights/pat/pytorch/pat_l_retry"
             ]
-        
+
         result = subprocess.run(cmd)
         sys.exit(result.returncode)
 
