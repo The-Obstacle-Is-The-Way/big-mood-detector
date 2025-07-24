@@ -255,9 +255,19 @@ def train_model(
     optimizer = torch.optim.AdamW(param_groups, weight_decay=config["weight_decay"])
 
     # Learning rate scheduler
-    scheduler = ReduceLROnPlateau(
-        optimizer, mode='max', factor=0.5, patience=5
-    )
+    if config.get("scheduler") == "cosine":
+        from torch.optim.lr_scheduler import CosineAnnealingLR
+        scheduler = CosineAnnealingLR(
+            optimizer,
+            T_max=config["epochs"] - config.get("warmup_epochs", 0),
+            eta_min=1e-6
+        )
+    elif config.get("scheduler") == "plateau":
+        scheduler = ReduceLROnPlateau(
+            optimizer, mode='max', factor=0.5, patience=5
+        )
+    else:
+        scheduler = None
 
     # Early stopping
     early_stopping = EarlyStopping(patience=config["early_stopping_patience"])
@@ -382,7 +392,11 @@ def train_model(
             logger.info(f"Saved best model with AUC: {val_auc:.4f}")
 
         # Learning rate scheduling
-        scheduler.step(val_auc)
+        if scheduler is not None:
+            if config.get("scheduler") == "cosine":
+                scheduler.step()
+            elif config.get("scheduler") == "plateau":
+                scheduler.step(val_auc)
 
         # Early stopping
         if early_stopping(val_auc):
@@ -456,6 +470,9 @@ def main():
     parser.add_argument('--early-stopping-patience', type=int, default=25)
     parser.add_argument('--cache-dir', type=Path, default=Path('data/cache'))
     parser.add_argument('--output-dir', type=Path, default=Path('model_weights/pat/pytorch'))
+    parser.add_argument('--scheduler', type=str, default='plateau', choices=['plateau', 'cosine', 'none'])
+    parser.add_argument('--warmup-epochs', type=int, default=3, help='Number of warmup epochs for cosine scheduler')
+    parser.add_argument('--checkpoint', type=Path, help='Load from checkpoint to continue training')
     parser.add_argument('--cache-only', action='store_true', help='Only build cache, skip training')
     args = parser.parse_args()
 
@@ -471,7 +488,9 @@ def main():
             'encoder_lr': args.encoder_lr,
             'weight_decay': args.weight_decay,
             'grad_clip': args.grad_clip,
-            'early_stopping_patience': args.early_stopping_patience
+            'early_stopping_patience': args.early_stopping_patience,
+            'scheduler': args.scheduler,
+            'warmup_epochs': args.warmup_epochs
         }
 
     # Set device
