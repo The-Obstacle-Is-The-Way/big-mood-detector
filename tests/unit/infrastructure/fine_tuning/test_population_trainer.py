@@ -114,6 +114,10 @@ class TestPopulationTrainer:
             mock_param = Mock()
             mock_param.requires_grad = False
             mock_model.parameters = Mock(return_value=[mock_param])
+            # Add blocks attribute for unfreezing
+            mock_block = Mock()
+            mock_block.parameters = Mock(return_value=[mock_param])
+            mock_model.blocks = [mock_block]
             mock_load.return_value = mock_model
 
             # Train
