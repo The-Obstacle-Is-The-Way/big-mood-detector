@@ -179,7 +179,7 @@ if TORCH_AVAILABLE:
             )
 
             self.output_dim = 1  # Single logit
-            
+
             # 🎯 CRITICAL: Proper initialization for minority class learning
             self._initialize_weights()
 
@@ -201,7 +201,7 @@ if TORCH_AVAILABLE:
 
     class FocalLoss(nn.Module):
         """Focal Loss for addressing class imbalance.
-        
+
         Focuses learning on hard examples by down-weighting easy negatives.
         """
         def __init__(self, alpha: float = 0.25, gamma: float = 2.0, pos_weight: float = None):
@@ -209,33 +209,33 @@ if TORCH_AVAILABLE:
             self.alpha = alpha  # Class balance factor
             self.gamma = gamma  # Focusing parameter
             self.pos_weight = pos_weight
-            
+
         def forward(self, inputs: torch.Tensor, targets: torch.Tensor) -> torch.Tensor:
             # Convert to probabilities
             p = torch.sigmoid(inputs)
-            
+
             # Calculate cross entropy
             ce_loss = F.binary_cross_entropy_with_logits(inputs, targets, reduction='none')
-            
+
             # Calculate p_t
             p_t = p * targets + (1 - p) * (1 - targets)
-            
+
             # Calculate alpha_t
             if self.alpha is not None:
                 alpha_t = self.alpha * targets + (1 - self.alpha) * (1 - targets)
                 ce_loss = alpha_t * ce_loss
-                
+
             # Apply pos_weight if provided
             if self.pos_weight is not None:
                 weight_t = self.pos_weight * targets + 1.0 * (1 - targets)
                 ce_loss = weight_t * ce_loss
-            
+
             # Calculate focal weight
             focal_weight = (1 - p_t) ** self.gamma
-            
+
             # Calculate focal loss
             focal_loss = focal_weight * ce_loss
-            
+
             return focal_loss.mean()
 
 else:
@@ -356,7 +356,7 @@ if TORCH_AVAILABLE:
             logger.info(f"Fine-tuning PAT for {self.task_name}")
 
             # 🎯 DEVICE MANAGEMENT (critical fix!)
-            device = torch.device("mps" if torch.backends.mps.is_available() 
+            device = torch.device("mps" if torch.backends.mps.is_available()
                                  else ("cuda" if torch.cuda.is_available() else "cpu"))
             logger.info(f"Using device: {device}")
 
@@ -392,16 +392,16 @@ if TORCH_AVAILABLE:
             n_val = int(len(X) * validation_split)
             X_train, X_val = X[:-n_val], X[-n_val:]
             y_train, y_val = y[:-n_val], y[-n_val:]
-            
+
             # Debug: Log class distribution in splits
             train_pos = (y_train == 1).sum().item()
             train_neg = (y_train == 0).sum().item()
             val_pos = (y_val == 1).sum().item()
             val_neg = (y_val == 0).sum().item()
-            
+
             logger.info(f"Training split: {train_neg} negative, {train_pos} positive ({train_pos/(train_pos+train_neg)*100:.1f}%)")
             logger.info(f"Validation split: {val_neg} negative, {val_pos} positive ({val_pos/(val_pos+val_neg)*100:.1f}%)")
-            
+
             if val_pos == 0:
                 logger.warning("⚠️ NO POSITIVES IN VALIDATION SET - This would break dynamic num_classes!")
 
@@ -410,13 +410,13 @@ if TORCH_AVAILABLE:
             head_lr = kwargs.get("head_learning_rate", 5e-3)  # Much higher default
             encoder_lr = kwargs.get("encoder_learning_rate", 1e-5)  # Small LR for encoder
             unfreeze_layers = kwargs.get("unfreeze_layers", 1)  # Number of top layers to unfreeze
-            
+
             # 🎯 SELECTIVE UNFREEZING: Only unfreeze last N transformer blocks
             # First freeze everything
             if hasattr(encoder, 'parameters'):
                 for param in encoder.parameters():
                     param.requires_grad = False
-            
+
             # Then selectively unfreeze top layers
             unfrozen_params = []
             if encoder_lr > 0 and unfreeze_layers > 0:
@@ -437,7 +437,7 @@ if TORCH_AVAILABLE:
                     logger.info(f"🔓 Unfroze last {unfreeze_layers} transformer layers ({len(unfrozen_params)} params)")
                 else:
                     logger.info("🔒 No transformer blocks/layers found - keeping encoder fully frozen")
-            
+
             # Setup optimizer with different learning rates
             if len(unfrozen_params) > 0:
                 # Split learning rates: unfrozen encoder parts + head
@@ -450,7 +450,7 @@ if TORCH_AVAILABLE:
                 # Head only (encoder fully frozen)
                 optimizer = torch.optim.AdamW(task_head.parameters(), lr=head_lr, weight_decay=0.0)
                 logger.info(f"Encoder FROZEN, head LR={head_lr:.1e}")
-            
+
             # 🎯 BCEWithLogitsLoss (critical fix!)
             if pos_weight is not None:
                 weight_tensor = torch.tensor(float(pos_weight), device=device)  # Scalar instead of array
@@ -466,7 +466,7 @@ if TORCH_AVAILABLE:
                 initial_logits = task_head(X_val)  # Single logits now
                 pos_logits = initial_logits[y_val == 1].cpu().numpy()
                 neg_logits = initial_logits[y_val == 0].cpu().numpy()
-                
+
                 if len(pos_logits) > 0 and len(neg_logits) > 0:
                     logger.info(f"🔍 INITIAL LOGITS - Pos mean: {pos_logits.mean():.4f}, Neg mean: {neg_logits.mean():.4f}")
                     logger.info(f"🔍 INITIAL SEPARATION: {abs(pos_logits.mean() - neg_logits.mean()):.4f}")
@@ -478,24 +478,24 @@ if TORCH_AVAILABLE:
             class_counts = np.bincount(train_targets)
             class_weights = 1.0 / class_counts
             sample_weights = class_weights[train_targets]
-            
+
             logger.info(f"🎯 Class distribution: {class_counts} → weights: {class_weights}")
-            
+
             # Training loop with optional early stopping
             task_head.train()
             best_val_loss = float('inf')
             patience_counter = 0
             patience = kwargs.get("patience", 10)  # Early stopping patience
-            
+
             for epoch in range(epochs):
                 # 🎯 WEIGHTED RANDOM SAMPLING for this epoch (ensures balanced batches)
                 weighted_indices = np.random.choice(
-                    len(X_train), 
-                    size=len(X_train), 
+                    len(X_train),
+                    size=len(X_train),
                     p=sample_weights / sample_weights.sum(),
                     replace=True
                 )
-                
+
                 # Shuffle the weighted indices
                 np.random.shuffle(weighted_indices)
                 # Mini-batch training with WEIGHTED SAMPLING
@@ -519,31 +519,31 @@ if TORCH_AVAILABLE:
                     val_probs = torch.sigmoid(val_logits)  # Convert to probabilities
                     val_preds = (val_probs > 0.5).long()  # BCE threshold
                     val_acc = (val_preds == y_val.long()).float().mean()  # 🎯 Fix dtype mismatch
-                    
+
                     # 🎯 ENHANCED LOGIT MONITORING (every 5 epochs)
                     if (epoch + 1) % 5 == 0:
                         pred_counts = torch.bincount(val_preds, minlength=2)
                         true_counts = torch.bincount(y_val.long(), minlength=2)
                         logger.info(f"  Val predictions: {pred_counts[0].item()} negative, {pred_counts[1].item()} positive")
                         logger.info(f"  Val true labels: {true_counts[0].item()} negative, {true_counts[1].item()} positive")
-                        
+
                         # Confusion matrix
                         tp = ((val_preds == 1) & (y_val == 1)).sum().item()
                         fp = ((val_preds == 1) & (y_val == 0)).sum().item()
                         tn = ((val_preds == 0) & (y_val == 0)).sum().item()
                         fn = ((val_preds == 0) & (y_val == 1)).sum().item()
                         logger.info(f"  Confusion: TP={tp}, FP={fp}, TN={tn}, FN={fn}")
-                        
+
                         # 🎯 CRITICAL: Monitor actual logit separation!
                         pos_logits = val_logits[y_val == 1].cpu().numpy()
                         neg_logits = val_logits[y_val == 0].cpu().numpy()
-                        
+
                         if len(pos_logits) > 0 and len(neg_logits) > 0:
                             pos_mean = pos_logits.mean()
                             neg_mean = neg_logits.mean()
                             separation = abs(pos_mean - neg_mean)
                             logger.info(f"  🎯 LOGITS - Pos: {pos_mean:.4f}, Neg: {neg_mean:.4f}, Sep: {separation:.4f}")
-                            
+
                             # Alert if no separation developing
                             if separation < 0.1:
                                 logger.warning(f"  ⚠️ WEAK SEPARATION: {separation:.4f} - Model not learning!")
@@ -557,7 +557,7 @@ if TORCH_AVAILABLE:
                     f"loss={loss:.4f}, val_loss={val_loss:.4f}, "
                     f"val_acc={val_acc:.4f}"
                 )
-                
+
                 # Early stopping check
                 if val_loss < best_val_loss:
                     best_val_loss = val_loss
@@ -573,24 +573,24 @@ if TORCH_AVAILABLE:
             with torch.no_grad():
                 final_logits = task_head(X_val)  # Single logits
                 final_probs = torch.sigmoid(final_logits)  # BCE probabilities
-                
+
                 # 🎯 SEARCH FOR OPTIMAL THRESHOLD (instead of fixed 0.5)
                 y_val_np = y_val.cpu().numpy().astype(int)
                 probs_np = final_probs.cpu().numpy().squeeze()
-                
+
                 best_f1, best_thr = 0.0, 0.5
                 best_metrics = None
-                
+
                 logger.info("🔍 Searching optimal threshold...")
                 for threshold in np.linspace(0.05, 0.6, 12):  # Test range
                     test_preds = (probs_np > threshold).astype(int)
-                    
+
                     if len(np.unique(test_preds)) > 1:  # Avoid single-class predictions
                         try:
                             test_f1 = f1_score(y_val_np, test_preds, zero_division=0)
                             test_recall = recall_score(y_val_np, test_preds, zero_division=0)
                             test_precision = precision_score(y_val_np, test_preds, zero_division=0)
-                            
+
                             if test_f1 > best_f1:
                                 best_f1 = test_f1
                                 best_thr = threshold
@@ -600,13 +600,13 @@ if TORCH_AVAILABLE:
                                     'recall': test_recall,
                                     'precision': test_precision
                                 }
-                                
+
                             logger.info(f"  Thr={threshold:.2f}: F1={test_f1:.3f}, Rec={test_recall:.3f}, Pre={test_precision:.3f}")
-                        except:
+                        except Exception:
                             pass
-                
+
                 logger.info(f"🏆 Best threshold: {best_thr:.2f} → F1={best_f1:.3f}")
-                
+
                 # Use best threshold for final predictions
                 final_preds = (probs_np > best_thr).astype(int)
 
@@ -616,7 +616,7 @@ if TORCH_AVAILABLE:
                 final_preds,
                 probs_np,
             )
-            
+
             # Add threshold info to metrics
             metrics['optimal_threshold'] = best_thr
             if best_metrics:
@@ -878,3 +878,4 @@ def create_population_trainer(
         return XGBoostPopulationTrainer(task_name=task_name, **kwargs)
     else:
         raise ValueError(f"Unknown model type: {model_type}")
+
