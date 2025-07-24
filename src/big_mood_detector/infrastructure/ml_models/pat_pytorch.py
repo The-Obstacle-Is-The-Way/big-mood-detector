@@ -38,7 +38,10 @@ class SinusoidalPositionalEmbedding(nn.Module):
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """Add positional embeddings to input tensor."""
         seq_len = x.size(1)
-        return x + self.pe[:, :seq_len]
+        # Type annotation to help mypy understand this is a Tensor
+        pe_buffer: torch.Tensor = self.pe  # type: ignore[assignment]
+        pe_slice = pe_buffer[:, :seq_len]
+        return x + pe_slice
 
 
 class PATAttention(nn.Module):
@@ -87,7 +90,8 @@ class PATAttention(nn.Module):
         # Output projection
         output = self.out_proj(attn_output)
 
-        return output
+        output_tensor: torch.Tensor = output
+        return output_tensor
 
 
 class PATBlock(nn.Module):
@@ -332,7 +336,7 @@ class PATDepressionNet(nn.Module):
         # Freeze encoder except last N blocks
         self._freeze_encoder(unfreeze_last_n)
 
-    def _freeze_encoder(self, unfreeze_last_n: int):
+    def _freeze_encoder(self, unfreeze_last_n: int) -> None:
         """Freeze encoder parameters except last N transformer blocks."""
         # First freeze everything
         for param in self.encoder.parameters():
@@ -369,7 +373,8 @@ class PATDepressionNet(nn.Module):
         # Classification head
         logits = self.head(embeddings).squeeze(-1)
 
-        return logits
+        logits_tensor: torch.Tensor = logits
+        return logits_tensor
 
     def load_pretrained_encoder(self, h5_path: Path) -> bool:
         """Load pretrained encoder weights from TF checkpoint."""

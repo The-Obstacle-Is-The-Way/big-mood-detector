@@ -7,6 +7,7 @@ Processes NHANES XPT files into labeled datasets for fine-tuning.
 from pathlib import Path
 
 import numpy as np
+import numpy.typing as npt
 import pandas as pd
 
 from big_mood_detector.infrastructure.logging import get_module_logger
@@ -350,19 +351,19 @@ class NHANESProcessor:
                 minutes_array[day_idx - 1, minutes[valid_mask]] = intensities[valid_mask]
 
         # Flatten to 10,080 minutes (7 days * 1440 minutes)
-        flat_minutes = minutes_array.flatten()  # shape: (10080,)
+        flat_minutes: npt.NDArray[np.float32] = minutes_array.flatten()  # shape: (10080,)
 
         if normalize:
             # Log transform and clip (following PAT paper approach)
-            flat_minutes = np.log1p(flat_minutes)
-            flat_minutes = np.clip(flat_minutes, 0, 10)
+            flat_minutes = np.log1p(flat_minutes).astype(np.float32)
+            flat_minutes = np.clip(flat_minutes, 0, 10).astype(np.float32)
 
         if standardize:
             # Z-score normalization (required for PAT)
             # Using NHANES 2013-2014 statistics by default
             # In production, compute from actual training data
             cycle_stats = self.NHANES_STATS.get("2013-2014", {"mean": 2.5, "std": 2.0})
-            flat_minutes = (flat_minutes - cycle_stats["mean"]) / cycle_stats["std"]
+            flat_minutes = ((flat_minutes - cycle_stats["mean"]) / cycle_stats["std"]).astype(np.float32)
 
         # Always return full sequence - PAT model handles patching internally
         return flat_minutes.astype(np.float32)
