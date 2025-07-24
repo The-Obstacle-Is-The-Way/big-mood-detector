@@ -54,47 +54,35 @@ def prepare_data_with_proper_normalization(
     depression = processor.load_depression_scores("DPQ_H.xpt")
     
     # Get subjects
-    common_subjects = set(actigraphy['participant_id'].unique()) & set(depression.keys())
+    common_subjects = set(actigraphy['SEQN'].unique()) & set(depression.keys())
     logger.info(f"Found {len(common_subjects)} subjects with both data types")
     
     if subset:
         common_subjects = list(common_subjects)[:subset]
     
-    # Prepare sequences WITHOUT normalization first
+    # Use the processor's method but WITHOUT standardization
     X_raw = []
     y = []
     
     for subject_id in common_subjects:
-        # Get subject data
-        subject_data = actigraphy[actigraphy['participant_id'] == subject_id]
-        
-        # Process 7-day sequence
-        sequences = []
-        for day in range(1, 8):
-            day_data = subject_data[subject_data['DayOfStudy'] == day]
-            if len(day_data) > 0:
-                # Create minute array
-                minutes_array = np.zeros(1440, dtype=np.float32)
-                minutes = day_data['AxisMinute'].values
-                intensities = day_data['MIMS_UNIT'].values.astype(np.float32)
+        try:
+            # Get 7-day sequence with log transform but NO standardization
+            sequence = processor.extract_pad_sequence(
+                actigraphy, 
+                subject_id, 
+                normalize=True,  # Log transform
+                standardize=False  # NO z-score yet
+            )
+            
+            if sequence is not None:
+                X_raw.append(sequence)
                 
-                valid_mask = (minutes >= 0) & (minutes < 1440)
-                minutes_array[minutes[valid_mask]] = intensities[valid_mask]
-                sequences.append(minutes_array)
-        
-        if len(sequences) == 7:
-            # Concatenate to 10,080 minutes
-            flat_sequence = np.concatenate(sequences)
-            
-            # Apply log transform (but not z-score yet)
-            flat_sequence = np.log1p(flat_sequence)
-            flat_sequence = np.clip(flat_sequence, 0, 10)
-            
-            X_raw.append(flat_sequence)
-            
-            # Get label
-            label = 1 if depression.get(subject_id, 0) >= 10 else 0
-            y.append(label)
+                # Get label
+                label = 1 if depression.get(subject_id, 0) >= 10 else 0
+                y.append(label)
+        except Exception as e:
+            logger.debug(f"Skipping subject {subject_id}: {e}")
+            continue
     
     X_raw = np.array(X_raw, dtype=np.float32)
     y = np.array(y, dtype=np.float32)
