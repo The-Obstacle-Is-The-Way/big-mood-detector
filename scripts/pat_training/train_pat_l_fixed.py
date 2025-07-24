@@ -34,10 +34,12 @@ logger = logging.getLogger(__name__)
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from big_mood_detector.infrastructure.fine_tuning.nhanes_processor import (
+from big_mood_detector.infrastructure.fine_tuning.nhanes_processor import (  # noqa: E402
     NHANESProcessor,
 )
-from big_mood_detector.infrastructure.ml_models.pat_pytorch import PATDepressionNet
+from big_mood_detector.infrastructure.ml_models.pat_pytorch import (  # noqa: E402
+    PATDepressionNet,
+)
 
 
 def prepare_data_with_proper_normalization(

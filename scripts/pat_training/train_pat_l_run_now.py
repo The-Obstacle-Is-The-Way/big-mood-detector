@@ -27,7 +27,9 @@ logger = logging.getLogger(__name__)
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from big_mood_detector.infrastructure.ml_models.pat_pytorch import PATPyTorchEncoder
+from big_mood_detector.infrastructure.ml_models.pat_pytorch import (  # noqa: E402
+    PATPyTorchEncoder,
+)
 
 
 class SimplePATDepressionNet(nn.Module):
