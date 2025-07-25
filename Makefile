@@ -83,12 +83,21 @@ test-watch-parallel:
 # ---------------- Quality targets ----------------
 # Platform-aware paths
 PY              ?= python
-VENV_BIN        ?= .venv-wsl/bin
-
-RUFF            := $(VENV_BIN)/ruff
-MYPY            := $(VENV_BIN)/mypy
-DMYPY           := $(VENV_BIN)/dmypy
-PYTEST          := $(VENV_BIN)/pytest
+# Check for virtual environment and use appropriate paths
+VENV_EXISTS := $(shell test -d .venv-wsl && echo yes || echo no)
+ifeq ($(VENV_EXISTS),yes)
+    # Local WSL environment
+    RUFF            := .venv-wsl/bin/ruff
+    MYPY            := .venv-wsl/bin/mypy
+    DMYPY           := .venv-wsl/bin/dmypy
+    PYTEST          := .venv-wsl/bin/pytest
+else
+    # CI environment (packages installed globally)
+    RUFF            := ruff
+    MYPY            := mypy
+    DMYPY           := dmypy
+    PYTEST          := pytest
+endif
 
 # Lint (autosort imports, fix whitespace; skip archived dirs)
 lint:           ## Ruff + isort/black fixes
