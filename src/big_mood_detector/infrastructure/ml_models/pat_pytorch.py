@@ -7,7 +7,7 @@ enabling end-to-end gradient flow for fine-tuning.
 
 import logging
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import h5py
 import numpy as np
@@ -38,8 +38,8 @@ class SinusoidalPositionalEmbedding(nn.Module):
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """Add positional embeddings to input tensor."""
         seq_len = x.size(1)
-        # Type annotation to help mypy understand this is a Tensor
-        pe_buffer: torch.Tensor = self.pe
+        # Cast to Tensor for mypy - register_buffer ensures this is always a Tensor
+        pe_buffer = cast(torch.Tensor, self.pe)
         pe_slice = pe_buffer[:, :seq_len]
         return x + pe_slice
 
