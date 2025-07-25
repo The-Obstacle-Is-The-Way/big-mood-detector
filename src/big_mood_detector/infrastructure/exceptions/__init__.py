@@ -202,7 +202,7 @@ def handle_errors(
         Decorated function
     """
 
-    def decorator(func: Callable) -> Callable:
+    def decorator(func: Callable[..., Any]) -> Callable:
         @functools.wraps(func)
         def wrapper(*args: Any, **kwargs: Any) -> Any:
             _logger = logger or get_module_logger(func.__module__)
@@ -248,7 +248,7 @@ def retry_on_error(
         Decorated function
     """
 
-    def decorator(func: Callable) -> Callable:
+    def decorator(func: Callable[..., Any]) -> Callable:
         @functools.wraps(func)
         def wrapper(*args: Any, **kwargs: Any) -> Any:
             last_exception = None
@@ -339,7 +339,7 @@ class CircuitBreaker:
             "recovery_timeout": self.recovery_timeout,
         }
 
-    def __call__(self, func: Callable) -> Callable:
+    def __call__(self, func: Callable[..., Any]) -> Callable:
         """Decorate function with circuit breaker."""
 
         @functools.wraps(func)

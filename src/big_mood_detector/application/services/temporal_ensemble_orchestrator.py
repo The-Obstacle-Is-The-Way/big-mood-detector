@@ -12,6 +12,7 @@ from datetime import datetime
 from typing import TYPE_CHECKING, Any
 
 import numpy as np
+from numpy.typing import NDArray
 
 from big_mood_detector.domain.services.pat_predictor import (
     PATPredictorInterface,
@@ -58,8 +59,8 @@ class TemporalEnsembleOrchestrator:
 
     def predict(
         self,
-        pat_sequence: np.ndarray,
-        statistical_features: np.ndarray,
+        pat_sequence: NDArray[np.float32],
+        statistical_features: NDArray[np.float32],
         user_id: str | None = None,
     ) -> TemporalMoodAssessment:
         """
@@ -141,8 +142,8 @@ class TemporalEnsembleOrchestrator:
 
     def predict_with_alerts(
         self,
-        pat_sequence: np.ndarray,
-        statistical_features: np.ndarray,
+        pat_sequence: NDArray[np.float32],
+        statistical_features: NDArray[np.float32],
         user_id: str | None = None,
         alert_threshold: float = 0.7,
     ) -> tuple[TemporalMoodAssessment, list[str]]:

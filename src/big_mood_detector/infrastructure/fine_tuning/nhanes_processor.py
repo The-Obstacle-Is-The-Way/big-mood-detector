@@ -9,6 +9,7 @@ from pathlib import Path
 import numpy as np
 import numpy.typing as npt
 import pandas as pd
+from numpy.typing import NDArray
 
 from big_mood_detector.infrastructure.logging import get_module_logger
 

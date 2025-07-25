@@ -81,7 +81,7 @@ class ServiceDescriptor:
     def __init__(
         self,
         service_type: type,
-        implementation: type | Callable | Any,
+        implementation: type | Callable[..., Any] | Any,
         lifetime: str,
         name: str | None = None,
     ):
@@ -458,7 +458,7 @@ def get_container() -> Container:
     return _container
 
 
-def inject(func: Callable) -> Callable:
+def inject(func: Callable[..., Any]) -> Callable:
     """
     Decorator for dependency injection.
 

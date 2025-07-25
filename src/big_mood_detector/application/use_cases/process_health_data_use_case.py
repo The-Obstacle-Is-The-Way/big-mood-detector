@@ -22,6 +22,7 @@ from typing import Any
 
 import numpy as np
 import pandas as pd
+from numpy.typing import NDArray
 
 from big_mood_detector.application.services.aggregation_pipeline import (
     AggregationPipeline,
@@ -87,7 +88,7 @@ class PipelineResult:
     warnings: list[str] = field(default_factory=list)
     has_errors: bool = False
     errors: list[str] = field(default_factory=list)
-    metadata: dict[str, Any] = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict[str, Any])
 
 
 class MoodPredictionPipeline:
@@ -337,9 +338,9 @@ class MoodPredictionPipeline:
 
     def process_health_data(
         self,
-        sleep_records: list,
-        activity_records: list,
-        heart_records: list,
+        sleep_records: list[Any],
+        activity_records: list[Any],
+        heart_records: list[Any],
         target_date: date,
     ) -> PipelineResult:
         """
@@ -535,9 +536,9 @@ class MoodPredictionPipeline:
 
     def extract_features_batch(
         self,
-        sleep_records: list,
-        activity_records: list,
-        heart_records: list,
+        sleep_records: list[Any],
+        activity_records: list[Any],
+        heart_records: list[Any],
         start_date: date,
         end_date: date,
     ) -> dict[date, ClinicalFeatureSet | None]:
@@ -589,8 +590,8 @@ class MoodPredictionPipeline:
     def update_personal_model(
         self,
         features: pd.DataFrame,
-        labels: np.ndarray,
-        sample_weight: np.ndarray | None = None,
+        labels: NDArray[np.float32],
+        sample_weight: NDArray[np.float32] | None = None,
     ) -> dict[str, float] | None:
         """
         Update personal model with new labeled data.

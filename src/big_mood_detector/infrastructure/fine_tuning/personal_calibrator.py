@@ -10,12 +10,13 @@ from typing import Any, Protocol
 
 import numpy as np
 import pandas as pd
+from numpy.typing import NDArray
 
 
 class ModelProtocol(Protocol):
     """Protocol for model interface."""
 
-    def encode(self, sequences: np.ndarray) -> np.ndarray:
+    def encode(self, sequences: NDArray[np.float32]) -> np.ndarray:
         """Encode sequences to embeddings."""
         ...
 
@@ -328,9 +329,9 @@ class PersonalCalibrator:
 
     def calibrate(
         self,
-        sequences: np.ndarray | None = None,
+        sequences: NDArray[np.float32] | None = None,
         features: pd.DataFrame | None = None,
-        labels: np.ndarray | None = None,
+        labels: NDArray[np.float32] | None = None,
         epochs: int = 10,
         sample_weight: float = 1.0,
         **kwargs: Any,
@@ -515,7 +516,7 @@ class PersonalCalibrator:
 
         return deviations
 
-    def fit_calibration(self, raw_probs: np.ndarray, true_labels: np.ndarray) -> None:
+    def fit_calibration(self, raw_probs: NDArray[np.float32], true_labels: NDArray[np.float32]) -> None:
         """Fit probability calibration to correct overconfident predictions.
 
         Args:
@@ -541,7 +542,7 @@ class PersonalCalibrator:
         else:
             self.confidence_factor = 1.0
 
-    def calibrate_probabilities(self, raw_probs: np.ndarray) -> np.ndarray:
+    def calibrate_probabilities(self, raw_probs: NDArray[np.float32]) -> np.ndarray:
         """Apply probability calibration.
 
         Args:

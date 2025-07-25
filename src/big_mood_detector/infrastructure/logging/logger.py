@@ -60,7 +60,7 @@ def setup_logging(config: Settings) -> FilteringBoundLogger:
                 structlog.processors.dict_tracebacks,
                 structlog.processors.JSONRenderer(),
             ],
-            context_class=dict,
+            context_class=dict[str, Any],
             logger_factory=structlog.PrintLoggerFactory(),
             cache_logger_on_first_use=False,
         )
@@ -68,7 +68,7 @@ def setup_logging(config: Settings) -> FilteringBoundLogger:
         # Human-readable console output
         structlog.configure(
             processors=shared_processors + [structlog.dev.ConsoleRenderer()],
-            context_class=dict,
+            context_class=dict[str, Any],
             logger_factory=structlog.PrintLoggerFactory(),
             cache_logger_on_first_use=False,
         )
@@ -145,7 +145,7 @@ def log_performance(logger: FilteringBoundLogger | None = None) -> Callable:
         Decorator function
     """
 
-    def decorator(func: Callable) -> Callable:
+    def decorator(func: Callable[..., Any]) -> Callable:
         @functools.wraps(func)
         def wrapper(*args: Any, **kwargs: Any) -> Any:
             start_time = time.time()

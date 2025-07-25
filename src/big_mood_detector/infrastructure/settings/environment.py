@@ -9,7 +9,7 @@ Production-grade settings management with:
 """
 
 from pathlib import Path
-from typing import Literal
+from typing import Any, Literal
 
 from pydantic import Field, validator
 from pydantic_settings import BaseSettings
@@ -117,7 +117,7 @@ class Settings(BaseSettings):
         return v
 
     @validator("user_id_salt")
-    def warn_default_salt(cls, v: str, values: dict) -> str:
+    def warn_default_salt(cls, v: str, values: dict[str, Any]) -> str:
         """Warn if using default salt in production."""
         if values.get("environment") == "production" and v == "big-mood-detector-default-salt":
             import warnings

@@ -13,6 +13,7 @@ import joblib
 import numpy as np
 import pandas as pd
 import xgboost as xgb
+from numpy.typing import NDArray
 from sklearn.metrics import (
     accuracy_score,
     f1_score,
@@ -77,7 +78,7 @@ class PopulationTrainer(ABC):
         data: pd.DataFrame,
         n_splits: int = 3,
         test_size: float = 0.2,
-    ) -> list[tuple[np.ndarray, np.ndarray]]:
+    ) -> list[tuple[NDArray[np.float32], NDArray[np.float32]]]:
         """Create time-series aware train/test splits.
 
         Args:
@@ -100,9 +101,9 @@ class PopulationTrainer(ABC):
 
     def evaluate(
         self,
-        y_true: np.ndarray,
-        y_pred: np.ndarray,
-        y_prob: np.ndarray | None = None,
+        y_true: NDArray[np.float32],
+        y_pred: NDArray[np.float32],
+        y_prob: NDArray[np.float32] | None = None,
     ) -> dict[str, float]:
         """Evaluate model performance.
 
@@ -782,9 +783,9 @@ class XGBoostPopulationTrainer(PopulationTrainer):
     def incremental_train(
         self,
         features: pd.DataFrame,
-        labels: np.ndarray,
+        labels: NDArray[np.float32],
         num_boost_round: int = 50,
-        sample_weight: np.ndarray | None = None,
+        sample_weight: NDArray[np.float32] | None = None,
     ) -> dict[str, float]:
         """Incrementally train XGBoost model.
 

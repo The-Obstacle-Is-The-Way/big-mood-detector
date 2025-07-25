@@ -18,6 +18,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 
 import numpy as np
+from numpy.typing import NDArray
 
 from big_mood_detector.domain.entities.activity_record import ActivityRecord
 from big_mood_detector.domain.services.mood_predictor import MoodPrediction
@@ -85,7 +86,7 @@ class EnsemblePrediction:
     processing_time_ms: dict[str, float]
 
     # NEW: Separate PAT outputs (with defaults)
-    pat_embeddings: np.ndarray | None = None  # 96-dim embeddings from PAT encoder
+    pat_embeddings: NDArray[np.float32] | None = None  # 96-dim embeddings from PAT encoder
     pat_prediction: MoodPrediction | None = None  # Future: PAT classification result
 
     # NEW: Temporal context for each model
@@ -143,7 +144,7 @@ class EnsembleOrchestrator:
 
     def predict(
         self,
-        statistical_features: np.ndarray,
+        statistical_features: NDArray[np.float32],
         activity_records: list[ActivityRecord] | None = None,
         prediction_date: np.datetime64 | None = None,
     ) -> EnsemblePrediction:
@@ -166,7 +167,7 @@ class EnsembleOrchestrator:
         timing: dict[str, float] = {}
         models_used: list[str] = []
         predictions: dict[str, MoodPrediction | None] = {}
-        pat_embeddings: np.ndarray | None = None
+        pat_embeddings: NDArray[np.float32] | None = None
 
         # Submit parallel tasks
         futures: dict[str, Any] = {}
@@ -242,7 +243,7 @@ class EnsembleOrchestrator:
             temporal_context=temporal_context,
         )
 
-    def _predict_xgboost(self, features: np.ndarray) -> MoodPrediction:
+    def _predict_xgboost(self, features: NDArray[np.float32]) -> MoodPrediction:
         """Run standard XGBoost prediction."""
         return self.xgboost_predictor.predict(features)
 
@@ -281,7 +282,7 @@ class EnsembleOrchestrator:
 
     def _predict_with_pat(
         self,
-        statistical_features: np.ndarray,
+        statistical_features: NDArray[np.float32],
         activity_records: list[ActivityRecord],
         prediction_date: np.datetime64 | None,
     ) -> MoodPrediction:

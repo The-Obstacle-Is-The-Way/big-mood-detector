@@ -4,6 +4,7 @@ Label service for managing mood and health labels.
 This service orchestrates label operations following Clean Architecture principles.
 """
 
+from typing import Any
 from uuid import uuid4
 
 from big_mood_detector.domain.entities.label import Label
@@ -23,7 +24,7 @@ class LabelService:
         description: str,
         category: str,
         color: str,
-        metadata: dict | None = None,
+        metadata: dict[str, Any] | None = None,
     ) -> Label:
         """
         Create a new label.
@@ -116,7 +117,7 @@ class LabelService:
         description: str | None = None,
         category: str | None = None,
         color: str | None = None,
-        metadata: dict | None = None,
+        metadata: dict[str, Any] | None = None,
     ) -> Label:
         """
         Update an existing label.

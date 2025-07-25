@@ -47,7 +47,7 @@ RISK_PREDICTIONS = Histogram(
 )
 
 
-async def metrics_middleware(request: Request, call_next: Callable) -> Response:
+async def metrics_middleware(request: Request, call_next: Callable[..., Any]) -> Response:
     """
     Middleware to track HTTP metrics.
     """
@@ -130,7 +130,7 @@ def setup_metrics(app: Any) -> Any:
 
     # Add middleware
     @app.middleware("http")  # type: ignore[misc]
-    async def add_metrics_middleware(request: Request, call_next: Callable) -> Response:
+    async def add_metrics_middleware(request: Request, call_next: Callable[..., Any]) -> Response:
         return await metrics_middleware(request, call_next)
 
     # Add metrics endpoint

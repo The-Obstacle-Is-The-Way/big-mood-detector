@@ -11,6 +11,7 @@ from pathlib import Path
 import h5py
 import numpy as np
 import tensorflow as tf
+from numpy.typing import NDArray
 
 logger = logging.getLogger(__name__)
 
@@ -25,7 +26,7 @@ class DirectPATModel:
 
     def __init__(self, model_size: str = "medium"):
         self.model_size = model_size
-        self.weights: dict[str, np.ndarray] = {}
+        self.weights: dict[str, NDArray[np.float32]] = {}
         self.config = self._get_config(model_size)
         self.is_loaded = False
         self.layer_norm_epsilon = 1e-12  # Default value
@@ -299,7 +300,7 @@ class DirectPATModel:
         return x
 
     @tf.function  # type: ignore[misc]
-    def extract_features(self, inputs: np.ndarray) -> tf.Tensor:
+    def extract_features(self, inputs: NDArray[np.float32]) -> tf.Tensor:
         """Extract features from input sequence."""
         if not self.is_loaded:
             raise RuntimeError("Model weights not loaded")

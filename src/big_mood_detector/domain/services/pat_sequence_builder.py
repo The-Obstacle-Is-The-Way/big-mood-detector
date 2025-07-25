@@ -20,6 +20,7 @@ from dataclasses import dataclass
 from datetime import date, timedelta
 
 import numpy as np
+from numpy.typing import NDArray
 
 from big_mood_detector.domain.entities.activity_record import ActivityRecord
 from big_mood_detector.domain.services.activity_sequence_extractor import (
@@ -222,7 +223,7 @@ class PATSequenceBuilder:
         return np.array(all_values, dtype=np.float32)
 
     def _interpolate_missing_days(
-        self, values: np.ndarray, missing_days: list[date], start_date: date
+        self, values: NDArray[np.float32], missing_days: list[date], start_date: date
     ) -> np.ndarray:
         """
         Interpolate missing days using neighboring data.

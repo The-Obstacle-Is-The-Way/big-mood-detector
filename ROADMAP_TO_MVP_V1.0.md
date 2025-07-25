@@ -138,3 +138,80 @@
 
   This isn't just another mood tracker - it's a clinical-grade prediction system based on
   peer-reviewed research, designed for real-world mental health management.
+
+  \### Overall roadmap — solid, but tighten the focus
+
+Your plan hits all the right *buckets* (model‑finishing → productization → UX → validation).
+What will matter most for an MVP that people can actually try is **getting a single, reliable end‑to‑end prediction path** rather than perfecting every PAT variant.
+
+| Section                       | Keep                                                                                    | Trim / Defer                                                                                                     |
+| ----------------------------- | --------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| **Phase 1 – PAT integration** | ✔ Finish one depression head (Conv‑L or plain L) that’s “good enough” and wire the API. | 🚫 Training PAT‑S/M/L *and* Conv‑S/M/L. Pick **one backbone** for now; the extra heads rarely buy you MVP value. |
+| **Phase 2 – Hardening**       | ✔ Basic error handling, Docker, security checklist.                                     | 🚫 Full telemetry stack or k8s deployment. Ship with a compose file first.                                       |
+| **Phase 3 – UX**              | ✔ CLI + PDF report (fast win).                                                          | 🚫 Web dashboard mock‑up unless a stakeholder is lined up to use it in the next 4 weeks.                         |
+| **Phase 4 – Validation**      | ✔ Clinical benchmark + perf test.                                                       | —                                                                                                                |
+
+---
+
+\### Training strategy recommendations
+
+1. **Freeze on Conv‑L now**
+   *0.592 AUC* with a single training run is already ≈ paper baseline.
+
+   * Do **one** more reproducibility run to be sure it’s stable.
+   * Save the weights & log the exact commit/seed → call this *v0.1‑conv‑l*.
+   * Document gaps (0.03 AUC) for later research.
+
+2. **Skip Conv‑S / Conv‑M for MVP**
+   Their only advantage is smaller GPU footprint. If your current hardware can serve Conv‑L inference in ‹50 ms, it’s not a blocker.
+
+3. **Only retrain if integration tests show clinical lift**
+   Don’t chase 0.625 unless a downstream metric (false‑alert rate, user retention, etc.) is demonstrably harmed.
+
+---
+
+\### Talk to researchers **before** deeper training
+
+* Show the *0.59 AUC* model and your unified NOW/TOMORROW risk output.
+* Ask: *“Is this signal clinically actionable, or do we need better discrimination?”*
+* Their answer will tell you whether to invest another GPU week.
+
+---
+
+\### Repository hygiene
+
+* **Good**: you archived experiments and wrote `PAT_DEPRESSION_TRAINING.md`.
+* **Next**:
+
+  1. CI target = `make quality` (lint + type‑check + fast tests). Stub out slow GPU tests.
+  2. Add *one* GitHub Action that builds the Docker image, runs CPU tests, and uploads the wheels.
+  3. Tag this cleaned commit as `v0.4.0‑alpha`.
+
+---
+
+\### Concrete next steps (1–2 days)
+
+1. **Complete the running Conv‑L epoch** → save weights & export to `models/pat_conv_l_v0.1.pt`.
+
+2. **Wire PAT encoder into the prediction pipeline** (simple wrapper that outputs a scalar probability).
+
+3. **Unit‑test** the new orchestrator: feed dummy data, assert both model scores appear.
+
+4. **Update CLI `predict`** to show:
+
+   ```
+   NOW (PAT):     0.61  ↑ High
+   TOMORROW (XGB): 0.42  → Low
+   ```
+
+5. **Schedule a 30‑min review** with the research advisors; demo the new output.
+
+---
+
+\### Answering your direct question
+
+> “Should we ideally just train PAT‑Conv S/M/L no matter what results we get, then move on…?”
+
+**No**. Train **one** convincing model, integrate, gather feedback. Additional model sizes and marginal AUC gains belong in a post‑MVP research sprint.
+
+Ship value sooner, iterate later.

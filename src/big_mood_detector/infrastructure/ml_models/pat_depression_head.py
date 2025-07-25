@@ -12,6 +12,7 @@ from pathlib import Path
 import numpy as np
 import torch
 import torch.nn as nn
+from numpy.typing import NDArray
 
 from big_mood_detector.domain.services.pat_predictor import (
     PATBinaryPredictions,
@@ -86,7 +87,7 @@ class PATDepressionPredictor(PATPredictorInterface):
 
         self.depression_head.eval()
 
-    def predict_from_embeddings(self, embeddings: np.ndarray) -> PATBinaryPredictions:
+    def predict_from_embeddings(self, embeddings: NDArray[np.float32]) -> PATBinaryPredictions:
         """Get current state predictions from PAT embeddings.
 
         Args:
@@ -112,7 +113,7 @@ class PATDepressionPredictor(PATPredictorInterface):
             confidence=self._calculate_confidence(depression_prob)
         )
 
-    def predict_depression(self, embeddings: np.ndarray) -> float:
+    def predict_depression(self, embeddings: NDArray[np.float32]) -> float:
         """Predict probability of current depression (PHQ-9 >= 10).
 
         This is CURRENT state based on past 7 days, not future prediction.
@@ -133,7 +134,7 @@ class PATDepressionPredictor(PATPredictorInterface):
 
         return probability
 
-    def predict_medication_proxy(self, embeddings: np.ndarray) -> float:
+    def predict_medication_proxy(self, embeddings: NDArray[np.float32]) -> float:
         """Predict probability of benzodiazepine usage.
 
         NOT IMPLEMENTED YET - returns 0.5 (unknown).

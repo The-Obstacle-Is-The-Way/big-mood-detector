@@ -15,6 +15,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 import numpy as np
+from numpy.typing import NDArray
 
 try:
     import tensorflow as tf
@@ -267,7 +268,7 @@ class PATModel:
 
         return np.asarray(features)
 
-    def get_attention_weights(self, sequence: PATSequence) -> np.ndarray | None:
+    def get_attention_weights(self, sequence: PATSequence) -> NDArray[np.float32] | None:
         """
         Get attention weights for model explainability.
 

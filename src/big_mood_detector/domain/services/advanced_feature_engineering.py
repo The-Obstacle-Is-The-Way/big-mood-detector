@@ -461,8 +461,7 @@ class AdvancedFeatureEngineer:
         }
 
     def _calculate_clinical_indicators(
-        self, sleep_features: dict, circadian_features: dict, activity_features: dict
-    ) -> dict[str, Any]:
+        self, sleep_features: dict[str, Any], circadian_features: dict[str, Any], activity_features: dict[str, Any]) -> dict[str, Any]:
         """Calculate clinical risk indicators."""
         # Hypersomnia pattern (>10 hours consistently)
         is_hypersomnia = sleep_features.get("long_sleep_window_pct", 0) > 50

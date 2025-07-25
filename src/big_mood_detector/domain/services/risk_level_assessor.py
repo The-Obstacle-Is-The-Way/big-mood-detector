@@ -13,6 +13,7 @@ Design Patterns:
 """
 
 from dataclasses import dataclass, field
+from typing import Any
 
 from big_mood_detector.domain.services.clinical_thresholds import (
     ClinicalThresholdsConfig,
@@ -385,7 +386,7 @@ class RiskLevelAssessor:
 
     def analyze_risk_trajectory(
         self,
-        historical_risks: list[dict],
+        historical_risks: list[dict[str, Any]],
         current_risk_level: str,
         current_score: float,
     ) -> RiskTrajectory:

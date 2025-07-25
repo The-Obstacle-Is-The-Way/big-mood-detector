@@ -8,6 +8,7 @@ Following KISS principle - perfect for MVP with hundreds of users.
 import json
 from datetime import date, datetime
 from pathlib import Path
+from typing import Any
 
 import filelock
 
@@ -156,7 +157,7 @@ class FileBaselineRepository(BaselineRepositoryInterface):
             "data_points": baseline.data_points,
         }
 
-    def _dict_to_baseline(self, data: dict) -> UserBaseline:
+    def _dict_to_baseline(self, data: dict[str, Any]) -> UserBaseline:
         """Convert dictionary to UserBaseline object."""
         return UserBaseline(
             user_id=data["user_id"],
