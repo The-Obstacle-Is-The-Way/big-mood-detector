@@ -4,12 +4,11 @@ site_author: Big Mood Detector Contributors
 site_url: https://clarity-digital-twin.github.io/big-mood-detector
 repo_url: https://github.com/Clarity-Digital-Twin/big-mood-detector
 repo_name: Clarity-Digital-Twin/big-mood-detector
-copyright: Copyright &copy; 2024 Big Mood Detector Contributors
+copyright: Copyright &copy; 2025 Big Mood Detector Contributors
 
 # Theme configuration
 theme:
   name: material
-  custom_dir: docs/overrides
   palette:
     # Light mode
     - media: "(prefers-color-scheme: light)"
@@ -56,23 +55,6 @@ theme:
 plugins:
   - search:
       separator: '[\s\-\.]'
-  - mkdocstrings:
-      handlers:
-        python:
-          selection:
-            docstring_style: google
-          rendering:
-            show_source: true
-            show_root_heading: true
-            show_root_toc_entry: false
-            show_category_heading: true
-            show_if_no_docstring: false
-            show_signature_annotations: true
-            show_symbol_type_heading: true
-            show_symbol_type_toc: true
-            members_order: source
-            separate_signature: true
-  - autorefs
 
 # Extensions
 markdown_extensions:
@@ -131,72 +113,69 @@ extra:
       link: https://github.com/Clarity-Digital-Twin/big-mood-detector
     - icon: fontawesome/brands/python
       link: https://pypi.org/project/big-mood-detector/
-  
-  analytics:
-    provider: google
-    property: G-XXXXXXXXXX
 
 # Navigation
 nav:
-  - Home:
-    - index.md
-    - Roadmap: ROADMAP.md
-    - License: license.md
+  - Home: ../README.md
   
   - Getting Started:
     - Quick Start: user/QUICK_START_GUIDE.md
-    - Apple Health Export: user/APPLE_HEALTH_EXPORT.md
-    - Advanced Usage: user/ADVANCED_USAGE.md
+    - User Guide: user/README.md
+    - Application Workflow: user/APPLICATION_WORKFLOW.md
+    - Setup Guides:
+      - Installation: setup/SETUP_GUIDE.md
+      - Data Setup: setup/DATA_SETUP_GUIDE.md
+      - Docker Setup: setup/DOCKER_SETUP_GUIDE.md
+      - PC Migration: setup/PC_MIGRATION_CHECKLIST.md
   
   - Architecture:
     - Overview: developer/ARCHITECTURE_OVERVIEW.md
     - Dual Pipeline: developer/DUAL_PIPELINE_ARCHITECTURE.md
-    - Model Architecture: developer/MODEL_WEIGHT_ARCHITECTURE.md
+    - Model Weights: developer/MODEL_WEIGHT_ARCHITECTURE.md
     - Data Processing: developer/DATA_DOSSIER.md
-    - Design Patterns: refactoring/DESIGN_PATTERNS_CATALOG.md
-    - Current Architecture:
-      - Pipeline Design: architecture/bulletproof_pipeline_summary.md
-      - Ensemble Configuration: architecture/ensemble_weights_config.md
-      - XML Optimization: architecture/xml_optimization_solution.md
+    - XML Optimization: architecture/xml_optimization_solution.md
   
-  - Clinical Documentation:
-    - Clinical Requirements: clinical/CLINICAL_REQUIREMENTS_DOCUMENT.md
+  - Clinical:
+    - Overview: clinical/README.md
+    - Requirements: clinical/CLINICAL_REQUIREMENTS_DOCUMENT.md
     - Clinical Dossier: clinical/CLINICAL_DOSSIER.md
-    - Literature Review:
-      - Overview: literature/clinical_references_to_read.md
-      - XGBoost Study: literature/converted_markdown/xgboost-mood/xgboost-mood.md
-      - PAT Model: literature/converted_markdown/pretrained-actigraphy-transformer/pretrained-actigraphy-transformer.md
-      - Fitbit Bipolar: literature/converted_markdown/fitbit-bipolar-mood/fitbit-bipolar-mood.md
   
   - API Reference:
     - Overview: developer/API_REFERENCE.md
-    - Endpoints:
+    - REST Endpoints:
       - Health: api/health.md
       - Features: api/features.md
       - Predictions: api/predictions.md
       - Labels: api/labels.md
       - Clinical: api/clinical.md
-    - Python API:
-      - Domain: api/python/domain.md
-      - Application: api/python/application.md
-      - Infrastructure: api/python/infrastructure.md
   
-  - Models & ML:
-    - Feature Reference: models/xgboost-features/FEATURE_REFERENCE.md
-    - Ensemble Mathematics: models/ensemble/ENSEMBLE_MATHEMATICS.md
-    - Integration Guide: developer/model_integration_guide.md
+  - ML Training:
+    - PAT Depression Training: training/PAT_DEPRESSION_TRAINING.md
+    - PAT-L Paper Replication: training/PAT_L_PAPER_REPLICATION.md
+    - PAT Complete Journey: training/PAT_COMPLETE_PIPELINE_JOURNEY.md
+    - Training Summary: training/TRAINING_SUMMARY.md
+    - Normalization Lessons: training/NORMALIZATION_LESSON_LEARNED.md
+  
+  - Development:
+    - Developer Guide: developer/README.md
+    - Git Workflow: developer/GIT_WORKFLOW.md
+    - Model Integration: developer/model_integration_guide.md
+    - Root Structure: developer/ROOT_STRUCTURE.md
+    - Design Patterns: refactoring/DESIGN_PATTERNS_CATALOG.md
+    - Changelog: refactoring/CHANGELOG.md
   
   - Operations:
     - Deployment Guide: developer/DEPLOYMENT_GUIDE.md
+    - Deployment Readiness: deployment/DEPLOYMENT_READINESS.md
+    - Data Files Manifest: deployment/DATA_FILES_MANIFEST.md
     - Production Notes: developer/PRODUCTION_NOTES.md
     - Security: developer/SECURITY.md
-    - Git Workflow: developer/GIT_WORKFLOW.md
+    - Performance: performance/OPTIMIZATION_TRACKING.md
   
-  - Development:
-    - Contributing: ../CONTRIBUTING.md
-    - Refactoring Patterns: refactoring/DESIGN_PATTERNS_CATALOG.md
-    - Change Log: refactoring/CHANGELOG.md
+  - Contributing:
+    - Guidelines: ../CONTRIBUTING.md
+    - Documentation Structure: DOCUMENTATION_STRUCTURE.md
+    - AI Agent Guide: ../CLAUDE.md
   
-  - Archive:
-    - Overview: archive/README.md
-    - Historical Docs: archive/
+  - Research:
+    - Literature: literature/clinical_references_to_read.md

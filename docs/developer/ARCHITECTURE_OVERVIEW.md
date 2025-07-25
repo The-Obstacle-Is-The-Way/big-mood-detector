@@ -6,7 +6,7 @@ Big Mood Detector follows **Clean Architecture** principles with clear separatio
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    Interfaces Layer                          │
+│                    Interfaces Layer                         │
 │  ┌─────────────┐  ┌─────────────┐  ┌────────────────────┐  │
 │  │     CLI     │  │   FastAPI   │  │   Future Web UI    │  │
 │  │  (Typer)    │  │   Server    │  │   (Next.js)        │  │
@@ -14,18 +14,18 @@ Big Mood Detector follows **Clean Architecture** principles with clear separatio
 └────────────────────────┬────────────────────────────────────┘
                          │
 ┌────────────────────────▼────────────────────────────────────┐
-│                  Application Layer                           │
-│  ┌─────────────────────────────────────────────────────┐   │
-│  │              Use Cases & Services                    │   │
-│  │  • ProcessHealthDataUseCase                          │   │
-│  │  • PredictMoodEnsembleUseCase                       │   │
-│  │  • LabelManagementService                           │   │
-│  │  • FileWatcherService                               │   │
-│  └─────────────────────────────────────────────────────┘   │
+│                  Application Layer                          │
+│  ┌─────────────────────────────────────────────────────┐    │
+│  │              Use Cases & Services                   │    │
+│  │  • ProcessHealthDataUseCase                         │    │
+│  │  • PredictMoodEnsembleUseCase                       │    │
+│  │  • LabelManagementService                           │    │
+│  │  • FileWatcherService                               │    │
+│  └─────────────────────────────────────────────────────┘    │
 └────────────────────────┬────────────────────────────────────┘
                          │
 ┌────────────────────────▼────────────────────────────────────┐
-│                    Domain Layer                              │
+│                    Domain Layer                             │
 │  ┌─────────────────┐  ┌──────────────────┐                 │
 │  │    Entities     │  │  Domain Services │                 │
 │  │ • SleepRecord   │  │ • SleepWindowAnalyzer            │ │
