@@ -7,8 +7,10 @@ Based on PAT paper capabilities: binary depression and medication proxy predicti
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+from typing import Any
 
 import numpy as np
+from numpy.typing import NDArray
 
 
 @dataclass
@@ -36,7 +38,7 @@ class PATPredictorInterface(ABC):
     """
 
     @abstractmethod
-    def predict_from_embeddings(self, embeddings: np.ndarray) -> PATBinaryPredictions:
+    def predict_from_embeddings(self, embeddings: NDArray[np.float32]) -> PATBinaryPredictions:
         """
         Get binary predictions from PAT embeddings.
 
@@ -52,7 +54,7 @@ class PATPredictorInterface(ABC):
         pass
 
     @abstractmethod
-    def predict_depression(self, embeddings: np.ndarray) -> float:
+    def predict_depression(self, embeddings: NDArray[np.float32]) -> float:
         """
         Predict probability of depression (PHQ-9 >= 10).
 
@@ -65,7 +67,7 @@ class PATPredictorInterface(ABC):
         pass
 
     @abstractmethod
-    def predict_medication_proxy(self, embeddings: np.ndarray) -> float:
+    def predict_medication_proxy(self, embeddings: NDArray[np.float32]) -> float:
         """
         Predict probability of benzodiazepine usage.
 

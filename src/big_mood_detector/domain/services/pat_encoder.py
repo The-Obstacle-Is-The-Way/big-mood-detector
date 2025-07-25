@@ -9,6 +9,7 @@ on specific ML framework implementations.
 from abc import ABC, abstractmethod
 
 import numpy as np
+from numpy.typing import NDArray
 
 
 class PATEncoderInterface(ABC):
@@ -21,7 +22,7 @@ class PATEncoderInterface(ABC):
     """
 
     @abstractmethod
-    def encode(self, activity_sequence: np.ndarray) -> np.ndarray:
+    def encode(self, activity_sequence: NDArray[np.float32]) -> NDArray[np.float32]:
         """
         Encode activity sequence into embeddings.
 
@@ -38,7 +39,7 @@ class PATEncoderInterface(ABC):
         pass
 
     @abstractmethod
-    def validate_sequence(self, activity_sequence: np.ndarray) -> bool:
+    def validate_sequence(self, activity_sequence: NDArray[np.float32]) -> bool:
         """
         Validate that activity sequence has correct format.
 

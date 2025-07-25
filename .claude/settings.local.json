@@ -53,7 +53,8 @@
       "Bash(ruff check:*)",
       "Bash(make:*)",
       "Bash(mypy:*)",
-      "Bash(pytest:*)"
+      "Bash(pytest:*)",
+      "Bash(tree:*)"
     ],
     "deny": []
   }
