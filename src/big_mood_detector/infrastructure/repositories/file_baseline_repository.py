@@ -128,16 +128,16 @@ class FileBaselineRepository(BaselineRepositoryInterface):
         )
         return baselines
 
-    def _load_history(self, history_file: Path) -> list[dict]:
+    def _load_history(self, history_file: Path) -> list[dict[str, Any]]:
         """Load baseline history from file."""
         if not history_file.exists():
             return []
 
         with open(history_file) as f:
-            data: list[dict] = json.load(f)
+            data: list[dict[str, Any]] = json.load(f)
             return data
 
-    def _baseline_to_dict(self, baseline: UserBaseline) -> dict:
+    def _baseline_to_dict(self, baseline: UserBaseline) -> dict[str, Any]:
         """Convert UserBaseline to dictionary for JSON storage."""
         return {
             "user_id": baseline.user_id,

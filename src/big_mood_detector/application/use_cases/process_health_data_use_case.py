@@ -780,7 +780,7 @@ class MoodPredictionPipeline:
 
     def _process_parsed_data_internal(
         self,
-        records: dict[str, list],
+        records: dict[str, list[Any]],
         output_path: Path,
         start_date: date | None = None,
         end_date: date | None = None,
@@ -857,7 +857,7 @@ class MoodPredictionPipeline:
 
     def _extract_daily_features(
         self,
-        records: dict[str, list],
+        records: dict[str, list[Any]],
         start_date: date | None,
         end_date: date | None,
     ) -> list[ClinicalFeatureSet]:

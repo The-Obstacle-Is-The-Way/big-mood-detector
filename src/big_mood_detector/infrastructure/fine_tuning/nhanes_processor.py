@@ -5,6 +5,7 @@ Processes NHANES XPT files into labeled datasets for fine-tuning.
 """
 
 from pathlib import Path
+from typing import Any
 
 import numpy as np
 import numpy.typing as npt
@@ -319,7 +320,7 @@ class NHANESProcessor:
         subject_id: int,
         normalize: bool = True,
         standardize: bool = True
-    ) -> np.ndarray:
+    ) -> np.ndarray[Any, np.dtype[np.float64]]:
         """Extract 7-day activity sequences for PAT model.
 
         Args:

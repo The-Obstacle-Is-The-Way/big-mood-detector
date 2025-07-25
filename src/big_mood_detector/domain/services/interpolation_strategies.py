@@ -16,7 +16,7 @@ from typing import Protocol
 
 import numpy as np
 import pandas as pd
-from scipy import interpolate
+from scipy import interpolate  # type: ignore[import-untyped]
 
 
 class InterpolationMethod(Enum):

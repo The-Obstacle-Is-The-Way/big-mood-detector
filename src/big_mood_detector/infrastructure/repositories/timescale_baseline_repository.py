@@ -45,7 +45,7 @@ logger = get_logger()
 Base: Any = declarative_base()
 
 
-class BaselineRawRecord(Base):
+class BaselineRawRecord(Base):  # type: ignore[misc]
     """
     Raw baseline data table - hypertable partitioned by ts.
 
@@ -67,7 +67,7 @@ class BaselineRawRecord(Base):
     source = Column(String, default="feature_engineer")
 
 
-class BaselineAggregateRecord(Base):
+class BaselineAggregateRecord(Base):  # type: ignore[misc]
     """
     Materialized view of baseline aggregates.
 
@@ -134,7 +134,7 @@ class TimescaleBaselineRepository(BaselineRepositoryInterface):
         )
         if enable_feast_sync:
             try:
-                import feast
+                import feast  # type: ignore[import-not-found]
 
                 self.feast_client = feast.FeatureStore(repo_path=str(feast_repo_path))
                 logger.info("feast_client_initialized", repo_path=feast_repo_path)

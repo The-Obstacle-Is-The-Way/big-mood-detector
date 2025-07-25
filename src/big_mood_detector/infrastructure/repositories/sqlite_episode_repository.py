@@ -9,6 +9,7 @@ import threading
 from datetime import date as date_type
 from datetime import datetime
 from pathlib import Path
+from typing import Any
 
 from big_mood_detector.domain.services.episode_labeler import EpisodeLabeler
 from big_mood_detector.infrastructure.logging import get_module_logger
@@ -239,7 +240,7 @@ class SQLiteEpisodeRepository:
 
     def get_episodes_by_date_range(
         self, start_date: str | date_type, end_date: str | date_type
-    ) -> list[dict]:
+    ) -> list[dict[str, Any]]:
         """Get all episodes within a date range.
 
         Args:
@@ -281,7 +282,7 @@ class SQLiteEpisodeRepository:
             conn.close()
             return episodes
 
-    def get_episodes_by_rater(self, rater_id: str) -> list[dict]:
+    def get_episodes_by_rater(self, rater_id: str) -> list[dict[str, Any]]:
         """Get all episodes for a specific rater.
 
         Args:
@@ -311,7 +312,7 @@ class SQLiteEpisodeRepository:
             conn.close()
             return episodes
 
-    def get_baselines_by_rater(self, rater_id: str) -> list[dict]:
+    def get_baselines_by_rater(self, rater_id: str) -> list[dict[str, Any]]:
         """Get all baseline periods for a specific rater.
 
         Args:

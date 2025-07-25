@@ -17,7 +17,6 @@ import numpy as np
 
 from big_mood_detector.domain.services.clinical_feature_extractor import (
     ClinicalFeatureSet,
-    PATSequence,
     SeoulXGBoostFeatures,
 )
 from big_mood_detector.domain.services.feature_engineering_orchestrator import (
@@ -29,6 +28,7 @@ from big_mood_detector.domain.services.feature_types import (
     FeatureValidationResult,
     UnifiedFeatureSet,
 )
+from big_mood_detector.domain.services.pat_sequence_builder import PATSequence
 
 if TYPE_CHECKING:
     pass

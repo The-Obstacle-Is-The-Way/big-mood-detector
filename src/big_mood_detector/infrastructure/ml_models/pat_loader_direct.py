@@ -7,10 +7,11 @@ loads the weights without complex layer reconstruction.
 
 import logging
 from pathlib import Path
+from typing import Any
 
 import h5py
 import numpy as np
-import tensorflow as tf
+import tensorflow as tf  # type: ignore[import-untyped]
 from numpy.typing import NDArray
 
 logger = logging.getLogger(__name__)
@@ -31,7 +32,7 @@ class DirectPATModel:
         self.is_loaded = False
         self.layer_norm_epsilon = 1e-12  # Default value
 
-    def _get_config(self, model_size: str) -> dict:
+    def _get_config(self, model_size: str) -> dict[str, Any]:
         """Get model configuration."""
         configs = {
             "small": {

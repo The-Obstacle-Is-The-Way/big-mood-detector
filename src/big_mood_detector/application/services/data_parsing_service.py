@@ -75,7 +75,7 @@ class DataSummary:
 class HealthDataParser(Protocol):
     """Protocol for health data parsers."""
 
-    def parse(self, file_path: Path) -> dict[str, list]:
+    def parse(self, file_path: Path) -> dict[str, list[Any]]:
         """Parse health data from file."""
         ...
 
@@ -458,7 +458,7 @@ class DataParsingService:
         return filtered
 
     def validate_parsed_data(
-        self, data: dict[str, list] | ParsedHealthData
+        self, data: dict[str, list[Any]] | ParsedHealthData
     ) -> DataValidationResult:
         """
         Validate parsed health data.
@@ -515,7 +515,7 @@ class DataParsingService:
             warnings=warnings,
         )
 
-    def get_data_summary(self, data: dict[str, list]) -> dict[str, Any]:
+    def get_data_summary(self, data: dict[str, list[Any]]) -> dict[str, Any]:
         """
         Get summary of parsed data.
 

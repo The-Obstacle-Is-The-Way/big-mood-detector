@@ -159,7 +159,7 @@ class MoodPredictor:
             else:
                 print(f"Warning: No model found for {mood_type}")
 
-    def predict(self, features: np.ndarray) -> MoodPrediction:
+    def predict(self, features: np.ndarray[Any, np.dtype[np.float64]]) -> MoodPrediction:
         """
         Predict mood episode risks from features.
 
@@ -257,7 +257,7 @@ class MoodPredictor:
             confidence=confidence,
         )
 
-    def predict_batch(self, feature_list: list[np.ndarray]) -> list[MoodPrediction]:
+    def predict_batch(self, feature_list: list[np.ndarray[Any, np.dtype[np.float64]]]) -> list[MoodPrediction]:
         """
         Predict mood risks for multiple days.
 
@@ -269,7 +269,7 @@ class MoodPredictor:
         """
         return [self.predict(features) for features in feature_list]
 
-    def _calculate_confidence(self, features: np.ndarray) -> float:
+    def _calculate_confidence(self, features: np.ndarray[Any, np.dtype[np.float64]]) -> float:
         """
         Calculate prediction confidence based on feature quality.
 

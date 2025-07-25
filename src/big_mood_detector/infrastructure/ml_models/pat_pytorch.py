@@ -39,7 +39,7 @@ class SinusoidalPositionalEmbedding(nn.Module):
         """Add positional embeddings to input tensor."""
         seq_len = x.size(1)
         # Type annotation to help mypy understand this is a Tensor
-        pe_buffer: torch.Tensor = self.pe  # type: ignore[assignment]
+        pe_buffer: torch.Tensor = self.pe
         pe_slice = pe_buffer[:, :seq_len]
         return x + pe_slice
 

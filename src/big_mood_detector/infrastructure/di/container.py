@@ -458,7 +458,7 @@ def get_container() -> Container:
     return _container
 
 
-def inject(func: Callable[..., Any]) -> Callable:
+def inject(func: Callable[..., Any]) -> Callable[..., Any]:
     """
     Decorator for dependency injection.
 

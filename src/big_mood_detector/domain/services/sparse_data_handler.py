@@ -10,6 +10,7 @@ Based on research in docs/sparse_temporal_data_research_2025.md
 from dataclasses import dataclass
 from datetime import date
 from enum import Enum, auto
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -52,7 +53,7 @@ class DensityMetrics:
     max_gap_days: int  # Largest gap in days
     consecutive_days: int  # Longest consecutive run
     total_days: int  # Total days in range
-    missing_patterns: dict  # Patterns in missingness
+    missing_patterns: dict[str, Any]  # Patterns in missingness
     density_class: DataDensity
 
     @property
@@ -169,7 +170,7 @@ class SparseDataHandler:
 
     def _analyze_missing_patterns(
         self, dates: list[date], start: date, end: date
-    ) -> dict:
+    ) -> dict[str, Any]:
         """Analyze patterns in missing data."""
         date_set = set(dates)
         all_dates = pd.date_range(start, end, freq="D")

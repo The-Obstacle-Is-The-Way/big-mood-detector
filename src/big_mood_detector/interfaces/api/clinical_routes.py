@@ -104,7 +104,7 @@ class ClinicalInterpretationResponse(BaseModel):
     )
     clinical_summary: str = Field(..., description="Human-readable clinical summary")
     dsm5_criteria_met: bool = Field(..., description="Whether DSM-5 criteria are met")
-    recommendations: list[dict] = Field(..., description="Treatment recommendations")
+    recommendations: list[dict[str, Any]] = Field(..., description="Treatment recommendations")
     clinical_features: dict[str, Any]= Field(..., description="Key clinical features")
 
 

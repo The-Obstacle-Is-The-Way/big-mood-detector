@@ -16,7 +16,7 @@ from numpy.typing import NDArray
 class ModelProtocol(Protocol):
     """Protocol for model interface."""
 
-    def encode(self, sequences: NDArray[np.float32]) -> np.ndarray:
+    def encode(self, sequences: NDArray[np.float32]) -> np.ndarray[Any, np.dtype[np.float64]]:
         """Encode sequences to embeddings."""
         ...
 
@@ -34,7 +34,7 @@ def load_population_model(model_path: str | None, model_type: str) -> Any:
     # This would load actual models in production
     # For now, it's a placeholder that will be mocked in tests
     if model_type == "xgboost":
-        import joblib
+        import joblib  # type: ignore[import-untyped]
 
         return joblib.load(model_path) if model_path else None
     elif model_type == "pat":
@@ -404,10 +404,11 @@ class PersonalCalibrator:
 
         # Save model weights
         if self.model_type == "xgboost" and self.model is not None:
-            model_path = user_dir / "xgboost_model.pkl"  # type: ignore[unreachable]
+            import joblib
+            model_path = user_dir / "xgboost_model.pkl"
             joblib.dump(self.model, model_path)
         elif self.model_type == "pat" and self.adapter is not None:
-            adapter_path = user_dir / "pat_adapter.pt"  # type: ignore[unreachable]
+            adapter_path = user_dir / "pat_adapter.pt"
             # In production, would save PyTorch state dict
             try:
                 import torch
@@ -542,7 +543,7 @@ class PersonalCalibrator:
         else:
             self.confidence_factor = 1.0
 
-    def calibrate_probabilities(self, raw_probs: NDArray[np.float32]) -> np.ndarray:
+    def calibrate_probabilities(self, raw_probs: NDArray[np.float32]) -> np.ndarray[Any, np.dtype[np.float32]]:
         """Apply probability calibration.
 
         Args:

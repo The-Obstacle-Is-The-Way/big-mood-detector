@@ -6,7 +6,7 @@ in AdvancedFeatureEngineer is mathematically correct.
 """
 
 import numpy as np
-from hypothesis import given, settings
+from hypothesis import HealthCheck, given, settings
 from hypothesis import strategies as st
 
 from big_mood_detector.domain.services.advanced_feature_engineering import (
@@ -22,6 +22,7 @@ class TestIncrementalStatsProperty:
             st.floats(min_value=-1000, max_value=1000, allow_nan=False), min_size=1
         )
     )
+    @settings(suppress_health_check=[HealthCheck.too_slow])
     def test_mean_matches_numpy(self, values):
         """
         Test that incremental mean calculation matches numpy.
@@ -46,6 +47,7 @@ class TestIncrementalStatsProperty:
             st.floats(min_value=-1000, max_value=1000, allow_nan=False), min_size=2
         )
     )
+    @settings(suppress_health_check=[HealthCheck.too_slow])
     def test_std_matches_numpy(self, values):
         """
         Test that incremental std calculation matches numpy.
@@ -81,6 +83,7 @@ class TestIncrementalStatsProperty:
             st.floats(min_value=-1000, max_value=1000, allow_nan=False), min_size=1
         )
     )
+    @settings(suppress_health_check=[HealthCheck.too_slow])
     def test_count_is_correct(self, values):
         """
         Test that count tracks number of values.
@@ -118,6 +121,7 @@ class TestIncrementalStatsProperty:
         st.lists(st.floats(min_value=-100, max_value=100, allow_nan=False), min_size=1),
         st.lists(st.floats(min_value=-100, max_value=100, allow_nan=False), min_size=1),
     )
+    @settings(suppress_health_check=[HealthCheck.too_slow])
     def test_order_independence(self, values1, values2):
         """
         Test that order of updates doesn't matter for final result.
@@ -150,7 +154,7 @@ class TestIncrementalStatsProperty:
             max_size=50,
         )
     )
-    @settings(max_examples=50)
+    @settings(max_examples=50, suppress_health_check=[HealthCheck.too_slow])
     def test_incremental_vs_batch(self, values):
         """
         Test incremental updates vs batch calculation.
@@ -198,6 +202,7 @@ class TestIncrementalStatsProperty:
     @given(
         st.lists(st.floats(min_value=-10, max_value=10, allow_nan=False), min_size=3)
     )
+    @settings(suppress_health_check=[HealthCheck.too_slow])
     def test_zscore_calculation(self, values):
         """
         Test z-score calculation is correct.
@@ -228,6 +233,7 @@ class TestIncrementalStatsProperty:
             min_size=5,
         )
     )
+    @settings(suppress_health_check=[HealthCheck.too_slow])
     def test_numerical_stability_large_numbers(self, values):
         """
         Test numerical stability with large numbers.
@@ -248,6 +254,7 @@ class TestIncrementalStatsProperty:
         assert baseline["std"] < 100.0
 
     @given(st.lists(st.floats(min_value=-1, max_value=1, allow_nan=False), min_size=5))
+    @settings(suppress_health_check=[HealthCheck.too_slow])
     def test_sum_and_sum_sq_tracking(self, values):
         """
         Test that sum and sum_sq are tracked correctly.

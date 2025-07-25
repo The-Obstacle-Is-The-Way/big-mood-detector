@@ -18,6 +18,7 @@ Design Principles:
 
 from dataclasses import dataclass
 from datetime import date, timedelta
+from typing import Any
 
 import numpy as np
 from numpy.typing import NDArray
@@ -38,7 +39,7 @@ class PATSequence:
     """
 
     end_date: date  # Last day of the sequence
-    activity_values: np.ndarray  # Shape: (10080,)
+    activity_values: np.ndarray[Any, np.dtype[np.float32]]  # Shape: (10080,)
     missing_days: list[date]  # Days with no data
     data_quality_score: float  # 0-1, based on completeness
 
@@ -58,7 +59,7 @@ class PATSequence:
         """Check if all 7 days have data."""
         return len(self.missing_days) == 0
 
-    def to_patches(self, patch_size: int = 18) -> np.ndarray:
+    def to_patches(self, patch_size: int = 18) -> np.ndarray[Any, np.dtype[np.float32]]:
         """
         Convert to patches for transformer input.
 
@@ -73,7 +74,7 @@ class PATSequence:
             num_patches, patch_size
         )
 
-    def get_normalized(self) -> np.ndarray:
+    def get_normalized(self) -> np.ndarray[Any, np.dtype[np.float32]]:
         """
         Get z-score normalized sequence.
 
@@ -205,7 +206,7 @@ class PATSequenceBuilder:
 
     def _combine_sequences(
         self, daily_sequences: list[MinuteLevelSequence]
-    ) -> np.ndarray:
+    ) -> np.ndarray[Any, np.dtype[np.float32]]:
         """
         Combine daily sequences into a single 7-day array.
 
@@ -224,7 +225,7 @@ class PATSequenceBuilder:
 
     def _interpolate_missing_days(
         self, values: NDArray[np.float32], missing_days: list[date], start_date: date
-    ) -> np.ndarray:
+    ) -> np.ndarray[Any, np.dtype[np.float32]]:
         """
         Interpolate missing days using neighboring data.
 
@@ -244,7 +245,7 @@ class PATSequenceBuilder:
 
         return values
 
-    def calculate_pat_features(self, sequence: PATSequence) -> dict:
+    def calculate_pat_features(self, sequence: PATSequence) -> dict[str, Any]:
         """
         Calculate PAT-specific features from sequence.
 
