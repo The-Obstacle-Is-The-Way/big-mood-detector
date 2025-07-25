@@ -107,18 +107,18 @@ def load_and_fix_data():
     train_means = X_train.mean(axis=1)
     if train_means.std() < 0.01:
         logger.warning("Detected bad normalization - fixing...")
-        
+
         # Reverse and recompute
         X_train_raw = X_train * 2.0 + 2.5
         X_val_raw = X_val * 2.0 + 2.5
-        
+
         train_mean = X_train_raw.mean()
         train_std = X_train_raw.std()
         logger.info(f"Recomputed stats - Mean: {train_mean:.4f}, Std: {train_std:.4f}")
-        
+
         X_train = (X_train_raw - train_mean) / train_std
         X_val = (X_val_raw - train_mean) / train_std
-        
+
         logger.info(f"After fix - Train mean: {X_train.mean():.4f}, std: {X_train.std():.4f}")
 
     return X_train, X_val, y_train, y_val
@@ -126,21 +126,21 @@ def load_and_fix_data():
 
 def train_paper_replication():
     """Train PAT-L exactly as described in the paper."""
-    
+
     # Load data
     X_train, X_val, y_train, y_val = load_and_fix_data()
-    
+
     # Device
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     logger.info(f"Using device: {device}")
-    
+
     if device.type == "cuda":
         logger.info(f"GPU: {torch.cuda.get_device_name(0)}")
         logger.info(f"GPU Memory: {torch.cuda.get_device_properties(0).total_memory / 1024**3:.1f} GB")
 
     # Create model
     model = PATPaperDepressionNet(model_size="large", hidden_dim=128)
-    
+
     # Load pretrained weights
     weights_path = Path("model_weights/pat/pretrained/PAT-L_29k_weights.h5")
     if weights_path.exists():
@@ -152,7 +152,7 @@ def train_paper_replication():
         raise FileNotFoundError(f"Pretrained weights required at {weights_path}")
 
     model = model.to(device)
-    
+
     # Count parameters
     total_params = sum(p.numel() for p in model.parameters())
     trainable_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
@@ -161,64 +161,64 @@ def train_paper_replication():
     # Create datasets
     train_dataset = TensorDataset(torch.FloatTensor(X_train), torch.FloatTensor(y_train))
     val_dataset = TensorDataset(torch.FloatTensor(X_val), torch.FloatTensor(y_val))
-    
+
     train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
     val_loader = DataLoader(val_dataset, batch_size=64, shuffle=False)
 
     # Paper mentions class imbalance handling
     pos_weight = torch.tensor([(y_train == 0).sum() / (y_train == 1).sum()]).to(device)
     logger.info(f"Using pos_weight: {pos_weight.item():.2f}")
-    
+
     # Loss and optimizer
     criterion = nn.BCEWithLogitsLoss(pos_weight=pos_weight)
-    
+
     # Training strategy based on paper:
     # 1. Initial training with frozen encoder (like linear probing)
     # 2. Full fine-tuning with unfrozen encoder
-    
+
     logger.info("\n" + "="*60)
     logger.info("Stage 1: Training head only (frozen encoder)")
     logger.info("="*60)
-    
+
     model.freeze_encoder()
     optimizer = optim.Adam(filter(lambda p: p.requires_grad, model.parameters()), lr=1e-3)
-    
+
     best_val_auc = 0
     patience_counter = 0
-    
+
     # Stage 1: Train head only
     for epoch in range(20):
         model.train()
         train_loss = 0
-        
+
         for batch_idx, (data, target) in enumerate(train_loader):
             data, target = data.to(device), target.to(device)
-            
+
             optimizer.zero_grad()
             output = model(data).squeeze()
             loss = criterion(output, target)
             loss.backward()
             optimizer.step()
-            
+
             train_loss += loss.item()
-        
+
         # Validation
         model.eval()
         val_preds = []
         val_targets = []
-        
+
         with torch.no_grad():
             for data, target in val_loader:
                 data = data.to(device)
                 output = model(data).squeeze()
                 val_preds.extend(torch.sigmoid(output).cpu().numpy())
                 val_targets.extend(target.numpy())
-        
+
         val_auc = roc_auc_score(val_targets, val_preds)
         avg_loss = train_loss / len(train_loader)
-        
+
         logger.info(f"Stage 1 - Epoch {epoch+1}/20: Loss={avg_loss:.4f}, Val AUC={val_auc:.4f}")
-        
+
         if val_auc > best_val_auc:
             best_val_auc = val_auc
             torch.save(model.state_dict(), 'model_weights/pat/pytorch/pat_l_depression_stage1_best.pth')
@@ -229,66 +229,66 @@ def train_paper_replication():
             if patience_counter >= 5:
                 logger.info("Early stopping Stage 1")
                 break
-    
+
     logger.info(f"\nStage 1 complete. Best AUC: {best_val_auc:.4f}")
-    
+
     # Load best stage 1 model
     model.load_state_dict(torch.load('model_weights/pat/pytorch/pat_l_depression_stage1_best.pth'))
-    
+
     logger.info("\n" + "="*60)
     logger.info("Stage 2: Full fine-tuning (unfrozen encoder)")
     logger.info("="*60)
-    
+
     model.unfreeze_encoder()
-    
+
     # Different learning rates for encoder and head
     optimizer = optim.Adam([
         {'params': model.encoder.parameters(), 'lr': 5e-5},
         {'params': model.head.parameters(), 'lr': 5e-4}
     ])
-    
+
     # Cosine annealing scheduler
     scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=50, eta_min=1e-6)
-    
+
     best_overall_auc = best_val_auc
     patience_counter = 0
-    
+
     # Stage 2: Full fine-tuning
     for epoch in range(50):
         model.train()
         train_loss = 0
-        
+
         for batch_idx, (data, target) in enumerate(train_loader):
             data, target = data.to(device), target.to(device)
-            
+
             optimizer.zero_grad()
             output = model(data).squeeze()
             loss = criterion(output, target)
             loss.backward()
-            
+
             # Gradient clipping for stability
             torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
-            
+
             optimizer.step()
             train_loss += loss.item()
-        
+
         # Validation
         model.eval()
         val_preds = []
         val_targets = []
-        
+
         with torch.no_grad():
             for data, target in val_loader:
                 data = data.to(device)
                 output = model(data).squeeze()
                 val_preds.extend(torch.sigmoid(output).cpu().numpy())
                 val_targets.extend(target.numpy())
-        
+
         val_auc = roc_auc_score(val_targets, val_preds)
         avg_loss = train_loss / len(train_loader)
-        
+
         logger.info(f"Stage 2 - Epoch {epoch+1}/50: Loss={avg_loss:.4f}, Val AUC={val_auc:.4f}, LR={scheduler.get_last_lr()[0]:.2e}")
-        
+
         if val_auc > best_overall_auc:
             best_overall_auc = val_auc
             torch.save(model.state_dict(), 'model_weights/pat/pytorch/pat_l_depression_best.pth')
@@ -299,14 +299,14 @@ def train_paper_replication():
             if patience_counter >= 10:
                 logger.info("Early stopping Stage 2")
                 break
-        
+
         scheduler.step()
-    
+
     logger.info("\n" + "="*60)
     logger.info(f"Training complete! Best AUC: {best_overall_auc:.4f}")
-    logger.info(f"Target from paper: 0.610 for PAT Conv-L")
+    logger.info("Target from paper: 0.610 for PAT Conv-L")
     logger.info("="*60)
-    
+
     # Save training info
     training_info = {
         'best_auc': float(best_overall_auc),
@@ -316,7 +316,7 @@ def train_paper_replication():
         'device': str(device),
         'completed_at': datetime.now().isoformat()
     }
-    
+
     with open('model_weights/pat/pytorch/pat_l_depression_training_info.json', 'w') as f:
         json.dump(training_info, f, indent=2)
 
@@ -324,6 +324,6 @@ def train_paper_replication():
 if __name__ == "__main__":
     # Create output directory
     Path("model_weights/pat/pytorch").mkdir(parents=True, exist_ok=True)
-    
+
     # Run training
     train_paper_replication()

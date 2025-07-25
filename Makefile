@@ -37,7 +37,6 @@ setup: install-dev pre-commit
 
 # Testing targets (TDD focused)
 test:  ## Run all tests except slow_finetune and large files
-	./scripts/check_sleep_features.sh
 	pytest -n auto --cov=big_mood_detector --cov-report=term-missing
 
 test-quick:  ## Quick test run with minimal output

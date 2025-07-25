@@ -47,7 +47,10 @@
       "Bash(./scripts/launch_pat_higher_lr.sh:*)",
       "Bash(strace:*)",
       "Bash(top:*)",
-      "Bash(tmux kill-server:*)"
+      "Bash(tmux kill-server:*)",
+      "Bash(./make-wsl.sh lint:*)",
+      "Bash(make lint:*)",
+      "Bash(ruff check:*)"
     ],
     "deny": []
   }
