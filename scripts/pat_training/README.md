@@ -1,10 +1,11 @@
-# PAT Stable Baseline Configuration
+# PAT Training Scripts
 
-## What Works (Proven Configuration)
+## THE ONLY SCRIPT YOU NEED
 
-### PAT-Conv-L Simple Training
+### PAT-Conv-L Simple Training ✅
 - **Script**: `scripts/pat_training/train_pat_conv_l_simple.py`
-- **Best AUC**: 0.5924 (Gap to paper: 0.0326)
+- **Best AUC**: 0.5929 (July 25, 2025)
+- **Production Model**: `model_weights/production/pat_conv_l_v0.5929.pth`
 - **Configuration**:
   - Optimizer: AdamW with uniform LR=1e-4
   - Scheduler: Cosine annealing over 15 epochs

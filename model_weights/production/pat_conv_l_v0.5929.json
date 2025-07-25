@@ -1,0 +1,10 @@
+{
+  "model_type": "PAT-Conv-L",
+  "auc": 0.5929,
+  "date_trained": "2025-07-25",
+  "training_log": "pat_conv_l_simple.log",
+  "parameters": 1984289,
+  "architecture": "PAT-L with Conv1d patch embedding",
+  "dataset": "NHANES 2013-2014",
+  "task": "Depression classification (PHQ-9 >= 10)"
+}

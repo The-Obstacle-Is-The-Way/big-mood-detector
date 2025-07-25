@@ -54,7 +54,10 @@
       "Bash(make:*)",
       "Bash(mypy:*)",
       "Bash(pytest:*)",
-      "Bash(tree:*)"
+      "Bash(tree:*)",
+      "Bash(git tag:*)",
+      "Bash(# Move setup/migration docs\nmv SETUP_GUIDE.md DATA_SETUP_GUIDE.md DOCKER_SETUP_GUIDE.md PC_MIGRATION_CHECKLIST.md docs/setup/\n\n# Move development docs  \nmv DEPLOYMENT_READINESS.md DATA_FILES_MANIFEST.md docs/deployment/\n\n# Move temporary/old docs\nmv CLEANUP_REPORT.md PAT_DEPRESSION_TRAINING.md docs/archive/\n\n# Keep in root (these are essential)\n# - CLAUDE.md (AI guide)\n# - README.md (main documentation)\n# - CONTRIBUTING.md (standard)\n# - LICENSE (legal requirement)\n# - CHANGELOG.md (standard)\n# - ROADMAP_TO_MVP_V1.0.md (current work)\n# - pyproject.toml, Makefile, etc (build files)\n\necho \"\"✅ Moved documentation files\"\")",
+      "Bash(git filter-branch:*)"
     ],
     "deny": []
   }

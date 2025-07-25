@@ -57,4 +57,16 @@ When adding documentation:
 
 ## Version
 
-Documentation for Big Mood Detector v0.4.0
+Documentation for Big Mood Detector v0.4.1
+
+## Recent Updates
+
+### Training Documentation
+- [PAT-Conv-L Achievement](training/PAT_CONV_L_ACHIEVEMENT.md) - Best model (0.5929 AUC)
+- [Training Summary](training/TRAINING_SUMMARY.md) - Current model status
+- [Training Output Structure](training/TRAINING_OUTPUT_STRUCTURE.md) - Where files go
+
+### Setup & Deployment
+- [Setup Guide](setup/SETUP_GUIDE.md) - Installation instructions
+- [Docker Setup](setup/DOCKER_SETUP_GUIDE.md) - Container deployment
+- [Deployment Readiness](deployment/DEPLOYMENT_READINESS.md) - Production checklist
