@@ -90,7 +90,7 @@ class ParserFactory:
                     self.activity_parser = ActivityJSONParser()
                     self.heart_parser = HeartRateJSONParser()
 
-                def parse(self, directory: Path) -> dict:
+                def parse(self, directory: Path) -> dict[str, Any]:
                     """Parse all JSON files in directory."""
                     sleep_records = []
                     activity_records = []

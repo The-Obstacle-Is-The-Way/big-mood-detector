@@ -109,7 +109,7 @@ class ChunkedWriter:
 
     def _combine_parquet_chunks(self) -> None:
         """Combine temporary parquet chunks into final file."""
-        import pyarrow.parquet as pq
+        import pyarrow.parquet as pq  # type: ignore[import-untyped]
 
         chunk_files = sorted(self.temp_dir.glob("chunk_*.parquet"))
 

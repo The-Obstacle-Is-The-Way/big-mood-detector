@@ -390,7 +390,7 @@ class ActivitySequenceExtractor:
 
     def extract_minute_sequence(
         self, records: list[ActivityRecord], days: int = 7
-    ) -> np.ndarray:
+    ) -> np.ndarray[Any, np.dtype[np.float64]]:
         """Convert activity records into a contiguous minute sequence.
 
         The sequence always has ``days * 1,440`` values starting at midnight of

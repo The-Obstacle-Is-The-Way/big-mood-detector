@@ -168,7 +168,7 @@ class Settings(BaseSettings):
         initialize_directories(self)
 
     @computed_field
-    def log_config(self) -> dict:
+    def log_config(self) -> dict[str, Any]:
         """Generate logging configuration."""
         return {
             "version": 1,

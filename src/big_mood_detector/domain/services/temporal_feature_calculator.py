@@ -15,7 +15,7 @@ from dataclasses import dataclass
 from typing import Any, TypeVar
 
 import numpy as np
-from scipy import stats
+from scipy import stats  # type: ignore[import-untyped]
 
 from big_mood_detector.domain.utils.math_helpers import safe_std, safe_var
 

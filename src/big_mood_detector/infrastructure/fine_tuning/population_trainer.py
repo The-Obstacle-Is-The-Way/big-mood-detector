@@ -9,7 +9,7 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 
-import joblib
+import joblib  # type: ignore[import-untyped]
 import numpy as np
 import pandas as pd
 import xgboost as xgb
@@ -275,7 +275,7 @@ def load_pat_model(model_path: str) -> Any:
         def __init__(self) -> None:
             self.output_dim = 768
 
-        def encode(self, sequences: Any) -> np.ndarray:
+        def encode(self, sequences: Any) -> np.ndarray[Any, np.dtype[np.float64]]:
             # Return random embeddings for now
             return np.random.rand(len(sequences), self.output_dim)
 

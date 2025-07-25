@@ -18,8 +18,8 @@ import numpy as np
 from numpy.typing import NDArray
 
 try:
-    import tensorflow as tf
-    from tensorflow import keras
+    import tensorflow as tf  # type: ignore[import-untyped]
+    from tensorflow import keras  # type: ignore[import-untyped]
     PAT_AVAILABLE = True
 except ModuleNotFoundError:  # keeps CI green on slim images
     tf = None
@@ -203,7 +203,7 @@ class PATModel:
             self.is_loaded = False
             return False
 
-    def extract_features(self, sequence: PATSequence) -> np.ndarray:
+    def extract_features(self, sequence: PATSequence) -> np.ndarray[Any, np.dtype[np.float64]]:
         """
         Extract learned features from a PAT sequence.
 
@@ -237,7 +237,7 @@ class PATModel:
         # Return 1D feature vector
         return np.asarray(features.squeeze())
 
-    def extract_features_batch(self, sequences: list[PATSequence]) -> np.ndarray:
+    def extract_features_batch(self, sequences: list[PATSequence]) -> np.ndarray[Any, np.dtype[np.float64]]:
         """
         Extract features from multiple sequences.
 
@@ -286,7 +286,7 @@ class PATModel:
         logger.warning("Attention weight extraction not yet implemented")
         return None
 
-    def _prepare_input(self, sequence: PATSequence) -> np.ndarray:
+    def _prepare_input(self, sequence: PATSequence) -> np.ndarray[Any, np.dtype[np.float64]]:
         """
         Prepare sequence for model input.
 
@@ -325,7 +325,7 @@ class PATModel:
 
         return pos_embeddings
 
-    def get_model_info(self) -> dict:
+    def get_model_info(self) -> dict[str, Any]:
         """
         Get model configuration information.
 
@@ -366,7 +366,7 @@ class PATFeatureExtractor:
         for size in model_sizes:
             self.models[size] = PATModel(model_size=size)
 
-    def load_all_models(self, weights_dir: Path) -> dict:
+    def load_all_models(self, weights_dir: Path) -> dict[str, Any]:
         """
         Load pretrained weights for all models.
 
@@ -393,7 +393,7 @@ class PATFeatureExtractor:
 
         return results
 
-    def extract_ensemble_features(self, sequence: PATSequence) -> np.ndarray:
+    def extract_ensemble_features(self, sequence: PATSequence) -> np.ndarray[Any, np.dtype[np.float64]]:
         """
         Extract and concatenate features from all loaded models.
 

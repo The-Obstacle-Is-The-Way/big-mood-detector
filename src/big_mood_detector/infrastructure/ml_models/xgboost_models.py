@@ -12,7 +12,7 @@ import logging
 from pathlib import Path
 from typing import Any
 
-import joblib
+import joblib  # type: ignore[import-untyped]
 import numpy as np
 
 from big_mood_detector.domain.services.mood_predictor import MoodPrediction
@@ -161,7 +161,7 @@ class XGBoostModelLoader:
 
         return results
 
-    def predict(self, features: np.ndarray) -> MoodPrediction:
+    def predict(self, features: np.ndarray[Any, np.dtype[np.float64]]) -> MoodPrediction:
         """
         Make mood predictions using all loaded models.
 
@@ -205,7 +205,7 @@ class XGBoostModelLoader:
             confidence=float(confidence),
         )
 
-    def predict_batch(self, features_batch: np.ndarray) -> list[MoodPrediction]:
+    def predict_batch(self, features_batch: np.ndarray[Any, np.dtype[np.float64]]) -> list[MoodPrediction]:
         """
         Make predictions for multiple samples.
 
@@ -255,7 +255,7 @@ class XGBoostModelLoader:
 
         return predictions
 
-    def _validate_features(self, features: np.ndarray) -> None:
+    def _validate_features(self, features: np.ndarray[Any, np.dtype[np.float64]]) -> None:
         """
         Validate feature vector.
 
@@ -282,7 +282,7 @@ class XGBoostModelLoader:
         # Could be enhanced with model uncertainty estimates
         return abs(max_risk - 0.5) * 2
 
-    def dict_to_array(self, feature_dict: dict[str, float]) -> np.ndarray:
+    def dict_to_array(self, feature_dict: dict[str, float]) -> np.ndarray[Any, np.dtype[np.float64]]:
         """
         Convert feature dictionary to array in correct order.
 
@@ -294,7 +294,7 @@ class XGBoostModelLoader:
         """
         return np.array([feature_dict[name] for name in self.feature_names])
 
-    def get_model_info(self) -> dict:
+    def get_model_info(self) -> dict[str, Any]:
         """
         Get information about loaded models.
 
@@ -332,7 +332,7 @@ class XGBoostMoodPredictor:
         """
         return self.model_loader.load_all_models(model_dir)
 
-    def predict(self, features: np.ndarray | dict[str, float]) -> MoodPrediction:
+    def predict(self, features: np.ndarray[Any, np.dtype[np.float64]] | dict[str, float]) -> MoodPrediction:
         """
         Predict mood episode risks.
 
@@ -353,6 +353,6 @@ class XGBoostMoodPredictor:
         """Check if models are loaded."""
         return self.model_loader.is_loaded
 
-    def get_model_info(self) -> dict:
+    def get_model_info(self) -> dict[str, Any]:
         """Get model information."""
         return self.model_loader.get_model_info()

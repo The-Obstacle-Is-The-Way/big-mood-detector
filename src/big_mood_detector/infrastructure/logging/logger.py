@@ -132,7 +132,7 @@ class LoggerAdapter:
         self._log("exception", event, **kwargs)
 
 
-def log_performance(logger: FilteringBoundLogger | None = None) -> Callable:
+def log_performance(logger: FilteringBoundLogger | None = None) -> Callable[..., Any]:
     """Decorator for logging function performance.
 
     This follows the Decorator pattern - adds behavior without
@@ -145,7 +145,7 @@ def log_performance(logger: FilteringBoundLogger | None = None) -> Callable:
         Decorator function
     """
 
-    def decorator(func: Callable[..., Any]) -> Callable:
+    def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
         @functools.wraps(func)
         def wrapper(*args: Any, **kwargs: Any) -> Any:
             start_time = time.time()
@@ -224,7 +224,7 @@ def sanitize_log_data(data: dict[str, Any]) -> dict[str, Any]:
 
     for key, value in data.items():
         if key.lower() in sensitive_fields:
-            sanitized[key] = sensitive_fields[key.lower()](str(value))
+            sanitized[key] = sensitive_fields[key.lower()](str(value))  # type: ignore[no-untyped-call]
         elif isinstance(value, dict):
             # Recursive sanitization
             sanitized[key] = sanitize_log_data(value)
