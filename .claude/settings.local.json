@@ -51,7 +51,9 @@
       "Bash(./make-wsl.sh lint:*)",
       "Bash(make lint:*)",
       "Bash(ruff check:*)",
-      "Bash(make:*)"
+      "Bash(make:*)",
+      "Bash(mypy:*)",
+      "Bash(pytest:*)"
     ],
     "deny": []
   }

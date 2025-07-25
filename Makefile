@@ -37,7 +37,7 @@ setup: install-dev pre-commit
 
 # Testing targets (TDD focused)
 test:  ## Run all tests except slow_finetune and large files
-	pytest -n auto --cov=big_mood_detector --cov-report=term-missing
+	$(PYTEST) -n auto --cov=big_mood_detector --cov-report=term-missing
 
 test-quick:  ## Quick test run with minimal output
 	pytest -x --tb=short -q
@@ -80,19 +80,34 @@ test-watch:
 test-watch-parallel:
 	pytest-watch -n auto --clear --onpass="echo '✅ Parallel tests passed'" --onfail="echo '❌ Parallel tests failed'"
 
-# Code quality targets
-lint:
-	ruff check .
+# ---------------- Quality targets ----------------
+# Platform-aware paths
+PY              ?= python
+VENV_BIN        ?= .venv-wsl/bin
+
+RUFF            := $(VENV_BIN)/ruff
+MYPY            := $(VENV_BIN)/mypy
+DMYPY           := $(VENV_BIN)/dmypy
+PYTEST          := $(VENV_BIN)/pytest
+
+# Lint (autosort imports, fix whitespace; skip archived dirs)
+lint:           ## Ruff + isort/black fixes
+	$(RUFF) check . --fix --select I --exclude scripts/archive,docs/archive,logs,*.egg-info
 
 lint-fix:
-	ruff check . --fix
+	$(RUFF) check . --fix --exclude scripts/archive,docs/archive,logs,*.egg-info
 
 format:
 	black .
-	ruff check . --fix --select I
+	$(RUFF) check . --fix --select I --exclude scripts/archive,docs/archive,logs,*.egg-info
 
-type-check:
-	mypy src/big_mood_detector
+# Static typing (daemon if available, config in mypy.ini)
+type-check:     ## mypy fast path
+	@if [ -x "$(DMYPY)" ]; then \
+		$(DMYPY) run -- --config-file mypy.ini src ; \
+	else \
+		$(MYPY) --config-file mypy.ini src ; \
+	fi
 
 # Combined quality check (CI/CD ready)
 quality: lint type-check test-fast
