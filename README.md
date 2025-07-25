@@ -2,6 +2,8 @@
 
 **Wearable-data mood insights for personal research**
 
+> **For Researchers**: See [PAT_DEPRESSION_TRAINING.md](PAT_DEPRESSION_TRAINING.md) for PAT model training details
+
 [![Tests](https://img.shields.io/badge/tests-976%20passing-brightgreen)](tests/) [![Coverage](https://img.shields.io/badge/coverage-90%25-brightgreen)](htmlcov/) [![Python](https://img.shields.io/badge/python-3.12%2B-blue)](pyproject.toml) [![License](https://img.shields.io/badge/license-Apache%202.0-green)](LICENSE)
 
 Analyze your Apple Health data to understand mood patterns. Two models, two windows: PAT assesses your current state, XGBoost predicts tomorrow's risk.

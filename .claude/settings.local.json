@@ -44,7 +44,10 @@
       "Bash(./scripts/launch_pat_corrected.sh:*)",
       "Bash(tmux send-keys:*)",
       "Bash(mv:*)",
-      "Bash(./scripts/launch_pat_higher_lr.sh:*)"
+      "Bash(./scripts/launch_pat_higher_lr.sh:*)",
+      "Bash(strace:*)",
+      "Bash(top:*)",
+      "Bash(tmux kill-server:*)"
     ],
     "deny": []
   }

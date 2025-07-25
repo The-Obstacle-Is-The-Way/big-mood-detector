@@ -1,0 +1,39 @@
+2025-07-25 09:11:42,042 - INFO - ============================================================
+2025-07-25 09:11:42,043 - INFO - PAT-Conv-L Training for Depression Classification
+2025-07-25 09:11:42,043 - INFO - Target: 0.625 AUC (paper's Conv-L result)
+2025-07-25 09:11:42,043 - INFO - Architecture: PAT-L + Conv1D patch embedding
+2025-07-25 09:11:42,043 - INFO - ============================================================
+2025-07-25 09:11:42,043 - INFO - Loading corrected data from data/cache/nhanes_pat_data_subsetNone.npz
+2025-07-25 09:11:42,312 - INFO - Data shapes - Train: (3077, 10080), Val: (1026, 10080)
+2025-07-25 09:11:42,314 - INFO - Class balance - Train: 282/3077 positive
+2025-07-25 09:11:42,374 - INFO - Data statistics:
+2025-07-25 09:11:42,374 - INFO -   Train - Mean: 0.000000, Std: 0.045644
+2025-07-25 09:11:42,388 - INFO -   Val - Mean: -0.000000, Std: 0.045233
+2025-07-25 09:11:42,389 - INFO - ✅ Normalization looks good - proceeding
+2025-07-25 09:11:42,553 - INFO - Using device: cuda
+2025-07-25 09:11:42,595 - INFO - GPU: NVIDIA GeForce RTX 4090
+2025-07-25 09:11:42,596 - INFO - GPU Memory: 25.8 GB
+2025-07-25 09:11:42,899 - INFO - Replaced linear patch embedding with ConvPatchEmbedding
+2025-07-25 09:11:42,899 - INFO - Patch size: 9, Embed dim: 96
+2025-07-25 09:11:42,904 - INFO - Loading PAT-L pretrained transformer weights...
+2025-07-25 09:11:42,907 - INFO - Skipping patch embedding weights (Conv layer will use random init)
+2025-07-25 09:11:43,023 - INFO - Successfully loaded transformer weights for PAT-Conv-L
+2025-07-25 09:11:43,023 - INFO - Conv patch embedding initialized randomly (as intended)
+2025-07-25 09:11:43,024 - INFO - ✅ Loaded transformer weights, conv layer initialized randomly
+2025-07-25 09:11:43,239 - INFO - Model parameters:
+2025-07-25 09:11:43,239 - INFO -   Total: 1,984,289
+2025-07-25 09:11:43,240 - INFO -   Trainable: 1,984,289
+2025-07-25 09:11:43,240 - INFO -   Conv patch embedding: 960
+2025-07-25 09:11:43,249 - INFO - Using pos_weight: 9.91 for class imbalance
+2025-07-25 09:11:43,249 - INFO - Starting with Linear Probing (LP) phase - encoder frozen
+2025-07-25 09:11:43,249 - INFO - Optimizer configuration:
+2025-07-25 09:11:43,249 - INFO -   - Encoder LR: 0 (higher due to random conv layer)
+2025-07-25 09:11:43,250 - INFO -   - Head LR: 0.0005
+Traceback (most recent call last):
+  File "/mnt/c/Users/JJ/Desktop/Clarity-Digital-Twin/big-mood-detector/scripts/pat_training/train_pat_conv_l.py", line 575, in <module>
+    main() 
+    ^^^^^^
+  File "/mnt/c/Users/JJ/Desktop/Clarity-Digital-Twin/big-mood-detector/scripts/pat_training/train_pat_conv_l.py", line 375, in main
+    steps_per_epoch = len(train_loader) // grad_accumulation_steps
+                                           ^^^^^^^^^^^^^^^^^^^^^^^
+UnboundLocalError: cannot access local variable 'grad_accumulation_steps' where it is not associated with a value
