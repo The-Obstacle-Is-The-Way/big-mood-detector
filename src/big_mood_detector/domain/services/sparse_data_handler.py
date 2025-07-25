@@ -9,8 +9,8 @@ Based on research in docs/sparse_temporal_data_research_2025.md
 
 from dataclasses import dataclass
 from datetime import date
-from typing import Any
 from enum import Enum, auto
+from typing import Any
 
 import numpy as np
 import pandas as pd

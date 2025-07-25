@@ -19,7 +19,7 @@ from numpy.typing import NDArray
 
 try:
     import tensorflow as tf  # type: ignore[import-untyped]
-    from tensorflow import keras  # type: ignore[import-untyped]
+    from tensorflow import keras
     PAT_AVAILABLE = True
 except ModuleNotFoundError:  # keeps CI green on slim images
     tf = None
@@ -286,7 +286,7 @@ class PATModel:
         logger.warning("Attention weight extraction not yet implemented")
         return None
 
-    def _prepare_input(self, sequence: PATSequence) -> np.ndarray[Any, np.dtype[np.float64]]:
+    def _prepare_input(self, sequence: PATSequence) -> np.ndarray[Any, np.dtype[np.float32]]:
         """
         Prepare sequence for model input.
 

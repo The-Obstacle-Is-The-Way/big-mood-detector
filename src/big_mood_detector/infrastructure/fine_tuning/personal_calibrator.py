@@ -404,7 +404,7 @@ class PersonalCalibrator:
 
         # Save model weights
         if self.model_type == "xgboost" and self.model is not None:
-            import joblib  # type: ignore[import-untyped]
+            import joblib
             model_path = user_dir / "xgboost_model.pkl"
             joblib.dump(self.model, model_path)
         elif self.model_type == "pat" and self.adapter is not None:
@@ -543,7 +543,7 @@ class PersonalCalibrator:
         else:
             self.confidence_factor = 1.0
 
-    def calibrate_probabilities(self, raw_probs: NDArray[np.float32]) -> np.ndarray[Any, np.dtype[np.float64]]:
+    def calibrate_probabilities(self, raw_probs: NDArray[np.float32]) -> np.ndarray[Any, np.dtype[np.float32]]:
         """Apply probability calibration.
 
         Args:

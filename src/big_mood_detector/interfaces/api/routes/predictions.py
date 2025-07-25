@@ -417,7 +417,7 @@ async def get_clinical_interpretation(
             }
         else:
             # Fallback to XGBoost only
-            prediction = predictor.predict(feature_array)
+            prediction = predictor.predict(feature_array.astype(np.float64))
             ml_predictions = {
                 "depression": prediction.depression_risk,
                 "mania": prediction.manic_risk,

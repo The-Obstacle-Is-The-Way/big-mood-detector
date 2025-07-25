@@ -282,7 +282,7 @@ class SQLiteEpisodeRepository:
             conn.close()
             return episodes
 
-    def get_episodes_by_rater(self, rater_id: str) -> list[dict]:
+    def get_episodes_by_rater(self, rater_id: str) -> list[dict[str, Any]]:
         """Get all episodes for a specific rater.
 
         Args:
@@ -312,7 +312,7 @@ class SQLiteEpisodeRepository:
             conn.close()
             return episodes
 
-    def get_baselines_by_rater(self, rater_id: str) -> list[dict]:
+    def get_baselines_by_rater(self, rater_id: str) -> list[dict[str, Any]]:
         """Get all baseline periods for a specific rater.
 
         Args:

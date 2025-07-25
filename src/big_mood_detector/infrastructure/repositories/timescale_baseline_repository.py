@@ -45,7 +45,7 @@ logger = get_logger()
 Base: Any = declarative_base()
 
 
-class BaselineRawRecord(Base):
+class BaselineRawRecord(Base):  # type: ignore[misc]
     """
     Raw baseline data table - hypertable partitioned by ts.
 
@@ -67,7 +67,7 @@ class BaselineRawRecord(Base):
     source = Column(String, default="feature_engineer")
 
 
-class BaselineAggregateRecord(Base):
+class BaselineAggregateRecord(Base):  # type: ignore[misc]
     """
     Materialized view of baseline aggregates.
 

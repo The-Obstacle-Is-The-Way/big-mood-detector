@@ -245,13 +245,13 @@ class EnsembleOrchestrator:
 
     def _predict_xgboost(self, features: NDArray[np.float32]) -> MoodPrediction:
         """Run standard XGBoost prediction."""
-        return self.xgboost_predictor.predict(features)
+        return self.xgboost_predictor.predict(features.astype(np.float64))
 
     def _extract_pat_embeddings(
         self,
         activity_records: list[ActivityRecord],
         prediction_date: np.datetime64 | None,
-    ) -> np.ndarray:
+    ) -> np.ndarray[Any, np.dtype[np.float64]]:
         """Extract PAT embeddings without making predictions."""
         if self.pat_builder is None or self.pat_model is None:
             raise RuntimeError("PAT model or builder not available")
