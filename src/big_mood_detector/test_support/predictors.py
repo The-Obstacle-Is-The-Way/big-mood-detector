@@ -23,7 +23,7 @@ class ConstantMoodPredictor:
         self.confidence = confidence
         self.is_loaded = True
     
-    def predict(self, features: np.ndarray | list[float]) -> MoodPrediction:
+    def predict(self, features: np.ndarray[Any, np.dtype[np.float32]] | list[float]) -> MoodPrediction:
         """Return constant prediction regardless of input."""
         return MoodPrediction(
             depression_risk=self.depression,
