@@ -85,6 +85,7 @@ dev = [
     "pytest-mock>=3.10.0",
     "pytest-sugar>=0.9.6",
     "pytest-bdd>=7.0.0",
+    "pytest-timeout>=2.3.0",  # Prevents test hangs
     "hypothesis>=6.100",  # Property-based testing
     "faker>=18.0.0",
     "black>=23.0.0",
@@ -297,6 +298,8 @@ ignore_missing_imports = true
 minversion = "7.0"
 addopts = "-v --strict-markers --strict-config -m 'not slow_finetune and not large and not heavy and not performance' --tb=short -p no:pytest_benchmark --disable-warnings"
 testpaths = ["tests"]
+timeout = 60  # Global timeout per test in seconds
+timeout_method = "thread"  # Works better with pytest-xdist
 markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
     "slow_finetune: marks tests that do real ML training (deselect with '-m \"not slow_finetune\"')",
