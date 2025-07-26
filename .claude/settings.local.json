@@ -70,7 +70,8 @@
       "Bash(git check-ignore:*)",
       "Bash(.venv-wsl/bin/pytest tests/unit/domain/services/test_pat_predictor_interface.py -xvs)",
       "Bash(.venv-wsl/bin/pytest tests/unit/ -n auto --timeout=30)",
-      "Bash(.venv-wsl/bin/pytest tests/unit/ -n auto)"
+      "Bash(.venv-wsl/bin/pytest tests/unit/ -n auto)",
+      "Bash(.venv-wsl/bin/pytest tests/unit/domain/ -v --durations=10)"
     ],
     "deny": []
   }
