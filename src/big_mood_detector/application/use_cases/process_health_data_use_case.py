@@ -212,6 +212,7 @@ class MoodPredictionPipeline:
         self.ensemble_orchestrator = None
         if self.config.include_pat_sequences:
             from big_mood_detector.infrastructure.ml_models import PAT_AVAILABLE
+
             # Lazy import to avoid module-level loading
             from big_mood_detector.infrastructure.ml_models.xgboost_models import (
                 XGBoostMoodPredictor,
@@ -226,10 +227,11 @@ class MoodPredictionPipeline:
             # Initialize PAT model if available
             pat_model = None
             if PAT_AVAILABLE:
+                import os
+
                 from big_mood_detector.infrastructure.ml_models.pat_production_loader import (
                     ProductionPATLoader,
                 )
-                import os
                 skip_loading = os.getenv("TESTING", "0") == "1"
                 pat_model = ProductionPATLoader(skip_loading=skip_loading)
             else:

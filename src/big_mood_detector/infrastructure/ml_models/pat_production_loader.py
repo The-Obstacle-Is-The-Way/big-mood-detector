@@ -56,6 +56,7 @@ if os.getenv("TESTING", "0") == "1":
     NHANESNormalizer = SimpleNamespace  # type: ignore
 else:
     import torch
+
     from big_mood_detector.infrastructure.ml_models.nhanes_normalizer import (
         NHANESNormalizer,
     )

@@ -23,12 +23,12 @@ import numpy as np
 if os.getenv("TESTING", "0") == "1":
     # Lightweight stub for testing
     from types import SimpleNamespace
-    xgb = SimpleNamespace(
+    xgb: Any = SimpleNamespace(
         Booster=lambda: None,
         DMatrix=lambda data, **kwargs: None
     )
 else:
-    import xgboost as xgb
+    import xgboost as xgb  # type: ignore[no-redef]
     # Suppress XGBoost warnings about feature names
     warnings.filterwarnings("ignore", category=UserWarning, module="xgboost")
 

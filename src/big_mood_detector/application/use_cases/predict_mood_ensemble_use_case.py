@@ -29,6 +29,7 @@ from big_mood_detector.domain.entities.activity_record import ActivityRecord
 from big_mood_detector.domain.services.mood_predictor import MoodPrediction
 from big_mood_detector.domain.services.pat_model_interface import PATModelInterface
 from big_mood_detector.domain.services.pat_sequence_builder import PATSequenceBuilder
+
 # Import just the constant, not the models to avoid module-level loading
 PAT_AVAILABLE = True  # Always available with PyTorch
 from big_mood_detector.infrastructure.settings.config import get_settings

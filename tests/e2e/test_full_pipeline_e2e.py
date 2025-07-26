@@ -94,8 +94,8 @@ class TestFullPipeline:
         output_file = tmp_path / "predictions.json"
 
         # When: Running predict command
-        import sys
         import os
+        import sys
         env = os.environ.copy()
         env["TESTING"] = "1"
         result = subprocess.run(
@@ -186,12 +186,13 @@ class TestFullPipeline:
         xml_file.write_text(minimal_xml)
 
         # When: Using pipeline directly to avoid subprocess model loading
+        from datetime import date
+
         from big_mood_detector.application.use_cases.process_health_data_use_case import (
             MoodPredictionPipeline,
             PipelineConfig,
         )
         from big_mood_detector.test_support.predictors import ConstantMoodPredictor
-        from datetime import date
         
         config = PipelineConfig(min_days_required=7)
         pipeline = MoodPredictionPipeline.for_testing(

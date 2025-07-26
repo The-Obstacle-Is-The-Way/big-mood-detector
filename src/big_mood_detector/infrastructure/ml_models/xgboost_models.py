@@ -16,8 +16,9 @@ from typing import Any
 # Guard heavy imports when TESTING=1
 if os.getenv("TESTING", "0") == "1":
     # Lightweight stubs for testing
-    import numpy as np
     from types import SimpleNamespace
+
+    import numpy as np
     
     # Mock joblib
     joblib = SimpleNamespace(load=lambda x: None)  # type: ignore
@@ -31,6 +32,7 @@ if os.getenv("TESTING", "0") == "1":
 else:
     import joblib  # type: ignore[import-untyped]
     import numpy as np
+
     from big_mood_detector.infrastructure.ml_models.booster_wrapper import (
         BoosterPredictProbaWrapper,
     )
