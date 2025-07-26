@@ -22,6 +22,7 @@ from big_mood_detector.domain.entities.sleep_record import SleepRecord, SleepSta
 
 @pytest.mark.integration
 @pytest.mark.slow
+@pytest.mark.timeout(300)
 @pytest.mark.xfail(reason="Known O(n*m) scaling issue - aggregation algorithm needs optimization", strict=False)
 def test_aggregation_should_be_linear_not_quadratic():
     """
@@ -142,6 +143,7 @@ def test_aggregation_should_be_linear_not_quadratic():
 
 @pytest.mark.integration
 @pytest.mark.slow
+@pytest.mark.timeout(300)
 @pytest.mark.xfail(reason="Performance optimization in progress - 365 days takes 170s, target <60s")
 def test_aggregation_performance_target():
     """Test that 365 days of data can be aggregated in reasonable time."""

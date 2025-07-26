@@ -321,6 +321,7 @@ class TestDualPipelineValidation:
                             )
 
     @pytest.mark.slow
+    @pytest.mark.timeout(300)
     def test_performance_comparison(self, json_data_path, xml_data_path):
         """Compare parsing performance between formats."""
         import time

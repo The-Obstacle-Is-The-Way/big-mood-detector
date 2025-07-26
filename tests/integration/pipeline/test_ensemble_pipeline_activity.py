@@ -125,7 +125,8 @@ class TestEnsemblePipelineActivityFlow:
         from big_mood_detector.infrastructure.ml_models import PATModel
 
         model = PATModel()
-        if not model.load_pretrained_weights():
+        # ProductionPATLoader loads weights automatically in constructor
+        if not model.is_loaded:
             return None
         return model
 

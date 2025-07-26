@@ -287,6 +287,25 @@ class MoodPredictionPipeline:
         if self.ensemble_orchestrator and self.personal_calibrator:
             self.ensemble_orchestrator.personal_calibrator = self.personal_calibrator
 
+    @classmethod
+    def for_testing(
+        cls,
+        predictor: Any,
+        config: PipelineConfig | None = None,
+        disable_ensemble: bool = True
+    ) -> "MoodPredictionPipeline":
+        """Create a pipeline configured for testing with a custom predictor."""
+        if config is None:
+            config = PipelineConfig()
+
+        pipeline = cls(config=config)
+        pipeline.mood_predictor = predictor
+
+        if disable_ensemble:
+            pipeline.ensemble_orchestrator = None
+
+        return pipeline
+
     def process_apple_health_file(
         self,
         file_path: Path,

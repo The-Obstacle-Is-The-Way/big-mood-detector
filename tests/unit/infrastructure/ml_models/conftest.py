@@ -4,8 +4,7 @@ Fixtures for PAT model tests.
 Provides clean test fixtures without private attributes.
 """
 
-from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 import numpy as np
 import pytest
@@ -48,9 +47,9 @@ def pat_loader_with_weights(tmp_path):
     # Create mock weights file
     weights_path = tmp_path / "model_weights" / "pat" / "conv_depression"
     weights_path.mkdir(parents=True, exist_ok=True)
-    
+
     checkpoint_path = weights_path / "pat_conv_l_depression_epoch10_auc0.5929.pt"
-    
+
     # Create minimal checkpoint
     checkpoint = {
         'model_state_dict': {
@@ -63,7 +62,7 @@ def pat_loader_with_weights(tmp_path):
         'best_auc': 0.5929,
     }
     torch.save(checkpoint, checkpoint_path)
-    
+
     # Create loader pointing to this path
     loader = ProductionPATLoader(model_path=checkpoint_path)
     return loader

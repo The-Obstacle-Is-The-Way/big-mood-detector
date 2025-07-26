@@ -79,7 +79,25 @@
       "Bash(.venv-wsl/bin/pytest tests/unit/ -k \"not (heavy or large or slow_finetune)\" --durations=25 -n 4)",
       "Bash(.venv-wsl/bin/pytest tests/unit/ -k \"not (heavy or large or slow_finetune or performance)\" --tb=no -q)",
       "Bash(.venv-wsl/bin/pytest -m \"not slow and not integration and not slow_finetune and not e2e\" -x --tb=short)",
-      "Bash(.venv-wsl/bin/pytest tests/unit/ -x --tb=short -q)"
+      "Bash(.venv-wsl/bin/pytest tests/unit/ -x --tb=short -q)",
+      "Bash(git merge:*)",
+      "Bash(.venv-wsl/bin/pytest tests/integration/test_orchestrator_integration.py::TestOrchestratorIntegration::test_orchestrator_validation_detects_missing_data -xvs)",
+      "Bash(.venv-wsl/bin/pytest tests/integration/ -n auto --tb=short -q)",
+      "Bash(.venv-wsl/bin/pytest tests/integration/data_processing/test_end_to_end_data_processing.py -x --tb=short)",
+      "Bash(.venv-wsl/bin/pytest tests/integration/data_processing/test_end_to_end_data_processing.py::TestEndToEndDataProcessing::test_xml_processing_end_to_end -xvs)",
+      "Bash(.venv-wsl/bin/pytest tests/unit/ -x --tb=no -q --co)",
+      "Bash(.venv-wsl/bin/pytest tests/unit/ -k \"not (heavy or large or slow_finetune or performance)\" --tb=no -q)",
+      "Bash(.venv-wsl/bin/pytest tests/unit/ --cov=big_mood_detector --cov-report=term-missing --no-cov-on-fail -q)",
+      "Bash(.venv-wsl/bin/pytest tests/integration/data_processing/test_end_to_end_data_processing.py::TestEndToEndDataProcessing::test_xml_processing_end_to_end -xvs -k \"xml\" --capture=no)",
+      "Bash(.venv-wsl/bin/pytest tests/integration/data_processing/test_end_to_end_data_processing.py::TestEndToEndDataProcessing::test_feature_aggregation_accuracy -xvs)",
+      "Bash(.venv-wsl/bin/python test_debug_integration.py:*)",
+      "Bash(.venv-wsl/bin/pytest tests/integration/data_processing/ -x --tb=short -q)",
+      "Bash(.venv-wsl/bin/pytest tests/integration/data_processing/test_end_to_end_data_processing.py::TestEndToEndDataProcessing::test_json_processing_end_to_end -xvs)",
+      "Bash(.venv-wsl/bin/pytest tests/integration/ -x --tb=short -q)",
+      "Bash(.venv-wsl/bin/python:*)",
+      "Bash(.venv-wsl/bin/pytest tests/integration/data_processing/test_real_xml_processing.py -xvs)",
+      "Bash(.venv-wsl/bin/pytest tests/integration/data_processing/test_real_xml_processing.py::TestRealXMLProcessing::test_real_xml_processes_without_errors -xvs)",
+      "Bash(.venv-wsl/bin/ruff check src/ tests/ --fix)"
     ],
     "deny": []
   }

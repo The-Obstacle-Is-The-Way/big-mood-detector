@@ -16,7 +16,7 @@ Technical documentation for developers working with Big Mood Detector.
 ```
 Domain (Pure Python) → Application (Use Cases) → Infrastructure (External)
                 ↑                           ↑
-            CLI/API ←──────────────────────┘
+            CLI/API ←───────────────────────┘
 ```
 
 ### Key Components

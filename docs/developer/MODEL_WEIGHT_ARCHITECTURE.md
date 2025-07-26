@@ -6,26 +6,26 @@ This document provides the definitive guide to model weight management in the Bi
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                    Reference Repository                          │
+│                    Reference Repository                         │
 │  reference_repos/mood_ml/                                       │
-│  - XGBoost_DE.pkl  (Depression Episode)                        │
-│  - XGBoost_HME.pkl (Hypomanic Episode)                         │
-│  - XGBoost_ME.pkl  (Manic Episode)                            │
+│  - XGBoost_DE.pkl  (Depression Episode)                         │
+│  - XGBoost_HME.pkl (Hypomanic Episode)                          │
+│  - XGBoost_ME.pkl  (Manic Episode)                              │
 └────────────────────────┬────────────────────────────────────────┘
                          │
                          ▼ Convert (optional)
 ┌─────────────────────────────────────────────────────────────────┐
-│                    Converted Models                              │
+│                    Converted Models                             │
 │  model_weights/xgboost/converted/                               │
-│  - XGBoost_DE.pkl  + XGBoost_DE.json                          │
-│  - XGBoost_HME.pkl + XGBoost_HME.json                         │
-│  - XGBoost_ME.pkl  + XGBoost_ME.json                          │
+│  - XGBoost_DE.pkl  + XGBoost_DE.json                            │
+│  - XGBoost_HME.pkl + XGBoost_HME.json                           │
+│  - XGBoost_ME.pkl  + XGBoost_ME.json                            │
 └────────────────────────┬────────────────────────────────────────┘
                          │
                          ▼ Rename
 ┌─────────────────────────────────────────────────────────────────┐
-│                    Production Models                             │
-│  model_weights/xgboost/pretrained/                             │
+│                    Production Models                            │
+│  model_weights/xgboost/pretrained/                              │
 │  - depression_model.pkl                                         │
 │  - hypomanic_model.pkl                                          │
 │  - manic_model.pkl                                              │

@@ -130,6 +130,7 @@ def test_optimized_vs_original_performance():
 
 @pytest.mark.integration
 @pytest.mark.slow
+@pytest.mark.timeout(300)
 @pytest.mark.xfail(reason="Performance regression: 170s vs 60s target - needs aggregation optimization", strict=False)
 def test_optimized_handles_365_days():
     """Test that optimized pipeline can handle 1 year of data quickly."""

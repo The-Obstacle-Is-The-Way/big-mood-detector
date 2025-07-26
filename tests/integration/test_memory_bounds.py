@@ -21,6 +21,7 @@ from big_mood_detector.infrastructure.parsers.xml.fast_streaming_parser import (
 
 @pytest.mark.integration
 @pytest.mark.slow
+@pytest.mark.timeout(600)
 @pytest.mark.xfail(
     reason="Issue #38: Streaming parser date filtering has string/datetime comparison bug - see issues/streaming-parser-date-bug.md",
     strict=True

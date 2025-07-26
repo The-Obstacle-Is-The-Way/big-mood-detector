@@ -118,12 +118,13 @@ class TestFullPipeline:
             pipeline.ensemble_orchestrator is None
         ), "Ensemble should not be initialized"
 
-        # Process data
+        # Process data - use a date within the sample data range
+        last_sample_date = date.today() - timedelta(days=4)  # Sample data is 10 days old, goes for 7 days
         result = pipeline.process_health_data(
             sleep_records=sample_data["sleep"],
             activity_records=sample_data["activity"],
             heart_records=sample_data["heart_rate"],
-            target_date=date.today(),
+            target_date=last_sample_date,
         )
 
         # Verify results

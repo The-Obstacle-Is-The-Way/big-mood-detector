@@ -33,7 +33,7 @@ class TestPATPredictorInterface:
             @property
             def is_loaded(self) -> bool:
                 return True
-                
+
             def predict_from_embeddings(self, embeddings: np.ndarray) -> PATBinaryPredictions:
                 # Simple implementation for testing
                 return PATBinaryPredictions(
@@ -68,7 +68,7 @@ class TestPATPredictorInterface:
             @property
             def is_loaded(self) -> bool:
                 return True
-                
+
             def predict_from_embeddings(self, embeddings: np.ndarray) -> PATBinaryPredictions:
                 if embeddings.shape[0] != 96:
                     raise ValueError(f"Expected 96-dim embeddings, got {embeddings.shape[0]}")
@@ -105,7 +105,7 @@ class TestPATPredictorInterface:
             @property
             def is_loaded(self) -> bool:
                 return True
-                
+
             def predict_from_embeddings(self, embeddings: np.ndarray) -> PATBinaryPredictions:
                 # Handle single embedding
                 if embeddings.ndim == 1:
@@ -135,7 +135,7 @@ class TestPATPredictorInterface:
             @property
             def is_loaded(self) -> bool:
                 return True
-                
+
             def predict_from_embeddings(self, embeddings: np.ndarray) -> PATBinaryPredictions:
                 # Independent binary predictions
                 return PATBinaryPredictions(
