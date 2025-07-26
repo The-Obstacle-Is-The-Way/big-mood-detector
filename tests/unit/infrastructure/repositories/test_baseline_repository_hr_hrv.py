@@ -19,24 +19,14 @@ from big_mood_detector.infrastructure.repositories.file_baseline_repository impo
 class TestBaselineRepositoryHRHRV:
     """Test that baseline repositories handle HR/HRV fields correctly."""
 
-    @pytest.fixture(autouse=True)
-    def cleanup_test_files(self):
-        """Clean up test files before and after each test."""
-        test_path = Path("./test_hr_hrv_baselines")
+    @pytest.fixture
+    def repo_path(self, tmp_path: Path) -> Path:
+        """Create a temporary directory for test baselines."""
+        return tmp_path / "test_hr_hrv_baselines"
 
-        # Clean before test
-        if test_path.exists():
-            shutil.rmtree(test_path)
-
-        yield
-
-        # Clean after test
-        if test_path.exists():
-            shutil.rmtree(test_path)
-
-    def test_file_repository_saves_and_retrieves_hr_hrv_fields(self):
+    def test_file_repository_saves_and_retrieves_hr_hrv_fields(self, repo_path):
         """Test FileBaselineRepository handles HR/HRV fields."""
-        repo = FileBaselineRepository(Path("./test_hr_hrv_baselines"))
+        repo = FileBaselineRepository(repo_path)
 
         # Create baseline with specific HR/HRV values
         baseline = UserBaseline(
@@ -68,9 +58,9 @@ class TestBaselineRepositoryHRHRV:
         assert retrieved.hrv_mean == 42.0
         assert retrieved.hrv_std == 12.0
 
-    def test_file_repository_backward_compatibility(self):
+    def test_file_repository_backward_compatibility(self, repo_path):
         """Test FileBaselineRepository handles old baselines without HR/HRV."""
-        repo = FileBaselineRepository(Path("./test_hr_hrv_baselines"))
+        repo = FileBaselineRepository(repo_path)
 
         # Create and save a baseline with HR/HRV
         baseline = UserBaseline(
@@ -93,9 +83,7 @@ class TestBaselineRepositoryHRHRV:
 
         # Account for user ID hashing
         hashed_user_id = hash_user_id("backward_compat_user")
-        history_file = Path(
-            f"./test_hr_hrv_baselines/{hashed_user_id}/baseline_history.json"
-        )
+        history_file = repo_path / hashed_user_id / "baseline_history.json"
         with open(history_file) as f:
             data = json.load(f)
 

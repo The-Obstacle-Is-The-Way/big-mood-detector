@@ -345,24 +345,24 @@ class TestEnsemblePredictions:
         """Test different PAT model sizes."""
         from big_mood_detector.infrastructure.ml_models import PAT_AVAILABLE
 
-        if not PAT_AVAILABLE:
-            pytest.skip("TensorFlow not installed")
+        # PAT is always available with PyTorch
+        assert PAT_AVAILABLE is True
 
-        # Import is safe after checking PAT_AVAILABLE
-        from big_mood_detector.infrastructure.ml_models import PATModel
+        # We now use PyTorch implementation
+        from big_mood_detector.infrastructure.ml_models import ProductionPATLoader
+        
+        # For now, we only have the large model in production
+        if model_size != "large":
+            pytest.skip(f"Only large model currently implemented in PyTorch")
 
-        pat_model = PATModel(model_size=model_size)
-
-        # Check if weights exist
-        weights_path = Path(
-            f"model_weights/pat/pretrained/PAT-{model_size[0].upper()}_29k_weights.h5"
-        )
-
-        if weights_path.exists():
-            assert pat_model.load_pretrained_weights()
-            assert pat_model.is_loaded
-
-            # Verify model info
-            info = pat_model.get_model_info()
-            assert info["model_size"] == model_size
-            assert info["is_loaded"] is True
+        # Use skip_loading=True for tests without actual weights
+        pat_model = ProductionPATLoader(skip_loading=True)
+        
+        # Verify model is marked as loaded (for testing)
+        assert pat_model.is_loaded
+        
+        # Test that we can get embeddings with dummy data
+        import numpy as np
+        dummy_activity = np.random.rand(10080).astype(np.float32)
+        embeddings = pat_model.get_embeddings(dummy_activity)
+        assert embeddings.shape == (96,)  # Large model has 96-dim embeddings

@@ -44,10 +44,16 @@ class TestDepressionPredictionEndpoint:
     
     def test_depression_prediction_with_activity_sequence(self, client, mock_pat_predictor):
         """Should predict depression from 7-day activity sequence."""
-        # Prepare test data - 7 days of activity
-        activity_data = {
-            "activity_sequence": [float(i % 100) for i in range(10080)]  # 7 days
-        }
+        # Mock the DI container to return our mock predictor
+        with patch('big_mood_detector.interfaces.api.routes.depression.get_container') as mock_get_container:
+            mock_container = MagicMock()
+            mock_container.resolve.return_value = mock_pat_predictor
+            mock_get_container.return_value = mock_container
+            
+            # Prepare test data - 7 days of activity
+            activity_data = {
+                "activity_sequence": [float(i % 100) for i in range(10080)]  # 7 days
+            }
         
         with patch("big_mood_detector.interfaces.api.routes.depression.get_pat_predictor") as mock_get:
             mock_get.return_value = mock_pat_predictor

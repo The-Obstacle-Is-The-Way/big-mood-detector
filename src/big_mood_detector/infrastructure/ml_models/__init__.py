@@ -7,27 +7,24 @@ Big Mood Detector system, including PAT and XGBoost models.
 
 from .xgboost_models import XGBoostMoodPredictor
 
-# Conditional import for PAT model (requires TensorFlow)
-try:
-    from .pat_model import PATFeatureExtractor, PATModel
+# We now use pure PyTorch implementation - no TensorFlow dependency!
+from .pat_production_loader import ProductionPATLoader
+from .pat_pytorch import PATDepressionNet
+from .pat_conv_depression_model import SimplePATConvLModel
 
-    PAT_AVAILABLE = True
-except ImportError:
-    from typing import Any
+# For backward compatibility with tests
+PAT_AVAILABLE = True  # Always available with PyTorch
 
-    PAT_AVAILABLE = False
-    PATModel = Any  # type: ignore
-    PATFeatureExtractor = Any  # type: ignore
-
-# Single source of truth for PAT implementation
-# The DirectPATModel is used internally by PATModel
-# Other prototypes (pat_architecture.py, pat_custom_layers.py) are deprecated
+# Alias for tests expecting old names
+PATModel = ProductionPATLoader
+PATFeatureExtractor = ProductionPATLoader
 
 __all__ = [
     "XGBoostMoodPredictor",
     "PAT_AVAILABLE",
+    "ProductionPATLoader",
+    "PATDepressionNet",
+    "SimplePATConvLModel",
+    "PATModel",  # Backward compatibility
+    "PATFeatureExtractor",  # Backward compatibility
 ]
-
-# Only export PAT if available
-if PAT_AVAILABLE:
-    __all__.extend(["PATModel", "PATFeatureExtractor"])

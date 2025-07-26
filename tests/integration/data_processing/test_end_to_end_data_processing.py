@@ -148,7 +148,11 @@ class TestEndToEndDataProcessing:
     @pytest.fixture
     def pipeline_with_mocked_ml(self):
         """Create pipeline with mocked ML predictions."""
-        config = PipelineConfig(min_days_required=3, enable_sparse_handling=True)
+        config = PipelineConfig(
+            min_days_required=3,
+            enable_sparse_handling=True,
+            use_seoul_features=True  # Ensure we use Seoul path
+        )
 
         pipeline = MoodPredictionPipeline(config=config)
 
@@ -163,6 +167,9 @@ class TestEndToEndDataProcessing:
         mock_predictor.is_loaded = True
 
         pipeline.mood_predictor = mock_predictor
+        
+        # Ensure ensemble orchestrator is not used
+        pipeline.ensemble_orchestrator = None
 
         return pipeline
 

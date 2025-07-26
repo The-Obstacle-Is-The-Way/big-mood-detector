@@ -96,10 +96,10 @@ class TestOrchestratorIntegration:
             circadian_features=CircadianFeatureSet(
                 l5_value=100.0,
                 m10_value=500.0,
-                l5_onset=None,
-                m10_onset=None,
                 circadian_phase_advance=0.0,
                 circadian_phase_delay=0.0,
+                circadian_amplitude=0.5,
+                phase_angle=2.0,
             ),
             activity_features=ActivityFeatureSet(
                 total_steps=8000,
@@ -107,6 +107,7 @@ class TestOrchestratorIntegration:
                 sedentary_bout_mean=45.0,
                 sedentary_bout_max=120.0,
                 activity_intensity_ratio=0.2,
+                activity_rhythm_strength=0.7,
             ),
             temporal_features=TemporalFeatureSet(
                 sleep_7day_mean=7.0,
@@ -115,6 +116,10 @@ class TestOrchestratorIntegration:
                 activity_7day_std=2000.0,
                 hr_7day_mean=65.0,
                 hr_7day_std=5.0,
+                sleep_trend_slope=-0.1,
+                activity_trend_slope=50.0,
+                sleep_momentum=0.0,
+                activity_momentum=100.0,
             ),
             clinical_features=ClinicalFeatureSet(
                 is_hypersomnia_pattern=False,
@@ -157,10 +162,10 @@ class TestOrchestratorIntegration:
             circadian_features=CircadianFeatureSet(
                 l5_value=50.0,
                 m10_value=300.0,
-                l5_onset=None,
-                m10_onset=None,
                 circadian_phase_advance=6.0,  # Large phase advance
                 circadian_phase_delay=0.0,
+                circadian_amplitude=0.4,
+                phase_angle=3.0,
             ),
             activity_features=ActivityFeatureSet(
                 total_steps=500,  # Very low activity
@@ -168,6 +173,7 @@ class TestOrchestratorIntegration:
                 sedentary_bout_mean=180.0,  # Long sedentary periods
                 sedentary_bout_max=360.0,
                 activity_intensity_ratio=0.05,  # Very low intensity
+                activity_rhythm_strength=0.2,
             ),
             temporal_features=TemporalFeatureSet(
                 sleep_7day_mean=12.0,
@@ -176,6 +182,10 @@ class TestOrchestratorIntegration:
                 activity_7day_std=500.0,
                 hr_7day_mean=60.0,
                 hr_7day_std=3.0,
+                sleep_trend_slope=-0.5,
+                activity_trend_slope=-100.0,
+                sleep_momentum=-0.2,
+                activity_momentum=-50.0,
             ),
             clinical_features=ClinicalFeatureSet(
                 is_hypersomnia_pattern=True,
