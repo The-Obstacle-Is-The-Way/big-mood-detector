@@ -16,6 +16,7 @@ from click.testing import CliRunner
 from big_mood_detector.interfaces.cli.main import cli
 
 
+@pytest.mark.e2e
 class TestLabelWorkflowE2E:
     """End-to-end tests for the complete label workflow."""
 

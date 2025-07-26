@@ -296,7 +296,7 @@ ignore_missing_imports = true
 # Pytest Configuration
 [tool.pytest.ini_options]
 minversion = "7.0"
-addopts = "-v --strict-markers --strict-config -m 'not slow_finetune and not large and not heavy and not performance' --tb=short -p no:pytest_benchmark --disable-warnings"
+addopts = "-v --strict-markers --strict-config -m 'not slow_finetune and not large and not heavy and not performance and not e2e' --tb=short -p no:pytest_benchmark --disable-warnings"
 testpaths = ["tests"]
 timeout = 60  # Global timeout per test in seconds
 timeout_method = "thread"  # Works better with pytest-xdist
@@ -311,6 +311,7 @@ markers = [
     "clinical: marks tests for clinical validation",
     "flaky: marks tests that are known to be flaky (pre-existing issues)",
     "performance: marks tests for performance testing (deselect with '-m \"not performance\"')",
+    "e2e: marks tests as end-to-end tests (deselect with '-m \"not e2e\"')",
 ]
 python_files = ["test_*.py", "*_test.py"]
 python_classes = ["Test*"]

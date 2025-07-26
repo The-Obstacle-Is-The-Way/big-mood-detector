@@ -77,7 +77,8 @@
       "Bash(.venv-wsl/bin/pytest tests/unit/infrastructure/ml_models/ --durations=10 -v)",
       "Bash(.venv-wsl/bin/pytest tests/unit/infrastructure/ml_models/test_pat_depression_head.py -xvs)",
       "Bash(.venv-wsl/bin/pytest tests/unit/ -k \"not (heavy or large or slow_finetune)\" --durations=25 -n 4)",
-      "Bash(.venv-wsl/bin/pytest tests/unit/ -k \"not (heavy or large or slow_finetune or performance)\" --tb=no -q)"
+      "Bash(.venv-wsl/bin/pytest tests/unit/ -k \"not (heavy or large or slow_finetune or performance)\" --tb=no -q)",
+      "Bash(.venv-wsl/bin/pytest -m \"not slow and not integration and not slow_finetune and not e2e\" -x --tb=short)"
     ],
     "deny": []
   }
