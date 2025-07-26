@@ -192,6 +192,8 @@ class TestBackgroundTasks:
         assert status["status"] == "failed"
         assert "Always fails" in status.get("error", "")
 
+    @pytest.mark.slow
+    @pytest.mark.timeout(60)
     def test_concurrent_task_processing(self):
         """Test concurrent task processing."""
         from big_mood_detector.infrastructure.background.task_queue import TaskQueue
@@ -302,6 +304,8 @@ class TestBackgroundTasks:
         assert status["progress"] == 1.0
         assert status["message"] == "Complete"
 
+    @pytest.mark.slow
+    @pytest.mark.timeout(60)
     def test_health_file_processing_task(self):
         """Test health file processing as a background task."""
         from big_mood_detector.infrastructure.background.task_queue import TaskQueue

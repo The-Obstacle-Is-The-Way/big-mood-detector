@@ -25,6 +25,8 @@ from big_mood_detector.application.use_cases.process_health_data_use_case import
 from big_mood_detector.domain.entities.sleep_record import SleepRecord, SleepState
 
 
+@pytest.mark.slow
+@pytest.mark.timeout(300)
 class TestEndToEndDataProcessing:
     """Test complete data processing pipeline with real-world scenarios."""
 

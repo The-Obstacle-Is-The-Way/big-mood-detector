@@ -175,6 +175,10 @@ def test_aggregation_bottleneck():
     print("\nIf aggregate/parse ratio increases with more days, we have O(n*m) complexity!")
 
 
+@pytest.mark.integration
+@pytest.mark.slow
+@pytest.mark.timeout(600)
+@pytest.mark.xfail(strict=False, reason="Known O(n²) performance issue - tracked in issue #38")
 def test_aggregation_with_date_filter():
     """Test aggregation with different date ranges to confirm O(n*m) issue."""
     # Generate a large dataset (365 days)

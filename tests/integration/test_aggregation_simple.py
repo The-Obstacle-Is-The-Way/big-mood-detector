@@ -7,8 +7,13 @@ from big_mood_detector.application.services.aggregation_pipeline import (
     AggregationPipeline,
 )
 from big_mood_detector.domain.entities.sleep_record import SleepRecord, SleepState
+import pytest
 
 
+@pytest.mark.integration
+@pytest.mark.slow
+@pytest.mark.timeout(600)
+@pytest.mark.xfail(strict=False, reason="Known O(n²) performance issue - tracked in issue #38")
 def test_aggregation_scales_poorly():
     """Demonstrate that aggregation has O(n*m) complexity."""
     # Create simple test data

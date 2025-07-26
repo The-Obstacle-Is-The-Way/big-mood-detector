@@ -3,12 +3,17 @@
 from typing import Any
 
 import numpy as np
+from numpy.typing import NDArray
 
 from big_mood_detector.domain.services.mood_predictor import MoodPrediction
 
 
 class ConstantMoodPredictor:
-    """A predictor that returns constant values for testing."""
+    """A predictor that returns constant values for testing.
+    
+    This is used for XGBoost-style predictions in tests.
+    It implements the basic predictor interface, not PAT.
+    """
 
     def __init__(
         self,
@@ -23,7 +28,7 @@ class ConstantMoodPredictor:
         self.confidence = confidence
         self.is_loaded = True
 
-    def predict(self, features: np.ndarray[Any, np.dtype[np.float32]] | list[float]) -> MoodPrediction:
+    def predict(self, features: NDArray[np.float32] | list[float]) -> MoodPrediction:
         """Return constant prediction regardless of input."""
         return MoodPrediction(
             depression_risk=self.depression,
