@@ -1,6 +1,6 @@
 # Big Mood Detector - AI Assistant Guide
 
-Clinical-grade bipolar mood prediction using Apple Health data and ML models.
+Clinical-grade mood episode prediction (depression, mania, hypomania) using Apple Health data and ML models.
 
 ## Quick Start
 
