@@ -65,7 +65,9 @@
       "Bash(echo:*)",
       "Bash(else)",
       "Bash(fi)",
-      "Bash(done)"
+      "Bash(done)",
+      "Bash(gh release create:*)",
+      "Bash(git check-ignore:*)"
     ],
     "deny": []
   }
