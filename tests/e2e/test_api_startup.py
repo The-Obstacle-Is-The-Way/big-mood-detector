@@ -21,6 +21,8 @@ import requests
 class TestAPIStartup:
     """Test API server startup with real model files."""
 
+    @pytest.mark.slow
+    @pytest.mark.timeout(120)
     def test_api_server_starts_successfully(self):
         """Test that API server can start with existing model files."""
         # Find an available port

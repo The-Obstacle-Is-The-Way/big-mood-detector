@@ -96,6 +96,8 @@ class XMLDataGenerator:
 
 
 @pytest.mark.performance
+@pytest.mark.slow
+@pytest.mark.timeout(600)
 class TestXMLStreamingPerformance:
     """Test XML parser performance with large files."""
 
