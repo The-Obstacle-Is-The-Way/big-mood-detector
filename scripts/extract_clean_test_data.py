@@ -2,9 +2,9 @@
 """Extract a clean week of Apple Health data for testing."""
 
 import sys
+import xml.etree.ElementTree as ET
 from datetime import datetime, timedelta
 from pathlib import Path
-import xml.etree.ElementTree as ET
 
 # Target dates for extraction
 END_DATE = datetime(2024, 7, 31)

@@ -5,12 +5,12 @@ This module provides the machine learning model implementations for the
 Big Mood Detector system, including PAT and XGBoost models.
 """
 
-from .xgboost_models import XGBoostMoodPredictor
+from .pat_conv_depression_model import SimplePATConvLModel
 
 # We now use pure PyTorch implementation - no TensorFlow dependency!
 from .pat_production_loader import ProductionPATLoader
 from .pat_pytorch import PATDepressionNet
-from .pat_conv_depression_model import SimplePATConvLModel
+from .xgboost_models import XGBoostMoodPredictor
 
 # For backward compatibility with tests
 PAT_AVAILABLE = True  # Always available with PyTorch
