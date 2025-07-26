@@ -445,18 +445,6 @@ def _initialize_container(container: Container) -> None:
     container.register_singleton(DataParsingService)
     container.register_singleton(AggregationPipeline)
 
-    # Register ML models
-    from big_mood_detector.domain.services.pat_predictor import PATPredictorInterface
-    from big_mood_detector.infrastructure.ml_models.pat_production_loader import (
-        ProductionPATLoader,
-    )
-
-    # Register PAT production loader as singleton
-    container.register_singleton(
-        PATPredictorInterface,
-        lambda: ProductionPATLoader()
-    )
-
 
 @lru_cache
 def get_container() -> Container:

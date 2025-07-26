@@ -62,8 +62,6 @@ class ProductionPATLoader(PATPredictorInterface):
         else:
             self.normalizer = NHANESNormalizer()
 
-        # For testing, allow bypassing normalization
-        self._test_skip_normalization = skip_loading
 
         # Track loaded state
         self.is_loaded = False
@@ -136,15 +134,11 @@ class ProductionPATLoader(PATPredictorInterface):
             )
 
         # Normalize using NHANES statistics
-        if self._test_skip_normalization:
-            # For testing - skip normalization
-            normalized = activity_sequence
-        else:
-            try:
-                normalized = self.normalizer.transform(activity_sequence)
-            except ValueError as e:
-                logger.error(f"Normalization failed: {e}")
-                raise
+        try:
+            normalized = self.normalizer.transform(activity_sequence)
+        except ValueError as e:
+            logger.error(f"Normalization failed: {e}")
+            raise
 
         # Convert to tensor and add batch dimension
         x = torch.from_numpy(normalized).float().unsqueeze(0)  # Shape: (1, 10080)
@@ -264,6 +258,6 @@ class ProductionPATLoader(PATPredictorInterface):
         # Extract embeddings
         with torch.no_grad():
             embeddings = self.model.encoder(x)  # Shape: (1, embed_dim)
-            embeddings_np = embeddings.cpu().numpy().squeeze()  # Remove batch dim
+            embeddings_np: NDArray[np.float32] = embeddings.cpu().numpy().squeeze()  # Remove batch dim
 
-        return embeddings_np  # type: ignore[no-any-return]
+        return embeddings_np

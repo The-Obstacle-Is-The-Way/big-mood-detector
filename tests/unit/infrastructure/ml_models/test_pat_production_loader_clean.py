@@ -263,9 +263,6 @@ class TestProductionPATLoaderNormalization:
             normalizer=mock_normalizer
         )
 
-        # Disable bypass normalization for this test
-        loader._test_skip_normalization = False
-
         # Run prediction
         with patch.object(loader.model, 'forward', return_value=torch.tensor([0.0])):
             activity = np.ones(10080, dtype=np.float32)  # Non-zero input
