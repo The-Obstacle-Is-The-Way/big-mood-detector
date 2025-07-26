@@ -15,6 +15,7 @@ from big_mood_detector.domain.services.pat_sequence_builder import PATSequence
 from big_mood_detector.infrastructure.ml_models import PAT_AVAILABLE
 
 
+@pytest.mark.slow  # Requires real ML models
 @pytest.mark.skipif(not PAT_AVAILABLE, reason="TensorFlow not available")
 class TestPATRealIntegration:
     """Test PAT with real weights and data."""

@@ -21,21 +21,19 @@ if os.getenv("TESTING", "0") == "1":
     import numpy as np
     
     # Mock joblib
-    joblib = SimpleNamespace(load=lambda x: None)  # type: ignore
+    joblib: Any = SimpleNamespace(load=lambda x: None)
     
     # Mock BoosterPredictProbaWrapper
-    class BoosterPredictProbaWrapper:  # type: ignore
-        def __init__(self, *args, **kwargs):
+    class BoosterPredictProbaWrapper:
+        def __init__(self, *args: Any, **kwargs: Any) -> None:
             pass
-        def predict_proba(self, X):
+        def predict_proba(self, X: Any) -> np.ndarray[Any, Any]:
             return np.array([[0.5, 0.5]])
 else:
     import joblib  # type: ignore[import-untyped]
     import numpy as np
 
-    from big_mood_detector.infrastructure.ml_models.booster_wrapper import (
-        BoosterPredictProbaWrapper,
-    )
+    from big_mood_detector.infrastructure.ml_models.booster_wrapper import BoosterPredictProbaWrapper
 
 from big_mood_detector.domain.services.mood_predictor import MoodPrediction
 

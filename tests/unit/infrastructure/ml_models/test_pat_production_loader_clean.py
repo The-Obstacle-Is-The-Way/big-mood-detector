@@ -9,6 +9,7 @@ Following Uncle Bob's principles:
 """
 
 import json
+import os
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
@@ -17,6 +18,12 @@ import pytest
 import torch
 
 from big_mood_detector.domain.services.pat_predictor import PATPredictorInterface
+
+# Skip tests that require real PyTorch models when using stubs
+requires_real_torch = pytest.mark.skipif(
+    os.getenv("TESTING", "0") == "1",
+    reason="Requires real PyTorch models, not stubs"
+)
 
 
 class TestProductionPATLoaderContract:
@@ -51,6 +58,7 @@ class TestProductionPATLoaderContract:
         assert "production" in str(loader.model_path)
 
 
+@requires_real_torch
 class TestProductionPATLoaderArchitecture:
     """Test the model architecture is correct."""
 
@@ -107,6 +115,7 @@ class TestProductionPATLoaderPredictions:
         with pytest.raises(ValueError, match="10080"):
             loader.predict_depression(wrong_shape)
 
+    @requires_real_torch
     def test_predict_depression_returns_probability(self):
         """Depression prediction must return value between 0 and 1."""
         from big_mood_detector.infrastructure.ml_models.pat_production_loader import (
@@ -123,6 +132,7 @@ class TestProductionPATLoaderPredictions:
             assert isinstance(probability, float)
             assert 0 <= probability <= 1
 
+    @requires_real_torch
     def test_applies_sigmoid_to_model_output(self):
         """Must apply sigmoid since model outputs logits."""
         from big_mood_detector.infrastructure.ml_models.pat_production_loader import (
@@ -144,6 +154,7 @@ class TestProductionPATLoaderPredictions:
                 probability = loader.predict_depression(activity)
                 assert min_prob <= probability <= max_prob
 
+    @requires_real_torch
     def test_uses_no_grad_for_inference(self):
         """Inference should not compute gradients for efficiency."""
         from big_mood_detector.infrastructure.ml_models.pat_production_loader import (
@@ -247,6 +258,7 @@ class TestProductionPATLoaderIntegration:
 class TestProductionPATLoaderNormalization:
     """Test NHANES normalization integration."""
 
+    @requires_real_torch
     def test_uses_nhanes_normalizer(self):
         """Should normalize input data using NHANES statistics."""
         from big_mood_detector.infrastructure.ml_models.pat_production_loader import (
@@ -290,6 +302,7 @@ class TestCPUOnlyOperation:
             assert loader.device.type == 'cpu'
             assert loader.is_loaded is True  # Still marks as loaded for testing
 
+    @requires_real_torch
     def test_predictions_work_on_cpu(self):
         """Should be able to make predictions on CPU."""
         from big_mood_detector.infrastructure.ml_models.pat_production_loader import (
@@ -311,6 +324,7 @@ class TestCPUOnlyOperation:
 class TestPATPredictorInterfaceCompliance:
     """Test compliance with domain interface."""
 
+    @requires_real_torch
     def test_predict_from_embeddings_returns_correct_type(self):
         """predict_from_embeddings must return PATBinaryPredictions."""
         from big_mood_detector.domain.services.pat_predictor import PATBinaryPredictions

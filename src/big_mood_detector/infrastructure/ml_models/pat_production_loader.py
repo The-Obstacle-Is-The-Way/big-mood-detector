@@ -23,11 +23,18 @@ from numpy.typing import NDArray
 if os.getenv("TESTING", "0") == "1":
     # Lightweight stub for testing
     from types import SimpleNamespace
+    from typing import Any
+    
+    class NoGradContext:
+        def __enter__(self) -> "NoGradContext":
+            return self
+        def __exit__(self, *args: Any) -> None:
+            return None
     
     torch = SimpleNamespace(
-        device=lambda x: "cpu",
+        device=lambda x: SimpleNamespace(type=x.split(":")[0] if isinstance(x, str) else "cpu"),
         cuda=SimpleNamespace(is_available=lambda: False),
-        no_grad=lambda: SimpleNamespace(__enter__=lambda self: None, __exit__=lambda *args: None),
+        no_grad=NoGradContext,
         from_numpy=lambda x: SimpleNamespace(
             float=lambda: SimpleNamespace(
                 unsqueeze=lambda dim: SimpleNamespace(
@@ -39,28 +46,36 @@ if os.getenv("TESTING", "0") == "1":
         sigmoid=lambda x: SimpleNamespace(item=lambda: 0.5)
     )
     
-    class SimplePATConvLModel:  # type: ignore
-        def __init__(self, *args, **kwargs):
+    class SimplePATConvLModel:
+        def __init__(self, *args: Any, **kwargs: Any) -> None:
             self.encoder = lambda x: SimpleNamespace(cpu=lambda: SimpleNamespace(numpy=lambda: SimpleNamespace(squeeze=lambda: np.random.rand(96))))
             self.head = lambda x: 0.0
             
-        def to(self, device):
+        def __call__(self, x: Any) -> float:
+            # Model is called with input tensor
+            return 0.0
+            
+        def to(self, device: Any) -> "SimplePATConvLModel":
             return self
             
-        def eval(self):
+        def eval(self) -> None:
             pass
             
-        def load_state_dict(self, state_dict):
+        def load_state_dict(self, state_dict: Any) -> None:
             pass
     
-    NHANESNormalizer = SimpleNamespace  # type: ignore
+    class NHANESNormalizer:
+        def __init__(self) -> None:
+            pass
+        def transform(self, x: Any) -> Any:
+            return x  # Pass through
 else:
-    import torch
+    import torch  # type: ignore[assignment]
 
-    from big_mood_detector.infrastructure.ml_models.nhanes_normalizer import (
+    from big_mood_detector.infrastructure.ml_models.nhanes_normalizer import (  # type: ignore[assignment]
         NHANESNormalizer,
     )
-    from big_mood_detector.infrastructure.ml_models.pat_conv_depression_model import (
+    from big_mood_detector.infrastructure.ml_models.pat_conv_depression_model import (  # type: ignore[assignment]
         SimplePATConvLModel,
     )
 

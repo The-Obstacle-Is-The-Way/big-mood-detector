@@ -5,6 +5,7 @@ Tests the loading and inference of XGBoost models for mood prediction.
 Following TDD principles - tests written before implementation.
 """
 
+import os
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
@@ -12,6 +13,12 @@ import numpy as np
 import pytest
 
 from big_mood_detector.domain.services.mood_predictor import MoodPrediction
+
+# Skip tests that require real joblib when using stubs
+requires_real_joblib = pytest.mark.skipif(
+    os.getenv("TESTING", "0") == "1",
+    reason="Requires real joblib, not stubs"
+)
 
 
 class TestXGBoostModels:
@@ -52,6 +59,7 @@ class TestXGBoostModels:
         for feature in expected_features:
             assert feature in loader.feature_names
 
+    @requires_real_joblib
     @patch("pathlib.Path.exists")
     @patch("joblib.load")
     def test_load_single_model(self, mock_joblib_load, mock_exists):

@@ -143,6 +143,7 @@ class TestFullPipeline:
             assert 0 <= prediction["hypomanic_risk"] <= 1
             assert 0 <= prediction["manic_risk"] <= 1
 
+    @pytest.mark.slow  # Requires PAT weights
     @pytest.mark.xfail(
         reason="Issue #40: XGBoost Booster objects loaded from JSON lack predict_proba method",
         strict=True

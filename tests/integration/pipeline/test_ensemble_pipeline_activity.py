@@ -123,7 +123,9 @@ class TestEnsemblePipelineActivityFlow:
             return None
 
         # Import is safe after checking PAT_AVAILABLE
-        from big_mood_detector.infrastructure.ml_models.pat_production_loader import ProductionPATLoader
+        from big_mood_detector.infrastructure.ml_models.pat_production_loader import (
+            ProductionPATLoader,
+        )
 
         model = ProductionPATLoader()
         # ProductionPATLoader loads weights automatically in constructor
