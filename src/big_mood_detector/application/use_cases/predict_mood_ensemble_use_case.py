@@ -22,17 +22,13 @@ from numpy.typing import NDArray
 
 from big_mood_detector.domain.entities.activity_record import ActivityRecord
 from big_mood_detector.domain.services.mood_predictor import MoodPrediction
+from big_mood_detector.domain.services.pat_model_interface import PATModelInterface
 from big_mood_detector.domain.services.pat_sequence_builder import PATSequenceBuilder
 from big_mood_detector.infrastructure.ml_models import PAT_AVAILABLE
 from big_mood_detector.infrastructure.ml_models.xgboost_models import (
     XGBoostMoodPredictor,
 )
 from big_mood_detector.infrastructure.settings.config import get_settings
-
-if TYPE_CHECKING or PAT_AVAILABLE:
-    from big_mood_detector.infrastructure.ml_models.pat_model import PATModel
-else:
-    PATModel = None
 
 logger = logging.getLogger(__name__)
 
@@ -107,7 +103,7 @@ class EnsembleOrchestrator:
     def __init__(
         self,
         xgboost_predictor: XGBoostMoodPredictor,
-        pat_model: PATModel | None = None,
+        pat_model: PATModelInterface | None = None,
         config: EnsembleConfig | None = None,
         personal_calibrator: Any | None = None,
     ):

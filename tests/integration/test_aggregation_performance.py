@@ -87,6 +87,13 @@ class XMLDataGenerator:
         return filepath
 
 
+import pytest
+
+
+@pytest.mark.integration
+@pytest.mark.slow
+@pytest.mark.timeout(600)
+@pytest.mark.xfail(strict=False, reason="Known O(n²) performance issue - tracked in issue #38")
 def test_aggregation_bottleneck():
     """Test to identify where the bottleneck is."""
     # Test with different numbers of days

@@ -219,6 +219,12 @@ class ProductionPATLoader(PATPredictorInterface):
         
         # Ensure 1D array
         activity_data = activity_data.flatten()
+        
+        # Validate size - must be exactly 7 days of minute-level data
+        if activity_data.size != 10080:
+            raise ValueError(
+                f"Expected 7×1440 = 10080 data points, got {activity_data.size}"
+            )
 
         # Normalize
         normalized = self.normalizer.transform(activity_data)
