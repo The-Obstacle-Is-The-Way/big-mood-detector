@@ -113,7 +113,8 @@
       "Bash(git branch:*)",
       "Bash(gh issue list:*)",
       "Bash(gh issue create:*)",
-      "Bash(gh issue edit:*)"
+      "Bash(gh issue edit:*)",
+      "Bash(git clone:*)"
     ],
     "deny": []
   }
