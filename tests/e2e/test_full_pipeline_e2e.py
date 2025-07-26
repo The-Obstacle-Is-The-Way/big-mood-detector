@@ -11,6 +11,8 @@ import sys
 
 import pytest
 
+pytestmark = pytest.mark.e2e
+
 
 class TestFullPipeline:
     """Test complete pipeline from data to predictions."""
