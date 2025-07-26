@@ -274,7 +274,7 @@ class EnsembleOrchestrator:
                 raise ValueError("No activity records provided")
 
         # Extract and return PAT embeddings (96-dim)
-        return self.pat_model.extract_features(sequence)
+        return self.pat_model.extract_features(sequence).astype(np.float64)
 
     def _predict_with_pat(
         self,

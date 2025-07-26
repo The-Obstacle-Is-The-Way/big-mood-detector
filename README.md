@@ -26,11 +26,14 @@ Big Mood Detector analyzes your Apple Health data to predict mood episode risk u
 ## ⚠️ Research Limitations
 
 **Population specificity**:
-- XGBoost: Trained only on Korean bipolar patients (ages 18-35)
-- PAT: US NHANES participants who completed surveys (2013-2014)
+- **XGBoost**: Trained on Korean adults (18-35y) with diagnosed bipolar disorder (Lee 2024)
+- **PAT depression model**:
+  • **Pre-training**: ~21k US adults from NHANES (2003-04, 2005-06, 2011-12)
+  • **Fine-tuning (depression task)**: ~2.8k participants from 2013-14 NHANES who completed PHQ-9
 
 **Performance constraints**:
-- Depression detection: Moderate accuracy (0.56-0.80 AUC)
+- Current depression screening: Moderate accuracy (0.56 AUC)
+- Next-day episode prediction: Limited to Korean bipolar cohort (0.80-0.98 AUC)
 - No validation across ethnicities, age groups, or comorbid conditions
 - Research tool only — not FDA approved or clinically validated
 
@@ -90,10 +93,14 @@ Research Risk Scores (Not Diagnostic)
 - Parsing throughput: 33MB/s
 
 **Model Accuracy** (from original research):
-- Mania prediction: 0.98 AUC (Korean bipolar cohort)*
-- Hypomania: 0.95 AUC (Korean bipolar cohort)*  
-- Depression (bipolar): 0.80 AUC (Korean cohort)*
-- Depression (general): 0.56 AUC (US NHANES)*
+
+*Current depression screening (PAT, general population)*:
+- Depression detection: 0.56 AUC (US NHANES 2013-14)*
+
+*Next-day episode prediction (XGBoost, diagnosed bipolar patients)*:
+- Depression episodes: 0.80 AUC (Korean cohort)*
+- Manic episodes: 0.98 AUC (Korean cohort)*
+- Hypomanic episodes: 0.95 AUC (Korean cohort)*
 
 *Research results, not independently validated
 

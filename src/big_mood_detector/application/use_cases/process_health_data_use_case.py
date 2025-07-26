@@ -48,6 +48,7 @@ from big_mood_detector.domain.services.dlmo_calculator import DLMOCalculator
 from big_mood_detector.domain.services.mood_predictor import (
     MoodPredictor,
 )
+from big_mood_detector.domain.services.pat_model_interface import PATModelInterface
 from big_mood_detector.domain.services.sleep_window_analyzer import SleepWindowAnalyzer
 from big_mood_detector.domain.services.sparse_data_handler import (
     SparseDataHandler,
@@ -242,9 +243,10 @@ class MoodPredictionPipeline:
 
             if self.xgboost_predictor and self.xgboost_predictor.is_loaded:
                 # Will be updated after personal calibrator is initialized
+                from typing import cast
                 self.ensemble_orchestrator = EnsembleOrchestrator(
                     xgboost_predictor=self.xgboost_predictor,
-                    pat_model=pat_model,
+                    pat_model=cast(PATModelInterface, pat_model) if pat_model else None,
                     config=self.config.ensemble_config
                     or EnsembleConfig.from_settings(),
                 )

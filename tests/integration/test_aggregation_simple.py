@@ -3,11 +3,12 @@
 import time
 from datetime import date, datetime, timedelta
 
+import pytest
+
 from big_mood_detector.application.services.aggregation_pipeline import (
     AggregationPipeline,
 )
 from big_mood_detector.domain.entities.sleep_record import SleepRecord, SleepState
-import pytest
 
 
 @pytest.mark.integration

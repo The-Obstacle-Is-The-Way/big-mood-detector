@@ -299,7 +299,7 @@ async def get_model_status(
         pat_info = None
         if orchestrator and orchestrator.pat_model:
             pat_available = orchestrator.pat_model.is_loaded
-            if pat_available:
+            if pat_available and hasattr(orchestrator.pat_model, 'get_model_info'):
                 pat_info = orchestrator.pat_model.get_model_info()
 
         # Check ensemble availability

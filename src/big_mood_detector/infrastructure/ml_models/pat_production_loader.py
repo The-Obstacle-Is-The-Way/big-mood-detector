@@ -236,9 +236,9 @@ class ProductionPATLoader(PATPredictorInterface):
         # Extract embeddings
         with torch.no_grad():
             embeddings = self.model.encoder(x)  # Shape: (1, 96)
-            embeddings = embeddings.cpu().numpy().squeeze()  # Shape: (96,)
+            embeddings_numpy: NDArray[np.float32] = embeddings.cpu().numpy().squeeze().astype(np.float32)  # Shape: (96,)
 
-        return embeddings.astype(np.float32)
+        return embeddings_numpy
 
     def predict_medication_proxy(self, embeddings: NDArray[np.float32]) -> float:
         """
