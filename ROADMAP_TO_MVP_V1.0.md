@@ -67,12 +67,14 @@
 
   Roadmap to MVP (v1.0)
 
-  Phase 1: Complete PAT Integration (1-2 weeks)
+  Phase 1: Complete PAT Integration (5-7 days)
 
-  1. ✅ Train PAT depression heads to acceptable performance
-  2. 🚧 Integrate PAT predictions into TemporalEnsembleOrchestrator
-  3. ⬜ Add confidence scoring based on data completeness
-  4. ⬜ Create unified prediction API that returns both NOW and TOMORROW
+  1. ✅ Train PAT depression heads to acceptable performance (0.5929 AUC achieved)
+  2. ✅ Implement PAT depression API endpoint (/predictions/depression)
+  3. 🚧 Wire PAT predictions into TemporalEnsembleOrchestrator
+  4. ⬜ Update CLI to show both NOW (PAT) and TOMORROW (XGBoost)
+  5. ⬜ Create unified temporal prediction API (/predictions/temporal)
+  6. ⬜ Add confidence scoring based on data completeness
 
   Phase 2: Production Hardening (1 week)
 
@@ -101,11 +103,13 @@
   No Yak Shaving Priority List
 
   MUST HAVE for MVP:
-  1. PAT integration working (even if not perfect AUC)
-  2. Unified prediction API
-  3. Basic error handling
-  4. Docker image
-  5. Clear documentation
+  1. ✅ PAT depression prediction working (0.5929 AUC)
+  2. 🚧 Temporal ensemble showing NOW (PAT) + TOMORROW (XGBoost)
+  3. ⬜ Unified temporal prediction API
+  4. ⬜ CLI displaying both temporal windows
+  5. ✅ Basic error handling
+  6. ⬜ Docker image with both models
+  7. ⬜ Clear documentation of temporal approach
 
   NICE TO HAVE:
   - Perfect PAT-L performance (0.610 AUC)
@@ -114,16 +118,18 @@
   - Multi-user support
   - Cloud deployment
 
-  Key Decisions Needed
+  Key Decisions Made
 
-  1. PAT Performance: Accept current 0.58-0.59 AUC or keep training?
-    - Recommendation: Ship with current performance, improve later
-  2. API Design: REST only or add GraphQL?
-    - Recommendation: REST only for MVP
-  3. Deployment: Docker only or add k8s?
-    - Recommendation: Docker only for MVP
-  4. Licensing: Open source or commercial?
-    - Current: Apache 2.0 (open)
+  1. ✅ PAT Performance: Shipping with 0.5929 AUC (good enough for MVP)
+  2. ✅ API Design: REST only with temporal endpoint
+  3. ✅ Deployment: Docker only for MVP
+  4. ✅ Architecture: Two parallel pipelines with temporal separation
+  5. ✅ Licensing: Apache 2.0 (open source)
+
+  Next Technical Decisions:
+  1. ⬜ Temporal API response format (nested vs flat)
+  2. ⬜ Confidence calculation method
+  3. ⬜ Personal calibration for PAT
 
   The Vision
 
