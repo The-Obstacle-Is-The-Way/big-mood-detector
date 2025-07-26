@@ -182,7 +182,7 @@ def dummy_xgboost_models():
     }
 
 
-@pytest.fixture(autouse=True)
+@pytest.fixture(autouse=False if os.getenv("TESTING", "0") == "1" else True)
 def _patch_pat_model(monkeypatch):
     """Provide a lightweight PATModel stub scoped to each test."""
     import sys
