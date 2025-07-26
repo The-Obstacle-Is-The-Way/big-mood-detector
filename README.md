@@ -6,7 +6,7 @@
 
 [![Tests](https://img.shields.io/badge/tests-1000%2B%20passing-brightgreen)](tests/) [![Coverage](https://img.shields.io/badge/coverage-72%25-yellow)](htmlcov/) [![Python](https://img.shields.io/badge/python-3.12%2B-blue)](pyproject.toml) [![License](https://img.shields.io/badge/license-Apache%202.0-green)](LICENSE)
 
-Big Mood Detector analyzes your Apple Health data to predict mood episode risk using AI. Two complementary models: PAT transformer assesses current state, XGBoost predicts tomorrow's risk. Built by a clinical psychiatrist, based on Nature research, and runs 100% locally.
+Big Mood Detector analyzes your Apple Health data to predict mood episode risk using AI. Two complementary models: PAT transformer screens for current depression, XGBoost predicts next-day episodes in bipolar patients. Built by a clinical psychiatrist, based on Nature research, and runs 100% locally.
 
 **Current status**: Research prototype — the first of its kind, but not yet clinically validated.
 
@@ -16,26 +16,12 @@ Big Mood Detector analyzes your Apple Health data to predict mood episode risk u
 
 **Our breakthrough**:
 - **Early detection**: Spot mood episode risk before symptoms spiral
-- **Two timescales**: Current state (PAT, 7-day patterns) + tomorrow's risk (XGBoost, circadian rhythms)  
+- **Two applications**: Current depression screening (PAT, general population) + next-day episode prediction (XGBoost, bipolar patients)
 - **Objective data**: Complement clinical assessment with continuous behavioral biomarkers
 - **Research foundation**: First implementation of peer-reviewed algorithms from Nature Digital Medicine
 - **Privacy-first**: Runs entirely on your device — your data never leaves your machine
 
 **For researchers**: Validate these approaches across populations, build the evidence base for digital mental health.
-
-## ⚠️ Research Limitations
-
-**Population specificity**:
-- **XGBoost**: Trained on Korean adults (18-35y) with diagnosed bipolar disorder (Lee 2024)
-- **PAT depression model**:
-  • **Pre-training**: ~21k US adults from NHANES (2003-04, 2005-06, 2011-12)
-  • **Fine-tuning (depression task)**: ~2.8k participants from 2013-14 NHANES who completed PHQ-9
-
-**Performance constraints**:
-- Current depression screening: Moderate accuracy (0.56 AUC)
-- Next-day episode prediction: Limited to Korean bipolar cohort (0.80-0.98 AUC)
-- No validation across ethnicities, age groups, or comorbid conditions
-- Research tool only — not FDA approved or clinically validated
 
 ## 🚀 Quick Start
 
@@ -115,6 +101,20 @@ Research Risk Scores (Not Diagnostic)
 **Privacy breakthrough**: No cloud dependency, no data collection — your mental health data stays private
 
 **Open research**: Complete transparency enables validation, improvement, and trust
+
+## ⚠️ Research Limitations
+
+**Population specificity**:
+- **XGBoost**: Trained on Korean adults (18-35y) with diagnosed bipolar disorder (Lee 2024)
+- **PAT depression model**:
+  - **Pre-training**: ~21k US adults from NHANES (2003-04, 2005-06, 2011-12)
+  - **Fine-tuning (depression task)**: ~2.8k participants from 2013-14 NHANES who completed PHQ-9
+
+**Performance constraints**:
+- Current depression screening: Moderate accuracy (0.56 AUC)
+- Next-day episode prediction: Limited to Korean bipolar cohort (0.80-0.98 AUC)
+- No validation across ethnicities, age groups, or comorbid conditions
+- Research tool only — not FDA approved or clinically validated
 
 ## Installation
 

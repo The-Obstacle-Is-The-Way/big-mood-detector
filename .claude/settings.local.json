@@ -97,7 +97,8 @@
       "Bash(.venv-wsl/bin/python:*)",
       "Bash(.venv-wsl/bin/pytest tests/integration/data_processing/test_real_xml_processing.py -xvs)",
       "Bash(.venv-wsl/bin/pytest tests/integration/data_processing/test_real_xml_processing.py::TestRealXMLProcessing::test_real_xml_processes_without_errors -xvs)",
-      "Bash(.venv-wsl/bin/ruff check src/ tests/ --fix)"
+      "Bash(.venv-wsl/bin/ruff check src/ tests/ --fix)",
+      "Bash(TESTING=1 pytest tests/unit/interfaces/api/test_depression_endpoint.py::TestDepressionPredictionEndpoint::test_depression_prediction_endpoint_exists -v)"
     ],
     "deny": []
   }
