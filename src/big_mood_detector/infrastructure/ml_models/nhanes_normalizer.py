@@ -21,16 +21,16 @@ logger = logging.getLogger(__name__)
 class NHANESNormalizer:
     """
     Normalizes activity sequences using NHANES population statistics.
-    
+
     Uses StandardScaler approach as specified in the PAT paper:
-    "All train, test, and validation sets were standardized separately 
+    "All train, test, and validation sets were standardized separately
     using Sklearn's StandardScaler"
     """
 
     def __init__(self, stats_path: Path | None = None):
         """
         Initialize normalizer with saved statistics.
-        
+
         Args:
             stats_path: Path to JSON file with mean/std statistics.
                        Defaults to production stats.
@@ -80,7 +80,7 @@ class NHANESNormalizer:
     def fit(self, X: NDArray[np.float32]) -> None:
         """
         Compute normalization statistics from training data.
-        
+
         Args:
             X: Training data of shape (n_samples, 10080)
         """
@@ -92,6 +92,8 @@ class NHANESNormalizer:
         self.std = np.std(X, axis=0, dtype=np.float32, ddof=0)  # Population std
 
         # Handle zero std
+        # Type assertion for mypy - we just assigned self.std above
+        assert self.std is not None
         self.std = np.where(self.std == 0, 1.0, self.std)
 
         self.fitted = True
@@ -100,16 +102,16 @@ class NHANESNormalizer:
     def transform(self, X: NDArray[np.float32]) -> NDArray[np.float32]:
         """
         Normalize activity sequence(s).
-        
+
         Args:
             X: Activity data of shape (10080,) or (n_samples, 10080)
-            
+
         Returns:
             Normalized data with same shape as input
         """
         if not self.fitted:
             raise ValueError("Normalizer not fitted. Load statistics or call fit() first.")
-            
+
         # Type assertion for mypy
         assert self.mean is not None and self.std is not None
 
@@ -130,12 +132,12 @@ class NHANESNormalizer:
     def transform_batch(self, X: NDArray[np.float32]) -> NDArray[np.float32]:
         """
         Normalize batch of sequences.
-        
+
         Alias for transform() that explicitly handles batches.
-        
+
         Args:
             X: Batch of sequences (n_samples, 10080)
-            
+
         Returns:
             Normalized batch
         """
@@ -144,13 +146,13 @@ class NHANESNormalizer:
     def save_statistics(self, path: str | Path) -> None:
         """
         Save computed statistics to JSON.
-        
+
         Args:
             path: Output path for statistics JSON
         """
         if not self.fitted:
             raise ValueError("No statistics to save. Fit the normalizer first.")
-            
+
         # Type assertion for mypy
         assert self.mean is not None and self.std is not None
 

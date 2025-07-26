@@ -27,7 +27,7 @@ class ActivitySequenceRequest(BaseModel):
         ...,
         description="7-day minute-level activity data (10,080 values)"
     )
-    
+
     @field_validator("activity_sequence")
     @classmethod
     def validate_sequence_length(cls, v: list[float]) -> list[float]:
@@ -50,14 +50,14 @@ class EmbeddingsRequest(BaseModel):
 class DepressionPredictionResponse(BaseModel):
     """Response model for depression predictions."""
     depression_probability: float = Field(
-        ..., 
-        ge=0.0, 
+        ...,
+        ge=0.0,
         le=1.0,
         description="Probability of depression (PHQ-9 >= 10)"
     )
     confidence: float = Field(
-        ..., 
-        ge=0.0, 
+        ...,
+        ge=0.0,
         le=1.0,
         description="Model confidence in prediction"
     )
@@ -74,8 +74,8 @@ class DepressionPredictionResponse(BaseModel):
 class EmbeddingsPredictionResponse(DepressionPredictionResponse):
     """Extended response when using embeddings."""
     benzodiazepine_probability: float = Field(
-        ..., 
-        ge=0.0, 
+        ...,
+        ge=0.0,
         le=1.0,
         description="Probability of benzodiazepine use (not yet implemented)"
     )
@@ -94,17 +94,17 @@ async def predict_depression(
 ) -> DepressionPredictionResponse:
     """
     Predict depression risk from 7-day activity sequence.
-    
+
     This endpoint uses the PAT-Conv-L model (0.5929 AUC) to assess
     current depression risk based on wearable activity data.
-    
+
     Args:
         request: Activity sequence data
         predictor: PAT predictor (injected)
-        
+
     Returns:
         Depression probability and confidence
-        
+
     Raises:
         503: Model not loaded
         500: Prediction failed
@@ -116,39 +116,39 @@ async def predict_depression(
             status_code=503,
             detail="Depression prediction model not loaded"
         )
-    
+
     try:
         # Convert to numpy array
         activity_array = np.array(request.activity_sequence, dtype=np.float32)
-        
+
         # Get prediction
         depression_prob = predictor.predict_depression(activity_array)
-        
+
         # Calculate confidence (distance from 0.5)
         confidence = abs(depression_prob - 0.5) * 2.0
         confidence = min(confidence, 0.95)  # Cap at 95%
-        
+
         logger.info(
             f"Depression prediction: {depression_prob:.3f} "
             f"(confidence: {confidence:.3f})"
         )
-        
+
         return DepressionPredictionResponse(
             depression_probability=depression_prob,
             confidence=confidence,
             model_version="pat_conv_l_v0.5929",
             prediction_timestamp=datetime.utcnow().isoformat()
         )
-        
+
     except ValueError as e:
         logger.error(f"Invalid input: {e}")
-        raise HTTPException(status_code=422, detail=str(e))
+        raise HTTPException(status_code=422, detail=str(e)) from e
     except Exception as e:
         logger.error(f"Prediction failed: {e}")
         raise HTTPException(
             status_code=500,
             detail="Depression prediction failed"
-        )
+        ) from e
 
 
 @router.post("/depression/from-embeddings", response_model=EmbeddingsPredictionResponse)
@@ -158,13 +158,13 @@ async def predict_depression_from_embeddings(
 ) -> EmbeddingsPredictionResponse:
     """
     Predict depression risk from pre-computed PAT embeddings.
-    
+
     This is useful when embeddings have been cached or computed elsewhere.
-    
+
     Args:
         request: PAT embeddings
         predictor: PAT predictor (injected)
-        
+
     Returns:
         Depression and medication predictions with confidence
     """
@@ -173,19 +173,19 @@ async def predict_depression_from_embeddings(
             status_code=503,
             detail="Depression prediction model not loaded"
         )
-    
+
     try:
         # Convert to numpy array
         embeddings_array = np.array(request.embeddings, dtype=np.float32)
-        
+
         # Get predictions
         predictions = predictor.predict_from_embeddings(embeddings_array)
-        
+
         logger.info(
             f"Embeddings prediction - Depression: {predictions.depression_probability:.3f}, "
             f"Confidence: {predictions.confidence:.3f}"
         )
-        
+
         return EmbeddingsPredictionResponse(
             depression_probability=predictions.depression_probability,
             benzodiazepine_probability=predictions.benzodiazepine_probability,
@@ -193,10 +193,11 @@ async def predict_depression_from_embeddings(
             model_version="pat_conv_l_v0.5929",
             prediction_timestamp=datetime.utcnow().isoformat()
         )
-        
+
     except Exception as e:
         logger.error(f"Embeddings prediction failed: {e}")
         raise HTTPException(
             status_code=500,
             detail="Depression prediction failed"
-        )
+        ) from e
+

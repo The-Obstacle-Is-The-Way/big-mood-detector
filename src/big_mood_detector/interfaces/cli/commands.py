@@ -174,17 +174,17 @@ def print_summary(result: PipelineResult, verbose: bool = False) -> None:
         click.echo(
             f"Manic Risk: {format_risk_level(result.overall_summary.get('avg_manic_risk', 0))}"
         )
-        
+
         # Display PAT depression score if available
         if 'avg_pat_depression_probability' in result.overall_summary:
             pat_score = result.overall_summary['avg_pat_depression_probability']
             click.echo(
                 f"PAT Depression Risk: {format_risk_level(pat_score)}"
             )
-        
+
         click.echo(f"\nDays analyzed: {result.overall_summary.get('days_analyzed', 0)}")
         click.echo(f"Confidence: {result.confidence_score:.1%}")
-        
+
         # Display PAT confidence if available and verbose
         if verbose and 'avg_pat_confidence' in result.overall_summary:
             pat_confidence = result.overall_summary['avg_pat_confidence']
@@ -285,12 +285,12 @@ def generate_clinical_report(result: PipelineResult, output_path: Path) -> None:
             f.write(f"Depression Risk: {format_risk_level(dep_risk)}\n")
             f.write(f"Hypomanic Risk: {format_risk_level(hypo_risk)}\n")
             f.write(f"Manic Risk: {format_risk_level(manic_risk)}\n")
-            
+
             # Add PAT Depression Assessment if available
             if 'avg_pat_depression_probability' in result.overall_summary:
                 pat_score = result.overall_summary['avg_pat_depression_probability']
                 f.write(f"\nPAT Depression Assessment: {format_risk_level(pat_score)}\n")
-                f.write(f"  (Based on PHQ-9 ≥ 10 threshold)\n")
+                f.write("  (Based on PHQ-9 ≥ 10 threshold)\n")
 
             f.write("\nCLINICAL RECOMMENDATIONS\n")
             f.write("-" * 30 + "\n")
@@ -336,7 +336,7 @@ def generate_clinical_report(result: PipelineResult, output_path: Path) -> None:
             f.write(f"  Hypomania: {format_risk_level(pred['hypomanic_risk'])}\n")
             f.write(f"  Mania: {format_risk_level(pred['manic_risk'])}\n")
             f.write(f"  Confidence: {pred['confidence']:.1%}\n")
-            
+
             # Add PAT scores if available
             if 'pat_depression_probability' in pred:
                 f.write(f"  PAT Depression: {format_risk_level(pred['pat_depression_probability'])}\n")

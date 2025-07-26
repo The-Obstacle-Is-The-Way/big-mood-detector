@@ -40,7 +40,8 @@ class SimplePATConvLModel(nn.Module):
         """Forward pass returning logits."""
         embeddings = self.encoder(x)  # (B, 96)
         logits = self.head(embeddings)  # (B, 1)
-        return logits.squeeze()  # (B,)
+        squeezed: torch.Tensor = logits.squeeze()  # (B,)
+        return squeezed
 
 
 class PATConvLEncoder(PATPyTorchEncoder):

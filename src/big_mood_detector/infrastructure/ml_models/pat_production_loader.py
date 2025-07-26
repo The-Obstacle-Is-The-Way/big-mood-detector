@@ -64,7 +64,7 @@ class ProductionPATLoader(PATPredictorInterface):
 
 
         # Track loaded state
-        self.is_loaded = False
+        self._is_loaded = False
 
         # Set device (CUDA if available)
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -86,7 +86,7 @@ class ProductionPATLoader(PATPredictorInterface):
             self._load_weights()
         else:
             # Mark as loaded for testing
-            self.is_loaded = True
+            self._is_loaded = True
 
     def _load_weights(self) -> None:
         """
@@ -111,7 +111,12 @@ class ProductionPATLoader(PATPredictorInterface):
             self.model.load_state_dict(checkpoint)
 
         logger.info("Weights loaded successfully")
-        self.is_loaded = True
+        self._is_loaded = True
+
+    @property
+    def is_loaded(self) -> bool:
+        """Check if model weights are loaded."""
+        return self._is_loaded
 
     def predict_depression_from_activity(self, activity_sequence: NDArray[np.float32]) -> float:
         """

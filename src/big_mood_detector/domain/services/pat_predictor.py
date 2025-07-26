@@ -36,6 +36,12 @@ class PATPredictorInterface(ABC):
     This interface reflects PAT's actual capabilities from the literature.
     """
 
+    @property
+    @abstractmethod
+    def is_loaded(self) -> bool:
+        """Check if the model is loaded and ready for predictions."""
+        pass
+
     @abstractmethod
     def predict_from_embeddings(self, embeddings: NDArray[np.float32]) -> PATBinaryPredictions:
         """
