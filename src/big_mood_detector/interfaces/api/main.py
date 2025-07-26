@@ -18,6 +18,7 @@ from big_mood_detector.interfaces.api.middleware.metrics import (
     update_model_status,
 )
 from big_mood_detector.interfaces.api.middleware.rate_limit import setup_rate_limiting
+from big_mood_detector.interfaces.api.routes.depression import router as depression_router
 from big_mood_detector.interfaces.api.routes.features import router as features_router
 from big_mood_detector.interfaces.api.routes.labels import router as labels_router
 from big_mood_detector.interfaces.api.routes.predictions import (
@@ -100,6 +101,7 @@ async def startup_event() -> None:
 
 # Include routers
 app.include_router(clinical_router)
+app.include_router(depression_router)
 app.include_router(features_router)
 app.include_router(labels_router)
 app.include_router(predictions_router)
