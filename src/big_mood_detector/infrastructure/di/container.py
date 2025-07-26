@@ -446,13 +446,13 @@ def _initialize_container(container: Container) -> None:
     container.register_singleton(AggregationPipeline)
     
     # Register ML models
+    # Register PAT production loader as singleton
+    import os
+
     from big_mood_detector.domain.services.pat_predictor import PATPredictorInterface
     from big_mood_detector.infrastructure.ml_models.pat_production_loader import (
         ProductionPATLoader,
     )
-    
-    # Register PAT production loader as singleton
-    import os
     skip_loading = os.getenv("TESTING", "0") == "1"
     container.register_singleton(
         PATPredictorInterface,
