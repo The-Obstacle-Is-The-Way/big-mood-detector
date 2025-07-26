@@ -26,8 +26,8 @@ from big_mood_detector.domain.services.pat_predictor import (
 from big_mood_detector.infrastructure.ml_models.nhanes_normalizer import (
     NHANESNormalizer,
 )
-from big_mood_detector.infrastructure.ml_models.pat_pytorch import (
-    PATDepressionNet,
+from big_mood_detector.infrastructure.ml_models.pat_conv_depression_model import (
+    SimplePATConvLModel,
 )
 
 logger = logging.getLogger(__name__)
@@ -71,7 +71,7 @@ class ProductionPATLoader(PATPredictorInterface):
         # Load model
         self.model = self._load_model()
         
-    def _load_model(self) -> PATDepressionNet:
+    def _load_model(self) -> SimplePATConvLModel:
         """
         Load the trained model from checkpoint.
         

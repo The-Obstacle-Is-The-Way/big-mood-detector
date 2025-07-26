@@ -175,14 +175,22 @@ class PATBlock(nn.Module):
 class PATPyTorchEncoder(nn.Module):
     """PyTorch implementation of the PAT encoder."""
 
-    def __init__(self, model_size: str = "small", dropout: float = 0.1):
+    def __init__(self, model_size: str = "small", dropout: float = 0.1,
+                 conv_embedding: bool = False):
         super().__init__()
 
         self.model_size = model_size
+        self.conv_embedding = conv_embedding
         self.config = self._get_config(model_size)
 
-        # Patch embedding layer
-        self.patch_embed = nn.Linear(self.config["patch_size"], self.config["embed_dim"])
+        # Patch embedding layer - Conv or Linear
+        if conv_embedding:
+            self.patch_embed = ConvPatchEmbedding(
+                patch_size=self.config["patch_size"],
+                embed_dim=self.config["embed_dim"]
+            )
+        else:
+            self.patch_embed = nn.Linear(self.config["patch_size"], self.config["embed_dim"])
 
         # Positional embeddings
         self.pos_embed = SinusoidalPositionalEmbedding(
@@ -246,11 +254,16 @@ class PATPyTorchEncoder(nn.Module):
         """
         batch_size = x.shape[0]
 
-        # Reshape to patches: (B, 10080) -> (B, 560, 18)
-        x = x.view(batch_size, self.config["num_patches"], self.config["patch_size"])
-
-        # Patch embedding: (B, 560, 18) -> (B, 560, 96)
-        x = self.patch_embed(x)
+        if self.conv_embedding:
+            # Conv embedding handles patching internally
+            # Input: (B, 10080) -> (B, num_patches, embed_dim)
+            x = self.patch_embed(x)
+        else:
+            # Linear embedding needs manual patching
+            # Reshape to patches: (B, 10080) -> (B, num_patches, patch_size)
+            x = x.view(batch_size, self.config["num_patches"], self.config["patch_size"])
+            # Patch embedding: (B, num_patches, patch_size) -> (B, num_patches, embed_dim)
+            x = self.patch_embed(x)
 
         # Add positional embeddings
         x = self.pos_embed(x)
@@ -270,16 +283,22 @@ class PATPyTorchEncoder(nn.Module):
         Load weights from TensorFlow H5 file and convert to PyTorch.
 
         This carefully maps the TF weight structure to our PyTorch model.
+        
+        Note: For Conv models, patch embedding weights are NOT loaded from TF
+        since the architectures differ (Linear vs Conv).
         """
         try:
             with h5py.File(h5_path, 'r') as f:
-                # Load patch embedding (dense layer)
-                self.patch_embed.weight.data = torch.from_numpy(
-                    np.array(f['dense']['dense']['kernel:0']).T  # Transpose for PyTorch
-                )
-                self.patch_embed.bias.data = torch.from_numpy(
-                    np.array(f['dense']['dense']['bias:0'])
-                )
+                # Load patch embedding only for Linear models
+                if not self.conv_embedding:
+                    self.patch_embed.weight.data = torch.from_numpy(
+                        np.array(f['dense']['dense']['kernel:0']).T  # Transpose for PyTorch
+                    )
+                    self.patch_embed.bias.data = torch.from_numpy(
+                        np.array(f['dense']['dense']['bias:0'])
+                    )
+                else:
+                    logger.info("Skipping patch embedding weights for Conv model (different architecture)")
 
                 # Load transformer blocks
                 for i, block in enumerate(self.blocks):
@@ -364,11 +383,16 @@ class PATDepressionNet(nn.Module):
     """End-to-end PAT model for depression classification with fine-tuning support."""
 
     def __init__(self, model_size: str = "small", unfreeze_last_n: int = 1,
-                 hidden_dim: int = 128, dropout: float = 0.1):
+                 hidden_dim: int = 128, dropout: float = 0.1,
+                 conv_embedding: bool = False, num_classes: int = 1):
         super().__init__()
 
         # PAT encoder
-        self.encoder = PATPyTorchEncoder(model_size=model_size)
+        self.encoder = PATPyTorchEncoder(
+            model_size=model_size,
+            dropout=dropout,
+            conv_embedding=conv_embedding
+        )
 
         # Classification head
         self.head = nn.Sequential(
