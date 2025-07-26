@@ -21,16 +21,16 @@ logger = logging.getLogger(__name__)
 class ConvPatchEmbedding(nn.Module):
     """
     Convolutional patch embedding for PAT-Conv variants.
-    
+
     Uses 1D convolution to create patch embeddings instead of linear projection.
     This is the key architectural difference between PAT and PAT-Conv models.
     """
-    
+
     def __init__(self, patch_size: int, embed_dim: int):
         super().__init__()
         self.patch_size = patch_size
         self.embed_dim = embed_dim
-        
+
         # 1D Conv layer to create patches
         self.conv = nn.Conv1d(
             in_channels=1,  # Single channel actigraphy data
@@ -39,27 +39,27 @@ class ConvPatchEmbedding(nn.Module):
             stride=patch_size,  # Non-overlapping patches
             padding=0  # No padding
         )
-        
+
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """
         Convert activity sequence to patch embeddings using convolution.
-        
+
         Args:
             x: Input tensor of shape (batch_size, sequence_length)
-            
+
         Returns:
             Patch embeddings of shape (batch_size, num_patches, embed_dim)
         """
         # Add channel dimension if needed
         if x.ndim == 2:
             x = x.unsqueeze(1)  # (B, 1, T)
-            
+
         # Apply convolution
         x = self.conv(x)  # (B, embed_dim, num_patches)
-        
+
         # Transpose to match transformer input format
         x = x.transpose(1, 2)  # (B, num_patches, embed_dim)
-        
+
         return x
 
 
@@ -283,7 +283,7 @@ class PATPyTorchEncoder(nn.Module):
         Load weights from TensorFlow H5 file and convert to PyTorch.
 
         This carefully maps the TF weight structure to our PyTorch model.
-        
+
         Note: For Conv models, patch embedding weights are NOT loaded from TF
         since the architectures differ (Linear vs Conv).
         """
