@@ -10,7 +10,7 @@ With it, we unlock the power of temporal mood assessment.
 
 import json
 from pathlib import Path
-from unittest.mock import MagicMock, mock_open, patch
+from unittest.mock import mock_open, patch
 
 import numpy as np
 import pytest
@@ -24,7 +24,7 @@ class TestNHANESNormalizer:
         from big_mood_detector.infrastructure.ml_models.nhanes_normalizer import (
             NHANESNormalizer,
         )
-        
+
         assert NHANESNormalizer is not None
 
     def test_initializes_with_default_stats_path(self):
@@ -32,9 +32,9 @@ class TestNHANESNormalizer:
         from big_mood_detector.infrastructure.ml_models.nhanes_normalizer import (
             NHANESNormalizer,
         )
-        
+
         normalizer = NHANESNormalizer()
-        
+
         expected_path = Path("model_weights/production/nhanes_scaler_stats.json")
         assert normalizer.stats_path == expected_path
 
@@ -43,7 +43,7 @@ class TestNHANESNormalizer:
         from big_mood_detector.infrastructure.ml_models.nhanes_normalizer import (
             NHANESNormalizer,
         )
-        
+
         # Mock statistics file
         mock_stats = {
             "mean": [1.5] * 10080,  # 7 days of minute-level means
@@ -51,13 +51,13 @@ class TestNHANESNormalizer:
             "n_samples": 3077,
             "dataset": "NHANES 2013-2014"
         }
-        
+
         mock_json_data = json.dumps(mock_stats)
-        
+
         with patch("builtins.open", mock_open(read_data=mock_json_data)):
             with patch("pathlib.Path.exists", return_value=True):
                 normalizer = NHANESNormalizer()
-                
+
                 assert hasattr(normalizer, 'mean')
                 assert hasattr(normalizer, 'std')
                 assert normalizer.mean.shape == (10080,)
@@ -69,7 +69,7 @@ class TestNHANESNormalizer:
         from big_mood_detector.infrastructure.ml_models.nhanes_normalizer import (
             NHANESNormalizer,
         )
-        
+
         # Create normalizer with known stats
         with patch("pathlib.Path.exists", return_value=True):
             with patch("builtins.open", mock_open(read_data=json.dumps({
@@ -77,13 +77,13 @@ class TestNHANESNormalizer:
                 "std": [0.5] * 10080
             }))):
                 normalizer = NHANESNormalizer()
-        
+
         # Test data
         X = np.array([3.0] * 10080, dtype=np.float32)  # All 3.0
-        
+
         # Transform
         X_normalized = normalizer.transform(X)
-        
+
         # (3.0 - 2.0) / 0.5 = 2.0
         expected = np.array([2.0] * 10080, dtype=np.float32)
         np.testing.assert_array_almost_equal(X_normalized, expected)
@@ -93,12 +93,12 @@ class TestNHANESNormalizer:
         from big_mood_detector.infrastructure.ml_models.nhanes_normalizer import (
             NHANESNormalizer,
         )
-        
+
         with patch("pathlib.Path.exists", return_value=False):
             normalizer = NHANESNormalizer()
-            
+
             X = np.random.randn(10080).astype(np.float32)
-            
+
             with pytest.raises(ValueError, match="Normalizer not fitted"):
                 normalizer.transform(X)
 
@@ -107,17 +107,17 @@ class TestNHANESNormalizer:
         from big_mood_detector.infrastructure.ml_models.nhanes_normalizer import (
             NHANESNormalizer,
         )
-        
+
         with patch("pathlib.Path.exists", return_value=True):
             with patch("builtins.open", mock_open(read_data=json.dumps({
                 "mean": [0.0] * 10080,
                 "std": [1.0] * 10080
             }))):
                 normalizer = NHANESNormalizer()
-        
+
         # Wrong shape
         X_wrong = np.random.randn(5000).astype(np.float32)
-        
+
         with pytest.raises(ValueError, match="Expected 10080 timesteps"):
             normalizer.transform(X_wrong)
 
@@ -126,19 +126,19 @@ class TestNHANESNormalizer:
         from big_mood_detector.infrastructure.ml_models.nhanes_normalizer import (
             NHANESNormalizer,
         )
-        
+
         with patch("pathlib.Path.exists", return_value=True):
             with patch("builtins.open", mock_open(read_data=json.dumps({
                 "mean": [1.0] * 10080,
                 "std": [2.0] * 10080
             }))):
                 normalizer = NHANESNormalizer()
-        
+
         # Batch of 3 sequences
         X_batch = np.ones((3, 10080), dtype=np.float32) * 5.0
-        
+
         X_normalized = normalizer.transform_batch(X_batch)
-        
+
         assert X_normalized.shape == (3, 10080)
         # (5.0 - 1.0) / 2.0 = 2.0
         expected = np.ones((3, 10080), dtype=np.float32) * 2.0
@@ -149,17 +149,17 @@ class TestNHANESNormalizer:
         from big_mood_detector.infrastructure.ml_models.nhanes_normalizer import (
             NHANESNormalizer,
         )
-        
+
         with patch("pathlib.Path.exists", return_value=True):
             with patch("builtins.open", mock_open(read_data=json.dumps({
                 "mean": [0.0] * 10080,
                 "std": [1.0] * 10080
             }))):
                 normalizer = NHANESNormalizer()
-        
+
         X = np.random.randn(10080).astype(np.float64)  # float64 input
         X_normalized = normalizer.transform(X)
-        
+
         assert X_normalized.dtype == np.float32  # Should convert to float32
 
     def test_fit_computes_statistics_from_data(self):
@@ -167,23 +167,23 @@ class TestNHANESNormalizer:
         from big_mood_detector.infrastructure.ml_models.nhanes_normalizer import (
             NHANESNormalizer,
         )
-        
+
         with patch("pathlib.Path.exists", return_value=False):
             normalizer = NHANESNormalizer()
-            
+
             # Training data with known statistics
             X_train = np.array([
                 [1.0] * 10080,
                 [3.0] * 10080,
                 [5.0] * 10080,
             ], dtype=np.float32)
-            
+
             normalizer.fit(X_train)
-            
+
             assert normalizer.fitted is True
             # Mean should be 3.0 for all timesteps
             np.testing.assert_array_almost_equal(
-                normalizer.mean, 
+                normalizer.mean,
                 np.array([3.0] * 10080, dtype=np.float32)
             )
             # Std should be sqrt(8/3) ≈ 1.633
@@ -198,21 +198,21 @@ class TestNHANESNormalizer:
         from big_mood_detector.infrastructure.ml_models.nhanes_normalizer import (
             NHANESNormalizer,
         )
-        
+
         normalizer = NHANESNormalizer()
         normalizer.mean = np.array([1.0] * 10080, dtype=np.float32)
         normalizer.std = np.array([0.5] * 10080, dtype=np.float32)
         normalizer.fitted = True
-        
+
         mock_file = mock_open()
         with patch("builtins.open", mock_file):
             normalizer.save_statistics("test_stats.json")
-        
+
         # Check that json.dump was called
         handle = mock_file()
         written_data = ''.join(call.args[0] for call in handle.write.call_args_list)
         saved_data = json.loads(written_data)
-        
+
         assert "mean" in saved_data
         assert "std" in saved_data
         assert len(saved_data["mean"]) == 10080
@@ -229,17 +229,17 @@ class TestNHANESNormalizer:
         from big_mood_detector.infrastructure.ml_models.nhanes_normalizer import (
             NHANESNormalizer,
         )
-        
+
         with patch("pathlib.Path.exists", return_value=True):
             with patch("builtins.open", mock_open(read_data=json.dumps({
                 "mean": [mean] * 10080,
                 "std": [std] * 10080
             }))):
                 normalizer = NHANESNormalizer()
-        
+
         X = np.full(10080, input_val, dtype=np.float32)
         X_normalized = normalizer.transform(X)
-        
+
         expected_array = np.full(10080, expected, dtype=np.float32)
         np.testing.assert_array_almost_equal(X_normalized, expected_array)
 
@@ -248,19 +248,19 @@ class TestNHANESNormalizer:
         from big_mood_detector.infrastructure.ml_models.nhanes_normalizer import (
             NHANESNormalizer,
         )
-        
+
         with patch("pathlib.Path.exists", return_value=True):
             with patch("builtins.open", mock_open(read_data=json.dumps({
                 "mean": [5.0] * 10080,
                 "std": [0.0] * 10080  # Zero std!
             }))):
                 normalizer = NHANESNormalizer()
-        
+
         X = np.full(10080, 5.0, dtype=np.float32)
-        
+
         # Should not raise division by zero
         X_normalized = normalizer.transform(X)
-        
+
         # With zero std, output should be 0 (or handle specially)
         assert not np.any(np.isnan(X_normalized))
         assert not np.any(np.isinf(X_normalized))

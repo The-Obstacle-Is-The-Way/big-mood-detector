@@ -1,25 +1,25 @@
 #!/usr/bin/env python3
 """Fix the model weights directory structure to be clean and consistent."""
 
-import os
 import shutil
 from pathlib import Path
 
+
 def fix_structure():
     """Fix the model weights structure."""
-    
+
     print("🔧 Fixing model weights structure...")
-    
+
     # 1. Move pretrained PAT weights to the root pretrained folder
     old_pretrained = Path("model_weights/pat/pretrained")
     new_pretrained = Path("model_weights/pretrained")
-    
+
     if old_pretrained.exists():
         for file in old_pretrained.glob("*.h5"):
             dest = new_pretrained / file.name
             shutil.copy2(file, dest)
             print(f"  Moved: {file.name} → model_weights/pretrained/")
-    
+
     # 2. The structure should be:
     # model_weights/
     # ├── production/      # Production-ready models
@@ -30,18 +30,18 @@ def fix_structure():
     # │   ├── PAT-M_29k_weights.h5
     # │   └── PAT-S_29k_weights.h5
     # └── xgboost/         # XGBoost models
-    
+
     print("\n✅ Correct structure:")
     print("model_weights/")
     print("├── production/      # Production models (USE THESE)")
     print("│   ├── pat_conv_l_v0.5929.pth")
     print("│   └── pat_conv_l_v0.5929.json")
-    print("├── pretrained/      # Original PAT weights") 
+    print("├── pretrained/      # Original PAT weights")
     print("│   ├── PAT-L_29k_weights.h5")
     print("│   ├── PAT-M_29k_weights.h5")
     print("│   └── PAT-S_29k_weights.h5")
     print("└── xgboost/         # XGBoost models")
-    
+
     print("\n⚠️  Old structure to remove (after verification):")
     print("model_weights/pat/  # This whole directory can be archived")
 
@@ -103,7 +103,7 @@ model = torch.load(MODEL_PATH, map_location='cpu')
 
 *XGBoost AUC varies by mood state (depression/mania/hypomania)
 """
-    
+
     with open("model_weights/README.md", "w") as f:
         f.write(readme)
     print("✅ Created model_weights/README.md")

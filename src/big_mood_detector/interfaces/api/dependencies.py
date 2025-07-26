@@ -17,7 +17,6 @@ from big_mood_detector.application.use_cases.process_health_data_use_case import
     MoodPredictionPipeline,
 )
 from big_mood_detector.domain.services.mood_predictor import MoodPredictor
-from big_mood_detector.infrastructure.ml_models import PAT_AVAILABLE
 from big_mood_detector.infrastructure.ml_models.xgboost_models import (
     XGBoostMoodPredictor,
 )
@@ -81,11 +80,13 @@ def get_ensemble_orchestrator() -> EnsembleOrchestrator | None:
     # Initialize PAT model through DI
     pat_predictor = None
     try:
+        from big_mood_detector.domain.services.pat_predictor import (
+            PATPredictorInterface,
+        )
         from big_mood_detector.infrastructure.di import get_container
-        from big_mood_detector.domain.services.pat_predictor import PATPredictorInterface
-        
+
         container = get_container()
-        pat_predictor = container.resolve(PATPredictorInterface)
+        pat_predictor = container.resolve(PATPredictorInterface)  # type: ignore[type-abstract]
         logger.info("PAT production model (0.5929 AUC) loaded successfully for API")
     except Exception as e:
         logger.warning(f"Could not initialize PAT production model: {e}")
@@ -95,7 +96,7 @@ def get_ensemble_orchestrator() -> EnsembleOrchestrator | None:
     config = EnsembleConfig.from_settings()
     orchestrator = EnsembleOrchestrator(
         xgboost_predictor=xgboost_predictor,
-        pat_model=pat_predictor,
+        pat_model=pat_predictor,  # type: ignore[arg-type]  # Deprecated, using new interface
         config=config,
     )
 

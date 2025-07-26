@@ -8,12 +8,12 @@ This script will:
 4. Clean up scattered logs
 """
 
-import os
-import shutil
-from pathlib import Path
-from datetime import datetime
-import tarfile
 import json
+import shutil
+import tarfile
+from datetime import datetime
+from pathlib import Path
+
 
 def create_directory_structure():
     """Create the new organized directory structure."""
@@ -26,7 +26,7 @@ def create_directory_structure():
         "model_weights/pretrained",
         "docs/training",
     ]
-    
+
     for dir_path in dirs:
         Path(dir_path).mkdir(parents=True, exist_ok=True)
         print(f"✅ Created: {dir_path}")
@@ -35,11 +35,11 @@ def move_production_model():
     """Move the best PAT-Conv-L model to production."""
     source = Path("model_weights/pat/pytorch/pat_conv_l_simple_best.pth")
     dest = Path("model_weights/production/pat_conv_l_v0.5929.pth")
-    
+
     if source.exists():
         shutil.copy2(source, dest)
         print(f"✅ Copied production model: {dest}")
-        
+
         # Create metadata file
         metadata = {
             "model_type": "PAT-Conv-L",
@@ -51,7 +51,7 @@ def move_production_model():
             "dataset": "NHANES 2013-2014",
             "task": "Depression classification (PHQ-9 >= 10)"
         }
-        
+
         with open("model_weights/production/pat_conv_l_v0.5929.json", "w") as f:
             json.dump(metadata, f, indent=2)
         print("✅ Created model metadata")
@@ -60,7 +60,7 @@ def archive_old_experiments():
     """Archive old experiment files."""
     # Create archive directory
     archive_dir = Path("training/experiments/archived")
-    
+
     # Archive old PyTorch models
     old_models = [
         "model_weights/pat/pytorch/pat_l_corrected_best.pth",
@@ -74,7 +74,7 @@ def archive_old_experiments():
         "model_weights/pat/pytorch/pat_conv_l_best_5e5.pth",
         "model_weights/pat/pytorch/pat_conv_l_best_10e5.pth",
     ]
-    
+
     # Create tar archive for old models
     tar_path = archive_dir / f"old_models_{datetime.now():%Y%m%d}.tar.gz"
     with tarfile.open(tar_path, "w:gz") as tar:
@@ -82,19 +82,19 @@ def archive_old_experiments():
             if Path(model_path).exists():
                 tar.add(model_path, arcname=Path(model_path).name)
                 print(f"  Archived: {Path(model_path).name}")
-    
+
     print(f"✅ Created archive: {tar_path}")
 
 def organize_logs():
     """Move and organize training logs."""
     # Copy important logs to canonical location
     important_logs = {
-        "docs/archive/pat_experiments/pat_conv_l_simple.log": 
+        "docs/archive/pat_experiments/pat_conv_l_simple.log":
             "training/logs/pat_conv_l_v0.5929_20250725.log",
         "logs/pat_training/pat_l_corrected_20250724_160538.log":
             "training/logs/pat_l_v0.5888_20250724.log",
     }
-    
+
     for source, dest in important_logs.items():
         if Path(source).exists():
             shutil.copy2(source, dest)
@@ -136,7 +136,7 @@ model_weights/
 └── pretrained/     # Original pretrained weights
 ```
 """
-    
+
     with open("CLEANUP_REPORT.md", "w") as f:
         f.write(report)
     print("✅ Created cleanup report: CLEANUP_REPORT.md")
@@ -144,24 +144,24 @@ model_weights/
 def main():
     """Run the full cleanup process."""
     print("🧹 Starting training output cleanup...")
-    
+
     # Create new structure
     create_directory_structure()
-    
+
     # Move production model
     move_production_model()
-    
+
     # Archive old experiments
     print("\n📦 Archiving old experiments...")
     archive_old_experiments()
-    
+
     # Organize logs
     print("\n📋 Organizing logs...")
     organize_logs()
-    
+
     # Create summary
     create_summary_report()
-    
+
     print("\n✨ Cleanup complete! Check CLEANUP_REPORT.md for details.")
     print("\n⚠️  Old files are still in place. Delete manually after verifying archives.")
 

@@ -184,6 +184,7 @@ class PATPyTorchEncoder(nn.Module):
         self.config = self._get_config(model_size)
 
         # Patch embedding layer - Conv or Linear
+        self.patch_embed: nn.Module
         if conv_embedding:
             self.patch_embed = ConvPatchEmbedding(
                 patch_size=self.config["patch_size"],

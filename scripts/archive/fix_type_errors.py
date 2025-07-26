@@ -3,7 +3,6 @@
 
 import re
 from pathlib import Path
-from typing import Set, Tuple
 
 
 def fix_file(file_path: Path) -> bool:
@@ -11,42 +10,42 @@ def fix_file(file_path: Path) -> bool:
     try:
         content = file_path.read_text()
         original_content = content
-        
+
         # Track what imports we need to add
         needs_any = False
         needs_ndarray = False
         needs_callable = False
-        
+
         # Fix dict without type parameters
         if re.search(r'\bdict\s*[|,)\]]', content):
             content = re.sub(r'\b(dict)(\s*[|,)\]])', r'dict[str, Any]\2', content)
             needs_any = True
-            
+
         # Fix list without type parameters (be more careful here)
         if re.search(r':\s*list\s*[|,)\]]', content):
             content = re.sub(r'(:\s*)(list)(\s*[|,)\]])', r'\1list[Any]\3', content)
             needs_any = True
-            
+
         # Fix ndarray without type parameters
         if re.search(r'\bndarray\s*[|,)\]]', content):
             content = re.sub(r'\b(ndarray)(\s*[|,)\]])', r'NDArray[np.float32]\2', content)
             needs_ndarray = True
-            
+
         # Fix Callable without type parameters
         if re.search(r'\bCallable\s*[|,)\]]', content):
             content = re.sub(r'\b(Callable)(\s*[|,)\]])', r'Callable[..., Any]\2', content)
             needs_callable = True
             needs_any = True
-        
+
         # Add imports if needed
         if needs_any or needs_ndarray or needs_callable:
             # Find the right place to add imports (after existing imports)
             import_lines = []
-            
+
             # Check what's already imported
             has_any = 'from typing import' in content and 'Any' in content
             has_ndarray = 'from numpy.typing import NDArray' in content
-            
+
             if needs_any and not has_any:
                 # Add Any to existing typing import or create new one
                 if 'from typing import' in content:
@@ -62,12 +61,12 @@ def fix_file(file_path: Path) -> bool:
                     insert_pos = find_import_position(lines)
                     lines.insert(insert_pos, 'from typing import Any')
                     content = '\n'.join(lines)
-            
+
             if needs_ndarray and not has_ndarray:
                 # Add numpy.typing import
                 lines = content.split('\n')
                 insert_pos = find_import_position(lines)
-                
+
                 # Check if numpy is already imported
                 if 'import numpy as np' in content:
                     # Add after numpy import
@@ -78,15 +77,15 @@ def fix_file(file_path: Path) -> bool:
                 else:
                     lines.insert(insert_pos, 'import numpy as np')
                     lines.insert(insert_pos + 1, 'from numpy.typing import NDArray')
-                
+
                 content = '\n'.join(lines)
-        
+
         # Only write if we made changes
         if content != original_content:
             file_path.write_text(content)
             return True
         return False
-        
+
     except Exception as e:
         print(f"Error processing {file_path}: {e}")
         return False
@@ -103,7 +102,7 @@ def find_import_position(lines: list[str]) -> int:
     # After docstring and other imports
     in_docstring = False
     last_import = 0
-    
+
     for i, line in enumerate(lines):
         if line.strip().startswith('"""'):
             in_docstring = not in_docstring
@@ -116,13 +115,13 @@ def find_import_position(lines: list[str]) -> int:
                     return last_import
                 else:
                     return i
-    
+
     return last_import
 
 def main():
     """Fix type errors in all Python files."""
     src_dir = Path("src/big_mood_detector")
-    
+
     files_to_fix = [
         "application/services/label_service.py",
         "infrastructure/writers/chunked_writer.py",
@@ -145,7 +144,7 @@ def main():
         "application/use_cases/process_health_data_use_case.py",
         "infrastructure/di/container.py",
     ]
-    
+
     fixed_count = 0
     for file_path in files_to_fix:
         full_path = src_dir / file_path
@@ -155,9 +154,9 @@ def main():
                 fixed_count += 1
         else:
             print(f"Not found: {file_path}")
-    
+
     print(f"\nFixed {fixed_count} files")
-    
+
     # Also handle the scipy/tensorflow import issues
     print("\nNote: You may need to install type stubs:")
     print("  pip install types-tensorflow")
