@@ -13,6 +13,7 @@ Following engineering excellence principles:
 
 import logging
 from pathlib import Path
+from typing import Any
 
 import numpy as np
 import torch
@@ -191,6 +192,47 @@ class ProductionPATLoader(PATPredictorInterface):
                 f"Expected either activity sequence (10080,) or embeddings (96,), "
                 f"got shape {activity_or_embeddings.shape}"
             )
+
+    def extract_features(self, sequence: NDArray[np.float32] | Any) -> NDArray[np.float32]:
+        """
+        Extract PAT embeddings from activity sequence.
+
+        Args:
+            sequence: Either PATSequence object or raw activity array (10080,)
+
+        Returns:
+            96-dimensional embedding vector
+        """
+        # Handle PATSequence object
+        if hasattr(sequence, 'activity_values'):
+            activity_data = sequence.activity_values
+        else:
+            activity_data = sequence
+
+        # Ensure numpy array
+        if not isinstance(activity_data, np.ndarray):
+            activity_data = np.array(activity_data)
+
+        # Ensure proper shape
+        if activity_data.ndim == 0:
+            raise ValueError(f"Expected 1D array, got scalar value: {activity_data}")
+        
+        # Ensure 1D array
+        activity_data = activity_data.flatten()
+
+        # Normalize
+        normalized = self.normalizer.transform(activity_data)
+
+        # Convert to tensor
+        x = torch.from_numpy(normalized).float().unsqueeze(0).unsqueeze(0)
+        x = x.to(self.device)
+
+        # Extract embeddings
+        with torch.no_grad():
+            embeddings = self.model.encoder(x)  # Shape: (1, 96)
+            embeddings = embeddings.cpu().numpy().squeeze()  # Shape: (96,)
+
+        return embeddings.astype(np.float32)
 
     def predict_medication_proxy(self, embeddings: NDArray[np.float32]) -> float:
         """
