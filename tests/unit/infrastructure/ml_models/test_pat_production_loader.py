@@ -90,19 +90,19 @@ class TestProductionPATLoader:
         with patch("pathlib.Path.exists") as mock_exists:
             mock_exists.return_value = True
             with patch("torch.load") as mock_load:
-            # Mock minimal checkpoint
-            mock_load.return_value = {
-                'model_state_dict': {},
-                'val_auc': 0.5929
-            }
+                # Mock minimal checkpoint
+                mock_load.return_value = {
+                    'model_state_dict': {},
+                    'val_auc': 0.5929
+                }
             
-            loader = ProductionPATLoader()
-            
-            # Should have convolutional patch embedding
-            assert hasattr(loader.model, 'encoder')
-            assert hasattr(loader.model.encoder, 'patch_embed')
-            # Conv variant has conv layer, not linear
-            assert hasattr(loader.model.encoder.patch_embed, 'conv')
+                loader = ProductionPATLoader()
+                
+                # Should have convolutional patch embedding
+                assert hasattr(loader.model, 'encoder')
+                assert hasattr(loader.model.encoder, 'patch_embed')
+                # Conv variant has conv layer, not linear
+                assert hasattr(loader.model.encoder.patch_embed, 'conv')
 
     def test_model_set_to_eval_mode(self):
         """Model must be in eval mode for inference - no dropout!"""
@@ -113,11 +113,11 @@ class TestProductionPATLoader:
         with patch("pathlib.Path.exists") as mock_exists:
             mock_exists.return_value = True
             with patch("torch.load") as mock_load:
-            mock_load.return_value = {'model_state_dict': {}, 'val_auc': 0.5929}
+                mock_load.return_value = {'model_state_dict': {}, 'val_auc': 0.5929}
             
-            loader = ProductionPATLoader()
-            
-            assert loader.model.training is False  # eval mode
+                loader = ProductionPATLoader()
+                
+                assert loader.model.training is False  # eval mode
 
     def test_predict_depression_returns_probability(self):
         """predict_depression should return a probability between 0 and 1."""
@@ -128,11 +128,11 @@ class TestProductionPATLoader:
         with patch("pathlib.Path.exists") as mock_exists:
             mock_exists.return_value = True
             with patch("torch.load") as mock_load:
-            mock_load.return_value = {'model_state_dict': {}, 'val_auc': 0.5929}
+                mock_load.return_value = {'model_state_dict': {}, 'val_auc': 0.5929}
             
-            loader = ProductionPATLoader()
-            
-            # Mock model forward pass
+                loader = ProductionPATLoader()
+                
+                # Mock model forward pass
             with patch.object(loader.model, 'forward') as mock_forward:
                 # Model returns logits, we apply sigmoid
                 mock_forward.return_value = torch.tensor([[0.5]])  # Logit
@@ -155,11 +155,11 @@ class TestProductionPATLoader:
         with patch("pathlib.Path.exists") as mock_exists:
             mock_exists.return_value = True
             with patch("torch.load") as mock_load:
-            mock_load.return_value = {'model_state_dict': {}, 'val_auc': 0.5929}
+                mock_load.return_value = {'model_state_dict': {}, 'val_auc': 0.5929}
             
-            loader = ProductionPATLoader()
-            
-            # Test with 96-dim embeddings
+                loader = ProductionPATLoader()
+                
+                # Test with 96-dim embeddings
             embeddings = np.random.randn(96).astype(np.float32)
             
             with patch.object(loader.model.head, 'forward') as mock_head:
@@ -193,11 +193,11 @@ class TestProductionPATLoader:
         with patch("pathlib.Path.exists") as mock_exists:
             mock_exists.return_value = True
             with patch("torch.load") as mock_load:
-            mock_load.return_value = {'model_state_dict': {}, 'val_auc': 0.5929}
+                mock_load.return_value = {'model_state_dict': {}, 'val_auc': 0.5929}
             
-            loader = ProductionPATLoader()
-            
-            # Wrong shape should raise error
+                loader = ProductionPATLoader()
+                
+                # Wrong shape should raise error
             wrong_activity = np.random.randn(5000).astype(np.float32)
             
             with pytest.raises(ValueError, match="Expected 10080 timesteps"):
@@ -217,17 +217,17 @@ class TestProductionPATLoader:
         with patch("pathlib.Path.exists") as mock_exists:
             mock_exists.return_value = True
             with patch("torch.load") as mock_load:
-            mock_load.return_value = {'model_state_dict': {}, 'val_auc': 0.5929}
+                mock_load.return_value = {'model_state_dict': {}, 'val_auc': 0.5929}
             
-            loader = ProductionPATLoader()
-            
-            with patch.object(loader.model, 'forward') as mock_forward:
-                mock_forward.return_value = torch.tensor([[logit]])
+                loader = ProductionPATLoader()
                 
-                activity = np.random.randn(10080).astype(np.float32)
-                probability = loader.predict_depression(activity)
-                
-                assert expected_range[0] <= probability <= expected_range[1]
+                with patch.object(loader.model, 'forward') as mock_forward:
+                    mock_forward.return_value = torch.tensor([[logit]])
+                    
+                    activity = np.random.randn(10080).astype(np.float32)
+                    probability = loader.predict_depression(activity)
+                    
+                    assert expected_range[0] <= probability <= expected_range[1]
 
     def test_no_grad_context_for_inference(self):
         """Inference should be wrapped in torch.no_grad() for efficiency."""
@@ -238,11 +238,11 @@ class TestProductionPATLoader:
         with patch("pathlib.Path.exists") as mock_exists:
             mock_exists.return_value = True
             with patch("torch.load") as mock_load:
-            mock_load.return_value = {'model_state_dict': {}, 'val_auc': 0.5929}
+                mock_load.return_value = {'model_state_dict': {}, 'val_auc': 0.5929}
             
-            loader = ProductionPATLoader()
-            
-            # Spy on torch.no_grad
+                loader = ProductionPATLoader()
+                
+                # Spy on torch.no_grad
             with patch("torch.no_grad") as mock_no_grad:
                 mock_no_grad.return_value.__enter__ = MagicMock()
                 mock_no_grad.return_value.__exit__ = MagicMock()
@@ -264,7 +264,7 @@ class TestProductionPATLoader:
         with patch("pathlib.Path.exists") as mock_exists:
             mock_exists.return_value = True
             with patch("torch.load") as mock_load:
-            mock_load.return_value = {'model_state_dict': {}, 'val_auc': 0.5929}
+                mock_load.return_value = {'model_state_dict': {}, 'val_auc': 0.5929}
             
             # Test CPU fallback
             with patch("torch.cuda.is_available", return_value=False):

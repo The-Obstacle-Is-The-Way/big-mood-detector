@@ -635,6 +635,18 @@ def setup_dependencies(settings: Any) -> Container:
     # TaskWorker will be added when implemented
 
     container.register_singleton(TaskQueue)
+    
+    # Register ML models
+    from big_mood_detector.domain.services.pat_predictor import PATPredictorInterface
+    from big_mood_detector.infrastructure.ml_models.pat_production_loader import (
+        ProductionPATLoader,
+    )
+    
+    # Register PAT production loader as singleton
+    container.register_singleton(
+        PATPredictorInterface,
+        lambda: ProductionPATLoader()
+    )
 
     # Register repositories
     from pathlib import Path

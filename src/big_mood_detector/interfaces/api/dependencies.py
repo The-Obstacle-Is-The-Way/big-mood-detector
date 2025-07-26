@@ -78,29 +78,24 @@ def get_ensemble_orchestrator() -> EnsembleOrchestrator | None:
         logger.error("Failed to load XGBoost models")
         return None
 
-    # Initialize PAT model if available
-    pat_model = None
-    if PAT_AVAILABLE:
-        try:
-            from big_mood_detector.infrastructure.ml_models.pat_model import PATModel
-
-            pat_model = PATModel(model_size="medium")
-            if not pat_model.load_pretrained_weights():
-                logger.warning("Failed to load PAT model weights")
-                pat_model = None
-            else:
-                logger.info("PAT model loaded successfully for API")
-        except Exception as e:
-            logger.warning(f"Could not initialize PAT model: {e}")
-            pat_model = None
-    else:
-        logger.warning("PAT not available - TensorFlow not installed")
+    # Initialize PAT model through DI
+    pat_predictor = None
+    try:
+        from big_mood_detector.infrastructure.di import get_container
+        from big_mood_detector.domain.services.pat_predictor import PATPredictorInterface
+        
+        container = get_container()
+        pat_predictor = container.resolve(PATPredictorInterface)
+        logger.info("PAT production model (0.5929 AUC) loaded successfully for API")
+    except Exception as e:
+        logger.warning(f"Could not initialize PAT production model: {e}")
+        pat_predictor = None
 
     # Create ensemble orchestrator
     config = EnsembleConfig.from_settings()
     orchestrator = EnsembleOrchestrator(
         xgboost_predictor=xgboost_predictor,
-        pat_model=pat_model,
+        pat_model=pat_predictor,
         config=config,
     )
 
