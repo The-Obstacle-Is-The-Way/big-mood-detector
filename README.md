@@ -27,7 +27,7 @@ Big Mood Detector analyzes your Apple Health data to predict mood episode risk u
 
 **Population specificity**:
 - XGBoost: Trained only on Korean bipolar patients (ages 18-35)
-- PAT: US NHANES participants who completed surveys (selection bias likely)
+- PAT: US NHANES participants who completed surveys (2013-2014)
 
 **Performance constraints**:
 - Depression detection: Moderate accuracy (0.56-0.80 AUC)
