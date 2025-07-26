@@ -137,6 +137,49 @@ make dev
 - Add integration tests for new features
 - Test with real Apple Health data when possible
 
+### Test Organization
+
+We organize tests into two categories:
+
+1. **Fast tests** (default) - Run in CI and locally:
+   - Unit tests
+   - Light integration tests
+   - Must complete in < 5 minutes total
+   - Run with: `pytest -m "not slow"`
+
+2. **Slow tests** - Run nightly or manually:
+   - Performance benchmarks
+   - Large data processing tests
+   - Tests that load real ML models
+   - Run with: `pytest -m slow`
+
+### TESTING Environment Variable
+
+To prevent model loading during tests (which can cause timeouts), we use the `TESTING` environment variable:
+
+```bash
+# Run fast tests without loading models
+export TESTING=1
+pytest -m "not slow"
+
+# Run all tests including slow ones (loads real models)
+pytest --runslow
+```
+
+The `TESTING=1` flag:
+- Skips loading PAT model weights
+- Uses mock predictors in tests
+- Prevents subprocess tests from hanging
+- Is automatically set in CI for fast test runs
+
+### Adding New Tests
+
+When adding tests:
+- Mark performance/integration tests with `@pytest.mark.slow`
+- Use `MoodPredictionPipeline.for_testing()` for pipeline tests
+- Avoid subprocess calls that might load models
+- Keep individual test runtime under 10 seconds for fast tests
+
 ## Documentation
 
 - Update the README.md if needed

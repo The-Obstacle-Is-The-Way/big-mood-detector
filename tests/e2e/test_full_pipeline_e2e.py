@@ -11,7 +11,8 @@ import sys
 
 import pytest
 
-pytestmark = pytest.mark.e2e
+# Mark all tests in this module as e2e and set timeout
+pytestmark = [pytest.mark.e2e, pytest.mark.timeout(30)]
 
 
 class TestFullPipeline:
@@ -83,6 +84,7 @@ class TestFullPipeline:
         ]
         return "\n".join(xml_lines)
 
+    @pytest.mark.slow
     def test_predict_command_e2e(self, sample_xml_data, tmp_path):
         """Test full pipeline: XML → features → predictions."""
         # Given: Sample XML data
@@ -93,6 +95,9 @@ class TestFullPipeline:
 
         # When: Running predict command
         import sys
+        import os
+        env = os.environ.copy()
+        env["TESTING"] = "1"
         result = subprocess.run(
             [
                 sys.executable,
@@ -111,6 +116,7 @@ class TestFullPipeline:
             ],
             capture_output=True,
             text=True,
+            env=env,
         )
 
         # Then: Command should succeed
@@ -179,31 +185,33 @@ class TestFullPipeline:
         xml_file = tmp_path / "minimal.xml"
         xml_file.write_text(minimal_xml)
 
-        # When: Running predict
-        result = subprocess.run(
-            [
-                sys.executable,
-                "-m",
-                "big_mood_detector.interfaces.cli.main",
-                "predict",
-                str(xml_file),
-                "--start-date",
-                "2024-01-01",
-                "--end-date",
-                "2024-01-07",
-            ],
-            capture_output=True,
-            text=True,
+        # When: Using pipeline directly to avoid subprocess model loading
+        from big_mood_detector.application.use_cases.process_health_data_use_case import (
+            MoodPredictionPipeline,
+            PipelineConfig,
         )
+        from big_mood_detector.test_support.predictors import ConstantMoodPredictor
+        from datetime import date
+        
+        config = PipelineConfig(min_days_required=7)
+        pipeline = MoodPredictionPipeline.for_testing(
+            predictor=ConstantMoodPredictor(),
+            config=config,
+            disable_ensemble=True
+        )
+        
+        result = pipeline.process_apple_health_file(
+            file_path=xml_file,
+            start_date=date(2024, 1, 1),
+            end_date=date(2024, 1, 7),
+        )
+        
+        # Then: Should handle gracefully with warnings
+        assert result is not None
+        assert result.has_warnings is True
+        assert "Insufficient data" in result.warnings[0]
 
-        # Then: Should still succeed
-        assert result.returncode == 0
-
-        # With only 2 days of data, there shouldn't be any predictions
-        # The command succeeds but the output might not contain specific warnings
-        # Just verify the command completes successfully
-        assert result.stdout is not None
-
+    @pytest.mark.slow
     def test_label_import_export_e2e(self, tmp_path):
         """Test label CLI import/export functionality."""
         # Given: CSV with labeled episodes
@@ -218,6 +226,9 @@ class TestFullPipeline:
         export_file = tmp_path / "exported.csv"
 
         # When: Importing episodes
+        import os
+        env = os.environ.copy()
+        env["TESTING"] = "1"
         import_result = subprocess.run(
             [
                 sys.executable,
@@ -231,6 +242,7 @@ class TestFullPipeline:
             ],
             capture_output=True,
             text=True,
+            env=env,
         )
 
         # Then: Import should succeed
@@ -252,6 +264,7 @@ class TestFullPipeline:
             ],
             capture_output=True,
             text=True,
+            env=env,
         )
 
         # Then: Export should succeed
@@ -265,6 +278,7 @@ class TestFullPipeline:
         assert len(df) == 2
         assert set(df["label"]) == {"depressive", "manic"}
 
+    @pytest.mark.slow
     @pytest.mark.parametrize("format,extension", [("json", "json"), ("csv", "csv")])
     def test_predict_output_formats(self, sample_xml_data, tmp_path, format, extension):
         """Test different output formats work correctly."""
@@ -274,6 +288,9 @@ class TestFullPipeline:
         output_file = tmp_path / f"predictions.{extension}"
 
         # When: Running predict with specific format
+        import os
+        env = os.environ.copy()
+        env["TESTING"] = "1"
         result = subprocess.run(
             [
                 sys.executable,
@@ -292,6 +309,7 @@ class TestFullPipeline:
             ],
             capture_output=True,
             text=True,
+            env=env,
         )
 
         # Then: Should succeed

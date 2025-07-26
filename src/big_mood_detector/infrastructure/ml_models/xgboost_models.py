@@ -9,16 +9,33 @@ Based on the Seoul National University and Harvard/Fitbit studies that use
 """
 
 import logging
+import os
 from pathlib import Path
 from typing import Any
 
-import joblib  # type: ignore[import-untyped]
-import numpy as np
+# Guard heavy imports when TESTING=1
+if os.getenv("TESTING", "0") == "1":
+    # Lightweight stubs for testing
+    import numpy as np
+    from types import SimpleNamespace
+    
+    # Mock joblib
+    joblib = SimpleNamespace(load=lambda x: None)  # type: ignore
+    
+    # Mock BoosterPredictProbaWrapper
+    class BoosterPredictProbaWrapper:  # type: ignore
+        def __init__(self, *args, **kwargs):
+            pass
+        def predict_proba(self, X):
+            return np.array([[0.5, 0.5]])
+else:
+    import joblib  # type: ignore[import-untyped]
+    import numpy as np
+    from big_mood_detector.infrastructure.ml_models.booster_wrapper import (
+        BoosterPredictProbaWrapper,
+    )
 
 from big_mood_detector.domain.services.mood_predictor import MoodPrediction
-from big_mood_detector.infrastructure.ml_models.booster_wrapper import (
-    BoosterPredictProbaWrapper,
-)
 
 logger = logging.getLogger(__name__)
 

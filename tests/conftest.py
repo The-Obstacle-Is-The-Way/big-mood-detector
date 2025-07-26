@@ -21,6 +21,8 @@ for var in (
 # Disable Rich formatting in tests for speed
 os.environ["RICH_DISABLE"] = "True"
 
+# The TESTING=1 guards are now in the individual modules themselves
+
 from copy import deepcopy  # noqa: E402
 from pathlib import Path  # noqa: E402
 from tempfile import NamedTemporaryFile  # noqa: E402

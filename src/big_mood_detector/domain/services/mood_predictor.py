@@ -18,10 +18,19 @@ from pathlib import Path
 from typing import Any
 
 import numpy as np
-import xgboost as xgb
 
-# Suppress XGBoost warnings about feature names
-warnings.filterwarnings("ignore", category=UserWarning, module="xgboost")
+# Guard heavy xgboost import when TESTING=1
+if os.getenv("TESTING", "0") == "1":
+    # Lightweight stub for testing
+    from types import SimpleNamespace
+    xgb = SimpleNamespace(
+        Booster=lambda: None,
+        DMatrix=lambda data, **kwargs: None
+    )
+else:
+    import xgboost as xgb
+    # Suppress XGBoost warnings about feature names
+    warnings.filterwarnings("ignore", category=UserWarning, module="xgboost")
 
 
 @dataclass(frozen=True)

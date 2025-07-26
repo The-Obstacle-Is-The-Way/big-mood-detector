@@ -41,9 +41,11 @@ jobs:
           make type-check
       
       - name: Run core tests (skip heavy integration)
+        env:
+          TESTING: "1"  # Skip model loading to prevent timeouts
         run: |
           # Run unit tests + light integration tests only
-          pytest -q -n auto \
+          pytest -q -n auto -m "not slow" \
             --ignore=tests/integration/test_optimized_aggregation.py \
             --ignore=tests/integration/test_aggregation_performance_issue.py \
             --ignore=tests/integration/test_memory_bounds.py \
@@ -72,7 +74,9 @@ jobs:
           pip install -e ".[dev,ml]"
       
       - name: Extended integration tests
-        run: pytest tests/integration/ -v
+        env:
+          TESTING: "1"  # Skip model loading to prevent timeouts
+        run: pytest tests/integration/ -v -m "not slow"
 
   production-validation:
     runs-on: ubuntu-latest

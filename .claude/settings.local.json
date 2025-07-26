@@ -98,7 +98,15 @@
       "Bash(.venv-wsl/bin/pytest tests/integration/data_processing/test_real_xml_processing.py -xvs)",
       "Bash(.venv-wsl/bin/pytest tests/integration/data_processing/test_real_xml_processing.py::TestRealXMLProcessing::test_real_xml_processes_without_errors -xvs)",
       "Bash(.venv-wsl/bin/ruff check src/ tests/ --fix)",
-      "Bash(TESTING=1 pytest tests/unit/interfaces/api/test_depression_endpoint.py::TestDepressionPredictionEndpoint::test_depression_prediction_endpoint_exists -v)"
+      "Bash(TESTING=1 pytest tests/unit/interfaces/api/test_depression_endpoint.py::TestDepressionPredictionEndpoint::test_depression_prediction_endpoint_exists -v)",
+      "Bash(TESTING=1 pytest tests/unit/application/use_cases/test_process_health_data_use_case.py::TestMoodPredictionPipeline::test_process_apple_health_xml -v -s)",
+      "Bash(TESTING=1 pytest tests/unit/application/use_cases/test_process_health_data_use_case.py -v)",
+      "Bash(TESTING=1 python -m pytest tests/unit/application/use_cases/test_process_health_data_use_case.py::TestMoodPredictionPipeline::test_process_apple_health_xml -xvs)",
+      "Bash(TESTING=1 pytest -m \"not slow\" --tb=short -q)",
+      "Bash(TESTING=1 pytest -m \"not slow\" -x --tb=short)",
+      "Bash(TESTING=1 timeout 30 pytest -m \"not slow\" --co -q)",
+      "Bash(timeout:*)",
+      "Bash(TESTING=1 python -m trace --trace -C . big_mood_detector/infrastructure/ml_models/xgboost_models.py)"
     ],
     "deny": []
   }
