@@ -96,7 +96,8 @@
       "Bash(.venv-wsl/bin/pytest tests/integration/ -x --tb=short -q)",
       "Bash(.venv-wsl/bin/python:*)",
       "Bash(.venv-wsl/bin/pytest tests/integration/data_processing/test_real_xml_processing.py -xvs)",
-      "Bash(.venv-wsl/bin/pytest tests/integration/data_processing/test_real_xml_processing.py::TestRealXMLProcessing::test_real_xml_processes_without_errors -xvs)"
+      "Bash(.venv-wsl/bin/pytest tests/integration/data_processing/test_real_xml_processing.py::TestRealXMLProcessing::test_real_xml_processes_without_errors -xvs)",
+      "Bash(.venv-wsl/bin/ruff check src/ tests/ --fix)"
     ],
     "deny": []
   }

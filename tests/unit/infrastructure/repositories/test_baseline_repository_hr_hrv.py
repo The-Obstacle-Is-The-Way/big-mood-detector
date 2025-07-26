@@ -2,7 +2,6 @@
 Test baseline repositories handle HR/HRV fields correctly.
 """
 
-import shutil
 from datetime import date, datetime
 from pathlib import Path
 

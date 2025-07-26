@@ -17,7 +17,7 @@ from big_mood_detector.interfaces.cli.commands import generate_clinical_report
 
 class TestDepressionDisplayUnhappyPaths:
     """Test edge cases and error conditions for depression display."""
-    
+
     def test_clinical_report_handles_missing_pat_keys_in_summary(self):
         """Report generation should not crash when PAT keys are missing from summary."""
         # Create result with missing PAT keys in overall_summary
@@ -45,21 +45,21 @@ class TestDepressionDisplayUnhappyPaths:
             records_processed=100,
             features_extracted=36,
         )
-        
+
         # Generate report - should not raise
         with CliRunner().isolated_filesystem():
             report_path = Path("clinical_report.txt")
             generate_clinical_report(result, report_path)
-            
+
             # Verify report was created
             assert report_path.exists()
-            
+
             # Check content doesn't have PAT assessment section
             report_content = report_path.read_text()
             assert "CLINICAL RISK ASSESSMENT" in report_content
             # Should not have PAT assessment since it's missing from summary
             assert "PAT Depression Assessment:" not in report_content
-    
+
     def test_clinical_report_handles_none_summary(self):
         """Report should handle None overall_summary gracefully."""
         result = PipelineResult(
@@ -77,19 +77,19 @@ class TestDepressionDisplayUnhappyPaths:
             records_processed=100,
             features_extracted=36,
         )
-        
+
         # Generate report - should not raise
         with CliRunner().isolated_filesystem():
             report_path = Path("clinical_report.txt")
             generate_clinical_report(result, report_path)
-            
+
             # Verify report was created
             assert report_path.exists()
-            
+
             # Should still have basic structure
             report_content = report_path.read_text()
             assert "CLINICAL DECISION SUPPORT (CDS) REPORT" in report_content
-    
+
     def test_clinical_report_handles_malformed_pat_scores(self):
         """Report should handle non-numeric PAT scores gracefully."""
         result = PipelineResult(
@@ -115,11 +115,11 @@ class TestDepressionDisplayUnhappyPaths:
             records_processed=100,
             features_extracted=36,
         )
-        
+
         # Generate report - should not raise
         with CliRunner().isolated_filesystem():
             report_path = Path("clinical_report.txt")
-            
+
             # This might raise due to format_risk_level expecting a number
             # The implementation should handle this gracefully
             try:
@@ -130,7 +130,7 @@ class TestDepressionDisplayUnhappyPaths:
                 # If it does raise, that's also acceptable behavior
                 # The important thing is it doesn't crash unexpectedly
                 pass
-    
+
     def test_clinical_report_handles_empty_daily_predictions(self):
         """Report should handle empty daily predictions gracefully."""
         result = PipelineResult(
@@ -146,19 +146,19 @@ class TestDepressionDisplayUnhappyPaths:
             records_processed=0,
             features_extracted=0,
         )
-        
+
         # Generate report - should not raise
         with CliRunner().isolated_filesystem():
             report_path = Path("clinical_report.txt")
             generate_clinical_report(result, report_path)
-            
+
             # Verify report was created
             assert report_path.exists()
-            
+
             # Check it handles zero days analyzed
             report_content = report_path.read_text()
             assert "Analysis Period: 0 days" in report_content
-    
+
     def test_clinical_report_handles_partial_pat_data(self):
         """Report should handle when only some days have PAT scores."""
         result = PipelineResult(
@@ -193,15 +193,15 @@ class TestDepressionDisplayUnhappyPaths:
             records_processed=200,
             features_extracted=72,
         )
-        
+
         # Generate report - should not raise
         with CliRunner().isolated_filesystem():
             report_path = Path("clinical_report.txt")
             generate_clinical_report(result, report_path)
-            
+
             # Verify report was created
             assert report_path.exists()
-            
+
             # Check daily analysis section
             report_content = report_path.read_text()
             assert "DETAILED DAILY ANALYSIS" in report_content

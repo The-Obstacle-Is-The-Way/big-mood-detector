@@ -204,22 +204,18 @@ class TestEndToEndDataProcessing:
     def pipeline_with_test_predictor(self):
         """Create pipeline with a real test predictor - no mocks."""
         from big_mood_detector.test_support.predictors import ConstantMoodPredictor
-        
+
         config = PipelineConfig(
             min_days_required=3,  # Use real default
             enable_sparse_handling=True,
             use_seoul_features=True
         )
 
-        pipeline = MoodPredictionPipeline(config=config)
-        
-        # Use a real predictor that implements the interface properly
-        pipeline.mood_predictor = ConstantMoodPredictor()
-        
-        # Disable ensemble for XGBoost-only testing
-        pipeline.ensemble_orchestrator = None
-
-        return pipeline
+        return MoodPredictionPipeline.for_testing(
+            predictor=ConstantMoodPredictor(),
+            config=config,
+            disable_ensemble=True
+        )
 
     def test_xml_processing_end_to_end(
         self, pipeline_with_test_predictor, sample_xml_content
@@ -247,12 +243,12 @@ class TestEndToEndDataProcessing:
             # 1. At least 3 days of sequential sleep data before target date
             # 2. Proper activity and heart rate metrics
             # Our test data has this, but Seoul feature generation is complex
-            
+
             # Since Seoul features may not generate for test data,
             # we test the integration without requiring predictions
             # This verifies the pipeline processes without errors
             assert result.processing_time_seconds > 0
-            
+
             # If predictions were generated, verify their structure
             if result.daily_predictions:
                 for _date_key, prediction in result.daily_predictions.items():
@@ -314,7 +310,7 @@ class TestEndToEndDataProcessing:
             # JSON processing may not generate predictions with test data
             # Seoul features require specific data patterns
             assert result.processing_time_seconds > 0
-            
+
             # If predictions were generated, verify structure
             if result.daily_predictions:
                 assert len(result.daily_predictions) >= 1

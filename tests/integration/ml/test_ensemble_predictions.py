@@ -350,17 +350,17 @@ class TestEnsemblePredictions:
 
         # We now use PyTorch implementation
         from big_mood_detector.infrastructure.ml_models import ProductionPATLoader
-        
+
         # For now, we only have the large model in production
         if model_size != "large":
-            pytest.skip(f"Only large model currently implemented in PyTorch")
+            pytest.skip("Only large model currently implemented in PyTorch")
 
         # Use skip_loading=True for tests without actual weights
         pat_model = ProductionPATLoader(skip_loading=True)
-        
+
         # Verify model is marked as loaded (for testing)
         assert pat_model.is_loaded
-        
+
         # Test that we can get embeddings with dummy data
         import numpy as np
         dummy_activity = np.random.rand(10080).astype(np.float32)
