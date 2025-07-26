@@ -28,7 +28,7 @@ if os.getenv("TESTING", "0") == "1":
         DMatrix=lambda data, **kwargs: None
     )
 else:
-    import xgboost as xgb  # type: ignore[no-redef]
+    import xgboost as xgb
     # Suppress XGBoost warnings about feature names
     warnings.filterwarnings("ignore", category=UserWarning, module="xgboost")
 
