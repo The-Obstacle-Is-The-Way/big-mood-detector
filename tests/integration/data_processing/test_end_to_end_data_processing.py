@@ -201,35 +201,28 @@ class TestEndToEndDataProcessing:
         }
 
     @pytest.fixture
-    def pipeline_with_mocked_ml(self):
-        """Create pipeline with mocked ML predictions."""
+    def pipeline_with_test_predictor(self):
+        """Create pipeline with a real test predictor - no mocks."""
+        from big_mood_detector.test_support.predictors import ConstantMoodPredictor
+        
         config = PipelineConfig(
-            min_days_required=1,  # Allow predictions with minimal data
+            min_days_required=3,  # Use real default
             enable_sparse_handling=True,
-            use_seoul_features=True  # Ensure we use Seoul path
+            use_seoul_features=True
         )
 
         pipeline = MoodPredictionPipeline(config=config)
-
-        # Mock the mood predictor to avoid loading ML models
-        mock_predictor = Mock()
-        mock_prediction = Mock()
-        mock_prediction.depression_risk = 0.3
-        mock_prediction.hypomanic_risk = 0.2
-        mock_prediction.manic_risk = 0.1
-        mock_prediction.confidence = 0.85
-        mock_predictor.predict.return_value = mock_prediction
-        mock_predictor.is_loaded = True
-
-        pipeline.mood_predictor = mock_predictor
         
-        # Ensure ensemble orchestrator is not used
+        # Use a real predictor that implements the interface properly
+        pipeline.mood_predictor = ConstantMoodPredictor()
+        
+        # Disable ensemble for XGBoost-only testing
         pipeline.ensemble_orchestrator = None
 
         return pipeline
 
     def test_xml_processing_end_to_end(
-        self, pipeline_with_mocked_ml, sample_xml_content
+        self, pipeline_with_test_predictor, sample_xml_content
     ):
         """Test complete XML processing from file to predictions."""
         # Create temporary XML file
