@@ -100,5 +100,5 @@ For questions about PAT implementation or to collaborate on reaching paper parit
 
 ## References
 
-- Original PAT paper: [Self-Supervised Learning of Accelerometer Data Provides New Insights for Sleep and Its Association with Mortality](https://arxiv.org/abs/2305.09930)
+- Original PAT paper: [Foundation Models for Wearable Movement Data in Mental Health Research](https://arxiv.org/abs/2411.15240)
 - NHANES dataset: [2013-2014 cycle](https://wwwn.cdc.gov/nchs/nhanes/continuousnhanes/default.aspx?BeginYear=2013)

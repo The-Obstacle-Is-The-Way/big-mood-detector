@@ -111,7 +111,9 @@
       "Bash(gh issue close:*)",
       "Bash(gh issue comment:*)",
       "Bash(git branch:*)",
-      "Bash(gh issue list:*)"
+      "Bash(gh issue list:*)",
+      "Bash(gh issue create:*)",
+      "Bash(gh issue edit:*)"
     ],
     "deny": []
   }
