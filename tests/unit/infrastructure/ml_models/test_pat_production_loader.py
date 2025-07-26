@@ -31,23 +31,38 @@ class TestProductionPATLoader:
         assert ProductionPATLoader is not None
         assert issubclass(ProductionPATLoader, PATPredictorInterface)
 
-    def test_loader_initializes_with_correct_model_path(self):
+    @patch("pathlib.Path.exists")
+    @patch("torch.load")
+    def test_loader_initializes_with_correct_model_path(self, mock_torch_load, mock_exists):
         """Loader should point to our champion model with 0.5929 AUC."""
         from big_mood_detector.infrastructure.ml_models.pat_production_loader import (
             ProductionPATLoader,
         )
+        
+        # Mock file exists
+        mock_exists.return_value = True
+        
+        # Mock checkpoint
+        mock_torch_load.return_value = {
+            'model_state_dict': {},
+            'val_auc': 0.5929
+        }
         
         loader = ProductionPATLoader()
         
         assert loader.model_path == Path("model_weights/production/pat_conv_l_v0.5929.pth")
         assert loader.model_path.name == "pat_conv_l_v0.5929.pth"
 
+    @patch("pathlib.Path.exists")
     @patch("torch.load")
-    def test_loads_checkpoint_with_model_state_dict(self, mock_torch_load):
+    def test_loads_checkpoint_with_model_state_dict(self, mock_torch_load, mock_exists):
         """Should load the complete checkpoint with model weights."""
         from big_mood_detector.infrastructure.ml_models.pat_production_loader import (
             ProductionPATLoader,
         )
+        
+        # Mock file exists
+        mock_exists.return_value = True
         
         # Mock the checkpoint structure
         mock_checkpoint = {
@@ -72,7 +87,9 @@ class TestProductionPATLoader:
             ProductionPATLoader,
         )
         
-        with patch("torch.load") as mock_load:
+        with patch("pathlib.Path.exists") as mock_exists:
+            mock_exists.return_value = True
+            with patch("torch.load") as mock_load:
             # Mock minimal checkpoint
             mock_load.return_value = {
                 'model_state_dict': {},
@@ -93,7 +110,9 @@ class TestProductionPATLoader:
             ProductionPATLoader,
         )
         
-        with patch("torch.load") as mock_load:
+        with patch("pathlib.Path.exists") as mock_exists:
+            mock_exists.return_value = True
+            with patch("torch.load") as mock_load:
             mock_load.return_value = {'model_state_dict': {}, 'val_auc': 0.5929}
             
             loader = ProductionPATLoader()
@@ -106,7 +125,9 @@ class TestProductionPATLoader:
             ProductionPATLoader,
         )
         
-        with patch("torch.load") as mock_load:
+        with patch("pathlib.Path.exists") as mock_exists:
+            mock_exists.return_value = True
+            with patch("torch.load") as mock_load:
             mock_load.return_value = {'model_state_dict': {}, 'val_auc': 0.5929}
             
             loader = ProductionPATLoader()
@@ -131,7 +152,9 @@ class TestProductionPATLoader:
             ProductionPATLoader,
         )
         
-        with patch("torch.load") as mock_load:
+        with patch("pathlib.Path.exists") as mock_exists:
+            mock_exists.return_value = True
+            with patch("torch.load") as mock_load:
             mock_load.return_value = {'model_state_dict': {}, 'val_auc': 0.5929}
             
             loader = ProductionPATLoader()
@@ -167,7 +190,9 @@ class TestProductionPATLoader:
             ProductionPATLoader,
         )
         
-        with patch("torch.load") as mock_load:
+        with patch("pathlib.Path.exists") as mock_exists:
+            mock_exists.return_value = True
+            with patch("torch.load") as mock_load:
             mock_load.return_value = {'model_state_dict': {}, 'val_auc': 0.5929}
             
             loader = ProductionPATLoader()
@@ -189,7 +214,9 @@ class TestProductionPATLoader:
             ProductionPATLoader,
         )
         
-        with patch("torch.load") as mock_load:
+        with patch("pathlib.Path.exists") as mock_exists:
+            mock_exists.return_value = True
+            with patch("torch.load") as mock_load:
             mock_load.return_value = {'model_state_dict': {}, 'val_auc': 0.5929}
             
             loader = ProductionPATLoader()
@@ -208,7 +235,9 @@ class TestProductionPATLoader:
             ProductionPATLoader,
         )
         
-        with patch("torch.load") as mock_load:
+        with patch("pathlib.Path.exists") as mock_exists:
+            mock_exists.return_value = True
+            with patch("torch.load") as mock_load:
             mock_load.return_value = {'model_state_dict': {}, 'val_auc': 0.5929}
             
             loader = ProductionPATLoader()
@@ -232,7 +261,9 @@ class TestProductionPATLoader:
             ProductionPATLoader,
         )
         
-        with patch("torch.load") as mock_load:
+        with patch("pathlib.Path.exists") as mock_exists:
+            mock_exists.return_value = True
+            with patch("torch.load") as mock_load:
             mock_load.return_value = {'model_state_dict': {}, 'val_auc': 0.5929}
             
             # Test CPU fallback

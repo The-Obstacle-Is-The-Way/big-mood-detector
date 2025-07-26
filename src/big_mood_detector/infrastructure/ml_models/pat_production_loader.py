@@ -41,44 +41,55 @@ class ProductionPATLoader(PATPredictorInterface):
     depression probability predictions from 7-day activity sequences.
     """
     
-    def __init__(self, model_path: Path | None = None):
+    def __init__(self, model_path: Path | None = None, skip_loading: bool = False,
+                 normalizer: NHANESNormalizer | None = None):
         """
         Initialize production PAT loader.
         
         Args:
             model_path: Optional custom path to model weights.
                        Defaults to production weights.
+            skip_loading: Skip loading weights (for testing).
+            normalizer: Optional pre-configured normalizer.
         """
         if model_path is None:
             model_path = Path("model_weights/production/pat_conv_l_v0.5929.pth")
             
         self.model_path = model_path
         
-        # Check if model file exists
-        if not self.model_path.exists():
-            raise FileNotFoundError(
-                f"Production model not found at {self.model_path}. "
-                "Please ensure pat_conv_l_v0.5929.pth is in model_weights/production/"
-            )
-            
         # Initialize normalizer
-        self.normalizer = NHANESNormalizer()
+        if normalizer is not None:
+            self.normalizer = normalizer
+        else:
+            self.normalizer = NHANESNormalizer()
+        
+        # For testing, allow bypassing normalization
+        self._bypass_normalization = skip_loading
         
         # Set device (CUDA if available)
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         logger.info(f"Using device: {self.device}")
         
-        # Load model
-        self.model = self._load_model()
+        # Create model architecture
+        self.model = SimplePATConvLModel(model_size='large')
+        self.model = self.model.to(self.device)
+        self.model.eval()
         
-    def _load_model(self) -> SimplePATConvLModel:
-        """
-        Load the trained model from checkpoint.
+        # Load weights if not skipping
+        if not skip_loading:
+            # Check if model file exists
+            if not self.model_path.exists():
+                raise FileNotFoundError(
+                    f"Production model not found at {self.model_path}. "
+                    "Please ensure pat_conv_l_v0.5929.pth is in model_weights/production/"
+                )
+            self._load_weights()
         
-        Returns:
-            Loaded and configured PATDepressionNet model
+    def _load_weights(self) -> None:
         """
-        logger.info(f"Loading production model from {self.model_path}")
+        Load weights from checkpoint file.
+        """
+        logger.info(f"Loading weights from {self.model_path}")
         
         # Load checkpoint
         checkpoint = torch.load(self.model_path, map_location='cpu')
@@ -89,26 +100,14 @@ class ProductionPATLoader(PATPredictorInterface):
         if 'epoch' in checkpoint:
             logger.info(f"Model trained for {checkpoint['epoch']} epochs")
             
-        # Create model with correct architecture (Conv-L)
-        model = PATDepressionNet(
-            model_size='large',
-            conv_embedding=True,  # Critical: Use convolutional embedding
-            num_classes=1,  # Binary depression classification
-        )
-        
         # Load weights
         if 'model_state_dict' in checkpoint:
-            model.load_state_dict(checkpoint['model_state_dict'])
+            self.model.load_state_dict(checkpoint['model_state_dict'])
         else:
             # Handle older checkpoint format
-            model.load_state_dict(checkpoint)
+            self.model.load_state_dict(checkpoint)
             
-        # Move to device and set to eval mode
-        model = model.to(self.device)
-        model.eval()  # Critical: Disable dropout for inference
-        
-        logger.info("Model loaded successfully and set to eval mode")
-        return model
+        logger.info("Weights loaded successfully")
         
     def predict_depression_from_activity(self, activity_sequence: NDArray[np.float32]) -> float:
         """
@@ -131,11 +130,15 @@ class ProductionPATLoader(PATPredictorInterface):
             )
             
         # Normalize using NHANES statistics
-        try:
-            normalized = self.normalizer.transform(activity_sequence)
-        except ValueError as e:
-            logger.error(f"Normalization failed: {e}")
-            raise
+        if self._bypass_normalization:
+            # For testing - skip normalization
+            normalized = activity_sequence
+        else:
+            try:
+                normalized = self.normalizer.transform(activity_sequence)
+            except ValueError as e:
+                logger.error(f"Normalization failed: {e}")
+                raise
             
         # Convert to tensor and add batch dimension
         x = torch.from_numpy(normalized).float().unsqueeze(0)  # Shape: (1, 10080)
@@ -168,8 +171,8 @@ class ProductionPATLoader(PATPredictorInterface):
         if activity_or_embeddings.shape == (10080,):
             # Full activity sequence
             return self.predict_depression_from_activity(activity_or_embeddings)
-        else:
-            # Assume embeddings
+        elif activity_or_embeddings.shape == (96,):
+            # PAT embeddings
             emb_tensor = torch.from_numpy(activity_or_embeddings).float().unsqueeze(0)
             emb_tensor = emb_tensor.to(self.device)
             
@@ -178,6 +181,11 @@ class ProductionPATLoader(PATPredictorInterface):
                 probability = torch.sigmoid(logits).item()
                 
             return probability
+        else:
+            raise ValueError(
+                f"Expected either activity sequence (10080,) or embeddings (96,), "
+                f"got shape {activity_or_embeddings.shape}"
+            )
         
     def predict_medication_proxy(self, embeddings: NDArray[np.float32]) -> float:
         """
