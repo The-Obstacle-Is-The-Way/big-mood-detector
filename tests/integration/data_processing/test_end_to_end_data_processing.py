@@ -229,7 +229,7 @@ class TestEndToEndDataProcessing:
         try:
             # Process the XML file - process only the target date
             # The pipeline only predicts for the end_date
-            result = pipeline_with_mocked_ml.process_apple_health_file(
+            result = pipeline_with_test_predictor.process_apple_health_file(
                 file_path=xml_path,
                 end_date=date(2024, 1, 3),
             )
@@ -275,7 +275,7 @@ class TestEndToEndDataProcessing:
 
     def test_json_processing_end_to_end(
         self,
-        pipeline_with_mocked_ml,
+        pipeline_with_test_predictor,
         sample_json_sleep_content,
         sample_json_activity_content,
     ):
@@ -297,7 +297,7 @@ class TestEndToEndDataProcessing:
                 json.dump(sample_json_activity_content, f)
 
             # Process the JSON directory
-            result = pipeline_with_mocked_ml.process_apple_health_file(
+            result = pipeline_with_test_predictor.process_apple_health_file(
                 file_path=json_dir,
                 end_date=date(2024, 1, 3),
             )
@@ -316,7 +316,7 @@ class TestEndToEndDataProcessing:
                 assert len(result.daily_predictions) >= 1
                 assert result.confidence_score > 0
 
-    def test_sparse_data_handling(self, pipeline_with_mocked_ml):
+    def test_sparse_data_handling(self, pipeline_with_test_predictor):
         """Test pipeline handles sparse data correctly."""
         # Create sparse data (only 2 days in a week)
         sparse_records = {
@@ -340,11 +340,11 @@ class TestEndToEndDataProcessing:
 
         # Mock the data parsing to return sparse data
         with patch.object(
-            pipeline_with_mocked_ml.data_parsing_service, "parse_health_data"
+            pipeline_with_test_predictor.data_parsing_service, "parse_health_data"
         ) as mock_parse:
             mock_parse.return_value = sparse_records
 
-            result = pipeline_with_mocked_ml.process_apple_health_file(
+            result = pipeline_with_test_predictor.process_apple_health_file(
                 file_path=Path("dummy.xml"),
                 start_date=date(2024, 1, 1),
                 end_date=date(2024, 1, 7),
@@ -357,7 +357,7 @@ class TestEndToEndDataProcessing:
             warnings_str = str(result.warnings)
             assert "Sparse data" in warnings_str or "Insufficient data" in warnings_str
 
-    def test_export_to_csv_functionality(self, pipeline_with_mocked_ml):
+    def test_export_to_csv_functionality(self, pipeline_with_test_predictor):
         """Test exporting results to CSV format."""
         # Create mock predictions
         predictions = {
@@ -399,7 +399,7 @@ class TestEndToEndDataProcessing:
             output_path = Path(f.name)
 
         try:
-            pipeline_with_mocked_ml.export_results(result, output_path)
+            pipeline_with_test_predictor.export_results(result, output_path)
 
             # Verify CSV was created
             assert output_path.exists()
@@ -421,7 +421,7 @@ class TestEndToEndDataProcessing:
             output_path.unlink(missing_ok=True)
             output_path.with_suffix(".summary.json").unlink(missing_ok=True)
 
-    def test_feature_aggregation_accuracy(self, pipeline_with_mocked_ml):
+    def test_feature_aggregation_accuracy(self, pipeline_with_test_predictor):
         """Test that feature aggregation produces correct statistics."""
         # Create consistent sleep patterns for predictable aggregation
         sleep_records = []
@@ -441,7 +441,7 @@ class TestEndToEndDataProcessing:
 
         # Mock clinical feature extraction to verify aggregation
         with patch.object(
-            pipeline_with_mocked_ml.clinical_extractor, "extract_clinical_features"
+            pipeline_with_test_predictor.clinical_extractor, "extract_clinical_features"
         ) as mock_extract:
             # Create mock feature set
             mock_features = Mock()
@@ -449,7 +449,7 @@ class TestEndToEndDataProcessing:
             mock_features.seoul_features.to_xgboost_features.return_value = [0.5] * 36
             mock_extract.return_value = mock_features
 
-            result = pipeline_with_mocked_ml.process_health_data(
+            result = pipeline_with_test_predictor.process_health_data(
                 sleep_records=sleep_records,
                 activity_records=[],
                 heart_records=[],
@@ -463,7 +463,7 @@ class TestEndToEndDataProcessing:
 
     @pytest.mark.parametrize("file_format", ["xml", "json"])
     def test_error_handling_for_corrupt_files(
-        self, pipeline_with_mocked_ml, file_format
+        self, pipeline_with_test_predictor, file_format
     ):
         """Test pipeline handles corrupt files gracefully."""
         if file_format == "xml":
@@ -483,7 +483,7 @@ class TestEndToEndDataProcessing:
 
         try:
             # Should handle errors gracefully
-            result = pipeline_with_mocked_ml.process_apple_health_file(
+            result = pipeline_with_test_predictor.process_apple_health_file(
                 file_path=file_path
             )
 
@@ -495,7 +495,7 @@ class TestEndToEndDataProcessing:
             if file_format == "xml":
                 file_path.unlink()
 
-    def test_clinical_validation_integration(self, pipeline_with_mocked_ml):
+    def test_clinical_validation_integration(self, pipeline_with_test_predictor):
         """Test that clinical validation is applied throughout pipeline."""
         # Create data that should trigger clinical warnings
         sleep_records = [
@@ -514,7 +514,7 @@ class TestEndToEndDataProcessing:
         ]
 
         # Process with clinical validation
-        result = pipeline_with_mocked_ml.process_health_data(
+        result = pipeline_with_test_predictor.process_health_data(
             sleep_records=sleep_records,
             activity_records=[],
             heart_records=[],
