@@ -84,13 +84,23 @@
   4. ⬜ Add monitoring/telemetry hooks
   5. ⬜ Security audit (PHI handling)
 
-  Phase 3: User Experience (1 week)
+  Phase 3: User Experience - Progressive Enhancement (2 weeks)
 
+  Step 1: Enhanced CLI (2 days)
   1. ⬜ Rich CLI output with charts/visualizations
-  2. ⬜ PDF report generation
-  3. ⬜ Web dashboard mockup
-  4. ⬜ Integration guides (Apple Health, Garmin, etc.)
-  5. ⬜ Clinical documentation
+  2. ⬜ PDF report generation with matplotlib
+
+  Step 2: Streamlit Backend UI (3 days)
+  3. ⬜ Basic Streamlit dashboard for internal testing
+  4. ⬜ File upload interface for health data
+  5. ⬜ Real-time prediction display
+  6. ⬜ Historical trend visualization
+
+  Step 3: Production Web Frontend (5 days)
+  7. ⬜ React/Next.js frontend design
+  8. ⬜ API integration
+  9. ⬜ User authentication
+  10. ⬜ Clinical documentation
 
   Phase 4: Validation & Launch (2 weeks)
 
