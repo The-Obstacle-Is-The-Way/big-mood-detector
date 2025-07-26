@@ -87,7 +87,11 @@
       "Bash(.venv-wsl/bin/pytest tests/integration/data_processing/test_end_to_end_data_processing.py::TestEndToEndDataProcessing::test_xml_processing_end_to_end -xvs)",
       "Bash(.venv-wsl/bin/pytest tests/unit/ -x --tb=no -q --co)",
       "Bash(.venv-wsl/bin/pytest tests/unit/ -k \"not (heavy or large or slow_finetune or performance)\" --tb=no -q)",
-      "Bash(.venv-wsl/bin/pytest tests/unit/ --cov=big_mood_detector --cov-report=term-missing --no-cov-on-fail -q)"
+      "Bash(.venv-wsl/bin/pytest tests/unit/ --cov=big_mood_detector --cov-report=term-missing --no-cov-on-fail -q)",
+      "Bash(.venv-wsl/bin/pytest tests/integration/data_processing/test_end_to_end_data_processing.py::TestEndToEndDataProcessing::test_xml_processing_end_to_end -xvs -k \"xml\" --capture=no)",
+      "Bash(.venv-wsl/bin/pytest tests/integration/data_processing/test_end_to_end_data_processing.py::TestEndToEndDataProcessing::test_feature_aggregation_accuracy -xvs)",
+      "Bash(.venv-wsl/bin/python test_debug_integration.py:*)",
+      "Bash(.venv-wsl/bin/pytest tests/integration/data_processing/ -x --tb=short -q)"
     ],
     "deny": []
   }
