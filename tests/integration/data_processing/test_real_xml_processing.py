@@ -18,7 +18,7 @@ class TestRealXMLProcessing:
     @pytest.fixture
     def real_xml_path(self):
         """Path to real XML test data."""
-        path = Path("tests/fixtures/health/week_sample.xml")
+        path = Path("tests/fixtures/health/week_sample_clean.xml")
         if not path.exists():
             pytest.skip(f"Real test data not found at {path}")
         return path
