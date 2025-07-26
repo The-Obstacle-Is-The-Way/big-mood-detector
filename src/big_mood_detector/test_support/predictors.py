@@ -11,8 +11,12 @@ from big_mood_detector.domain.services.mood_predictor import MoodPrediction
 class ConstantMoodPredictor:
     """A predictor that returns constant values for testing.
     
-    This is used for XGBoost-style predictions in tests.
-    It implements the basic predictor interface, not PAT.
+    ⚠️ This is used for XGBoost-style predictions in tests ONLY.
+    It implements the basic mood predictor interface, NOT PAT.
+    
+    Do not confuse with PAT models - this is a simple stub that
+    returns fixed depression/hypomanic/manic risk values regardless
+    of input features.
     """
 
     def __init__(
