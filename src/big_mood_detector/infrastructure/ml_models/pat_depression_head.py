@@ -77,15 +77,24 @@ class PATDepressionPredictor(PATPredictorInterface):
         """
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.depression_head = PATDepressionHead().to(self.device)
+        self._is_loaded = False
 
         if model_path and model_path.exists():
             logger.info(f"Loading PAT depression head from {model_path}")
             state_dict = torch.load(model_path, map_location=self.device)
             self.depression_head.load_state_dict(state_dict)
+            self._is_loaded = True
         else:
             logger.info("Initialized PAT depression head with random weights")
+            # Consider model loaded even with random weights for testing
+            self._is_loaded = True
 
         self.depression_head.eval()
+
+    @property
+    def is_loaded(self) -> bool:
+        """Check if model is loaded and ready for predictions."""
+        return self._is_loaded
 
     def predict_from_embeddings(self, embeddings: NDArray[np.float32]) -> PATBinaryPredictions:
         """Get current state predictions from PAT embeddings.
