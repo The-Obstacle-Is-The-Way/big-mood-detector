@@ -31,6 +31,7 @@ from big_mood_detector.infrastructure.ml_models.xgboost_models import (
 )
 
 
+@pytest.mark.slow  # Requires real ML models
 class TestEnsemblePipelineActivityFlow:
     """Test activity data flow through ensemble pipeline."""
 
@@ -122,9 +123,9 @@ class TestEnsemblePipelineActivityFlow:
             return None
 
         # Import is safe after checking PAT_AVAILABLE
-        from big_mood_detector.infrastructure.ml_models import PATModel
+        from big_mood_detector.infrastructure.ml_models.pat_production_loader import ProductionPATLoader
 
-        model = PATModel()
+        model = ProductionPATLoader()
         # ProductionPATLoader loads weights automatically in constructor
         if not model.is_loaded:
             return None

@@ -18,6 +18,7 @@ from big_mood_detector.domain.entities.activity_record import (
 )
 
 
+@pytest.mark.slow  # Requires real ML models
 class TestEnsemblePredictions:
     """Test ensemble predictions across different scenarios."""
 

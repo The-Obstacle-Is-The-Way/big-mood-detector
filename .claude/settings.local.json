@@ -106,7 +106,8 @@
       "Bash(TESTING=1 pytest -m \"not slow\" -x --tb=short)",
       "Bash(TESTING=1 timeout 30 pytest -m \"not slow\" --co -q)",
       "Bash(timeout:*)",
-      "Bash(TESTING=1 python -m trace --trace -C . big_mood_detector/infrastructure/ml_models/xgboost_models.py)"
+      "Bash(TESTING=1 python -m trace --trace -C . big_mood_detector/infrastructure/ml_models/xgboost_models.py)",
+      "Bash(TESTING=1 pytest tests/integration/ml/ -v --tb=short)"
     ],
     "deny": []
   }
