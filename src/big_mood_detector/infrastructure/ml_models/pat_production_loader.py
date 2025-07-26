@@ -210,7 +210,7 @@ class ProductionPATLoader(PATPredictorInterface):
             logits = self.model(x)  # Shape: (1, 1)
 
             # Apply sigmoid to get probability
-            probability = torch.sigmoid(logits).item()
+            probability = float(torch.sigmoid(logits).item())
 
         logger.debug(f"Depression probability: {probability:.4f}")
         return probability
@@ -237,8 +237,8 @@ class ProductionPATLoader(PATPredictorInterface):
             emb_tensor = emb_tensor.to(self.device)
 
             with torch.no_grad():
-                logits = self.model.head(emb_tensor)
-                probability = torch.sigmoid(logits).item()
+                logits = self.model.head(emb_tensor)  # type: ignore[no-untyped-call]
+                probability = float(torch.sigmoid(logits).item())
 
             return probability
         else:
@@ -289,7 +289,7 @@ class ProductionPATLoader(PATPredictorInterface):
 
         # Extract embeddings
         with torch.no_grad():
-            embeddings = self.model.encoder(x)  # Shape: (1, 96)
+            embeddings = self.model.encoder(x)  # type: ignore[no-untyped-call]  # Shape: (1, 96)
             embeddings_numpy: NDArray[np.float32] = embeddings.cpu().numpy().squeeze().astype(np.float32)  # Shape: (96,)
 
         return embeddings_numpy
@@ -328,8 +328,8 @@ class ProductionPATLoader(PATPredictorInterface):
 
         # Get prediction from classification head only
         with torch.no_grad():
-            logits = self.model.head(emb_tensor)  # Use head directly
-            probability = torch.sigmoid(logits).item()
+            logits = self.model.head(emb_tensor)  # type: ignore[no-untyped-call]  # Use head directly
+            probability = float(torch.sigmoid(logits).item())
 
         # Calculate confidence based on distance from 0.5
         # High confidence when far from decision boundary
@@ -364,7 +364,7 @@ class ProductionPATLoader(PATPredictorInterface):
 
         # Extract embeddings
         with torch.no_grad():
-            embeddings = self.model.encoder(x)  # Shape: (1, embed_dim)
+            embeddings = self.model.encoder(x)  # type: ignore[no-untyped-call]  # Shape: (1, embed_dim)
             embeddings_np: NDArray[np.float32] = embeddings.cpu().numpy().squeeze()  # Remove batch dim
 
         return embeddings_np

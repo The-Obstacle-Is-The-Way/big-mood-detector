@@ -30,10 +30,12 @@ if os.getenv("TESTING", "0") == "1":
         def predict_proba(self, X: Any) -> np.ndarray[Any, Any]:
             return np.array([[0.5, 0.5]])
 else:
-    import joblib  # type: ignore[import-untyped]
+    import joblib  # type: ignore[import-untyped,no-redef]
     import numpy as np
 
-    from big_mood_detector.infrastructure.ml_models.booster_wrapper import BoosterPredictProbaWrapper
+    from big_mood_detector.infrastructure.ml_models.booster_wrapper import (  # type: ignore[assignment]
+        BoosterPredictProbaWrapper,
+    )
 
 from big_mood_detector.domain.services.mood_predictor import MoodPrediction
 
