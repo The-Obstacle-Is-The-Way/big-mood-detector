@@ -102,10 +102,9 @@ class TestAggregationOverlapFix:
                     source_name="iPhone",
                     start_date=activity_date,
                     end_date=activity_date.replace(hour=13),
-                    activity_type=ActivityType.WALKING,
-                    distance_meters=1000.0,
-                    calories_burned=50.0,
-                    step_count=1200,
+                    activity_type=ActivityType.STEP_COUNT,
+                    value=1200.0,
+                    unit="count",
                 )
             )
         
