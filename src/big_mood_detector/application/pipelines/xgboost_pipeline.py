@@ -148,19 +148,15 @@ class XGBoostPipeline:
             f"XGBoost using {len(data_dates)} days from {actual_start} to {actual_end}"
         )
 
-        # Aggregate daily summaries
-        sleep_summaries = self.sleep_aggregator.aggregate_daily(sleep_records)
-        activity_summaries = self.activity_aggregator.aggregate_daily(activity_records)
-        heart_summaries = self.heart_rate_aggregator.aggregate_daily(heart_records)
-
         # Extract clinical features (Seoul features)
+        # Note: ClinicalFeatureExtractor works with raw records, not summaries
         try:
             clinical_features = self.feature_extractor.extract_clinical_features(
-                sleep_summaries=sleep_summaries,
-                activity_summaries=activity_summaries,
-                heart_rate_summaries=heart_summaries,
-                start_date=actual_start,
-                end_date=actual_end,
+                sleep_records=sleep_records,
+                activity_records=activity_records,
+                heart_records=heart_records,
+                target_date=target_date,
+                include_pat_sequence=False,  # XGBoost doesn't need PAT sequences
             )
 
             if not clinical_features or not clinical_features.seoul_features:

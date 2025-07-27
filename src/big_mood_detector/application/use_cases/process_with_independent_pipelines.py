@@ -68,7 +68,8 @@ class ProcessWithIndependentPipelinesUseCase:
         self.data_parsing_service = data_parsing_service or DataParsingService()
         
         # Initialize pipelines if not provided
-        if not pat_pipeline:
+        self.pat_pipeline: Optional[PatPipeline] = pat_pipeline
+        if not self.pat_pipeline:
             try:
                 from big_mood_detector.infrastructure.ml_models.pat_production_loader import (
                     ProductionPATLoader,
@@ -81,10 +82,9 @@ class ProcessWithIndependentPipelinesUseCase:
             except Exception as e:
                 logger.warning(f"Could not initialize PAT pipeline: {e}")
                 self.pat_pipeline = None
-        else:
-            self.pat_pipeline = pat_pipeline
             
-        if not xgboost_pipeline:
+        self.xgboost_pipeline: Optional[XGBoostPipeline] = xgboost_pipeline
+        if not self.xgboost_pipeline:
             try:
                 predictor = XGBoostMoodPredictor()
                 predictor.load_models(Path("model_weights/xgboost/converted"))
@@ -99,8 +99,6 @@ class ProcessWithIndependentPipelinesUseCase:
             except Exception as e:
                 logger.warning(f"Could not initialize XGBoost pipeline: {e}")
                 self.xgboost_pipeline = None
-        else:
-            self.xgboost_pipeline = xgboost_pipeline
     
     def execute(
         self,
@@ -160,9 +158,9 @@ class ProcessWithIndependentPipelinesUseCase:
             
             # Get date range for validation
             if activity_records:
-                all_dates = sorted({r.start_date.date() for r in activity_records})
-                start_date = min(all_dates)
-                end_date = max(all_dates)
+                pat_dates = sorted({r.start_date.date() for r in activity_records})
+                start_date = min(pat_dates)
+                end_date = max(pat_dates)
                 
                 validation = self.pat_pipeline.can_run(
                     activity_records=activity_records,
@@ -194,16 +192,16 @@ class ProcessWithIndependentPipelinesUseCase:
             logger.info("Checking XGBoost pipeline availability")
             
             # Get date range for validation
-            all_dates = set()
+            xgboost_dates: set[date] = set()
             for r in sleep_records:
-                all_dates.add(r.start_date.date())
+                xgboost_dates.add(r.start_date.date())
             for r in activity_records:
-                all_dates.add(r.start_date.date())
+                xgboost_dates.add(r.start_date.date())
             for r in heart_records:
-                all_dates.add(r.timestamp.date())
+                xgboost_dates.add(r.timestamp.date())
                 
-            if all_dates:
-                sorted_dates = sorted(all_dates)
+            if xgboost_dates:
+                sorted_dates = sorted(xgboost_dates)
                 start_date = min(sorted_dates)
                 end_date = max(sorted_dates)
                 
@@ -266,11 +264,11 @@ class ProcessWithIndependentPipelinesUseCase:
         PAT: Assesses current state (past 7 days)
         XGBoost: Predicts future risk (next 24 hours)
         """
-        ensemble = {
+        ensemble: dict[str, Any] = {
             "assessment_date": str(target_date),
             "temporal_windows": {},
             "clinical_summary": "",
-            "recommendations": [],
+            "recommendations": list[str](),
         }
         
         # Add PAT assessment (current state)
@@ -297,6 +295,8 @@ class ProcessWithIndependentPipelinesUseCase:
             }
         
         # Create clinical summary
+        recommendations: list[str] = ensemble["recommendations"]
+        
         if pat_result and xgboost_result:
             # Both models available - full temporal assessment
             current_depression = pat_result.depression_risk_score
@@ -311,7 +311,7 @@ class ProcessWithIndependentPipelinesUseCase:
                     "continued risk in the next 24 hours. Immediate clinical "
                     "intervention recommended."
                 )
-                ensemble["recommendations"].extend([
+                recommendations.extend([
                     "Contact mental health provider immediately",
                     "Maintain regular sleep schedule",
                     "Engage in light physical activity if possible",
@@ -322,7 +322,7 @@ class ProcessWithIndependentPipelinesUseCase:
                     "Currently experiencing depression symptoms but risk may "
                     "decrease in next 24 hours. Continue monitoring closely."
                 )
-                ensemble["recommendations"].extend([
+                recommendations.extend([
                     "Schedule follow-up with provider",
                     "Continue current treatment plan",
                     "Track mood changes closely",
@@ -332,7 +332,7 @@ class ProcessWithIndependentPipelinesUseCase:
                     "Currently stable but increasing depression risk detected "
                     "for next 24 hours. Take preventive measures."
                 )
-                ensemble["recommendations"].extend([
+                recommendations.extend([
                     "Prioritize sleep hygiene tonight",
                     "Plan stress-reducing activities",
                     "Consider reaching out to support network",
@@ -342,7 +342,7 @@ class ProcessWithIndependentPipelinesUseCase:
                     f"Elevated risk for {xgboost_result.highest_risk_episode} "
                     "in next 24 hours. Monitor for early warning signs."
                 )
-                ensemble["recommendations"].extend([
+                recommendations.extend([
                     "Monitor for decreased sleep need",
                     "Track activity levels and spending",
                     "Inform trusted contacts about risk",
@@ -353,7 +353,7 @@ class ProcessWithIndependentPipelinesUseCase:
                     "Currently stable with low risk for mood episodes in "
                     "next 24 hours. Continue healthy routines."
                 )
-                ensemble["recommendations"].extend([
+                recommendations.extend([
                     "Maintain consistent sleep schedule",
                     "Continue regular activities",
                     "Stay connected with support network",
@@ -371,7 +371,7 @@ class ProcessWithIndependentPipelinesUseCase:
                     "Currently stable. Continue collecting data for future "
                     "risk prediction."
                 )
-            ensemble["recommendations"].append(
+            recommendations.append(
                 "Collect at least 30 days of data for predictive capabilities"
             )
             
@@ -387,7 +387,7 @@ class ProcessWithIndependentPipelinesUseCase:
                     "Low risk predicted for next 24 hours. Current state "
                     "unknown without recent activity data."
                 )
-            ensemble["recommendations"].append(
+            recommendations.append(
                 "Ensure consistent activity tracking for current state assessment"
             )
         
@@ -397,7 +397,7 @@ class ProcessWithIndependentPipelinesUseCase:
                 "Insufficient data for mood assessment. Need at least 7 "
                 "consecutive days of activity data and 30 days of health data."
             )
-            ensemble["recommendations"].extend([
+            recommendations.extend([
                 "Wear activity tracker consistently",
                 "Enable all health data permissions",
                 "Check back after collecting more data",
