@@ -42,11 +42,8 @@ class TestPatPipeline:
     def mock_pat_loader(self) -> Mock:
         """Mock PAT model loader."""
         mock = Mock()
-        mock.extract_embeddings.return_value = {
-            "embeddings": [[0.1] * 96],  # 96-dim embeddings
-            "depression_score": 0.35,
-            "confidence": 0.85,
-        }
+        # Mock the actual method that exists
+        mock.predict_depression_from_activity.return_value = 0.35
         return mock
 
     @pytest.fixture
@@ -241,13 +238,11 @@ class TestPatPipeline:
         assert result is not None
         
         # Verify the PAT loader was called with correct sequence length
-        mock_pat_loader.extract_embeddings.assert_called_once()
-        call_args = mock_pat_loader.extract_embeddings.call_args
+        mock_pat_loader.predict_depression_from_activity.assert_called_once()
+        call_args = mock_pat_loader.predict_depression_from_activity.call_args
         
-        # Should have a list containing the activity sequence
-        sequences_list = call_args[0][0]  # First positional argument
-        assert len(sequences_list) == 1  # Should contain one sequence
-        activity_sequence = sequences_list[0]  # Extract the actual sequence
+        # Should have an array as first positional argument
+        activity_sequence = call_args[0][0]
         assert len(activity_sequence) == 10080  # 7 days * 1440 minutes/day
 
 
@@ -466,10 +461,11 @@ class TestXGBoostPipeline:
         mock_feature_extractor.extract_clinical_features.assert_called_once()
         call_args = mock_feature_extractor.extract_clinical_features.call_args
         
-        # Should have all three data types
-        assert len(call_args[1]['sleep_summaries']) > 0
-        assert len(call_args[1]['activity_summaries']) > 0
-        assert len(call_args[1]['heart_rate_summaries']) > 0
+        # Should have all three data types as records (not summaries)
+        assert call_args[1]['sleep_records'] == sleep_records
+        assert call_args[1]['activity_records'] == activity_records
+        assert call_args[1]['heart_records'] == heart_records
+        assert call_args[1]['include_pat_sequence'] is False
 
     def test_xgboost_calculates_seoul_features(
         self,

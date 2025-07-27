@@ -10,6 +10,7 @@ python3.12 -m venv .venv
 source .venv/bin/activate
 
 # Windows WSL2
+# IMPORTANT: Use .venv-wsl for WSL to avoid Python version conflicts
 python3.12 -m venv .venv-wsl
 source .venv-wsl/bin/activate
 

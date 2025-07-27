@@ -236,3 +236,48 @@ class TestSleepOverlapHandling:
             "overlapping sleep records" in record.message.lower()
             for record in caplog.records
         )
+    
+    def test_chained_overlapping_sleep_records(
+        self, aggregator: SleepAggregator
+    ) -> None:
+        """Test A overlaps B, B overlaps C scenario."""
+        # Create three sleep records with chained overlaps
+        # Device A: 10pm-3am (5 hours)
+        # Device B: 2am-7am (5 hours) - overlaps with A from 2-3am
+        # Device C: 6am-9am (3 hours) - overlaps with B from 6-7am
+        # Expected: 10pm-9am (11 hours total)
+        records = [
+            # Device A
+            SleepRecord(
+                source_name="Device A",
+                start_date=datetime(2025, 7, 25, 22, 0, 0, tzinfo=UTC),
+                end_date=datetime(2025, 7, 26, 3, 0, 0, tzinfo=UTC),
+                state=SleepState.ASLEEP,
+            ),
+            # Device B (overlaps with A)
+            SleepRecord(
+                source_name="Device B", 
+                start_date=datetime(2025, 7, 26, 2, 0, 0, tzinfo=UTC),
+                end_date=datetime(2025, 7, 26, 7, 0, 0, tzinfo=UTC),
+                state=SleepState.ASLEEP,
+            ),
+            # Device C (overlaps with B but not A)
+            SleepRecord(
+                source_name="Device C",
+                start_date=datetime(2025, 7, 26, 6, 0, 0, tzinfo=UTC),
+                end_date=datetime(2025, 7, 26, 9, 0, 0, tzinfo=UTC),
+                state=SleepState.ASLEEP,
+            ),
+        ]
+        
+        # Aggregate for the day
+        daily_summaries = aggregator.aggregate_daily(records)
+        summary = daily_summaries[date(2025, 7, 26)]
+        
+        # Should merge all three into one continuous window
+        assert summary.total_sleep_hours == 11.0  # 10pm to 9am
+        # Note: sleep_sessions still shows 3 (original count) even though duration is merged
+        
+        # Verify the overlap was correctly detected by checking the total
+        # Raw hours would be 5 + 5 + 3 = 13, but merged is 11
+        # This confirms the chained overlap (A->B->C) was properly handled
