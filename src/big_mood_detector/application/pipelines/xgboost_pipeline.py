@@ -121,12 +121,12 @@ class XGBoostPipeline:
         # Determine data range (use up to 60 days if available)
         all_dates = set()
         
-        for record in sleep_records:
-            all_dates.add(record.start_date.date())
-        for record in activity_records:
-            all_dates.add(record.start_date.date())
-        for record in heart_records:
-            all_dates.add(record.timestamp.date())
+        for sleep_record in sleep_records:
+            all_dates.add(sleep_record.start_date.date())
+        for activity_record in activity_records:
+            all_dates.add(activity_record.start_date.date())
+        for heart_record in heart_records:
+            all_dates.add(heart_record.timestamp.date())
         
         if len(all_dates) < 30:
             logger.info(f"Insufficient data for XGBoost: only {len(all_dates)} days")
@@ -183,7 +183,7 @@ class XGBoostPipeline:
                 "hypomania": predictions["hypomania"]["probability"],
             }
             
-            highest_risk = max(risks, key=risks.get)
+            highest_risk = max(risks, key=lambda k: risks[k])
             highest_prob = risks[highest_risk]
             
             # Clinical interpretation

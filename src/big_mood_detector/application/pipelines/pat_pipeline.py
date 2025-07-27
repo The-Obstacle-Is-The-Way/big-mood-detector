@@ -8,7 +8,7 @@ using 7 consecutive days of activity data.
 import logging
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta
-from typing import Optional
+from typing import Any, Optional, Union
 
 from big_mood_detector.application.validators.pipeline_validators import (
     PATValidator,
@@ -48,7 +48,7 @@ class PatPipeline:
 
     def __init__(
         self,
-        pat_loader,  # PAT model loader (avoiding circular imports)
+        pat_loader: Any,  # PAT model loader (avoiding circular imports)
         validator: PATValidator,
         model_size: str = "L",  # Default to largest model
     ):
