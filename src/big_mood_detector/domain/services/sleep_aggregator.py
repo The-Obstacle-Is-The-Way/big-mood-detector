@@ -279,13 +279,13 @@ class SleepAggregator:
     ) -> list[tuple[datetime, datetime]]:
         """
         Merge overlapping time intervals.
-        
+
         This is the core algorithm for handling overlapping sleep records
         from multiple devices (e.g., iPhone and Apple Watch recording simultaneously).
-        
+
         Args:
             intervals: List of (start, end) datetime tuples
-            
+
         Returns:
             List of merged non-overlapping intervals
         """
