@@ -225,7 +225,7 @@ class ProcessWithIndependentPipelinesUseCase:
                         xgboost_available = True
                         xgboost_message = f"XGBoost used {xgboost_result.data_days_used} days of data"
                     else:
-                        xgboost_message = "XGBoost processing failed"
+                        xgboost_message = "XGBoost processing failed - check logs for details"
                 else:
                     xgboost_message = validation.message
                     logger.info(f"XGBoost not available: {xgboost_message}")

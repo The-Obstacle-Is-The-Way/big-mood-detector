@@ -141,12 +141,18 @@ class XGBoostPipeline:
         )
 
         # Extract clinical features (Seoul features)
-        # Note: ClinicalFeatureExtractor works with raw records, not summaries
+        # Filter records to just the date range we need to avoid timeout
+        filtered_sleep = [r for r in sleep_records if r.start_date.date() in data_dates]
+        filtered_activity = [r for r in activity_records if r.start_date.date() in data_dates]
+        filtered_heart = [r for r in heart_records if r.timestamp.date() in data_dates]
+        
+        logger.info(f"Filtered records - sleep: {len(filtered_sleep)}, activity: {len(filtered_activity)}, heart: {len(filtered_heart)}")
+        
         try:
             clinical_features = self.feature_extractor.extract_clinical_features(
-                sleep_records=sleep_records,
-                activity_records=activity_records,
-                heart_records=heart_records,
+                sleep_records=filtered_sleep,
+                activity_records=filtered_activity,
+                heart_records=filtered_heart,
                 target_date=target_date,
                 include_pat_sequence=False,  # XGBoost doesn't need PAT sequences
             )
@@ -157,6 +163,19 @@ class XGBoostPipeline:
 
             # Convert to XGBoost input (36 features)
             feature_vector = clinical_features.seoul_features.to_xgboost_features()
+            
+            # Validate feature vector
+            if len(feature_vector) != 36:
+                logger.error(f"Invalid feature vector length: {len(feature_vector)}, expected 36")
+                return None
+                
+            # Check for NaN or inf values
+            import math
+            if any(math.isnan(f) or math.isinf(f) for f in feature_vector):
+                logger.error("Feature vector contains NaN or inf values")
+                return None
+            
+            logger.debug(f"Feature vector stats - min: {min(feature_vector):.3f}, max: {max(feature_vector):.3f}")
             
             # Run prediction
             predictions = self.predictor.predict_mood_episodes(
@@ -209,5 +228,8 @@ class XGBoostPipeline:
             )
 
         except Exception as e:
-            logger.error(f"XGBoost prediction error: {e}")
+            logger.exception("XGBoost prediction failed")
+            # Include sanitized error message for debugging
+            error_msg = str(e).replace('\n', ' ')[:200]  # Limit length
+            logger.error(f"XGBoost error details: {error_msg}")
             return None
