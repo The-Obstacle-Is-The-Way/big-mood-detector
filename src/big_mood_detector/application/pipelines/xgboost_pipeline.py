@@ -8,7 +8,7 @@ using 30-60 days of health data.
 import logging
 from dataclasses import dataclass
 from datetime import date, timedelta
-from typing import Optional
+from typing import Any, Optional
 
 from big_mood_detector.application.validators.pipeline_validators import (
     XGBoostValidator,
@@ -50,8 +50,8 @@ class XGBoostPipeline:
 
     def __init__(
         self,
-        feature_extractor,  # Clinical feature extractor
-        predictor,  # XGBoost predictor
+        feature_extractor: any,  # Clinical feature extractor (avoiding circular imports)
+        predictor: any,  # XGBoost predictor (avoiding circular imports)
         validator: XGBoostValidator,
     ):
         """

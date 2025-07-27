@@ -243,8 +243,10 @@ class TestPatPipeline:
         mock_pat_loader.extract_embeddings.assert_called_once()
         call_args = mock_pat_loader.extract_embeddings.call_args
         
-        # Should have activity sequence as first argument
-        activity_sequence = call_args[0][0]
+        # Should have a list containing the activity sequence
+        sequences_list = call_args[0][0]  # First positional argument
+        assert len(sequences_list) == 1  # Should contain one sequence
+        activity_sequence = sequences_list[0]  # Extract the actual sequence
         assert len(activity_sequence) == 10080  # 7 days * 1440 minutes/day
 
 
@@ -445,7 +447,7 @@ class TestXGBoostPipeline:
                     timestamp=base_date.replace(hour=14),
                     value=72.0,
                     unit="bpm",
-                    metric_type=HeartMetricType.RESTING,
+                    metric_type=HeartMetricType.RESTING_HEART_RATE,
                     motion_context=MotionContext.SEDENTARY,
                 )
             )
