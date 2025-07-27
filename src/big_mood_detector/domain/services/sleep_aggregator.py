@@ -157,13 +157,13 @@ class SleepAggregator:
         """Create a daily summary from sleep records."""
         # Separate sleep records from in-bed records
         sleep_records = [r for r in records if r.is_actual_sleep]
-        
+
         # Calculate merged durations to handle overlapping records
         # This fixes the bug where multiple devices recording simultaneously
         # would result in inflated sleep durations
         total_bed_time = self._calculate_merged_duration(records)
         total_sleep_time = self._calculate_merged_duration(sleep_records)
-        
+
         # Log if we detected significant overlap
         raw_bed_time = sum(r.duration_hours for r in records)
         if raw_bed_time > total_bed_time * 1.1:  # More than 10% overlap
@@ -173,7 +173,7 @@ class SleepAggregator:
                 f"Raw total: {raw_bed_time:.1f}h, merged: {total_bed_time:.1f}h. "
                 f"This typically occurs when multiple devices record sleep simultaneously."
             )
-        
+
         # Sanity check - cap at 24 hours
         if total_bed_time > 24.0:
             logger.error(
@@ -291,16 +291,16 @@ class SleepAggregator:
         """
         if not intervals:
             return []
-        
+
         # Sort intervals by start time
         sorted_intervals = sorted(intervals, key=lambda x: x[0])
-        
+
         # Initialize with first interval
         merged = [sorted_intervals[0]]
-        
+
         for start, end in sorted_intervals[1:]:
             last_start, last_end = merged[-1]
-            
+
             # Check if current interval overlaps with the last merged interval
             if start <= last_end:
                 # Overlapping - extend the last interval
@@ -308,7 +308,7 @@ class SleepAggregator:
             else:
                 # Non-overlapping - add as new interval
                 merged.append((start, end))
-        
+
         return merged
 
     def _calculate_merged_duration(
@@ -325,16 +325,16 @@ class SleepAggregator:
         """
         if not records:
             return 0.0
-        
+
         # Convert records to intervals
         intervals = [(r.start_date, r.end_date) for r in records]
-        
+
         # Merge overlapping intervals
         merged = self._merge_overlapping_intervals(intervals)
-        
+
         # Calculate total duration from merged intervals
         total_seconds = sum(
             (end - start).total_seconds() for start, end in merged
         )
-        
+
         return total_seconds / 3600  # Convert to hours
