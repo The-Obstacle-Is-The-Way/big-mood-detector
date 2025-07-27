@@ -260,3 +260,68 @@ class SleepAggregator:
         )
 
         return earliest_bed, latest_wake, mid_sleep
+
+    def _merge_overlapping_intervals(
+        self, intervals: list[tuple[datetime, datetime]]
+    ) -> list[tuple[datetime, datetime]]:
+        """
+        Merge overlapping time intervals.
+        
+        This is the core algorithm for handling overlapping sleep records
+        from multiple devices (e.g., iPhone and Apple Watch recording simultaneously).
+        
+        Args:
+            intervals: List of (start, end) datetime tuples
+            
+        Returns:
+            List of merged non-overlapping intervals
+        """
+        if not intervals:
+            return []
+        
+        # Sort intervals by start time
+        sorted_intervals = sorted(intervals, key=lambda x: x[0])
+        
+        # Initialize with first interval
+        merged = [sorted_intervals[0]]
+        
+        for start, end in sorted_intervals[1:]:
+            last_start, last_end = merged[-1]
+            
+            # Check if current interval overlaps with the last merged interval
+            if start <= last_end:
+                # Overlapping - extend the last interval
+                merged[-1] = (last_start, max(last_end, end))
+            else:
+                # Non-overlapping - add as new interval
+                merged.append((start, end))
+        
+        return merged
+
+    def _calculate_merged_duration(
+        self, records: list[SleepRecord]
+    ) -> float:
+        """
+        Calculate total duration from sleep records, merging overlaps.
+        
+        Args:
+            records: List of sleep records to merge
+            
+        Returns:
+            Total hours after merging overlapping periods
+        """
+        if not records:
+            return 0.0
+        
+        # Convert records to intervals
+        intervals = [(r.start_date, r.end_date) for r in records]
+        
+        # Merge overlapping intervals
+        merged = self._merge_overlapping_intervals(intervals)
+        
+        # Calculate total duration from merged intervals
+        total_seconds = sum(
+            (end - start).total_seconds() for start, end in merged
+        )
+        
+        return total_seconds / 3600  # Convert to hours
