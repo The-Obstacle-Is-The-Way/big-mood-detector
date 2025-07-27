@@ -62,11 +62,6 @@ class XGBoostPipeline:
         self.feature_extractor = feature_extractor
         self.predictor = predictor
         self.validator = validator
-        
-        # Aggregators for daily summaries
-        self.sleep_aggregator = SleepAggregator()
-        self.activity_aggregator = ActivityAggregator()
-        self.heart_rate_aggregator = HeartRateAggregator()
 
     def can_run(
         self,
