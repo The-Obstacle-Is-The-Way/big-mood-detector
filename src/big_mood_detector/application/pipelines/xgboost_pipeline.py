@@ -156,7 +156,7 @@ class XGBoostPipeline:
                 return None
 
             # Convert to XGBoost input (36 features)
-            feature_vector = clinical_features.seoul_features.to_xgboost_input()
+            feature_vector = clinical_features.seoul_features.to_xgboost_features()
             
             # Run prediction
             predictions = self.predictor.predict_mood_episodes(
