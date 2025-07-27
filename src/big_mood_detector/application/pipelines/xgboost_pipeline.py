@@ -50,8 +50,8 @@ class XGBoostPipeline:
 
     def __init__(
         self,
-        feature_extractor: any,  # Clinical feature extractor (avoiding circular imports)
-        predictor: any,  # XGBoost predictor (avoiding circular imports)
+        feature_extractor: Any,  # Clinical feature extractor (avoiding circular imports)
+        predictor: Any,  # XGBoost predictor (avoiding circular imports)
         validator: XGBoostValidator,
     ):
         """
