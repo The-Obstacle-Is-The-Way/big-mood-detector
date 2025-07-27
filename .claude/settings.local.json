@@ -114,7 +114,8 @@
       "Bash(gh issue list:*)",
       "Bash(gh issue create:*)",
       "Bash(gh issue edit:*)",
-      "Bash(git clone:*)"
+      "Bash(git clone:*)",
+      "Bash(LOG_LEVEL=DEBUG python scripts/test_independent_pipelines.py data/input/apple_export/export.xml)"
     ],
     "deny": []
   }
