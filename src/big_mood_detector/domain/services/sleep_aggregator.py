@@ -316,10 +316,10 @@ class SleepAggregator:
     ) -> float:
         """
         Calculate total duration from sleep records, merging overlaps.
-        
+
         Args:
             records: List of sleep records to merge
-            
+
         Returns:
             Total hours after merging overlapping periods
         """
