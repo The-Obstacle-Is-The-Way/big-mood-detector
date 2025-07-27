@@ -18,7 +18,7 @@ Built by a clinical psychiatrist, implementing published research, and runs 100%
 
 ## Why Use Big Mood Detector?
 
-**The clinical problem**: No objective tools exist for predicting mood episodes or distinguishing unipolar from bipolar depression or borderline personality disorder. Clinicians rely on subjective recall; patients often seek help after crises begin.
+**The clinical problem**: No objective tool exist for predicting mood episodes or distinguishing unipolar from bipolar depression or borderline personality disorder. Clinicians rely on subjective recall; patients often seek help after crises begin.
 
 **Our breakthrough**:
 - **Early detection**: Spot mood episode risk before symptoms spiral
