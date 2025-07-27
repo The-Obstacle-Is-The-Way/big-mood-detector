@@ -155,20 +155,33 @@ class SleepAggregator:
         self, day: date, records: list[SleepRecord]
     ) -> DailySleepSummary:
         """Create a daily summary from sleep records."""
-        # Calculate basic metrics
-        total_bed_time = sum(r.duration_hours for r in records)
-        total_sleep_time = sum(r.duration_hours for r in records if r.is_actual_sleep)
-
-        # Cap at 24 hours per day (can happen with overlapping records or timezone issues)
-        if total_bed_time > 24.0:
+        # Separate sleep records from in-bed records
+        sleep_records = [r for r in records if r.is_actual_sleep]
+        
+        # Calculate merged durations to handle overlapping records
+        # This fixes the bug where multiple devices recording simultaneously
+        # would result in inflated sleep durations
+        total_bed_time = self._calculate_merged_duration(records)
+        total_sleep_time = self._calculate_merged_duration(sleep_records)
+        
+        # Log if we detected significant overlap
+        raw_bed_time = sum(r.duration_hours for r in records)
+        if raw_bed_time > total_bed_time * 1.1:  # More than 10% overlap
+            overlap_hours = raw_bed_time - total_bed_time
             logger.warning(
-                f"Total bed time {total_bed_time:.1f}h exceeds 24h for {day}, "
-                f"capping at 24h. This may indicate overlapping sleep records."
+                f"Detected {overlap_hours:.1f}h of overlapping sleep records for {day}. "
+                f"Raw total: {raw_bed_time:.1f}h, merged: {total_bed_time:.1f}h. "
+                f"This typically occurs when multiple devices record sleep simultaneously."
+            )
+        
+        # Sanity check - cap at 24 hours
+        if total_bed_time > 24.0:
+            logger.error(
+                f"Total bed time {total_bed_time:.1f}h still exceeds 24h after merging for {day}. "
+                f"This indicates a data quality issue."
             )
             total_bed_time = 24.0
-            # Also cap sleep time proportionally
-            if total_sleep_time > total_bed_time:
-                total_sleep_time = total_bed_time
+            total_sleep_time = min(total_sleep_time, total_bed_time)
 
         # Sleep efficiency
         efficiency = total_sleep_time / total_bed_time if total_bed_time > 0 else 0.0
