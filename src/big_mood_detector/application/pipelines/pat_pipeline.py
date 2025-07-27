@@ -122,7 +122,7 @@ class PatPipeline:
         ]
 
         # Extract minute-level sequence (10,080 minutes for 7 days)
-        sequences = []
+        sequences: list[Union[list[float], Any]] = []
         for day_offset in range(7):
             current_date = window_start + timedelta(days=day_offset)
             day_records = [
@@ -141,7 +141,7 @@ class PatPipeline:
                 sequences.append([0.0] * 1440)
 
         # Flatten to single 10,080-minute sequence
-        full_sequence = []
+        full_sequence: list[float] = []
         for seq in sequences:
             if isinstance(seq, list):
                 full_sequence.extend(seq)
