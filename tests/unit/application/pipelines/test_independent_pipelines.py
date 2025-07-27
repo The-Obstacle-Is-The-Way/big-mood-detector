@@ -5,9 +5,10 @@ These tests verify that each pipeline can run independently
 when its specific data requirements are met.
 """
 
-import pytest
 from datetime import UTC, date, datetime, timedelta
-from unittest.mock import Mock, MagicMock
+from unittest.mock import MagicMock, Mock
+
+import pytest
 
 from big_mood_detector.application.pipelines.pat_pipeline import (
     PatPipeline,
@@ -19,19 +20,19 @@ from big_mood_detector.application.pipelines.xgboost_pipeline import (
 )
 from big_mood_detector.application.validators.pipeline_validators import (
     PATValidator,
-    XGBoostValidator,
     ValidationResult,
+    XGBoostValidator,
 )
 from big_mood_detector.domain.entities.activity_record import (
     ActivityRecord,
     ActivityType,
 )
-from big_mood_detector.domain.entities.sleep_record import SleepRecord, SleepState
 from big_mood_detector.domain.entities.heart_rate_record import (
-    HeartRateRecord,
     HeartMetricType,
+    HeartRateRecord,
     MotionContext,
 )
+from big_mood_detector.domain.entities.sleep_record import SleepRecord, SleepState
 
 
 class TestPatPipeline:

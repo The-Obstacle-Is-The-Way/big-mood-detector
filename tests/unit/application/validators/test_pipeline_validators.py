@@ -5,13 +5,14 @@ These tests verify that PAT and XGBoost validators correctly
 assess data sufficiency for their respective models.
 """
 
-import pytest
 from datetime import UTC, date, datetime, timedelta
+
+import pytest
 
 from big_mood_detector.application.validators.pipeline_validators import (
     PATValidator,
-    XGBoostValidator,
     ValidationResult,
+    XGBoostValidator,
 )
 from big_mood_detector.domain.entities.activity_record import (
     ActivityRecord,

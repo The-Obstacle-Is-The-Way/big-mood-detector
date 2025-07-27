@@ -11,8 +11,8 @@ from datetime import date, timedelta
 from typing import Any, Optional
 
 from big_mood_detector.application.validators.pipeline_validators import (
-    XGBoostValidator,
     ValidationResult,
+    XGBoostValidator,
 )
 from big_mood_detector.domain.entities.activity_record import ActivityRecord
 from big_mood_detector.domain.entities.heart_rate_record import HeartRateRecord

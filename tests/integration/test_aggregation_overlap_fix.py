@@ -5,24 +5,25 @@ These tests verify that the sleep duration calculation fix
 works correctly through the entire aggregation pipeline.
 """
 
-import pytest
 from datetime import UTC, date, datetime
 from pathlib import Path
+
+import pytest
 
 from big_mood_detector.application.services.aggregation_pipeline import (
     AggregationConfig,
     AggregationPipeline,
 )
-from big_mood_detector.domain.entities.sleep_record import SleepRecord, SleepState
 from big_mood_detector.domain.entities.activity_record import (
     ActivityRecord,
     ActivityType,
 )
 from big_mood_detector.domain.entities.heart_rate_record import (
-    HeartRateRecord,
     HeartMetricType,
+    HeartRateRecord,
     MotionContext,
 )
+from big_mood_detector.domain.entities.sleep_record import SleepRecord, SleepState
 
 
 @pytest.mark.integration

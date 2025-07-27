@@ -5,8 +5,9 @@ These tests verify that overlapping sleep records from multiple devices
 are correctly merged to avoid double-counting sleep duration.
 """
 
-import pytest
 from datetime import UTC, date, datetime, timedelta
+
+import pytest
 
 from big_mood_detector.domain.entities.sleep_record import SleepRecord, SleepState
 from big_mood_detector.domain.services.sleep_aggregator import SleepAggregator
