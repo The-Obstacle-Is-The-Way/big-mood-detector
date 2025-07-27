@@ -10,6 +10,8 @@ from dataclasses import dataclass
 from datetime import date, datetime, timedelta
 from typing import Any, Optional, Union
 
+import numpy as np
+
 from big_mood_detector.application.validators.pipeline_validators import (
     PATValidator,
     ValidationResult,
@@ -151,11 +153,13 @@ class PatPipeline:
 
         # Run PAT model
         try:
-            result = self.pat_loader.extract_embeddings([full_sequence])
+            # Get depression prediction from PAT
+            depression_score = self.pat_loader.predict_depression_from_activity(
+                np.array(full_sequence, dtype=np.float32)
+            )
             
-            # Extract predictions
-            depression_score = result.get("depression_score", 0.0)
-            confidence = result.get("confidence", 0.0)
+            # PAT doesn't provide confidence directly, use a default
+            confidence = 0.85 if 0.2 < depression_score < 0.8 else 0.95
             
             # Clinical interpretation
             if depression_score < 0.3:
