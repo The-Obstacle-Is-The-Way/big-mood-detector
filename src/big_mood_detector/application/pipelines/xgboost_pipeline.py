@@ -149,20 +149,31 @@ class XGBoostPipeline:
         logger.info(f"Filtered records - sleep: {len(filtered_sleep)}, activity: {len(filtered_activity)}, heart: {len(filtered_heart)}")
         
         try:
-            clinical_features = self.feature_extractor.extract_clinical_features(
-                sleep_records=filtered_sleep,
-                activity_records=filtered_activity,
-                heart_records=filtered_heart,
-                target_date=target_date,
-                include_pat_sequence=False,  # XGBoost doesn't need PAT sequences
-            )
-
-            if not clinical_features or not clinical_features.seoul_features:
-                logger.error("Failed to extract Seoul features")
-                return None
-
-            # Convert to XGBoost input (36 features)
-            feature_vector = clinical_features.seoul_features.to_xgboost_features()
+            # Check if we're using the optimized Seoul extractor
+            if hasattr(self.feature_extractor, 'extract_seoul_features'):
+                # Use optimized extractor
+                seoul_features = self.feature_extractor.extract_seoul_features(
+                    sleep_records=filtered_sleep,
+                    activity_records=filtered_activity,
+                    heart_records=filtered_heart,
+                    target_date=target_date,
+                )
+                feature_vector = seoul_features.to_xgboost_features()
+            else:
+                # Fallback to clinical feature extractor
+                clinical_features = self.feature_extractor.extract_clinical_features(
+                    sleep_records=filtered_sleep,
+                    activity_records=filtered_activity,
+                    heart_records=filtered_heart,
+                    target_date=target_date,
+                    include_pat_sequence=False,
+                )
+                
+                if not clinical_features or not clinical_features.seoul_features:
+                    logger.error("Failed to extract Seoul features")
+                    return None
+                    
+                feature_vector = clinical_features.seoul_features.to_xgboost_features()
             
             # Validate feature vector
             if len(feature_vector) != 36:

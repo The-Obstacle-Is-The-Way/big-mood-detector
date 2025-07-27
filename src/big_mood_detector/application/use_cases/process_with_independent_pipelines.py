@@ -20,8 +20,8 @@ from big_mood_detector.application.validators.pipeline_validators import (
     PATValidator,
     XGBoostValidator,
 )
-from big_mood_detector.domain.services.clinical_feature_extractor import (
-    ClinicalFeatureExtractor,
+from big_mood_detector.application.services.seoul_feature_extractor import (
+    SeoulFeatureExtractor,
 )
 from big_mood_detector.infrastructure.ml_models.xgboost_models import (
     XGBoostMoodPredictor,
@@ -89,7 +89,8 @@ class ProcessWithIndependentPipelinesUseCase:
                 predictor = XGBoostMoodPredictor()
                 predictor.load_models(Path("model_weights/xgboost/converted"))
                 
-                feature_extractor = ClinicalFeatureExtractor()
+                # Use optimized Seoul feature extractor
+                feature_extractor = SeoulFeatureExtractor()
                 
                 self.xgboost_pipeline = XGBoostPipeline(
                     feature_extractor=feature_extractor,
