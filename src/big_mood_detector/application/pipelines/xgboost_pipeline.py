@@ -17,9 +17,6 @@ from big_mood_detector.application.validators.pipeline_validators import (
 from big_mood_detector.domain.entities.activity_record import ActivityRecord
 from big_mood_detector.domain.entities.heart_rate_record import HeartRateRecord
 from big_mood_detector.domain.entities.sleep_record import SleepRecord
-from big_mood_detector.domain.services.activity_aggregator import ActivityAggregator
-from big_mood_detector.domain.services.heart_rate_aggregator import HeartRateAggregator
-from big_mood_detector.domain.services.sleep_aggregator import SleepAggregator
 
 logger = logging.getLogger(__name__)
 
